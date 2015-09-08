@@ -623,4 +623,16 @@ class JbaseParserTest extends JbaseAbstractTest {
 			]
 		]
 	}
+
+	@Test
+	def void testClassObjectWithWrongTypeExpression() {
+		// we parse it as a ClassObject though it is not well-typed
+		'''
+		a.class
+		'''.assertLastExpression[
+			classObject => [
+				"a".assertEquals(typeExpression.toString)
+			]
+		]
+	}
 }

@@ -29,6 +29,7 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import jbase.jbase.XJClassObject
 
 /**
  * @author Lorenzo Bettini
@@ -54,6 +55,8 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJVariableDeclaration) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJMemberFeatureCall) {
+			_computeTypes(expression, state)
+		} else if (expression instanceof XJClassObject) {
 			_computeTypes(expression, state)
 		} else {
 			super.computeTypes(expression, state)
@@ -221,6 +224,15 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 		if (call.arrayLiteral != null) {
 			state.withExpectation(arrayTypeRef).computeTypes(call.arrayLiteral)
+		}
+		state.acceptActualType(arrayTypeRef)
+	}
+
+	def protected _computeTypes(XJClassObject e, ITypeComputationState state) {
+		val typeExpressionType = state.withNonVoidExpectation.computeTypes(e.typeExpression).actualExpressionType
+		var arrayTypeRef = typeExpressionType
+		for (i : 0..<e.arrayDimensions.size) {
+			arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
 		}
 		state.acceptActualType(arrayTypeRef)
 	}

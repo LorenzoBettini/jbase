@@ -315,6 +315,35 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test
+	def void testClassObject() {
+		'''
+		String.class;
+		'''.assertLastExpression[
+			assertActualType("java.lang.Class<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testClassObjectWithArrayDimensions() {
+		'''
+		String[].class;
+		'''.assertLastExpression[
+			assertActualType("java.lang.Class<java.lang.String>[]")
+		]
+	}
+
+	@Test
+	def void testClassObjectWithWrongTypeExpression() {
+		// this is not valid, but there will be an error for that
+		'''
+		String s;
+		s.class;
+		'''.assertLastExpression[
+			assertActualType("java.lang.String")
+		]
+	}
+
 	def private void assertActualType(CharSequence input, String expectedTypeName) throws Exception {
 		input.assertLastExpression[
 			assertActualType(expectedTypeName)
