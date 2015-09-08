@@ -229,7 +229,9 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 	}
 
 	def protected _computeTypes(XJClassObject e, ITypeComputationState state) {
-		val typeExpressionType = state.withNonVoidExpectation.computeTypes(e.typeExpression).actualExpressionType
+		val typeExpressionType = state.
+			withExpectation(getRawTypeForName(Class, state.referenceOwner)).
+				computeTypes(e.typeExpression).actualExpressionType
 		var arrayTypeRef = typeExpressionType
 		for (i : 0..<e.arrayDimensions.size) {
 			arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
