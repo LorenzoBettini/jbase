@@ -1,0 +1,346 @@
+grammar jbase.Jbase with org.eclipse.xtext.xbase.Xbase
+
+//generate jbase "http://www.Jbase.jbase"
+import "http://www.Jbase.jbase"
+
+import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
+import "http://www.eclipse.org/xtext/xbase/Xbase"
+import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
+
+/**
+ * The syntactic predicate on XBlockExpression is required to avoid
+ * ambiguity with array literal.  However, XBlockExpression must come first, to
+ * be able to parse both while(...) {} and while(...) st; for example.
+ * If we put the predicate on single statement, then it does not seem to
+ * be possible to parse incomplete member feature call.
+ */
+XJStatementOrBlock returns XExpression:
+//	XJArrayConstructorCall | not a valid statement
+	=>XBlockExpression |
+	XJSingleStatement
+;
+
+/**
+ * Customize to reflect Java imports (e.g., no 'extension' keyword and mandatory ';' but many occurrences accepted)
+ */
+XImportDeclaration returns xtype::XImportDeclaration: 
+	(=>'import' (
+		(static?='static' importedType=[types::JvmDeclaredType|QualifiedNameInStaticImport] (wildcard?='*' | memberName=ValidID)) 
+		| importedType=[types::JvmDeclaredType|QualifiedName] 
+		| importedNamespace=QualifiedNameWithWildcard) ';'*)
+;
+
+// customized with 'final' specification and varargs
+FullJvmFormalParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
+
+XJSingleStatement returns XExpression:
+	XJSemicolonStatement |
+	XSwitchExpression |
+	XIfExpression |
+	XForLoopExpression |
+	XBasicForLoopExpression |
+	XWhileExpression |
+	XTryCatchFinallyExpression
+;
+
+/*
+ * These are the Java statements that require a semicolon at the end.
+ * 
+ * The final ; should be optional in order to be able to parse incomplete
+ * expressions and give better content assist.
+ */
+XJSemicolonStatement returns XExpression:
+//	XJArrayConstructorCall | not a valid statement
+	(
+	XJBranchingStatement |
+	XExpressionOrVarDeclaration |
+	XDoWhileExpression |
+	XReturnExpression |
+	XThrowExpression
+	) ->';'?
+;
+
+XJBranchingStatement returns XExpression:
+	{XJContinueStatement} instruction="continue" |
+	{XJBreakStatement} instruction="break"
+;
+
+/* 
+ * The ';' only "eats" possible additional semicolons which is legal in Java.
+ * The required ';' is taken care of in the XJSemicolonStatement rule
+ */
+XBlockExpression returns XExpression: 
+	{XBlockExpression}
+	'{'
+		(expressions+=XJStatementOrBlock ';'*)*
+	'}';
+
+// Don't put the predicate in the rule for XExpressionOrVarDeclaration:
+// it would break partial parsing:
+// "int i =" would not be parsed as an incomplete variable declaration 
+// put the predicate in XVariableDeclaration rule directly
+//XExpressionOrVarDeclaration returns XExpression:
+//	=>XVariableDeclaration | XExpression;
+
+// Use the predicate to avoid ambiguities with XExpression
+XVariableDeclaration returns XVariableDeclaration:
+	=>({XJVariableDeclaration}
+	final?='final'?
+	type=JvmTypeReference name=ValidID) ('=' right=XExpression)?
+	(=>',' additionalVariables+=XJAdditionalXVariableDeclaration)*;
+	// the second predicate is to avoid ambiguities with for loops
+	// that already consider several variable declarations
+	// in our case we always parse them as several variable declarations
+	// since we allow them also as standard variable declarations as in Java
+
+XJAdditionalXVariableDeclaration returns XVariableDeclaration:
+	{XJAdditionalXVariableDeclaration}
+	name=ValidID ('=' right=XExpression)?;
+
+XAssignment returns XExpression :
+	=>({XJAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
+		'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
+		OpSingleAssign) value=XAssignment |	
+	=>({XAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
+		OpSingleAssign) value=XAssignment |	
+	XOrExpression (
+		=>({XJConditionalExpression.if=current} '?') then=XExpression ':' else=XExpression
+		|
+		=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpMultiAssign]) rightOperand=XAssignment
+	)?;
+
+XFeatureCall returns XExpression:
+	{XFeatureCall}
+	feature=[types::JvmIdentifiableElement|IdOrSuper] 
+	(=>explicitOperationCall?='(' 
+		(
+		    featureCallArguments+=XExpression (',' featureCallArguments+=XExpression)*
+		)? 
+	')' 
+	)?;
+
+XConstructorCall returns XExpression:
+	{XConstructorCall}
+	'new' constructor=[types::JvmConstructor|QualifiedName] 
+	(=>'<' typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)* '>')?
+	(=>explicitConstructorCall?='(' 
+		(
+		    arguments+=XExpression (',' arguments+=XExpression)*
+		)? 
+	')')?;
+
+// dimensions and dimension expressions (feature indexes) are not associated during parsing,
+// the association, i.e., knowing whether a dimension expression comes after
+// an empty dimension (which is not legal), will be retrieved by
+// JbaseModelUtil.arrayDimensionIndexAssociations(XJArrayConstructorCall)
+// based on the offset of the [ and the array dimension XEpression
+XJArrayConstructorCall returns XExpression:
+	=>({XJArrayConstructorCall}
+	'new'
+	type=[types::JvmType|QualifiedName] dimensions+=XJArrayDimension) 
+	// getting here is enough to tell it's an array constructor call
+	(indexes+=XExpression)? ']'
+	(=>dimensions+=XJArrayDimension (indexes+=XExpression)? ']')*
+	(=>arrayLiteral=XJArrayLiteral)?
+;
+
+// We need an EObject instead of a simple String since we then
+// need to find the corresponding node (and offset) with NodeModelUtils
+// in order to associate dimensions with indexes
+XJArrayDimension:
+	{XJArrayDimension} openBracket='['
+;
+
+XCastedExpression returns XExpression:
+	=>({XCastedExpression} '(' type=JvmTypeReference ')' target=XExpression)
+	|
+	XPostfixOperation
+;
+
+
+XPostfixOperation returns XExpression:
+	=>({XJPrefixOperation} feature=[types::JvmIdentifiableElement|OpPostfix]) operand=XMemberFeatureCall
+	|
+	XMemberFeatureCall
+	(
+		=>({XPostfixOperation.operand=current} feature=[types::JvmIdentifiableElement|OpPostfix])
+		|
+		=>({XJArrayAccessExpression.array=current} '[' indexes+=XExpression ']'(=>'[' indexes+=XExpression ']')*)
+	)?
+;
+
+XMemberFeatureCall returns XExpression:
+	XPrimaryExpression
+	(
+// we don't need this at the moment
+//		=>({XJAssignment.assignable=current} ('.'|explicitStatic?="::") 
+//			feature=[types::JvmIdentifiableElement|FeatureCallID]
+//			'[' index=XExpression ']'
+//			OpSingleAssign) value=XAssignment
+//	|
+		=>({XAssignment.assignable=current} '.'
+			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
+				value=XAssignment
+	|
+		// Note that the custom implementation XJMemberFeatureCallImplCustom
+		// will rearrange the containment when the assignment
+		// memberCallTarget=current
+		// is performed
+		// 1. a XJArrayAccessExpression will be created
+		// 2. perform the assignment XJArrayAccessExpression.array = current
+		// 3. indexes are delegated to XJArrayAccessExpression.indexes
+		// thus instead of 
+		// XJMemberFeatureCall {
+		// 		memberCallTarget=current,
+		// 		indexes=expressions
+		// }
+		// the actual model object will be
+		// XJMemberFeatureCall {
+		//		memberCallTarget=XJArrayAccessExpression {
+		// 			array=current,
+		// 			indexes=expressions
+		//		}
+		// }
+		=>({XJMemberFeatureCall.memberCallTarget=current}
+			'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
+			".") 
+			feature=[types::JvmIdentifiableElement|IdOrSuper] (
+				=>explicitOperationCall?='(' 
+					(
+					    memberCallArguments+=XExpression (',' memberCallArguments+=XExpression)*
+					)? 
+				')')?
+	|
+		=>({XMemberFeatureCall.memberCallTarget=current} ".") 
+			feature=[types::JvmIdentifiableElement|IdOrSuper] (
+				=>explicitOperationCall?='(' 
+					(
+					    memberCallArguments+=XExpression (',' memberCallArguments+=XExpression)*
+					)? 
+				')')?
+	)*;
+
+// in Java the type must be specified so we must use FullJvmFormalParameter instead of JvmFormalParameter
+XForLoopExpression returns XExpression:
+	=>({XForLoopExpression}
+	'for' '(' declaredParam=FullJvmFormalParameter ':') forExpression=XExpression ')'
+		eachExpression=XJStatementOrBlock;
+
+XBasicForLoopExpression returns XExpression:
+	{XBasicForLoopExpression}
+	'for' '('(initExpressions+=XExpressionOrVarDeclaration (',' initExpressions+=XExpressionOrVarDeclaration)*)? ';' 
+		expression=XExpression? ';' 
+		(updateExpressions+=XExpression (',' updateExpressions+=XExpression)*)? ')'
+		eachExpression=XJStatementOrBlock;
+
+XIfExpression returns XExpression:
+	{XIfExpression}
+	'if' '(' if=XExpression ')'
+	then=XJStatementOrBlock
+	(=>'else' else=XJStatementOrBlock)?;
+
+XWhileExpression returns XExpression:
+	{XWhileExpression}
+	'while' '(' predicate=XExpression ')'
+		body=XJStatementOrBlock;
+
+XDoWhileExpression returns XExpression:
+	{XDoWhileExpression}
+   'do'
+       body=XJStatementOrBlock
+   'while' '(' predicate=XExpression ')';
+
+XSwitchExpression returns XExpression:
+	{XSwitchExpression}
+	'switch' '(' switch=XExpression ')' '{'
+	(cases+=XCasePart)*
+	('default' ':' default=XJSwitchStatements )?
+	'}';
+
+XCasePart:
+	{XCasePart}
+	'case' case=XExpression
+		':' then=XJSwitchStatements;
+
+/**
+ * Java switch's case expression does not require an explicit block { }
+ */
+XJSwitchStatements returns XExpression:
+	{XJSwitchStatements}
+	(expressions+=XJStatementOrBlock ';'*)*
+;
+
+/**
+ * Java needs blocks for try, catch, finally
+ */
+XTryCatchFinallyExpression returns XExpression:
+	{XTryCatchFinallyExpression}
+	'try' 
+		expression=XBlockExpression
+	(
+		catchClauses+=XCatchClause+
+		(=>'finally' finallyExpression=XBlockExpression)?
+	|	'finally' finallyExpression=XBlockExpression
+	);
+
+// the explicit {XCatchClause} is required to make formatting work
+XCatchClause :
+	{XCatchClause} =>'catch' '(' declaredParam=FullJvmFormalParameter ')' expression=XBlockExpression;
+
+
+XPrimaryExpression returns XExpression:
+	XJArrayConstructorCall |
+	XConstructorCall |
+//	XBlockExpression |
+//	XSwitchExpression |
+//	XSynchronizedExpression |
+	XFeatureCall |
+	XLiteral |
+//	XIfExpression |
+//	XForLoopExpression |
+//	XBasicForLoopExpression |
+//	XWhileExpression |
+//	XDoWhileExpression |
+//	XThrowExpression |
+//	XReturnExpression |
+//	XTryCatchFinallyExpression |
+	XParenthesizedExpression;
+
+XLiteral returns XExpression:
+//	XCollectionLiteral |
+//	XClosure |
+	XBooleanLiteral |
+	XNumberLiteral |
+	XNullLiteral |
+	XCharLiteral |
+	XStringLiteral |
+	XJArrayLiteral
+//	XTypeLiteral
+;
+
+// it is a subclass of XListLiteral, so that we will reuse
+// type computation and compiler from Xbase
+XJArrayLiteral returns XJArrayLiteral:
+	{XJArrayLiteral} '{' (elements+=XExpression (',' elements+=XExpression )*)? '}'
+;
+
+/*
+ * We want to tell between string and char literals since we'll treat them
+ * differently from the type computation point of view.
+ */
+
+XCharLiteral returns XExpression:
+	{XJCharLiteral} value=CHARACTER;
+
+XStringLiteral returns XExpression:
+	{XStringLiteral} value=STRING;
+
+terminal STRING: 
+			'"' ( '\\' . /* ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') */ | !('\\'|'"') )* '"'?;
+
+terminal CHARACTER: 
+			"'" ( '\\' . /* ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') */ | !('\\'|"'") )* "'"?;
+
+OpEquality:
+	'==' | '!=' ;

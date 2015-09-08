@@ -1,0 +1,14 @@
+grammar jbase.example.purejbase.PureJbase with jbase.Jbase
+
+generate pureJbase "http://www.example.jbase/purejbase/PureJbase"
+import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
+
+Model:
+	importSection=XImportSection? block=SpecialBlockExpression;
+	
+SpecialBlockExpression returns xbase::XBlockExpression:
+	{xbase::XBlockExpression}
+	(expressions+=XJStatementOrBlock ';'*)*;
+
+FeatureCallID:
+	ValidID;

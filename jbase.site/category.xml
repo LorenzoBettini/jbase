@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="jbase.sdk" version="0.0.0">
+      <category name="main"/>
+   </feature>
+   <feature id="jbase.sdk.source" version="0.0.0">
+      <category name="main.source"/>
+   </feature>
+   <category-def name="main" label="Jbase 1.0.x">
+      <description>
+         Jbase
+      </description>
+   </category-def>
+   <category-def name="main.source" label="Jbase 1.0.x (Sources)">
+      <description>
+         Jbase
+      </description>
+   </category-def>
+</site>

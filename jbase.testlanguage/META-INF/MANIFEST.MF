@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jbase.testlanguage
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: jbase.testlanguage; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext;visibility:=reexport,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ jbase;visibility:=reexport,
+ org.eclipse.xtext.util,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.common,
+ org.eclipse.xtext.xbase.lib,
+ org.antlr.runtime,
+ org.eclipse.xtext.common.types,
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
+ org.eclipse.xtext.xbase,
+ org.eclipse.emf.mwe2.launch;resolution:=optional,
+ jbase.mwe2;resolution:=optional
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: jbase.testlanguage,
+ jbase.testlanguage.jvmmodel,
+ jbase.testlanguage.parser.antlr,
+ jbase.testlanguage.parser.antlr.internal,
+ jbase.testlanguage.serializer,
+ jbase.testlanguage.services,
+ jbase.testlanguage.validation,
+ jbase.testlanguage.jbaseTestlanguage,
+ jbase.testlanguage.jbaseTestlanguage.impl,
+ jbase.testlanguage.jbaseTestlanguage.util

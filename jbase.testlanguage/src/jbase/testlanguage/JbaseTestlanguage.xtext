@@ -1,0 +1,40 @@
+grammar jbase.testlanguage.JbaseTestlanguage with jbase.Jbase
+
+generate jbaseTestlanguage "http://www.testlanguage.jbase/JbaseTestlanguage"
+import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
+
+/**
+ * This is only a test language for Jbase used in jbase.tests for testing things
+ * like imports, methods, fields, etc.
+ */
+
+JbaseTestLanguageModel:
+	importSection=XImportSection?
+	properties+=Property* // correspond to Java fields
+	methods+=OpMethod* // correspond to Java methods
+	operations+=Operation* // correspond to Java static methods
+	block=SpecialBlockExpression;
+	
+SpecialBlockExpression returns xbase::XBlockExpression:
+	{xbase::XBlockExpression}
+	(expressions+=XJStatementOrBlock ';'*)*;
+
+Property:
+	name=ValidID ':' type=JvmTypeReference;
+
+OpMethod:
+	'method' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'
+						(':' type=JvmTypeReference)? 
+		body=XBlockExpression;
+
+Operation:
+	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'
+						(':' type=JvmTypeReference)? 
+		body=XBlockExpression;
+
+AbstractOperation:
+	OpMethod | Operation
+;
+
+FeatureCallID:
+	ValidID;

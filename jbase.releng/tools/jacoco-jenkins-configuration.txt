@@ -1,0 +1,8 @@
+Path to classes:
+jbase/**/classes,jbase.ui/**/classes
+
+Path to source files:
+jbase/src,jbase.ui/src,jbase/xtend-gen,jbase.ui/xtend-gen
+
+Exclusions:
+**/*ExtensionFactory*,**/*UiModule*,**/*RuntimeModule*,**/*StandaloneSetup*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*
