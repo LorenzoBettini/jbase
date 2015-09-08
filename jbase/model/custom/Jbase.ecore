@@ -46,4 +46,10 @@
   <eClassifiers xsi:type="ecore:EClass" name="XJPrefixOperation" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XPostfixOperation"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJConditionalExpression" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XIfExpression"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJSwitchStatements" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XBlockExpression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJClassObject" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typeExpression" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
 </ecore:EPackage>

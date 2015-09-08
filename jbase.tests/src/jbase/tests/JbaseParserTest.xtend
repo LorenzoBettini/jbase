@@ -29,6 +29,7 @@ import static extension org.junit.Assert.*
 import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
 import org.eclipse.xtext.xbase.XSynchronizedExpression
+import jbase.jbase.XJClassObject
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -599,6 +600,27 @@ class JbaseParserTest extends JbaseAbstractTest {
 		synchronized (
 		'''.assertLastExpression[
 			assertTrue("class: " + it.class, it instanceof XSynchronizedExpression)
+		]
+	}
+
+	@Test
+	def void testClassObject() {
+		'''
+		String.class
+		'''.assertLastExpression[
+			assertTrue("class: " + it.class, it instanceof XJClassObject)
+		]
+	}
+
+	@Test
+	def void testClassObjectWithArrayDimensions() {
+		'''
+		String[].class
+		'''.assertLastExpression[
+			classObject => [
+				"String".assertEquals(typeExpression.toString)
+				1.assertEquals(arrayDimensions.size)
+			]
 		]
 	}
 }

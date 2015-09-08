@@ -180,6 +180,8 @@ XMemberFeatureCall returns XExpression:
 //			'[' index=XExpression ']'
 //			OpSingleAssign) value=XAssignment
 //	|
+		=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
+	|
 		=>({XAssignment.assignable=current} '.'
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
 				value=XAssignment

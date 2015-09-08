@@ -20,6 +20,7 @@ import jbase.jbase.XJVariableDeclaration
 
 import static org.junit.Assert.*
 import org.eclipse.xtext.xbase.XThrowExpression
+import jbase.jbase.XJClassObject
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -113,5 +114,9 @@ abstract class JbaseAbstractTest {
 
 	protected def getThrowExpression(XExpression it) {
 		it as XThrowExpression
+	}
+
+	protected def getClassObject(XExpression it) {
+		it as XJClassObject
 	}
 }
