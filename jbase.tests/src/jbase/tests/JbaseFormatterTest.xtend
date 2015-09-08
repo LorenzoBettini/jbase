@@ -766,4 +766,22 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 			'''
 		]
 	}
+
+	@Test def void testSynchronized() {
+		assertFormatted[
+			// formatting in the presence of catch does not seem to work
+			expectation = '''
+				Object o;
+				synchronized (o) {
+					o.wait();
+				}
+			'''
+			toBeFormatted = '''
+				Object o;
+				synchronized  ( o )  {
+					 o.wait();
+				}
+			'''
+		]
+	}
 }

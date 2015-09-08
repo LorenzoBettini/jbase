@@ -28,6 +28,7 @@ import jbase.jbase.XJVariableDeclaration
 import static extension org.junit.Assert.*
 import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
+import org.eclipse.xtext.xbase.XSynchronizedExpression
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -589,6 +590,15 @@ class JbaseParserTest extends JbaseAbstractTest {
 		try
 		'''.assertLastExpression[
 			assertTrue("class: " + it.class, it instanceof XTryCatchFinallyExpression)
+		]
+	}
+
+	@Test
+	def void testSynchronizedIncomplete() {
+		'''
+		synchronized (
+		'''.assertLastExpression[
+			assertTrue("class: " + it.class, it instanceof XSynchronizedExpression)
 		]
 	}
 }

@@ -41,7 +41,8 @@ XJSingleStatement returns XExpression:
 	XForLoopExpression |
 	XBasicForLoopExpression |
 	XWhileExpression |
-	XTryCatchFinallyExpression
+	XTryCatchFinallyExpression |
+	XSynchronizedExpression
 ;
 
 /*
@@ -288,6 +289,12 @@ XTryCatchFinallyExpression returns XExpression:
 XCatchClause :
 	{XCatchClause} =>'catch' '(' declaredParam=FullJvmFormalParameter ')' expression=XBlockExpression;
 
+/**
+ * Java needs block for synchronized
+ */
+XSynchronizedExpression returns XExpression:
+	=>({XSynchronizedExpression}
+	'synchronized' '(') param=XExpression ')' expression=XBlockExpression;
 
 XPrimaryExpression returns XExpression:
 	XJArrayConstructorCall |

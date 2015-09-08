@@ -2365,6 +2365,29 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testSynchronized() {
+		'''
+		Object o;
+		synchronized (o) {
+			o.wait();
+		}
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    Object o = null;
+    synchronized (o) {
+      o.wait();
+    }
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testBubbleSort() {
 		bubbleSort.checkCompilation(
 '''
