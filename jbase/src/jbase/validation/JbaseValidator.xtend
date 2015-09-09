@@ -36,6 +36,7 @@ import org.eclipse.xtext.xbase.XbasePackage
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
+import org.eclipse.xtext.xbase.XConstructorCall
 
 /**
  * @author Lorenzo Bettini
@@ -159,6 +160,16 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Check
 	def checkMissingParentheses(XMemberFeatureCall call) {
 		checkMissingParenthesesInternal(call, call.isExplicitOperationCall)
+	}
+
+	@Check
+	def checkMissingParentheses(XConstructorCall call) {
+		if (!call.explicitConstructorCall) {
+			error(
+				'Syntax error, insert "()" to complete Expression',
+				call, xbasePackage.XConstructorCall_Constructor, MISSING_PARENTHESES
+			)
+		}
 	}
 
 	@Check

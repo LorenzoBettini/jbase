@@ -474,6 +474,15 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parseAndAssertNoErrors
 	}
 
+	@Test def void testMissingParenthesesForConstructor() {
+		'''
+		new String;
+		'''.parse.assertMissingParentheses(
+			XbasePackage.eINSTANCE.XConstructorCall,
+			"Expression"
+		)
+	}
+
 	@Test def void testInvalidXbaseOperator() {
 		'''
 		int i;
@@ -1025,10 +1034,14 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	def private assertMissingParentheses(EObject o, EClass c) {
+		o.assertMissingParentheses(c, "method call")
+	}
+
+	def private assertMissingParentheses(EObject o, EClass c, String messageFinalPart) {
 		o.assertError(
 			c,
 			JbaseIssueCodes.MISSING_PARENTHESES,
-			'Syntax error, insert "()" to complete method call'
+			'Syntax error, insert "()" to complete ' + messageFinalPart
 		)
 	}
 
