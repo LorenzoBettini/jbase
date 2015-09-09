@@ -16,6 +16,7 @@ class JbaseIssueCodes {
 	public static val ARRAY_CONSTRUCTOR_DIMENSION_EXPRESSION_AFTER_EMPTY_DIMENSION = PREFIX +
 		"ArrayConstructorDimensionExpressionAfterEmptyExpression"
 	public static val INVALID_USE_OF_VAR_ARGS = PREFIX + "InvalidUseOfVarArgs"
+	public static val INVALID_CLASS_OBJECT_EXPRESSION = PREFIX + "InvalidClassObjectExpression"
 
 	protected new() {
 		

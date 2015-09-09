@@ -2,12 +2,14 @@ package jbase.typesystem
 
 import com.google.inject.Inject
 import jbase.controlflow.JbaseBranchingStatementDetector
+import jbase.jbase.JbasePackage
 import jbase.jbase.XJArrayAccess
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJCharLiteral
+import jbase.jbase.XJClassObject
 import jbase.jbase.XJMemberFeatureCall
 import jbase.jbase.XJVariableDeclaration
 import jbase.validation.JbaseIssueCodes
@@ -17,6 +19,7 @@ import org.eclipse.xtext.common.types.util.Primitives
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl
 import org.eclipse.xtext.xbase.XExpression
+import org.eclipse.xtext.xbase.XFeatureCall
 import org.eclipse.xtext.xbase.XInstanceOfExpression
 import org.eclipse.xtext.xbase.XStringLiteral
 import org.eclipse.xtext.xbase.XSwitchExpression
@@ -29,7 +32,6 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
-import jbase.jbase.XJClassObject
 
 /**
  * @author Lorenzo Bettini
@@ -229,12 +231,24 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 	}
 
 	def protected _computeTypes(XJClassObject e, ITypeComputationState state) {
+		val typeExpression = e.typeExpression
 		val typeExpressionType = state.
 			withExpectation(getRawTypeForName(Class, state.referenceOwner)).
-				computeTypes(e.typeExpression).actualExpressionType
+				computeTypes(typeExpression).actualExpressionType
 		var arrayTypeRef = typeExpressionType
 		for (i : 0..<e.arrayDimensions.size) {
 			arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
+		}
+		if (!(typeExpression instanceof XFeatureCall)) {
+			val diagnostic = new EObjectDiagnosticImpl(
+				Severity.ERROR,
+				JbaseIssueCodes.INVALID_CLASS_OBJECT_EXPRESSION, 
+				"Expected type before .class",
+				e,
+				JbasePackage.Literals.XJ_CLASS_OBJECT__TYPE_EXPRESSION,
+				-1,
+				null);
+			state.addDiagnostic(diagnostic);
 		}
 		state.acceptActualType(arrayTypeRef)
 	}
