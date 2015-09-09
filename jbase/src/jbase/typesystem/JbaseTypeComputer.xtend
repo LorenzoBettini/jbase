@@ -235,9 +235,22 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		val typeExpressionType = state.
 			withExpectation(getRawTypeForName(Class, state.referenceOwner)).
 				computeTypes(typeExpression).actualExpressionType
-		var arrayTypeRef = typeExpressionType
-		for (i : 0..<e.arrayDimensions.size) {
-			arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
+		// given Class<T>...
+		val typeArgument = typeExpressionType.typeArguments.head
+		if (typeArgument != null) {
+			// ...we possibly create as result Class<T[]...>
+			var arrayTypeRef = typeArgument
+			for (i : 0..<e.arrayDimensions.size) {
+				arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
+			}
+			val resultType = getReferenceOwner(state).newParameterizedTypeReference(typeExpressionType.type)
+			resultType.addTypeArgument(arrayTypeRef)
+			state.acceptActualType(resultType)
+		} else {
+			// in this case the typeExpressionType is not of the shape
+			// Class<T> and an error has already been stored in the state
+			// here we gracefully set the typeExpressionType as a result
+			state.acceptActualType(typeExpressionType)
 		}
 		if (!(typeExpression instanceof XFeatureCall)) {
 			val diagnostic = new EObjectDiagnosticImpl(
@@ -250,7 +263,6 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 				null);
 			state.addDiagnostic(diagnostic);
 		}
-		state.acceptActualType(arrayTypeRef)
 	}
 	
 	private def getReferenceOwner(ITypeComputationState state) {

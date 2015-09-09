@@ -28,6 +28,7 @@ import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
@@ -127,7 +128,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	}
 
 	private void compileClassObject(XJClassObject e, ITreeAppendable b) {
-		internalToJavaExpression(e.getTypeExpression(), b);
+		b.append(e.getTypeExpression().toString()).
+			append(Joiner.on("").join(e.getArrayDimensions())).append(".class");
 	}
 
 	private void compileBranchingStatement(XJBranchingStatement st,

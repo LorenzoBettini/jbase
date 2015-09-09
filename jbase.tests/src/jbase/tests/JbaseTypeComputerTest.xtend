@@ -329,7 +329,7 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		'''
 		String[].class;
 		'''.assertLastExpression[
-			assertActualType("java.lang.Class<java.lang.String>[]")
+			assertActualType("java.lang.Class<java.lang.String[]>")
 		]
 	}
 
@@ -339,6 +339,16 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		'''
 		String s;
 		s.class;
+		'''.assertLastExpression[
+			assertActualType("java.lang.String")
+		]
+	}
+
+	@Test
+	def void testClassObjectWithWrongTypeExpression2() {
+		// this is not valid, but there will be an error for that
+		'''
+		new String().class;
 		'''.assertLastExpression[
 			assertActualType("java.lang.String")
 		]

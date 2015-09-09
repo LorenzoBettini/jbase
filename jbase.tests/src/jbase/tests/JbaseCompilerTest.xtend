@@ -2393,7 +2393,9 @@ public class MyFile {
 		System.out.println(String.class);
 		Class<String> c = String.class;
 		String name = String.class.getName();
-		
+		System.out.println(String[].class);
+		Class<String[]> c1 = String[].class;
+		String name1 = String[].class.getName();
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2404,6 +2406,9 @@ public class MyFile {
     System.out.println(String.class);
     Class<String> c = String.class;
     String name = String.class.getName();
+    System.out.println(String[].class);
+    Class<String[]> c1 = String[].class;
+    String name1 = String[].class.getName();
   }
 }
 '''
