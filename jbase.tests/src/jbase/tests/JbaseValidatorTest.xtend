@@ -923,6 +923,45 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		input.parse.assertNoErrors
 	}
 
+	@Test def void testClassObjectAsArgument() {
+		val input = '''
+		op m(Class c) {}
+		m(String.class);
+		'''
+		input.parse.assertNoErrors
+	}
+
+	@Test def void testWrongTypeAsTypeLiteralInVariableDeclaration() {
+		val input = '''
+		Class c1 = String; // in Xbase this is valid, but not in Java
+		'''
+		input.parse.assertMissingClassInClassObject()
+	}
+
+	@Test def void testWrongTypeAsTypeLiteralInFeatureCall() {
+		val input = '''
+		op m(Class c) {}
+		m(String); // in Xbase this is valid, but not in Java
+		'''
+		input.parse.assertMissingClassInClassObject()
+	}
+
+	@Test def void testWrongTypeAsTypeLiteralInMemberCall() {
+		val input = '''
+		System.out.println(String); // in Xbase this is valid, but not in Java
+		'''
+		input.parse.assertMissingClassInClassObject()
+	}
+
+	@Test def void testWrongTypeAsTypeLiteralInMemberCall2() {
+		val input = '''
+		method m(Class c) : void {
+			this.m(String); // in Xbase this is valid, but not in Java
+		}
+		'''
+		input.parse.assertMissingClassInClassObject()
+	}
+
 	def private assertNumberLiteralTypeMismatch(EObject o, String expectedType, String actualType) {
 		o.assertTypeMismatch(XbasePackage.eINSTANCE.XNumberLiteral, expectedType, actualType)
 	}
@@ -990,6 +1029,14 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			c,
 			JbaseIssueCodes.MISSING_PARENTHESES,
 			'Syntax error, insert "()" to complete method call'
+		)
+	}
+
+	def private assertMissingClassInClassObject(EObject o) {
+		o.assertError(
+			XbasePackage.Literals.XFEATURE_CALL,
+			JbaseIssueCodes.INCOMPLETE_CLASS_OBJECT,
+			'Syntax error, insert ".class" to complete Expression'
 		)
 	}
 

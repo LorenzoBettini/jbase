@@ -354,6 +354,18 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test
+	def void testTypeAsTypeLiteral() {
+		// this is valid in Xbase
+		// we'll have an error for that
+		'''
+		Class c = String;
+		'''.assertLastExpression[
+			variableDeclaration.right.
+			assertActualType("java.lang.Class<java.lang.String>")
+		]
+	}
+
 	def private void assertActualType(CharSequence input, String expectedTypeName) throws Exception {
 		input.assertLastExpression[
 			assertActualType(expectedTypeName)

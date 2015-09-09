@@ -32,6 +32,8 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import org.eclipse.xtext.xbase.XAbstractFeatureCall
+import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate
 
 /**
  * @author Lorenzo Bettini
@@ -63,6 +65,31 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else {
 			super.computeTypes(expression, state)
 		}
+	}
+
+	override protected void _computeTypes(XAbstractFeatureCall featureCall, ITypeComputationState state) {
+		val candidates = state.getLinkingCandidates(featureCall);
+		val best = getBestCandidate(candidates) as IFeatureLinkingCandidate;
+		if (best.isTypeLiteral()) {
+			// in Xbase when a type name can be used as a type literal
+			// in Java type literals, a.k.a. class object, must have .class
+			val containingFeature = featureCall.eContainingFeature
+			if (containingFeature.equals(XbasePackage.Literals.XVARIABLE_DECLARATION__RIGHT) ||
+				containingFeature.equals(XbasePackage.Literals.XFEATURE_CALL__FEATURE_CALL_ARGUMENTS) ||
+				containingFeature.equals(XbasePackage.Literals.XMEMBER_FEATURE_CALL__MEMBER_CALL_ARGUMENTS)
+			) {
+				val diagnostic = new EObjectDiagnosticImpl(
+					Severity.ERROR,
+					JbaseIssueCodes.INCOMPLETE_CLASS_OBJECT, 
+					'Syntax error, insert ".class" to complete Expression',
+					featureCall,
+					null,
+					-1,
+					null);
+				state.addDiagnostic(diagnostic);
+			}
+		}
+		best.applyToComputationState();
 	}
 
 	/**
