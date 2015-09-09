@@ -891,6 +891,27 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		input.parse.assertNoErrors
 	}
 
+	@Test def void testClassObjectGetName() {
+		val input = '''
+		System.out.println(String.class.getName());
+		'''
+		input.parse.assertNoErrors
+	}
+
+	@Test def void testClassObjectPrimitiveType() {
+		val input = '''
+		System.out.println(int.class.getName());
+		'''
+		input.parse.assertNoErrors
+	}
+
+	@Test def void testClassObjectPrimitiveType2() {
+		val input = '''
+		Class<Integer> c1 = int.class;
+		'''
+		input.parse.assertNoErrors
+	}
+
 	def private assertNumberLiteralTypeMismatch(EObject o, String expectedType, String actualType) {
 		o.assertTypeMismatch(XbasePackage.eINSTANCE.XNumberLiteral, expectedType, actualType)
 	}
