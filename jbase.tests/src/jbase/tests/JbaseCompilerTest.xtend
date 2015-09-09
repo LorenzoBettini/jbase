@@ -2396,6 +2396,9 @@ public class MyFile {
 		System.out.println(String[].class);
 		Class<String[]> c1 = String[].class;
 		String name1 = String[].class.getName();
+		// raw types for variables
+		Class c3 = String[].class;
+		Class<?> c4 = String[].class;
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2409,6 +2412,8 @@ public class MyFile {
     System.out.println(String[].class);
     Class<String[]> c1 = String[].class;
     String name1 = String[].class.getName();
+    Class c3 = String[].class;
+    Class<?> c4 = String[].class;
   }
 }
 '''

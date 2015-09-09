@@ -884,6 +884,17 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testClassObjectWrongParameterizedTypeExpression() {
+		val input = '''
+		Class c1 = Class<String>.class;
+		'''
+		input.parse.assertError(
+			XbasePackage.eINSTANCE.XBinaryOperation,
+			Diagnostic.SYNTAX_DIAGNOSTIC,
+			"no viable alternative at input '.'"
+		)
+	}
+
 	@Test def void testClassObject() {
 		val input = '''
 		System.out.println(String.class);
