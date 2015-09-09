@@ -2388,6 +2388,28 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testClassObject() {
+		'''
+		System.out.println(String.class);
+		Class<String> c = String.class;
+		String name = String.class.getName();
+		
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    System.out.println(String.class);
+    Class<String> c = String.class;
+    String name = String.class.getName();
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testBubbleSort() {
 		bubbleSort.checkCompilation(
 '''

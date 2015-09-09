@@ -38,6 +38,7 @@ import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCharLiteral;
+import jbase.jbase.XJClassObject;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
@@ -69,6 +70,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 			_toJavaStatement((XJContinueStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJBreakStatement) {
 			_toJavaStatement((XJBreakStatement) obj, appendable, isReferenced);
+		} else if (obj instanceof XJClassObject) {
+			_toJavaStatement((XJClassObject) obj, appendable, isReferenced);
 		} else {
 			super.doInternalToJavaStatement(obj, appendable, isReferenced);
 		}
@@ -118,6 +121,15 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 		compileBranchingStatement(st, b);
 	}
 
+	public void _toJavaStatement(XJClassObject e, ITreeAppendable b,
+			boolean isReferenced) {
+		// compile it only as expression
+	}
+
+	private void compileClassObject(XJClassObject e, ITreeAppendable b) {
+		internalToJavaExpression(e.getTypeExpression(), b);
+	}
+
 	private void compileBranchingStatement(XJBranchingStatement st,
 			ITreeAppendable b) {
 		b.newLine().append(st.getInstruction()).append(";");
@@ -131,6 +143,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 			_toJavaExpression((XJArrayAccessExpression) obj, appendable);
 		} else if (obj instanceof XJCharLiteral) {
 			_toJavaExpression((XJCharLiteral) obj, appendable);
+		} else if (obj instanceof XJClassObject) {
+			_toJavaExpression((XJClassObject) obj, appendable);
 		} else {
 			super.internalToConvertedExpression(obj, appendable);
 		}
@@ -150,6 +164,10 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	public void _toJavaExpression(XJArrayAccessExpression arrayAccess, ITreeAppendable b) {
 		internalToConvertedExpression(arrayAccess.getArray(), b);
 		compileArrayAccess(arrayAccess, b);
+	}
+
+	public void _toJavaExpression(XJClassObject e, ITreeAppendable b) {
+		compileClassObject(e, b);;
 	}
 
 	/**
