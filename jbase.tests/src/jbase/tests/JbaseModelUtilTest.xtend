@@ -1,6 +1,11 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.JbaseInjectorProvider
+import jbase.jbase.JbaseFactory
+import jbase.jbase.XJArrayConstructorCall
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
+import jbase.util.JbaseModelUtil
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.common.types.JvmFormalParameter
 import org.eclipse.xtext.common.types.TypesFactory
@@ -10,12 +15,6 @@ import org.eclipse.xtext.xbase.XNumberLiteral
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
-import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
-import jbase.util.JbaseModelUtil
-import jbase.jbase.XJArrayConstructorCall
-import jbase.jbase.XJJvmFormalParameter
-import jbase.jbase.JbaseFactory
 
 import static extension org.junit.Assert.*
 
@@ -92,7 +91,7 @@ class JbaseModelUtilTest extends JbaseAbstractTest {
 		m("f");
 		'''.parse
 		
-		val sourceParam = (m as JbaseTestLanguageModel).operations.head.params.head as XJJvmFormalParameter
+		val sourceParam = (m as JbaseTestLanguageModel).operations.head.params.head
 		val p = sourceParam.jvmElements.head as JvmFormalParameter
 		
 		assertNotSame(sourceParam, p)
