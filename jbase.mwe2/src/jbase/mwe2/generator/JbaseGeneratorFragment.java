@@ -3,8 +3,12 @@
  */
 package jbase.mwe2.generator;
 
+import java.util.ArrayList;
+
 import org.eclipse.xtext.Grammar;
 import org.eclipse.xtext.generator.xbase.XbaseGeneratorFragment;
+
+import com.google.common.collect.Lists;
 
 /**
  * A customization of {@link XbaseGeneratorFragment} where we override the
@@ -39,5 +43,13 @@ public class JbaseGeneratorFragment extends XbaseGeneratorFragment {
 	@Override
 	public String getDefaultUiModuleClassName(Grammar grammar) {
 		return "jbase.ui.JbaseUiModule";
+	}
+
+	@Override
+	public String[] getRequiredBundlesUi(Grammar grammar) {
+		ArrayList<String> parentRequiredBundles = Lists.newArrayList(super.getRequiredBundlesUi(grammar));
+		parentRequiredBundles.add("jbase.ui");
+		String[] result = new String[parentRequiredBundles.size()];
+		return parentRequiredBundles.toArray(result);
 	}
 }

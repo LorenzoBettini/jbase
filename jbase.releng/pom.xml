@@ -19,6 +19,7 @@
 		<module>../jbase.example.purejbase</module>
 		<module>../jbase.example.purejbase.ui</module>
 		<module>../jbase.example.purejbase.tests</module>
+		<module>../jbase.doc</module>
 		<module>../jbase.sdk</module>
 		<module>../jbase.site</module>
 	</modules>

@@ -1,0 +1,142 @@
+document[Jbase User's Guide]
+
+authors[""]
+
+codelanguage-def[Java]
+[
+	abstract,continue,for,new,switch,
+	assert,default,package,synchronized,
+	boolean,do,if,private,this,
+	break,double,implements,protected,throw,
+	byte,else,import,public,throws,
+	case,enum,instanceof,return,transient,
+	catch,extends,int,short,try,
+	char,final,interface,static,void,
+	class,finally,long,strictfp,volatile,
+	float,native,super,while
+]
+
+codelanguage-def[Xtext][
+	grammar,
+	import,
+	generate,
+	terminal,
+	enum,
+	returns,
+	with,
+	hidden,
+	as,
+	current,
+	fragment,
+	EOF
+]
+
+codelanguage-def[Xbase][
+	extends,
+	super,
+	instanceof,
+	as,
+	new,
+	null,
+	false,
+	true,
+	val,
+	var,
+	if,
+	else,
+	switch,
+	case,
+	default,
+	do,
+	while,
+	for,
+	typeof,
+	throw,
+	try,
+	catch,
+	finally,
+	this, 
+	it,
+	int, 
+	boolean, 
+	short, 
+	char, 
+	double, 
+	float, 
+	long, 
+	byte, 
+	void,
+	return
+]
+
+codelanguage-def[MWE2][module, var, auto-inject, auto, inject, import, true, false]
+
+codelanguage-def[Xtend][
+	import, extension, this, create, cached, this, true, false, let, switch,
+	case, if, then, else, public, protected, private,
+	extends,
+	super,
+	instanceof,
+	as,
+	new,
+	null,
+	false,
+	true,
+	val,
+	var,
+	if,
+	else,
+	switch,
+	case,
+	default,
+	do,
+	while,
+	for,
+	typeof,
+	throw,
+	try,
+	catch,
+	finally,
+	this, 
+	it,
+	int, 
+	boolean, 
+	short, 
+	char, 
+	double, 
+	float, 
+	long, 
+	byte, 
+	void,
+	return,
+	abstract,continue,for,new,switch,
+	assert,default,package,synchronized,
+	boolean,do,if,private,this,
+	break,double,implements,protected,throw,
+	byte,else,import,public,throws,
+	case,enum,instanceof,return,transient,
+	catch,extends,int,short,try,
+	char,final,interface,static,void,
+	class,finally,long,strictfp,volatile,
+	float,native,super,while,
+	def,dispatch
+]
+
+codelanguage-def[MyDsl]
+[
+	abstract,continue,for,new,switch,
+	assert,default,package,synchronized,
+	boolean,do,if,private,this,
+	break,double,implements,protected,throw,
+	byte,else,import,public,throws,
+	case,enum,instanceof,return,transient,
+	catch,extends,int,short,try,
+	char,final,interface,static,void,
+	class,finally,long,strictfp,volatile,
+	float,native,super,while,
+	Hello
+]
+
+chapter-ref[Introduction]
+
+chapter-ref[GettingStarted]

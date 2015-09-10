@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jbase.doc
+Bundle-SymbolicName: jbase.doc;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: My Company
+Require-Bundle: org.eclipse.help

@@ -1,0 +1,172 @@
+chapter:GettingStarted[Getting Started]
+
+section:FirstTutorial[First Tutorial]
+
+Create an Xtext project, you can leave the defaults for names, e.g.,
+e[org.xtext.example.mydsl].
+
+Open the e[MANIFEST.MF] of the main project and
+
+ul[
+item[add a dependency to the bundle e[jbase] and re-export that dependency;]
+item[add a dependency to the bundle e[jbase.mwe2] and make it optional;]
+]
+
+Save the file.
+
+img[images/jbase-tutorial-manifest.png][][ ][]
+
+Change the Xtext grammar, e[MyDsl.xtext], making the grammar inherit from
+e[jbase.Jbase]:
+
+code[Xtext][
+grammar org.xtext.example.mydsl.MyDsl with jbase.Jbase
+
+generate myDsl "http://www.xtext.org/example/mydsl/MyDsl"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
+]
+
+Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
+
+ul[
+item[in the e[StandaloneSetup] part, add the references to the e[JbasePackage] and to
+e[Jbase.gnemodel], the modified part should look like this
+
+code[MWE2][
+bean = StandaloneSetup {
+	scanClassPath = true
+	platformUri = "${runtimeProject}/.."
+	registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
+	registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
+	// In order to inherit from Jbase, add these two lines:
+	registerGeneratedEPackage = "jbase.jbase.JbasePackage"
+	registerGenModelFile = "platform:/resource/jbase/model/custom/Jbase.genmodel"
+}
+]
+]
+item[search for the e[XbaseGeneratorFragment] reference, and replace it with
+e[JbaseGeneratorFragment]:
+
+code[MWE2][
+// generates the required bindings only if the grammar inherits from Xbase
+// fragment = xbase.XbaseGeneratorFragment auto-inject {}
+fragment = jbase.mwe2.generator.JbaseGeneratorFragment auto-inject {}
+]
+]
+]
+
+Run the e[GenerateMyDsl.mwe2] just to make sure that the Xtext artifacts
+are correctly generated and that Jbase dependencies are added to the
+ui project.
+
+Let's change the grammar as follows:
+
+code[Xtext][
+grammar org.xtext.example.mydsl.MyDsl with jbase.Jbase
+
+generate myDsl "http://www.xtext.org/example/mydsl/MyDsl"
+
+Model:
+	// import section (automatic imports)
+	importSection=XImportSection?
+	greetings+=Greeting*;
+	
+Greeting:
+	// each greeting will have a Java block
+	'Hello' name=ID body=XBlockExpression;
+]
+
+Now run the mwe2 workflow again, to re-generate Xtext artefacts.
+
+Please, merge the e[plugin.xml] and the e[plugin.xml_gen] in the UI project.
+
+Implement the Jvm model inferrer as follows:
+
+code[Xtend][
+package org.xtext.example.mydsl.jvmmodel
+
+import com.google.inject.Inject
+import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
+import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
+import org.xtext.example.mydsl.myDsl.Model
+
+class MyDslJvmModelInferrer extends AbstractModelInferrer {
+
+	@Inject extension JvmTypesBuilder
+
+	def dispatch void infer(Model element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+		for (greeting : element.greetings) {
+			acceptor.accept(element.toClass("my.company." + greeting.name)) \[
+				members += greeting.toMethod("hello" + greeting.name, inferredType) \[
+					body = greeting.body
+				\]
+			\]
+		}
+	}
+}
+]
+
+Thus, for each Hello element, we create a Java class with the name of the element
+(in the package "my.company") with a public method with name "hello" + the name of
+the Hello element, and associate the block expression to the body of the
+method.  Note that the return type of the method will be inferred automatically
+from the contents of the block expression.
+
+If you want to manually test your DSL, run another Eclipse instance
+(Xtext should have generated a launch configuration in your projects, if
+you started with an empty workspace); in the new instance, create a Plug-in
+project, and add a dependency to the bundle e[org.eclipse.xtext.xbase.lib].
+In the e[src] folder create a new file with extension e[.mydsl], e.g.,
+e[example.mydsl]; when the dialog pop-ups, accept to add the Xtext nature to
+the project.
+
+Try and add some contents to the file; remember that in the codeblock
+you must use Java syntax, NOT Xbase syntax.
+
+code[MyDsl][
+Hello Example {
+	return "aString";
+}
+]
+
+You get no error, and, on Save, a file e[my/company/Example.java] will be
+created on the e[src-gen] folder, with a method e[helloExample] inferred to
+return a String.
+
+We try to mimic JDT compilation errors; for instance, remove the terminating
+e[;] in the return statement and you will get a compilation error of the shape:
+e[Syntax error, insert ";" to complete Statement].
+
+Further explore the DSL, and add another Hello block to the end of the file, showing Java variable
+syntax (content assist will automatically add imports for List and ArrayList; or
+use "Organize Imports" menu):
+
+code[MyDsl][
+Hello ListExample {
+	final List<String> listOfStrings = new ArrayList<String>();
+	listOfStrings.add("my string");
+	listOfStrings.add(new Example().helloExample());
+	return listOfStrings;
+}
+]
+
+Note that you have access to the Java method of the previous Hello element.
+
+You also have the Java array syntax available:
+
+code[MyDsl][
+Hello ArrayExample {
+	List<String> list = new ListExample().helloListExample();
+	String\[\] a = new String\[list.size()\];
+	for (int i = 0; i < a.length; i++) {
+		a\[i\] = list.get(i);
+	}
+	return a;
+}
+]

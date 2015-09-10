@@ -1,0 +1,256 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
+<title>Getting Started</title>
+
+<link href="book.css" rel="stylesheet" type="text/css">
+<link href="code.css" rel="stylesheet" type="text/css">
+<link rel="home" href="00-Main.html" title="">
+</head>
+<body>
+<a name="GettingStarted"></a>
+<h1>Getting Started</h1>
+<a name="FirstTutorial"></a>
+<h2>First Tutorial</h2>
+<p>
+Create an Xtext project, you can leave the defaults for names, e.g.,
+<em>org.xtext.example.mydsl</em>.
+</p>
+<p>
+Open the <em>MANIFEST.MF</em> of the main project and
+</p>
+<p>
+<ul>
+	<li>
+		add a dependency to the bundle <em>jbase</em> and re-export that dependency;
+	</li>
+	<li>
+		add a dependency to the bundle <em>jbase.mwe2</em> and make it optional;
+	</li>
+</ul>
+</p>
+<p>
+Save the file.
+</p>
+<p>
+<div class="image" >
+<img src="images/jbase-tutorial-manifest.png" class=" " 
+/>
+<div class="caption">
+</div>
+</div>
+</p>
+<p>
+Change the Xtext grammar, <em>MyDsl.xtext</em>, making the grammar inherit from
+<em>jbase.Jbase</em>:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">grammar</span>&nbsp;org.xtext.example.mydsl.MyDsl&nbsp;<span class="keyword">with</span>&nbsp;jbase.Jbase<br/>
+<br/>
+<span class="keyword">generate</span>&nbsp;myDsl&nbsp;<span class="string">"http://www.xtext.org/example/mydsl/MyDsl"</span><br/>
+<br/>
+Model:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;greetings+=Greeting*;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+Greeting:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">&apos;Hello&apos;</span>&nbsp;name=ID&nbsp;<span class="string">&apos;!&apos;</span>;<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+Open the <em>MWE2</em> workflow, <em>GenerateMyDsl.mwe2</em> and
+</p>
+<p>
+<ul>
+	<li>
+		in the <em>StandaloneSetup</em> part, add the references to the <em>JbasePackage</em> and to
+		<em>Jbase.gnemodel</em>, the modified part should look like this
+		<div class="literallayout">
+		<div class="incode">
+		<p class="code">
+		bean&nbsp;=&nbsp;StandaloneSetup&nbsp;{<br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;scanClassPath&nbsp;=&nbsp;<span class="keyword">true</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;platformUri&nbsp;=&nbsp;<span class="string">"${runtimeProject}/.."</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"org.eclipse.xtext.xbase.XbasePackage"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;In&nbsp;order&nbsp;to&nbsp;inherit&nbsp;from&nbsp;Jbase,&nbsp;add&nbsp;these&nbsp;two&nbsp;lines:<br/>
+		</span>&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"jbase.jbase.JbasePackage"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
+		}<br/>
+		</p>
+		</div>
+		</div>
+		
+	</li>
+	<li>
+		search for the <em>XbaseGeneratorFragment</em> reference, and replace it with
+		<em>JbaseGeneratorFragment</em>:
+		<div class="literallayout">
+		<div class="incode">
+		<p class="code">
+		<span class="comment">//&nbsp;generates&nbsp;the&nbsp;required&nbsp;bindings&nbsp;only&nbsp;if&nbsp;the&nbsp;grammar&nbsp;inherits&nbsp;from&nbsp;Xbase<br/>
+		</span><span class="comment">//&nbsp;fragment&nbsp;=&nbsp;xbase.XbaseGeneratorFragment&nbsp;auto-inject&nbsp;{}<br/>
+		</span>fragment&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment&nbsp;<span class="keyword">auto</span>-<span class="keyword">inject</span>&nbsp;{}<br/>
+		</p>
+		</div>
+		</div>
+		
+	</li>
+</ul>
+</p>
+<p>
+Run the <em>GenerateMyDsl.mwe2</em> just to make sure that the Xtext artifacts
+are correctly generated and that Jbase dependencies are added to the
+ui project.
+</p>
+<p>
+Let&apos;s change the grammar as follows:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">grammar</span>&nbsp;org.xtext.example.mydsl.MyDsl&nbsp;<span class="keyword">with</span>&nbsp;jbase.Jbase<br/>
+<br/>
+<span class="keyword">generate</span>&nbsp;myDsl&nbsp;<span class="string">"http://www.xtext.org/example/mydsl/MyDsl"</span><br/>
+<br/>
+Model:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;import&nbsp;section&nbsp;(automatic&nbsp;imports)<br/>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;importSection=XImportSection?<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;greetings+=Greeting*;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+Greeting:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;each&nbsp;greeting&nbsp;will&nbsp;have&nbsp;a&nbsp;Java&nbsp;block<br/>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">&apos;Hello&apos;</span>&nbsp;name=ID&nbsp;body=XBlockExpression;<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+Now run the mwe2 workflow again, to re-generate Xtext artefacts.
+</p>
+<p>
+Please, merge the <em>plugin.xml</em> and the <em>plugin.xml_gen</em> in the UI project.
+</p>
+<p>
+Implement the Jvm model inferrer as follows:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">package</span>&nbsp;org.xtext.example.mydsl.jvmmodel<br/>
+<br/>
+<span class="keyword">import</span>&nbsp;com.google.inject.Inject<br/>
+<span class="keyword">import</span>&nbsp;org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer<br/>
+<span class="keyword">import</span>&nbsp;org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor<br/>
+<span class="keyword">import</span>&nbsp;org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder<br/>
+<span class="keyword">import</span>&nbsp;org.xtext.example.mydsl.myDsl.Model<br/>
+<br/>
+<span class="keyword">class</span>&nbsp;MyDslJvmModelInferrer&nbsp;<span class="keyword">extends</span>&nbsp;AbstractModelInferrer&nbsp;{<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;@Inject&nbsp;<span class="keyword">extension</span>&nbsp;JvmTypesBuilder<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span>&nbsp;<span class="keyword">dispatch</span>&nbsp;<span class="keyword">void</span>&nbsp;infer(Model&nbsp;element,&nbsp;IJvmDeclaredTypeAcceptor&nbsp;acceptor,&nbsp;<span class="keyword">boolean</span>&nbsp;isPreIndexingPhase)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;(greeting&nbsp;:&nbsp;element.greetings)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acceptor.accept(element.toClass(<span class="string">"my.company."</span>&nbsp;+&nbsp;greeting.name))&nbsp;[<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members&nbsp;+=&nbsp;greeting.toMethod(<span class="string">"hello"</span>&nbsp;+&nbsp;greeting.name,&nbsp;inferredType)&nbsp;[<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body&nbsp;=&nbsp;greeting.body<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+}<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+Thus, for each Hello element, we create a Java class with the name of the element
+(in the package "my.company") with a public method with name "hello" + the name of
+the Hello element, and associate the block expression to the body of the
+method.  Note that the return type of the method will be inferred automatically
+from the contents of the block expression.
+</p>
+<p>
+If you want to manually test your DSL, run another Eclipse instance
+(Xtext should have generated a launch configuration in your projects, if
+you started with an empty workspace); in the new instance, create a Plug-in
+project, and add a dependency to the bundle <em>org.eclipse.xtext.xbase.lib</em>.
+In the <em>src</em> folder create a new file with extension <em>.mydsl</em>, e.g.,
+<em>example.mydsl</em>; when the dialog pop-ups, accept to add the Xtext nature to
+the project.
+</p>
+<p>
+Try and add some contents to the file; remember that in the codeblock
+you must use Java syntax, NOT Xbase syntax.
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">Hello</span>&nbsp;Example&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span>&nbsp;<span class="string">"aString"</span>;<br/>
+}<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+You get no error, and, on Save, a file <em>my/company/Example.java</em> will be
+created on the <em>src-gen</em> folder, with a method <em>helloExample</em> inferred to
+return a String.
+</p>
+<p>
+We try to mimic JDT compilation errors; for instance, remove the terminating
+<em>;</em> in the return statement and you will get a compilation error of the shape:
+<em>Syntax error, insert ";" to complete Statement</em>.
+</p>
+<p>
+Further explore the DSL, and add another Hello block to the end of the file, showing Java variable
+syntax (content assist will automatically add imports for List and ArrayList; or
+use "Organize Imports" menu):
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">Hello</span>&nbsp;ListExample&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span>&nbsp;List&lt;String&gt;&nbsp;listOfStrings&nbsp;=&nbsp;<span class="keyword">new</span>&nbsp;ArrayList&lt;String&gt;();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;listOfStrings.add(<span class="string">"my&nbsp;string"</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;listOfStrings.add(<span class="keyword">new</span>&nbsp;Example().helloExample());<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span>&nbsp;listOfStrings;<br/>
+}<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+Note that you have access to the Java method of the previous Hello element.
+</p>
+<p>
+You also have the Java array syntax available:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">Hello</span>&nbsp;ArrayExample&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;List&lt;String&gt;&nbsp;list&nbsp;=&nbsp;<span class="keyword">new</span>&nbsp;ListExample().helloListExample();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;String[]&nbsp;a&nbsp;=&nbsp;<span class="keyword">new</span>&nbsp;String[list.size()];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;(<span class="keyword">int</span>&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;a.length;&nbsp;i++)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[i]&nbsp;=&nbsp;list.get(i);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span>&nbsp;a;<br/>
+}<br/>
+</p>
+</div>
+</div>
+
+</p>
+</body>
+</html>
