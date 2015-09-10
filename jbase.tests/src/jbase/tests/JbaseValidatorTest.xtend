@@ -17,6 +17,7 @@ import jbase.testlanguage.JbaseTestlanguageInjectorProvider
 import jbase.validation.JbaseIssueCodes
 import jbase.jbase.JbasePackage
 import jbase.tests.inputs.JbaseTestlanguageInputs
+import jbase.validation.JbaseJavaValidator
 
 /**
  * For validation tests we use JbaseTestlanguage since we can also use
@@ -41,6 +42,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		new JbaseIssueCodes() {
 			
 		}
+		new JbaseJavaValidator();
 	}
 
 	@Test def void testArrayIndexNotIntegerLeft() {

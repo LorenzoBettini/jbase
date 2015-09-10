@@ -169,7 +169,7 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	}
 
 	public void _toJavaExpression(XJClassObject e, ITreeAppendable b) {
-		compileClassObject(e, b);;
+		compileClassObject(e, b);
 	}
 
 	/**
