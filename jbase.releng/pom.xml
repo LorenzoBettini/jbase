@@ -9,6 +9,9 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>../jbase.targetplatform</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
 		<module>../jbase.mwe2</module>
 		<module>../jbase</module>
 		<module>../jbase.ui</module>
