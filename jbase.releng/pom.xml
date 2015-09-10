@@ -9,9 +9,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>../jbase.targetplatform</module>
-		<module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
-		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
-		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
 		<module>../jbase.mwe2</module>
 		<module>../jbase</module>
 		<module>../jbase.ui</module>
@@ -22,6 +19,9 @@
 		<module>../jbase.example.purejbase</module>
 		<module>../jbase.example.purejbase.ui</module>
 		<module>../jbase.example.purejbase.tests</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
+		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
 		<module>../jbase.doc</module>
 		<module>../jbase.sdk</module>
 		<module>../jbase.site</module>

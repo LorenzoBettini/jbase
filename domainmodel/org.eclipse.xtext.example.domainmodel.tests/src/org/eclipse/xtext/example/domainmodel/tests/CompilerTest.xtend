@@ -27,7 +27,7 @@ class CompilerTest {
 			entity Foo {
 				name : String
 				op doStuff(String x) : String {
-					return x + ' ' + this.name
+					return x + " " + this.name;
 				}
 			}
 		'''.compile [
@@ -44,7 +44,7 @@ class CompilerTest {
 			entity Foo {
 				bar : Bar
 				op doStuff(String x) : String {
-					return x + ' ' + bar.getName()
+					return x + " " + bar.getName();
 				}
 			}
 		''',
@@ -77,7 +77,7 @@ class CompilerTest {
 			  public Foo() {
 			  }
 			  
-			  public Foo(final Procedure1<Foo> initializer) {
+			  public Foo(Procedure1<Foo> initializer) {
 			    initializer.apply(this);
 			  }
 			  
@@ -87,7 +87,7 @@ class CompilerTest {
 			    return this.name;
 			  }
 			  
-			  public void setName(final String name) {
+			  public void setName(String name) {
 			    this.name = name;
 			  }
 			  

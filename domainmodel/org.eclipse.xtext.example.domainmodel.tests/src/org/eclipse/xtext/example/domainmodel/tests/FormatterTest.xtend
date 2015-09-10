@@ -26,11 +26,11 @@ class FormatterTest {
 					propertyName:String
 				
 					op name() {
-						val x = 1 + 2 + 4
-						val foo = {
-							println()
-							println()
-							null
+						int x = 1 + 2 + 4;
+						{
+							System.out.println();
+							System.out.println();
+							return null;
 						}
 					}
 				}
@@ -49,12 +49,12 @@ class FormatterTest {
 			expectation = '''
 				entity Foo {
 					op foo():String {
-						"xx"
+						return "xx";
 					}
 				}
 			'''
 			toBeFormatted = '''
-				entity Foo {  op  foo  (  )  :  String  {  "xx"  }  }
+				entity Foo {  op  foo  (  )  :  String  {  return  "xx";  }  }
 			'''
 		]
 	}
@@ -70,14 +70,14 @@ class FormatterTest {
 			expectation = '''
 				entity Foo {
 				 op foo():String {
-				  "xx"
+				  return "xx";
 				 }
 				}
 			'''
 			toBeFormatted = '''
 				entity Foo {
 					op foo():String {
-						"xx"
+						return "xx";
 					}
 				}
 			'''

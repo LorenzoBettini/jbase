@@ -250,7 +250,173 @@ You also have the Java array syntax available:
 </p>
 </div>
 </div>
-
+</p>
+<a name="Domainmodel"></a>
+<h2>The Domainmodel with Jbase</h2>
+<p>
+We now see how to turn an existing Xbase-DSL to use Jbase.
+We will use the well-known Xtext/Xbase <em>Domainmodel</em> example.
+</p>
+<p>
+First of all, import this example into the workspace:
+File =&gt; New =&gt; Example... then navigate to the "Xtext Examples" category and
+choose "Xtext Domain-Model Example", this will materialize into your
+workspace the standard Xtext Domainmodel example&apos;s three projects.
+</p>
+<p>
+First of all, open <em>org.eclipse.xtext.example.domainmodel</em>&apos;s MANIFEST.MF file
+and
+</p>
+<p>
+<ul>
+	<li>
+		add a dependency to the bundle <em>jbase</em> and re-export that dependency;
+	</li>
+	<li>
+		add a dependency to the bundle <em>jbase.mwe2</em> and make it optional;
+	</li>
+</ul>
+</p>
+<p>
+Save the file.
+</p>
+<p>
+Modify the <em>GenerateDomainmodelLanguage.mwe2</em> as shown in <a href="02-GettingStarted.html#FirstTutorial" title="Go to &quot;First Tutorial&quot;">First Tutorial</a>:
+</p>
+<p>
+<ul>
+	<li>
+		in the <em>StandaloneSetup</em> part, add the references to the <em>JbasePackage</em> and to
+		<em>Jbase.gnemodel</em>, the modified part should look like this
+		<div class="literallayout">
+		<div class="incode">
+		<p class="code">
+		bean&nbsp;=&nbsp;StandaloneSetup&nbsp;{<br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;scanClassPath&nbsp;&nbsp;=&nbsp;<span class="keyword">true</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"org.eclipse.xtext.xbase.XbasePackage"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;In&nbsp;order&nbsp;to&nbsp;inherit&nbsp;from&nbsp;Jbase,&nbsp;add&nbsp;these&nbsp;two&nbsp;lines:<br/>
+		</span>&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"jbase.jbase.JbasePackage"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
+		}<br/>
+		</p>
+		</div>
+		</div>
+		
+	</li>
+	<li>
+		search for the <em>XbaseGeneratorFragment</em> reference, and replace it with
+		<em>JbaseGeneratorFragment</em>:
+		<div class="literallayout">
+		<div class="incode">
+		<p class="code">
+		<span class="comment">//&nbsp;generates&nbsp;the&nbsp;required&nbsp;bindings&nbsp;only&nbsp;if&nbsp;the&nbsp;grammar&nbsp;inherits&nbsp;from&nbsp;Xbase<br/>
+		</span><span class="comment">//&nbsp;fragment&nbsp;=&nbsp;xbase.XbaseGeneratorFragment&nbsp;auto-inject&nbsp;{}<br/>
+		</span>fragment&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment&nbsp;<span class="keyword">auto</span>-<span class="keyword">inject</span>&nbsp;{}<br/>
+		</p>
+		</div>
+		</div>
+		
+	</li>
+</ul>
+</p>
+<p>
+Make the <em>Domainmodel.xtext</em> grammar inherit from
+<em>jbase.Jbase</em>:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">grammar</span>&nbsp;org.eclipse.xtext.example.domainmodel.Domainmodel&nbsp;<span class="keyword">with</span>&nbsp;jbase.Jbase<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+Now run the mwe2 workflow, to re-generate Xtext artefacts.
+</p>
+<p>
+The <em>DomainmodelJavaValidator</em> should be modified so that it extends
+<em>JbaseValidator</em> instead of <em>XbaseValidator</em>, so that
+it will use our Jbase custom Xbase validator.
+</p>
+<p>
+There is no need to change the model inferrer, since the runtime model of Jbase
+is also a valid runtime model of Xbase.
+</p>
+<p>
+If you want to manually test these modifications to the Domainmodel, run another Eclipse instance
+(Xtext should have generated a launch configuration in your projects, if
+you started with an empty workspace); in the new instance, create a Plug-in
+project, and add a dependency to the bundle <em>org.eclipse.xtext.xbase.lib</em>.
+In the <em>src</em> folder create a new file with extension <em>.dmodel</em>, e.g.,
+<em>example.dmodel</em>; when the dialog pop-ups, accept to add the Xtext nature to
+the project.
+</p>
+<p>
+Here&apos;s an example of what you can write with the Domainmodel example that uses
+Jbase instead of Xbase.  Note the Java variable syntax, array access syntax and
+formal parameters, which are, as in Java, non-final by default (so they can be assigned):
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">import</span>&nbsp;java.util.List;<br/>
+<br/>
+<span class="keyword">package</span>&nbsp;my.model&nbsp;{<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">entity</span>&nbsp;Person&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;:&nbsp;String<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;firstName&nbsp;:&nbsp;String<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friends&nbsp;:&nbsp;List&lt;Person&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address&nbsp;:&nbsp;Address<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">op</span>&nbsp;getFullName()&nbsp;:&nbsp;String&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span>&nbsp;firstName&nbsp;+&nbsp;<span class="string">"&nbsp;"</span>&nbsp;+&nbsp;name;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">op</span>&nbsp;getFriendsArray()&nbsp;:&nbsp;Person[]&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person[]&nbsp;a&nbsp;=&nbsp;<span class="keyword">new</span>&nbsp;Person[friends.size()];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span>&nbsp;i&nbsp;=&nbsp;0;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;(Person&nbsp;friend&nbsp;:&nbsp;friends)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[i++]&nbsp;=&nbsp;friend;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span>&nbsp;a;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">op</span>&nbsp;m(<span class="keyword">int</span>&nbsp;i)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;parameters&nbsp;are&nbsp;NON-final&nbsp;by&nbsp;default,&nbsp;as&nbsp;in&nbsp;Java<br/>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;=&nbsp;10;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">entity</span>&nbsp;Address&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;street&nbsp;:&nbsp;String<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip&nbsp;:&nbsp;String<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;city&nbsp;:&nbsp;String<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+}<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+You may also want to modify the <em>DomainmodelFormatter.xtend</em> so that it extends
+<em>JbaseFormatter</em> instead of <em>XbaseFormatter</em>, so that automatic formatting
+will work for our Java expressions.
+</p>
+<p>
+If you want to run the Domainmodel Junit test suite, you first need to update
+the inputs that are used in those tests, so that they respect the Java syntax:
+imports and statements must be terminated with a semicolon, method invocations must
+have parenthesis, etc.  Moreover, the original test <em>XbaseIntegrationTest</em> will not
+work (since it relies on Xbase syntax).  Finally, some tests should be removed completely,
+since they use features/mechanisms of Xbase that are not supported in Jbase, such as, e.g.,
+static extension methods.  (The modified domainmodel example can be found in the Git
+repository of Jbase).
 </p>
 </body>
 </html>

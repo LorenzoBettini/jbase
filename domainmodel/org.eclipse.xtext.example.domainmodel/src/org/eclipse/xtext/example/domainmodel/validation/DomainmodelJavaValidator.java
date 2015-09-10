@@ -17,9 +17,10 @@ import org.eclipse.xtext.example.domainmodel.domainmodel.PackageDeclaration;
 import org.eclipse.xtext.util.Strings;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.ValidationMessageAcceptor;
-import org.eclipse.xtext.xbase.validation.XbaseJavaValidator;
 
-public class DomainmodelJavaValidator extends XbaseJavaValidator {
+import jbase.validation.JbaseValidator;
+
+public class DomainmodelJavaValidator extends JbaseValidator {
 
     @Check
     public void checkTypeNameStartsWithCapital(Entity entity) {

@@ -5,5 +5,7 @@
 	<topic href="contents/02-GettingStarted.html#GettingStarted" label="Getting Started" >
 		<topic href="contents/02-GettingStarted.html#FirstTutorial" label="First Tutorial" >
 		</topic>
+		<topic href="contents/02-GettingStarted.html#Domainmodel" label="The Domainmodel with Jbase" >
+		</topic>
 	</topic>
 </toc>

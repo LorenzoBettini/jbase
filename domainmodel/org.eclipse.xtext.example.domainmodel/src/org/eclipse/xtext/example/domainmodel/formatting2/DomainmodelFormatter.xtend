@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel.formatting2;
 
+import jbase.formatting2.JbaseFormatter
 import org.eclipse.xtext.example.domainmodel.domainmodel.AbstractElement
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
@@ -15,14 +16,13 @@ import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
 import org.eclipse.xtext.example.domainmodel.domainmodel.PackageDeclaration
 import org.eclipse.xtext.example.domainmodel.domainmodel.Property
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 
 import static org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelPackage.Literals.*
 
 /**
  * @author Moritz Eysholdt - Initial implementation and API
  */
-class DomainmodelFormatter extends XbaseFormatter {
+class DomainmodelFormatter extends JbaseFormatter {
 
 
 	def dispatch void format(DomainModel domainmodel, extension IFormattableDocument document) {

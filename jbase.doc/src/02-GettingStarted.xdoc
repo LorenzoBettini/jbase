@@ -170,3 +170,131 @@ Hello ArrayExample {
 	return a;
 }
 ]
+
+section:Domainmodel[The Domainmodel with Jbase]
+
+We now see how to turn an existing Xbase-DSL to use Jbase.
+We will use the well-known Xtext/Xbase e[Domainmodel] example.
+
+First of all, import this example into the workspace:
+File => New => Example... then navigate to the "Xtext Examples" category and
+choose "Xtext Domain-Model Example", this will materialize into your
+workspace the standard Xtext Domainmodel example's three projects.
+
+First of all, open e[org.eclipse.xtext.example.domainmodel]'s MANIFEST.MF file
+and
+
+ul[
+item[add a dependency to the bundle e[jbase] and re-export that dependency;]
+item[add a dependency to the bundle e[jbase.mwe2] and make it optional;]
+]
+
+Save the file.
+
+Modify the e[GenerateDomainmodelLanguage.mwe2] as shown in ref:FirstTutorial[First Tutorial]:
+
+ul[
+item[in the e[StandaloneSetup] part, add the references to the e[JbasePackage] and to
+e[Jbase.gnemodel], the modified part should look like this
+
+code[MWE2][
+bean = StandaloneSetup {
+	scanClassPath  = true
+	registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
+	registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
+	registerGenModelFile = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
+	// In order to inherit from Jbase, add these two lines:
+	registerGeneratedEPackage = "jbase.jbase.JbasePackage"
+	registerGenModelFile = "platform:/resource/jbase/model/custom/Jbase.genmodel"
+}
+]
+]
+item[search for the e[XbaseGeneratorFragment] reference, and replace it with
+e[JbaseGeneratorFragment]:
+
+code[MWE2][
+// generates the required bindings only if the grammar inherits from Xbase
+// fragment = xbase.XbaseGeneratorFragment auto-inject {}
+fragment = jbase.mwe2.generator.JbaseGeneratorFragment auto-inject {}
+]
+]
+]
+
+Make the e[Domainmodel.xtext] grammar inherit from
+e[jbase.Jbase]:
+
+code[Xtext][
+grammar org.eclipse.xtext.example.domainmodel.Domainmodel with jbase.Jbase
+]
+
+Now run the mwe2 workflow, to re-generate Xtext artefacts.
+
+The e[DomainmodelJavaValidator] should be modified so that it extends
+e[JbaseValidator] instead of e[XbaseValidator], so that
+it will use our Jbase custom Xbase validator.
+
+There is no need to change the model inferrer, since the runtime model of Jbase
+is also a valid runtime model of Xbase.
+
+If you want to manually test these modifications to the Domainmodel, run another Eclipse instance
+(Xtext should have generated a launch configuration in your projects, if
+you started with an empty workspace); in the new instance, create a Plug-in
+project, and add a dependency to the bundle e[org.eclipse.xtext.xbase.lib].
+In the e[src] folder create a new file with extension e[.dmodel], e.g.,
+e[example.dmodel]; when the dialog pop-ups, accept to add the Xtext nature to
+the project.
+
+Here's an example of what you can write with the Domainmodel example that uses
+Jbase instead of Xbase.  Note the Java variable syntax, array access syntax and
+formal parameters, which are, as in Java, non-final by default (so they can be assigned):
+
+code[Domainmodel][
+import java.util.List;
+
+package my.model {
+
+	entity Person {
+		name : String
+		firstName : String
+		friends : List<Person>
+		address : Address
+
+		op getFullName() : String {
+			return firstName + " " + name;
+		}
+
+		op getFriendsArray() : Person\[\] {
+			Person\[\] a = new Person\[friends.size()\];
+			int i = 0;
+			for (Person friend : friends) {
+				a\[i++\] = friend;
+			}
+			return a;
+		}
+
+		op m(int i) {
+			// parameters are NON-final by default, as in Java
+			i = 10;
+		}
+	}
+
+	entity Address {
+		street : String
+		zip : String
+		city : String
+	}
+}
+]
+
+You may also want to modify the e[DomainmodelFormatter.xtend] so that it extends
+e[JbaseFormatter] instead of e[XbaseFormatter], so that automatic formatting
+will work for our Java expressions.
+
+If you want to run the Domainmodel Junit test suite, you first need to update
+the inputs that are used in those tests, so that they respect the Java syntax:
+imports and statements must be terminated with a semicolon, method invocations must
+have parenthesis, etc.  Moreover, the original test e[XbaseIntegrationTest] will not
+work (since it relies on Xbase syntax).  Finally, some tests should be removed completely,
+since they use features/mechanisms of Xbase that are not supported in Jbase, such as, e.g.,
+static extension methods.  (The modified domainmodel example can be found in the Git
+repository of Jbase).

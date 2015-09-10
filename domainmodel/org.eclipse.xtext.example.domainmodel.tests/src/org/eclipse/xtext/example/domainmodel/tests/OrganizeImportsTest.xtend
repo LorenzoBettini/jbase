@@ -46,7 +46,7 @@ class OrganizeImportsTest {
 				entity Foo extends java.io.Serializable {}
 			}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
+			import java.io.Serializable;
 			
 			package foo {
 				entity Foo extends Serializable {}
@@ -58,7 +58,7 @@ class OrganizeImportsTest {
 		'''
 			entity Foo extends java.io.Serializable {}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
+			import java.io.Serializable;
 
 			entity Foo extends Serializable {}
 		''')
@@ -70,7 +70,7 @@ class OrganizeImportsTest {
 			   	
 			entity Foo extends java.io.Serializable {}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
+			import java.io.Serializable;
 
 			entity Foo extends Serializable {}
 		''')
@@ -83,7 +83,7 @@ class OrganizeImportsTest {
 			 */
 			entity Foo extends java.io.Serializable {}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
+			import java.io.Serializable;
 
 			/**
 			 * some doc
@@ -94,14 +94,14 @@ class OrganizeImportsTest {
 
 	@Test def testGetOrganizedImportSection_01() {
 		'''
-			import java.lang.String
-			import java.util.List
+			import java.lang.String;
+			import java.util.List;
 
 			entity Foo {
 			  op test(List<String> s) : void {}
 			}
 		'''.assertIsOrganizedTo('''
-			import java.util.List
+			import java.util.List;
 
 			entity Foo {
 			  op test(List<String> s) : void {}
@@ -111,17 +111,17 @@ class OrganizeImportsTest {
 
 	@Test def testGetOrganizedImportSection_02() {
 		'''
-			import java.lang.String
-			import java.util.List
-			import java.util.List
-			import java.util.List
-			import java.lang.Integer
+			import java.lang.String;
+			import java.util.List;
+			import java.util.List;
+			import java.util.List;
+			import java.lang.Integer;
 
 			entity Foo {
 			  op test(List<String> s) : void {}
 			}
 		'''.assertIsOrganizedTo('''
-			import java.util.List
+			import java.util.List;
 
 			entity Foo {
 			  op test(List<String> s) : void {}
@@ -131,22 +131,22 @@ class OrganizeImportsTest {
 
 	@Test def testGetOrganizedImportSection_03() {
 		'''
-			import java.util.*
+			import java.util.*;
 
 			entity Foo {
 			  op test(List<String> s) : void{
-			    val x = newArrayList('foo','bar')
-			    Collections::sort(x)
+			    final List<String> x = newArrayList("foo","bar");
+			    Collections.sort(x);
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import java.util.Collections
-			import java.util.List
+			import java.util.Collections;
+			import java.util.List;
 
 			entity Foo {
 			  op test(List<String> s) : void{
-			    val x = newArrayList('foo','bar')
-			    Collections::sort(x)
+			    final List<String> x = newArrayList("foo","bar");
+			    Collections.sort(x);
 			  }
 			}
 		''')
@@ -154,23 +154,23 @@ class OrganizeImportsTest {
 
 	@Test def testGetOrganizedImportSection_04() {
 		'''
-			import java.util.*
-			import java.io.*
+			import java.util.*;
+			import java.io.*;
 
 			entity Foo {
 			  op test(List<String> s) : void {
-			    val x = new ArrayList<Map<StringBuilder,? extends Serializable>>()
+			    final List<String> x = new ArrayList<Map<StringBuilder,? extends Serializable>>();
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
-			import java.util.ArrayList
-			import java.util.List
-			import java.util.Map
+			import java.io.Serializable;
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.Map;
 
 			entity Foo {
 			  op test(List<String> s) : void {
-			    val x = new ArrayList<Map<StringBuilder,? extends Serializable>>()
+			    final List<String> x = new ArrayList<Map<StringBuilder,? extends Serializable>>();
 			  }
 			}
 		''')
@@ -182,7 +182,7 @@ class OrganizeImportsTest {
 			  op test(org.eclipse.emf.ecore.resource.Resource$Factory a, org.eclipse.emf.ecore.resource.Resource$Factory$Registry b) : void {}
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource
+			import org.eclipse.emf.ecore.resource.Resource;
 
 			entity Foo {
 			  op test(Resource.Factory a, Resource.Factory.Registry b) : void {}
@@ -192,23 +192,23 @@ class OrganizeImportsTest {
 
 	@Test def testInnerClasses_02() {
 		'''
-			import org.eclipse.emf.ecore.resource.Resource
-			import org.eclipse.emf.ecore.EPackage
+			import org.eclipse.emf.ecore.resource.Resource;
+			import org.eclipse.emf.ecore.EPackage;
 
 			entity Foo {
 			  op test() : void {
-			    val x = Resource$Factory$Registry::INSTANCE
-			    val y = EPackage$Registry::INSTANCE
+			    Object x = Resource$Factory$Registry.INSTANCE;
+			    Object y = EPackage$Registry.INSTANCE;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.EPackage
-			import org.eclipse.emf.ecore.resource.Resource
+			import org.eclipse.emf.ecore.EPackage;
+			import org.eclipse.emf.ecore.resource.Resource;
 
 			entity Foo {
 			  op test() : void {
-			    val x = Resource.Factory.Registry::INSTANCE
-			    val y = EPackage.Registry::INSTANCE
+			    Object x = Resource.Factory.Registry.INSTANCE;
+			    Object y = EPackage.Registry.INSTANCE;
 			  }
 			}
 		''')
@@ -218,15 +218,15 @@ class OrganizeImportsTest {
 		'''
 			entity Foo {
 			  op test() : boolean {
-				 typeof(org.eclipse.emf.ecore.resource.Resource$Factory) == typeof(org.eclipse.emf.ecore.resource.Resource$Factory$Registry)
+				 return org.eclipse.emf.ecore.resource.Resource$Factory.class == org.eclipse.emf.ecore.resource.Resource$Factory$Registry.class;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource
+			import org.eclipse.emf.ecore.resource.Resource;
 
 			entity Foo {
 			  op test() : boolean {
-				 typeof(Resource.Factory) == typeof(Resource.Factory.Registry)
+				 return Resource.Factory.class == Resource.Factory.Registry.class;
 			  }
 			}
 		''')
@@ -234,21 +234,21 @@ class OrganizeImportsTest {
 
 	@Test def testInnerClasses_04() {
 		'''
-			import org.eclipse.emf.ecore.resource.Resource
-			import org.eclipse.emf.ecore.EPackage
+			import org.eclipse.emf.ecore.resource.Resource;
+			import org.eclipse.emf.ecore.EPackage;
 
 			entity Foo {
 			  op test() : void {
-			    typeof(Resource$Factory$Registry) == typeof(EPackage$Registry)
+			    Resource$Factory$Registry.class == EPackage$Registry.class;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.EPackage
-			import org.eclipse.emf.ecore.resource.Resource
+			import org.eclipse.emf.ecore.EPackage;
+			import org.eclipse.emf.ecore.resource.Resource;
 
 			entity Foo {
 			  op test() : void {
-			    typeof(Resource.Factory.Registry) == typeof(EPackage.Registry)
+			    Resource.Factory.Registry.class == EPackage.Registry.class;
 			  }
 			}
 		''')
@@ -256,19 +256,19 @@ class OrganizeImportsTest {
 
 	@Test def testInnerClasses_05() {
 		'''
-			import org.eclipse.emf.ecore.resource.Resource$Factory$Registry
+			import org.eclipse.emf.ecore.resource.Resource$Factory$Registry;
 
 			entity Foo {
 			  op test() : void {
-			    typeof(Registry)
+			    Registry.class;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource.Factory.Registry
+			import org.eclipse.emf.ecore.resource.Resource.Factory.Registry;
 
 			entity Foo {
 			  op test() : void {
-			    typeof(Registry)
+			    Registry.class;
 			  }
 			}
 		''')
@@ -314,15 +314,15 @@ class OrganizeImportsTest {
 		'''
 			entity Foo {
 			  op test(java.util.List<String> s) : java.awt.List {
-			    return null
+			    return null;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import java.awt.List
+			import java.awt.List;
 
 			entity Foo {
 			  op test(java.util.List<String> s) : List {
-			    return null
+			    return null;
 			  }
 			}
 		''')
@@ -332,15 +332,15 @@ class OrganizeImportsTest {
 		'''
 			entity Foo {
 			  op test(java.awt.List<String> s) : java.util.List  {
-			    return null
+			    return null;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import java.util.List
+			import java.util.List;
 
 			entity Foo {
 			  op test(java.awt.List<String> s) : List  {
-			    return null
+			    return null;
 			  }
 			}
 		''')
@@ -350,17 +350,17 @@ class OrganizeImportsTest {
 		'''
 			entity Foo {
 			  op test(java.awt.List s) : java.util.List<String> {
-			  	new java.awt.List()
-			    return null
+			  	new java.awt.List();
+			    return null;
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import java.awt.List
+			import java.awt.List;
 
 			entity Foo {
 			  op test(List s) : java.util.List<String> {
-			  	new List()
-			    return null
+			  	new List();
+			    return null;
 			  }
 			}
 		''')
@@ -368,16 +368,16 @@ class OrganizeImportsTest {
 
 	@Test def testNameClashInnerClasses() {
 		'''
-			import org.eclipse.xtext.xbase.XbasePackage
-			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
+			import org.eclipse.xtext.xbase.XbasePackage;
+			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
 
 			entity Foo {
 			  op test(XbasePackage$Literals x, XAnnotationsPackage$Literals y) : void {
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.xtext.xbase.XbasePackage
-			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
+			import org.eclipse.xtext.xbase.XbasePackage;
+			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
 
 			entity Foo {
 			  op test(XbasePackage.Literals x, XAnnotationsPackage.Literals y) : void {
@@ -389,16 +389,16 @@ class OrganizeImportsTest {
 
 	@Test def testNameClashInnerClassesWithPreference() {
 		'''
-			import org.eclipse.xtext.xbase.XbasePackage$Literals
-			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
+			import org.eclipse.xtext.xbase.XbasePackage$Literals;
+			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
 
 			entity Foo {
 			  op test(Literals x, XAnnotationsPackage$Literals y) : void {
 			  }
 			}
 		'''.assertIsOrganizedTo('''
-			import org.eclipse.xtext.xbase.XbasePackage.Literals
-			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
+			import org.eclipse.xtext.xbase.XbasePackage.Literals;
+			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
 
 			entity Foo {
 			  op test(Literals x, XAnnotationsPackage.Literals y) : void {
@@ -407,298 +407,24 @@ class OrganizeImportsTest {
 		''')
 	}
 
-
-	@Test def testStaticImport_01() {
-		'''
-			import static java.util.Collections.*
-			entity Foo {
-			  op test(java.util.List<String> s) : void {
-			  	shuffle(s)
-			  }
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.List
-			
-			import static java.util.Collections.*
-
-			entity Foo {
-			  op test(List<String> s) : void {
-			  	shuffle(s)
-			  }
-			}
-		''')
-	}
-
-	@Test def testStaticImport_02() {
-		'''
-			import static extension java.util.Collections.*
-			entity Foo {
-			  op test(java.util.List<String> s) : void {
-			    s.shuffle
-			  }
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.List
-			
-			import static extension java.util.Collections.*
-
-			entity Foo {
-			  op test(List<String> s) : void {
-			    s.shuffle
-			  }
-			}
-		''')
-	}
-	
-	@Test def testImplicitExtensions() {
-		'''
-			entity Foo {
-			  op test(java.util.List<String> s) : void {
-			    s.head
-			  }
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.List
-
-			entity Foo {
-			  op test(List<String> s) : void {
-			    s.head
-			  }
-			}
-		''')
-	}
-
-	@Test def testStaticExtensions() {
-		'''
-			import static extension java.util.Collections.*
-			entity Foo {
-			  op test() : void {
-			    typeof(java.util.Collections).singleton
-			  }
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.Collections
-
-			import static extension java.util.Collections.*
-
-			entity Foo {
-			  op test() : void {
-			    typeof(Collections).singleton
-			  }
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_01() {
-		'''
-			import java.util.Map$Entry
-			
-			package foo.bar {
-				entity Foo {
-				  op test() : Entry {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.Map.Entry
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Entry {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_02() {
-		'''
-			import java.util.Map
-			
-			package foo.bar {
-				entity Foo {
-				  op test() : Map$Entry {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.Map
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Map.Entry {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_03() {
-		'''
-			import java.util.Map$Entry
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Map$Entry {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.Map
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Map.Entry {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_04() {
-		'''
-			import org.eclipse.emf.ecore.resource.Resource
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Resource$Factory$Descriptor {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Resource.Factory.Descriptor {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_05() {
-		'''
-			import org.eclipse.emf.ecore.resource.Resource$Factory$Descriptor
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Resource$Factory$Descriptor {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Resource.Factory.Descriptor {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testInnerClassImport_06() {
-		'''
-			import org.eclipse.emf.ecore.resource.Resource$Factory$Descriptor
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Descriptor {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import org.eclipse.emf.ecore.resource.Resource.Factory.Descriptor
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Descriptor {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testFunctionTypes_afterResolve() {
-		'''
-			import java.util.Map$Entry
-
-			package foo.bar {
-				entity Foo {
-				  op test() : (Entry)=>void {
-				    return null
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import java.util.Map.Entry
-
-			package foo.bar {
-				entity Foo {
-				  op test() : (Entry)=>void {
-				    return null
-				  }
-				}
-			}
-		''')
-	}
-
-	@Test def testImport_PairOf() {
-		'''
-			import static org.eclipse.xtext.xbase.lib.Pair.*
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Object {
-				    return of('', '')
-				  }
-				}
-			}
-		'''.assertIsOrganizedTo('''
-			import static org.eclipse.xtext.xbase.lib.Pair.*
-
-			package foo.bar {
-				entity Foo {
-				  op test() : Object {
-				    return of('', '')
-				  }
-				}
-			}
-		''')
-	}
-
 	@Test def testArrayType() {
 		'''
-			import java.io.Serializable
+			import java.io.Serializable;
 
 			package foo.bar {
 				entity Foo {
 				  op test() : Serializable[][] {
-				    return null
+				    return null;
 				  }
 				}
 			}
 		'''.assertIsOrganizedTo('''
-			import java.io.Serializable
+			import java.io.Serializable;
 
 			package foo.bar {
 				entity Foo {
 				  op test() : Serializable[][] {
-				    return null
+				    return null;
 				  }
 				}
 			}
@@ -728,7 +454,7 @@ class OrganizeImportsTest {
 			 */
 			entity Foo {}
 		'''.assertIsOrganizedTo('''
-			import java.util.List
+			import java.util.List;
 			
 			/**
 			 * {@link List}
@@ -804,7 +530,7 @@ class OrganizeImportsTest {
 				}
 			}
 		'''.assertIsOrganizedTo('''
-			import bar.Foo
+			import bar.Foo;
 			
 			package bar {
 				entity Foo {}
@@ -819,7 +545,7 @@ class OrganizeImportsTest {
 	
 	@Test def testSubPackage() {
 		'''
-			import bar.Foo
+			import bar.Foo;
 			
 			package bar {
 				entity Foo {
@@ -830,7 +556,7 @@ class OrganizeImportsTest {
 				}
 			}
 		'''.assertIsOrganizedTo('''
-			import bar.baz.Bar
+			import bar.baz.Bar;
 			
 			package bar {
 				entity Foo {

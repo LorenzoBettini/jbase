@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.xbase.lib;visibility:=reexport,
  org.eclipse.xtext.ui.codetemplates,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.eclipse.equinox.common
+ org.eclipse.equinox.common,
+ jbase;visibility:=reexport,
+ jbase.mwe2;resolution:=optional
 Export-Package: org.eclipse.xtext.example.domainmodel,
  org.eclipse.xtext.example.domainmodel.domainmodel,
  org.eclipse.xtext.example.domainmodel.domainmodel.impl,

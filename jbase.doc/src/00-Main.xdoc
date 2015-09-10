@@ -137,6 +137,21 @@ codelanguage-def[MyDsl]
 	Hello
 ]
 
+codelanguage-def[Domainmodel]
+[
+	abstract,continue,for,new,switch,
+	assert,default,package,synchronized,
+	boolean,do,if,private,this,
+	break,double,implements,protected,throw,
+	byte,else,import,public,throws,
+	case,enum,instanceof,return,transient,
+	catch,extends,int,short,try,
+	char,final,interface,static,void,
+	class,finally,long,strictfp,volatile,
+	float,native,super,while,
+	entity,op
+]
+
 chapter-ref[Introduction]
 
 chapter-ref[GettingStarted]

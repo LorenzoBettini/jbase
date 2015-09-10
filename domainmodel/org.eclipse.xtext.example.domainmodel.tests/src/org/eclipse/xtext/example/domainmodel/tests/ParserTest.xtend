@@ -50,7 +50,7 @@ class ParserTest {
 	@Test
 	def void testJvmTypeReferencesValidator() {
 		'''
-			import java.util.List
+			import java.util.List;
 			package example {
 			  entity MyEntity {
 			    p : List<int>
@@ -70,8 +70,8 @@ class ParserTest {
 			  entity MyEntity {
 			    property : String
 			    op foo(String s) : String {
-			    	this.property = s
-			    	return s.toUpperCase
+			    	this.property = s;
+			    	return s.toUpperCase();
 			    }
 			  }
 			}
@@ -81,7 +81,7 @@ class ParserTest {
 	@Test
 	def void testParsingAndLinkingWithImports() {
 		'''
-			import java.util.List
+			import java.util.List;
 			package example {
 			  entity MyEntity {
 			    p : List<String>
@@ -97,7 +97,7 @@ class ParserTest {
 			  entity MyEntity {
 			    property : String
 			    op foo(String s) {
-			    	return property.toUpperCase + s
+			    	return property.toUpperCase() + s;
 			    }
 			  }
 			}

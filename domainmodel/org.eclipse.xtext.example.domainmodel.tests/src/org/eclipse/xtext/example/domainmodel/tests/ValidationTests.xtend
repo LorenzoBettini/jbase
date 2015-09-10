@@ -32,7 +32,7 @@ class ValidationTests {
 	
 	@Test def testImportUnused_1() {
 		val model = parse('''
-			import java.util.List
+			import java.util.List;
 			entity X {
 				sb: java.util.List<String>
 			}
@@ -42,11 +42,11 @@ class ValidationTests {
 	
 	@Test def testImportUnused_2() {
 		val model = parse('''
-			import java.util.List
+			import java.util.List;
 			entity X {
 				sb : List<String>
 				op foo() : List<String> {
-					sb
+					return sb;
 				}
 			}
 		''');
@@ -55,11 +55,11 @@ class ValidationTests {
 	
 	@Test def testImportUnused_3() {
 		val model = parse('''
-			import java.util.Map$Entry
+			import java.util.Map$Entry;
 			entity X {
 				sb: Entry<String, String>
 				op foo() : Entry<String, String> {
-					sb
+					return sb;
 				}
 			}
 		''');
@@ -68,11 +68,11 @@ class ValidationTests {
 	
 	@Test def testImportUnused_4() {
 		val model = parse('''
-			import java.util.Map
+			import java.util.Map;
 			entity X { 
 				sb: Map$Entry<String, String> 
 				op foo() : Map$Entry<String, String> {
-					sb
+					return sb;
 				}
 			}
 		''');
@@ -81,11 +81,11 @@ class ValidationTests {
 	
 	@Test def testImportUnused_5() {
 		val model = parse('''
-			import java.util.Map$Entry
+			import java.util.Map$Entry;
 			entity X {
 				sb: Map$Entry<String, String>
 				op foo(): Map$Entry<String, String> {
-					sb
+					return sb;
 				}
 			}
 		''');
@@ -94,7 +94,7 @@ class ValidationTests {
 	
 	@Test def testImportUnused_6() {
 		val model = parse('''
-			import java.awt.Label
+			import java.awt.Label;
 			/** {@link Label} */ 
 			entity X{}
 		''');
@@ -103,7 +103,7 @@ class ValidationTests {
 
 	@Test def testImportUnused_7() {
 		val model = parse('''
-			import java.awt.Label
+			import java.awt.Label;
 			/** @see Label */
 			entity X{}
 		''');
@@ -112,12 +112,12 @@ class ValidationTests {
 
 	@Test def testImportDuplicate() {
 		val model = parse('''
-			import java.util.List
-			import java.util.List
+			import java.util.List;
+			import java.util.List;
 			entity X {
 				sb: List<String>
 				op foo() : List<String> {
-					sb
+					return sb;
 				}
 			}
 		''');
@@ -154,7 +154,7 @@ class ValidationTests {
 	
 	@Test def testImportConflictWithTypeInSameFile() {
 		val model = parse('''
-			import java.util.List 
+			import java.util.List;
 			entity List {
 				
 			}
@@ -164,7 +164,7 @@ class ValidationTests {
 	
 	@Test def testImportNoConflictWithTypeInSameFile() {
 		val model = parse('''
-			import java.util.List
+			import java.util.List;
 			entity List2 {
 			}
 		''');

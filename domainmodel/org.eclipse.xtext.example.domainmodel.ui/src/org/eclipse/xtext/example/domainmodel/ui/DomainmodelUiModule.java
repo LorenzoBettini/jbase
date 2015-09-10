@@ -47,6 +47,7 @@ public class DomainmodelUiModule extends AbstractDomainmodelUiModule {
 		binder.bind(IOutlineContribution.class).annotatedWith(Names.named("FilterOperationsContribution")).to(FilterOperationsContribution.class);
 	} 
 	
+	@Override
 	public Class<? extends IContextualOutputConfigurationProvider> bindIContextualOutputConfigurationProvider() {
 		return EclipseOutputConfigurationProvider.class;
 	}
