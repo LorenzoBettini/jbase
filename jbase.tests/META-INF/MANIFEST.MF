@@ -15,7 +15,8 @@ Require-Bundle: jbase,
  org.eclipse.xtext.xbase.junit,
  org.eclipse.jdt.core,
  jbase.testlanguage.tests,
- org.eclipse.xtext.common.types.ui
+ org.eclipse.xtext.common.types.ui,
+ org.eclipse.ui.ide
 Import-Package: org.apache.log4j,
  org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
