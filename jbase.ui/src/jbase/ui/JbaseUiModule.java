@@ -6,7 +6,9 @@ package jbase.ui;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
+import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 
+import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
 import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
 
@@ -26,5 +28,9 @@ public class JbaseUiModule extends jbase.ui.AbstractJbaseUiModule {
 	@Override
 	public Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
 		return JbaseTokenToAttributeIdMapper.class;
+	}
+
+	public Class<? extends ExtractVariableRefactoring> bindExtractVariableRefactoring() {
+		return JbaseExtractVariableRefactoring.class;
 	}
 }

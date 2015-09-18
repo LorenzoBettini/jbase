@@ -19,6 +19,8 @@ import org.junit.runner.RunWith
 @InjectWith(typeof(JbaseTestlanguageUiInjectorProvider))
 class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 
+	val static STRING_EXPRESSION = '"foo"'
+
 	@Inject extension PluginProjectHelper
 
 	@Inject ExpressionUtil util
@@ -35,7 +37,7 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		'''
 			System.out.println(22 + $333333$);
 		'''.assertAfterExtract('''
-			val i = 333333
+			final int i = 333333;
 			System.out.println(22 + i);
 		''', true)
 	}
@@ -46,8 +48,21 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		'''
 			System.out.println(22 + $333333$);
 		'''.assertAfterExtract('''
-			var i = 333333
+			int i = 333333;
 			System.out.println(22 + i);
+		''', false)
+	}
+
+	@Test
+	def void testInsertBlock() throws Exception {
+		'''
+			if(true)
+				System.out.println(22 + $«STRING_EXPRESSION»$);
+		'''.assertAfterExtract('''
+			if(true) {
+				String string = "foo";
+				System.out.println(22 + string)
+			};
 		''', false)
 	}
 
