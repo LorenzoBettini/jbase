@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jbase.example.purejbase
-Bundle-Vendor: My Company
+Bundle-Vendor: Lorenzo Bettini
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: jbase.example.purejbase; singleton:=true
 Bundle-ActivationPolicy: lazy
