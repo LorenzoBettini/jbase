@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.eclipse.ui.newWizards">
+		<category id="jbase.ui.Examples" 
+				  name="Jbase Examples" 
+				  parentCategory="org.eclipse.ui.Examples" />
+	</extension>
+	<extension point="org.eclipse.ui.newWizards">
+		<category id="jbase.project.Examples" 
+				  name="Examples" 
+				  parentCategory="jbase.ui.category" />
+	</extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.purejbaseExampleWizard" 
+			name="Purejbase example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="org.eclipse.ui.Examples/jbase.ui.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Purejbase example</description>
+		</wizard>
+	</extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.purejbaseExampleWizard" 
+			name="Purejbase example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="jbase.ui.category/jbase.project.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Purejbase example</description>
+		</wizard>
+	</extension>
+
+   <extension
+         point="org.eclipse.emf.common.ui.examples">
+      <example
+            pageImage="icons/genproject.gif"
+            wizardID="jbase.examples.purejbaseExampleWizard">
+         <projectDescriptor
+               contentURI="contents/jbase.example.purejbase.zip"
+               description="Parser, Serializer, Linker, etc."
+               name="jbase.example.purejbase">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.purejbase.ui.zip"
+               description="A smart editor for the language."
+               name="jbase.example.purejbase.ui">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.purejbase.tests.zip"
+               description="A test suite for the language."
+               name="jbase.example.purejbase.tests">
+         </projectDescriptor>
+      </example>
+   </extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.jbasescriptExampleWizard" 
+			name="Jbasescript example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="org.eclipse.ui.Examples/jbase.ui.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Jbasescript example</description>
+		</wizard>
+	</extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.jbasescriptExampleWizard" 
+			name="Jbasescript example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="jbase.ui.category/jbase.project.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Jbasescript example</description>
+		</wizard>
+	</extension>
+
+   <extension
+         point="org.eclipse.emf.common.ui.examples">
+      <example
+            pageImage="icons/genproject.gif"
+            wizardID="jbase.examples.jbasescriptExampleWizard">
+         <projectDescriptor
+               contentURI="contents/jbase.example.jbasescript.zip"
+               description="Parser, Serializer, Linker, etc."
+               name="jbase.example.jbasescript">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.jbasescript.ui.zip"
+               description="A smart editor for the language."
+               name="jbase.example.jbasescript.ui">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.jbasescript.tests.zip"
+               description="A test suite for the language."
+               name="jbase.example.jbasescript.tests">
+         </projectDescriptor>
+      </example>
+   </extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.domainmodelExampleWizard" 
+			name="Jbase Domain Model example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="org.eclipse.ui.Examples/jbase.ui.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Jbase Domain Model example</description>
+		</wizard>
+	</extension>
+
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard	id="jbase.examples.domainmodelExampleWizard" 
+			name="Jbase Domain Model example" 
+			class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard" 
+			category="jbase.ui.category/jbase.project.Examples"
+			icon="icons/genproject.gif" 
+			project="true">
+			<description>Jbase Domain Model example</description>
+		</wizard>
+	</extension>
+
+   <extension
+         point="org.eclipse.emf.common.ui.examples">
+      <example
+            pageImage="icons/genproject.gif"
+            wizardID="jbase.examples.domainmodelExampleWizard">
+         <projectDescriptor
+               contentURI="contents/org.eclipse.xtext.example.domainmodel.zip"
+               description="Parser, Serializer, Linker, etc."
+               name="org.eclipse.xtext.example.domainmodel">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/org.eclipse.xtext.example.domainmodel.ui.zip"
+               description="A smart editor for the language."
+               name="org.eclipse.xtext.example.domainmodel.ui">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/org.eclipse.xtext.example.domainmodel.tests.zip"
+               description="A test suite for the language."
+               name="org.eclipse.xtext.example.domainmodel.tests">
+         </projectDescriptor>
+      </example>
+   </extension>
+
+</plugin>

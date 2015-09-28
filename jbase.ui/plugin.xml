@@ -551,5 +551,12 @@
             type="text">
     </fileTypes>
   </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+     <category
+           id="jbase.ui.category"
+           name="Jbase">
+     </category>
+  </extension>
 
 </plugin>
