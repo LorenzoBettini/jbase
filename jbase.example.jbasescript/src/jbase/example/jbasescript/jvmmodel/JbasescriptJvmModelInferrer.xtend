@@ -1,10 +1,15 @@
 package jbase.example.jbasescript.jvmmodel
 
 import com.google.inject.Inject
+import jbase.example.jbasescript.jbasescript.JbasescriptLanguageModel
+import jbase.example.jbasescript.jbasescript.Operation
+import jbase.jbase.XJJvmFormalParameter
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.common.types.JvmDeclaredType
+import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import jbase.example.jbasescript.jbasescript.JbasescriptLanguageModel
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -25,38 +30,65 @@ class JbasescriptJvmModelInferrer extends AbstractModelInferrer {
 	 * 
 	 * @param element
 	 *            the model to create one or more
-	 *            {@link org.eclipse.xtext.common.types.JvmDeclaredType declared
+	 *            {@link JvmDeclaredType declared
 	 *            types} from.
 	 * @param acceptor
 	 *            each created
-	 *            {@link org.eclipse.xtext.common.types.JvmDeclaredType type}
+	 *            {@link JvmDeclaredType type}
 	 *            without a container should be passed to the acceptor in order
 	 *            get attached to the current resource. The acceptor's
 	 *            {@link IJvmDeclaredTypeAcceptor#accept(org.eclipse.xtext.common.types.JvmDeclaredType)
 	 *            accept(..)} method takes the constructed empty type for the
 	 *            pre-indexing phase. This one is further initialized in the
-	 *            indexing phase using the closure you pass to the returned
-	 *            {@link org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor.IPostIndexingInitializing#initializeLater(org.eclipse.xtext.xbase.lib.Procedures.Procedure1)
-	 *            initializeLater(..)}.
+	 *            indexing phase using the closure you pass as the last argument.
 	 * @param isPreIndexingPhase
 	 *            whether the method is called in a pre-indexing phase, i.e.
 	 *            when the global index is not yet fully updated. You must not
 	 *            rely on linking using the index if isPreIndexingPhase is
 	 *            <code>true</code>.
 	 */
-   	def dispatch void infer(JbasescriptLanguageModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-   		// Here you explain how your model is mapped to Java elements, by writing the actual translation code.
-   		
-   		// An implementation for the initial hello world example could look like this:
-//   		acceptor.accept(element.toClass("my.company.greeting.MyGreetings")) [
-//   			for (greeting : element.greetings) {
-//   				members += greeting.toMethod("hello" + greeting.name, typeRef(String)) [
-//   					body = '''
-//							return "Hello «greeting.name»";
-//   					'''
-//   				]
-//   			}
-//   		]
-   	}
+   	def dispatch void infer(JbasescriptLanguageModel m, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+   		val e = m.block
+		acceptor.accept(e.toClass("jbasescript." + e.eResource.name)) [
+			for (o : m.operations) {
+				members += inferJavaMethod(o, m) => [ static=true ]
+			}
+
+			members += e.toMethod('main', typeRef(Void.TYPE)) [
+				exceptions += typeRef(Throwable)
+				parameters += e.toParameter("args", typeRef(String).addArrayTypeDimension)
+				static = true
+				// Associate the script as the body of the main method
+				body = e
+			]
+		]
+	}
+	
+	private def inferJavaMethod(Operation o, JbasescriptLanguageModel m) {
+		o.toMethod(o.name, o.type ?: inferredType) [
+			documentation = m.documentation
+		
+			for (p : o.params) {
+				inferParameter(it, p)
+			}
+		
+			body = o.body
+		]
+	}
+
+	protected def inferParameter(JvmOperation it, XJJvmFormalParameter p) {
+		var parameterType = p.parameterType
+		if (p.varArgs) {
+			// varArgs is a property of JvmExecutable
+			varArgs = p.varArgs
+			parameterType = parameterType.addArrayTypeDimension
+		}
+		parameters += p.toParameter(p.name, parameterType)
+	}
+
+	def name(Resource res) {
+		val s = res.URI.lastSegment
+		return s.substring(0, s.length - '.jbasescript'.length)
+	}
 }
 
