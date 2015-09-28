@@ -1,9 +1,21 @@
-grammar jbase.example.jbasescript.Jbasescript with org.eclipse.xtext.common.Terminals
+grammar jbase.example.jbasescript.Jbasescript with jbase.Jbase
 
 generate jbasescript "http://www.example.jbase/jbasescript/Jbasescript"
+import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
 
-Model:
-	greetings+=Greeting*;
+JbasescriptLanguageModel:
+	importSection=XImportSection?
+	operations+=Operation* // correspond to Java static methods
+	block=SpecialBlockExpression;
 	
-Greeting:
-	'Hello' name=ID '!';
+SpecialBlockExpression returns xbase::XBlockExpression:
+	{xbase::XBlockExpression}
+	(expressions+=XJStatementOrBlock ';'*)*;
+
+Operation:
+	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'
+						(':' type=JvmTypeReference)? 
+		body=XBlockExpression;
+
+FeatureCallID:
+	ValidID;
