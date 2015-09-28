@@ -1,0 +1,9 @@
+grammar jbase.example.jbasescript.Jbasescript with org.eclipse.xtext.common.Terminals
+
+generate jbasescript "http://www.example.jbase/jbasescript/Jbasescript"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
