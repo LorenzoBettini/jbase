@@ -1780,6 +1780,24 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testNumberLiteralsInBinaryOperations() {
+		// https://github.com/LorenzoBettini/javamm/issues/34
+		'''
+		System.out.println(1 + 128);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    System.out.println((1 + 128));
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testCharLiterals() {
 		charLiterals.checkCompilation(
 '''

@@ -97,6 +97,11 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def testNumberLiteralInBinaryOperation() {
+		"int i = 1 + 128".assertVarExpressionActualType("int")
+	}
+
+	@Test
 	def void testAdditionalVars() {
 		"int i, j, k;".assertLastExpression[
 			val varDecl = variableDeclaration
