@@ -2,11 +2,13 @@ package jbase.ui.tests
 
 import com.google.inject.Inject
 import jbase.testlanguage.JbaseTestlanguageUiInjectorProvider
+import jbase.tests.util.ui.PDETargetPlatformUtils
 import jbase.tests.util.ui.PluginProjectHelper
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.ui.AbstractWorkbenchTest
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -17,6 +19,11 @@ import static org.eclipse.xtext.junit4.ui.util.IResourcesSetupUtil.*
 class JbaseWorkbenchTest extends AbstractWorkbenchTest {
 
 	@Inject extension PluginProjectHelper
+
+	@BeforeClass
+	def static void beforeClass() {
+		PDETargetPlatformUtils.setTargetPlatform();
+	}
 
 	@Before
 	override void setUp() {
