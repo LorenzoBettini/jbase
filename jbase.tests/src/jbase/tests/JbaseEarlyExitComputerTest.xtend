@@ -60,7 +60,6 @@ class JbaseEarlyExitComputerTest extends JbaseAbstractTest {
 		'''.assertEarlyExit(true)
 	}
 
-
 	def private assertEarlyExit(CharSequence input, boolean expected) {
 		input.assertExpression[
 			expected.assertEquals(isEarlyExit)

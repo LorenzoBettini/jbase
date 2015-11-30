@@ -359,7 +359,10 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 				case 0: return 1;
 			}
 		}
-		'''.parse.assertErrorsAsStrings("Missing default branch in the presence of expected type int")
+		'''.parse.assertErrorsAsStrings('''
+			Missing default branch in the presence of expected type int
+			Missing return'''
+		)
 	}
 
 	@Test def void testValidSwitchReturnTypeWithFallback() {
@@ -498,7 +501,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testParams() {
 		'''
-		op m(int i, boolean b, String i) {}
+		op m(int i, boolean b, String i) : void {}
 		'''.parse.assertErrorsAsStrings(
 		'''Duplicate local variable i'''
 		)
@@ -783,7 +786,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testAssignmentToFinalParameter() {
 		'''
-		op m(final int i) {
+		op m(final int i) : void {
 			i = 1;
 		}
 		'''.parse.assertIssuesAsStrings("Assignment to final parameter")
@@ -835,6 +838,50 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			input.indexOf("..."), 3,
 			"A vararg must be the last parameter."
 		)
+	}
+
+	@Test def void testMissingReturnStatementDueToImplicitReturn() {
+		// https://github.com/LorenzoBettini/javamm/issues/32
+		val input = '''
+		op m(int i) : int {
+			0;
+		}
+		'''
+		input.parse.assertMissingReturn(XbasePackage.eINSTANCE.XNumberLiteral)
+	}
+
+	@Test def void testMissingReturnStatementInEmptyBlock() {
+		// https://github.com/LorenzoBettini/javamm/issues/32
+		val input = '''
+		op m(int i) : int {
+		}
+		'''
+		input.parse.assertMissingReturn(XbasePackage.eINSTANCE.XBlockExpression)
+	}
+
+	@Test def void testMissingReturnStatement() {
+		// https://github.com/LorenzoBettini/javamm/issues/32
+		val input = '''
+		op m(int i) : int {
+			if (i < 0) {
+				return 0;
+			}
+		}
+		'''
+		input.parse.assertMissingReturn(XbasePackage.eINSTANCE.XIfExpression)
+	}
+
+	@Test def void testReturnStatementInBothIfBranches() {
+		val input = '''
+		op m(int i) : int {
+			if (i < 0) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		'''
+		input.parse.assertNoErrors
 	}
 
 	@Test def void testInvalidThrowExpression() {
@@ -936,7 +983,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testClassObjectAsArgument() {
 		val input = '''
-		op m(Class c) {}
+		op m(Class c) : void {}
 		m(String.class);
 		'''
 		input.parse.assertNoErrors
@@ -1072,5 +1119,12 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			assertNoIssues
 		]
 	}
-	
+
+	def private assertMissingReturn(EObject o, EClass c) {
+		o.assertError(
+			c,
+			JbaseIssueCodes.MISSING_RETURN,
+			'Missing return'
+		)
+	}
 }

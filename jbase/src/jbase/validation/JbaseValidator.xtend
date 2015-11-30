@@ -5,13 +5,13 @@ package jbase.validation
 
 import com.google.inject.Inject
 import java.util.List
+import jbase.jbase.JbasePackage
 import jbase.jbase.XJAdditionalXVariableDeclaration
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
-import jbase.jbase.JbasePackage
 import jbase.scoping.featurecalls.JbaseOperatorMapping
 import jbase.util.JbaseModelUtil
 import jbase.util.JbaseNodeModelUtil
@@ -25,6 +25,8 @@ import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XAbstractWhileExpression
 import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.XBasicForLoopExpression
+import org.eclipse.xtext.xbase.XBlockExpression
+import org.eclipse.xtext.xbase.XConstructorCall
 import org.eclipse.xtext.xbase.XDoWhileExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XFeatureCall
@@ -33,10 +35,12 @@ import org.eclipse.xtext.xbase.XReturnExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XbasePackage
+import org.eclipse.xtext.xbase.jvmmodel.ILogicalContainerProvider
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
-import org.eclipse.xtext.xbase.XConstructorCall
+import jbase.controlflow.JbaseSureReturnComputer
 
 /**
  * @author Lorenzo Bettini
@@ -65,6 +69,9 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Inject extension JbaseNodeModelUtil
 	@Inject extension JbaseModelUtil
+	@Inject ILogicalContainerProvider logicalContainerProvider
+	@Inject IBatchTypeResolver batchTypeResolver
+	@Inject JbaseSureReturnComputer sureReturnComputer
 
 	override protected checkAssignment(XExpression expression, EStructuralFeature feature, boolean simpleAssignment) {
 		if (expression instanceof XAbstractFeatureCall) {
@@ -248,5 +255,30 @@ class JbaseValidator extends AbstractJbaseValidator {
 				);
 			}
 		}
+	}
+
+	/**
+	 * This can be explicitly called on an XBlockExpression which represents
+	 * the body of an inferred JvmOperation; it will check that
+	 * if the corresponding Java method is not void, then a return
+	 * must be specified in all possible paths.
+	 */
+	def protected void checkMissingReturn(XBlockExpression body) {
+		val jvmOperation = logicalContainerProvider.getLogicalContainer(body)
+		val types = batchTypeResolver.resolveTypes(body);
+		if (types.getActualType(jvmOperation).isPrimitiveVoid()) 
+			return;
+		val lastExpression = body.expressions.last
+		if (lastExpression == null) {
+			errorMissingReturnStatement(body)
+			return
+		}
+		if (!sureReturnComputer.isSureReturn(lastExpression)) {
+			errorMissingReturnStatement(lastExpression)
+		}
+	}
+
+	def protected errorMissingReturnStatement(XExpression e) {
+		error("Missing return", e, null, MISSING_RETURN)
 	}
 }

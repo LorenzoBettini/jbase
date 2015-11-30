@@ -3,6 +3,10 @@
  */
 package jbase.testlanguage.validation
 
+import org.eclipse.xtext.validation.Check
+import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
+import org.eclipse.xtext.xbase.XBlockExpression
+
 //import org.eclipse.xtext.validation.Check
 
 /**
@@ -12,14 +16,8 @@ package jbase.testlanguage.validation
  */
 class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
 
-//  public static val INVALID_NAME = 'invalidName'
-//
-//	@Check
-//	def checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.name.charAt(0))) {
-//			warning('Name should start with a capital', 
-//					MyDslPackage.Literals.GREETING__NAME,
-//					INVALID_NAME)
-//		}
-//	}
+	@Check
+	def void checkReturnInOperation(AbstractOperation op) {
+		checkMissingReturn(op.body as XBlockExpression)
+	}
 }

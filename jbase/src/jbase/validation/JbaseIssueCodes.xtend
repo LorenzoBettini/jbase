@@ -18,8 +18,8 @@ class JbaseIssueCodes {
 	public static val INVALID_USE_OF_VAR_ARGS = PREFIX + "InvalidUseOfVarArgs"
 	public static val INVALID_CLASS_OBJECT_EXPRESSION = PREFIX + "InvalidClassObjectExpression"
 	public static val INCOMPLETE_CLASS_OBJECT = PREFIX + "IncompleteClassObject"
+	public static val MISSING_RETURN = PREFIX + "MissingReturn"
 
 	protected new() {
-		
 	}
 }
