@@ -5,6 +5,7 @@ package jbase;
 
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
@@ -20,6 +21,7 @@ import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFa
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
+import jbase.validation.JbaseConfigurableIssueCodes;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -58,5 +60,10 @@ public class JbaseRuntimeModule extends jbase.AbstractJbaseRuntimeModule {
 
 	public Class<? extends RewritableImportSection.Factory> bindRewritableImportSection$Factory() {
 		return JbaseRewritableImportSectionFactory.class;
+	}
+
+	@Override
+	public Class<? extends ConfigurableIssueCodesProvider> bindConfigurableIssueCodesProvider() {
+		return JbaseConfigurableIssueCodes.class;
 	}
 }

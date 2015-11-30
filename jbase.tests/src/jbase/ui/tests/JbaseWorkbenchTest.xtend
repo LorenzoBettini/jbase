@@ -1,29 +1,29 @@
 package jbase.ui.tests
 
-import org.eclipse.core.resources.IMarker
-import org.eclipse.core.resources.IResource
+import com.google.inject.Inject
+import jbase.testlanguage.JbaseTestlanguageUiInjectorProvider
+import jbase.tests.util.ui.PluginProjectHelper
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.ui.AbstractWorkbenchTest
-import org.eclipse.xtext.ui.XtextProjectHelper
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageUiInjectorProvider
 
 import static org.eclipse.xtext.junit4.ui.util.IResourcesSetupUtil.*
-import static org.eclipse.xtext.junit4.ui.util.JavaProjectSetupUtil.*
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageUiInjectorProvider))
 class JbaseWorkbenchTest extends AbstractWorkbenchTest {
 
-	val static TEST_PROJECT = "TestProject"
-	val static TEST_FILE = "TestFile"
+	@Inject extension PluginProjectHelper
+
+	@Before
+	override void setUp() {
+		createJavaPluginProject
+	}
 
 	@Test def void testWorkbenchIntegration() {
-		val project = createProject(TEST_PROJECT)
-		makeJavaProject(project)
-		addNature(project, XtextProjectHelper.NATURE_ID)
 		createTestFile('''
 			aString : String
 			op m(String s) : String {
@@ -36,21 +36,27 @@ class JbaseWorkbenchTest extends AbstractWorkbenchTest {
 		assertNoErrors
 	}
 
-	def private createTestFile(CharSequence contents) {
-		createFile(TEST_PROJECT + "/src/" + TEST_FILE + ".jbasetestlanguage", contents.toString)
-	}
-
-	def private assertNoErrors() {
-		val markers = root.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE).
-			filter[
-				getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO) == IMarker.SEVERITY_ERROR
-			]
-		assertEquals(
-			"unexpected errors:\n" +
-			markers.map[getAttribute(IMarker.LOCATION) + 
-				", " + getAttribute(IMarker.MESSAGE)].join("\n"),
-			0, 
-			markers.size
+	@Test
+	def void testErrorInGeneratedJavaCode() {
+		createTestFile(
+'''
+int a = 2;
+int b = 2;
+int c = 2;
+if (a==b==c==2) {
+	System.out.println("TRUE");
+}
+'''
+		)
+		
+		cleanBuild
+		waitForBuild
+		// one error in the generated Java file, and one in the original file
+		assertErrors(
+		'''
+		Java problem: Incompatible operand types Boolean and Integer
+		Incompatible operand types Boolean and Integer'''
 		)
 	}
+
 }

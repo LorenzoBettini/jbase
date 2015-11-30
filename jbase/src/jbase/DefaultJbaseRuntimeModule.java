@@ -5,6 +5,7 @@ package jbase;
 
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
 import org.eclipse.xtext.xbase.DefaultXbaseRuntimeModule;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
@@ -22,6 +23,7 @@ import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFa
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
+import jbase.validation.JbaseConfigurableIssueCodes;
 
 /**
  * This is meant to be used as the default base class for DSLs using Jbase.
@@ -62,6 +64,11 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
 
 	public Class<? extends RewritableImportSection.Factory> bindRewritableImportSection$Factory() {
 		return JbaseRewritableImportSectionFactory.class;
+	}
+
+	@Override
+	public Class<? extends ConfigurableIssueCodesProvider> bindConfigurableIssueCodesProvider() {
+		return JbaseConfigurableIssueCodes.class;
 	}
 
 	public Class<? extends org.eclipse.xtext.formatting2.IFormatter2> bindIFormatter2() {

@@ -110,7 +110,7 @@ class PluginProjectHelper {
 
 	def createTestFile(CharSequence contents) {
 		createFile(TEST_PROJECT + "/src/" +
-			TEST_FILE + fileExtensionProvider.getFileExtensions().iterator().next(),
+			TEST_FILE + "." + fileExtensionProvider.getFileExtensions().iterator().next(),
 			contents.toString
 		)
 	}
