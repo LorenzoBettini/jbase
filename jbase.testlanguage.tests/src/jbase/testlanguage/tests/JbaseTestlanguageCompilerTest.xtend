@@ -121,7 +121,7 @@ method print() {
 }
 
 method change() {
-	aString = "a";
+	return aString = "a";
 }
 		'''.checkCompilation('''
 package jbasetestlanguage;
