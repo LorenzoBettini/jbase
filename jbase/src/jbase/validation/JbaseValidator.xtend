@@ -45,7 +45,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	static val xbasePackage = XbasePackage.eINSTANCE;
 	static val jbasePackage = JbasePackage.eINSTANCE;
-	
+
 	val semicolonStatements = #{
 		XJBranchingStatement,
 		XVariableDeclaration,
@@ -65,7 +65,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Inject extension JbaseNodeModelUtil
 	@Inject extension JbaseModelUtil
-	
+
 	override protected checkAssignment(XExpression expression, EStructuralFeature feature, boolean simpleAssignment) {
 		if (expression instanceof XAbstractFeatureCall) {
 			val assignmentFeature = expression.feature
@@ -77,7 +77,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 				}
 			}
 		}
-		
+
 		super.checkAssignment(expression, feature, simpleAssignment)
 	}
 
@@ -95,30 +95,39 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	def void checkContinue(XJContinueStatement st) {
-		checkBranchingStatementInternal(st, "a loop",
-			XAbstractWhileExpression, XBasicForLoopExpression
+		checkBranchingStatementInternal(
+			st,
+			"a loop",
+			XAbstractWhileExpression,
+			XBasicForLoopExpression
 		)
 	}
 
 	@Check
 	def void checkBreak(XJBreakStatement st) {
-		checkBranchingStatementInternal(st, "a loop or a switch",
-			XAbstractWhileExpression, XBasicForLoopExpression,
+		checkBranchingStatementInternal(
+			st,
+			"a loop or a switch",
+			XAbstractWhileExpression,
+			XBasicForLoopExpression,
 			XSwitchExpression
 		)
 	}
 
-	def private checkBranchingStatementInternal(XJBranchingStatement st, String errorDetails, Class<? extends EObject>... validContainers) {
+	def private checkBranchingStatementInternal(XJBranchingStatement st, String errorDetails,
+		Class<? extends EObject>... validContainers) {
 		val container = Wrapper.wrap(st.eContainer)
 		while (container.get != null) {
-			if (validContainers.exists[c | c.isInstance(container.get)]) {
+			if (validContainers.exists[c|c.isInstance(container.get)]) {
 				return;
 			}
 			container.set(container.get.eContainer)
 		}
 		error(
 			st.instruction + " cannot be used outside of " + errorDetails,
-			st, null, INVALID_BRANCHING_STATEMENT
+			st,
+			null,
+			INVALID_BRANCHING_STATEMENT
 		)
 	}
 
@@ -138,7 +147,9 @@ class JbaseValidator extends AbstractJbaseValidator {
 		if (!e.hasSemicolon) {
 			error(
 				'Syntax error, insert ";" to complete Statement',
-				e, null, MISSING_SEMICOLON
+				e,
+				null,
+				MISSING_SEMICOLON
 			)
 		}
 	}
@@ -146,10 +157,9 @@ class JbaseValidator extends AbstractJbaseValidator {
 	def private hasToBeCheckedForMissingSemicolon(XExpression e) {
 		val expClass = e.class
 		val containingFeature = e.eContainingFeature
-		semicolonStatements.exists[c | 
-			c.isAssignableFrom(expClass) &&
-			featuresForRequiredSemicolon.exists[f | f == containingFeature]
-		]		
+		semicolonStatements.exists [ c |
+			c.isAssignableFrom(expClass) && featuresForRequiredSemicolon.exists[f|f == containingFeature]
+		]
 	}
 
 	@Check
@@ -167,27 +177,30 @@ class JbaseValidator extends AbstractJbaseValidator {
 		if (!call.explicitConstructorCall) {
 			error(
 				'Syntax error, insert "()" to complete Expression',
-				call, xbasePackage.XConstructorCall_Constructor, MISSING_PARENTHESES
+				call,
+				xbasePackage.XConstructorCall_Constructor,
+				MISSING_PARENTHESES
 			)
 		}
 	}
 
 	@Check
 	def checkArrayConstructor(XJArrayConstructorCall cons) {
-		
 		val arrayLiteral = cons.arrayLiteral
 		val dimensionExpressions = cons.indexes
-		
+
 		if (dimensionExpressions.empty && arrayLiteral == null) {
 			error(
 				"Constructor must provide either dimension expressions or an array initializer",
-				cons, null,
+				cons,
+				null,
 				ARRAY_CONSTRUCTOR_EITHER_DIMENSION_EXPRESSION_OR_INITIALIZER
 			)
 		} else if (!dimensionExpressions.empty && arrayLiteral != null) {
 			error(
 				"Cannot define dimension expressions when an array initializer is provided",
-				cons, null,
+				cons,
+				null,
 				ARRAY_CONSTRUCTOR_BOTH_DIMENSION_EXPRESSION_AND_INITIALIZER
 			)
 		} else {
@@ -199,7 +212,8 @@ class JbaseValidator extends AbstractJbaseValidator {
 				} else if (foundEmptyDimension) {
 					error(
 						"Cannot specify an array dimension after an empty dimension",
-						d, null,
+						d,
+						null,
 						ARRAY_CONSTRUCTOR_DIMENSION_EXPRESSION_AFTER_EMPTY_DIMENSION
 					)
 					return
@@ -210,13 +224,13 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	def private checkMissingParenthesesInternal(XAbstractFeatureCall call, boolean explicitOpCall) {
 		// length for arrays is OK without parentheses
-		if (call.feature instanceof JvmOperation && 
-			!explicitOpCall &&
-			call.feature.simpleName != JbaseOperatorMapping.ARRAY_LENGTH
-		) {
+		if (call.feature instanceof JvmOperation && !explicitOpCall &&
+			call.feature.simpleName != JbaseOperatorMapping.ARRAY_LENGTH) {
 			error(
 				'Syntax error, insert "()" to complete method call',
-				call, xbasePackage.XAbstractFeatureCall_Feature, MISSING_PARENTHESES
+				call,
+				xbasePackage.XAbstractFeatureCall_Feature,
+				MISSING_PARENTHESES
 			)
 		}
 	}
@@ -226,8 +240,10 @@ class JbaseValidator extends AbstractJbaseValidator {
 		if (param.isVarArgs()) {
 			val params = param.eContainer().eGet(param.eContainingFeature()) as List<XJJvmFormalParameter>
 			if (param != params.last) {
-				error("A vararg must be the last parameter.", 
-					param, jbasePackage.XJJvmFormalParameter_VarArgs,
+				error(
+					"A vararg must be the last parameter.",
+					param,
+					jbasePackage.XJJvmFormalParameter_VarArgs,
 					JbaseIssueCodes.INVALID_USE_OF_VAR_ARGS
 				);
 			}
