@@ -213,6 +213,44 @@
 				</plugin>
 				
 				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco-version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+							<configuration>
+								<!-- Where to put jacoco coverage report -->
+								<destFile>${sonar.jacoco.reportPath}</destFile>
+								<includes>
+									<include>jbase.*</include>
+								</includes>
+								<excludes>
+									<exclude>**/org/eclipse/**/*.class</exclude>
+									<exclude>**.antlr**</exclude>
+									<exclude>**.parseTree**</exclude>
+									<exclude>**Abstract*RuntimeModule.class</exclude>
+									<exclude>**/*SetupGenerated*.class</exclude>
+									<exclude>**/Abstract*Validator.class</exclude>
+									<exclude>**/*GrammarAccess*.class</exclude>
+									<exclude>**/Abstract*UiModule.class</exclude>
+									<exclude>**/Abstract*ProposalProvider.class</exclude>
+									<exclude>**/*Test.class</exclude>
+									<exclude>**/*Internal*</exclude>
+									<exclude>**/*Sequencer*</exclude>
+									<exclude>**/internal/*</exclude>
+									<exclude>**/jbase/jbase/util/*</exclude>
+									<exclude>**/jbase/jbase/impl/*</exclude>
+								</excludes>
+								<append>true</append>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				
+				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>2.5</version>
@@ -315,44 +353,6 @@
 				<configuration>
 					<format>'v'yyyyMMdd'-'HHmm</format>
 				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco-version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-						<configuration>
-							<!-- Where to put jacoco coverage report -->
-							<destFile>${sonar.jacoco.reportPath}</destFile>
-							<includes>
-								<include>jbase.*</include>
-							</includes>
-							<excludes>
-								<exclude>**/org/eclipse/**/*.class</exclude>
-								<exclude>**.antlr**</exclude>
-								<exclude>**.parseTree**</exclude>
-								<exclude>**Abstract*RuntimeModule.class</exclude>
-								<exclude>**/*SetupGenerated*.class</exclude>
-								<exclude>**/Abstract*Validator.class</exclude>
-								<exclude>**/*GrammarAccess*.class</exclude>
-								<exclude>**/Abstract*UiModule.class</exclude>
-								<exclude>**/Abstract*ProposalProvider.class</exclude>
-								<exclude>**/*Test.class</exclude>
-								<exclude>**/*Internal*</exclude>
-								<exclude>**/*Sequencer*</exclude>
-								<exclude>**/internal/*</exclude>
-								<exclude>**/jbase/jbase/util/*</exclude>
-								<exclude>**/jbase/jbase/impl/*</exclude>
-							</excludes>
-							<append>true</append>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
