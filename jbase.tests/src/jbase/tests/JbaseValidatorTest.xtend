@@ -1037,6 +1037,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		input.parse.assertMissingClassInClassObject()
 	}
 
+	@Test def void testInvalidCharacterConstant() {
+		val input = '''
+		System.out.println('12');
+		'''
+		input.parse.assertError(
+			jbasePackage.XJCharLiteral,
+			JbaseIssueCodes.INVALID_CHARACTER_CONSTANT,
+			input.indexOf("'12'"), 4,
+			"Invalid character constant"
+		)
+	}
+
 	def private assertNumberLiteralTypeMismatch(EObject o, String expectedType, String actualType) {
 		o.assertTypeMismatch(XbasePackage.eINSTANCE.XNumberLiteral, expectedType, actualType)
 	}

@@ -5,11 +5,13 @@ package jbase.validation
 
 import com.google.inject.Inject
 import java.util.List
+import jbase.controlflow.JbaseSureReturnComputer
 import jbase.jbase.JbasePackage
 import jbase.jbase.XJAdditionalXVariableDeclaration
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJBreakStatement
+import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.scoping.featurecalls.JbaseOperatorMapping
@@ -40,7 +42,6 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
-import jbase.controlflow.JbaseSureReturnComputer
 
 /**
  * @author Lorenzo Bettini
@@ -226,6 +227,18 @@ class JbaseValidator extends AbstractJbaseValidator {
 					return
 				}
 			}
+		}
+	}
+
+	@Check
+	def void checkCharacterLiteral(XJCharLiteral c) {
+		val lenght = c.value.length
+		if (lenght > 1) {
+			error(
+				"Invalid character constant",
+				c, null,
+				INVALID_CHARACTER_CONSTANT
+			)
 		}
 	}
 
