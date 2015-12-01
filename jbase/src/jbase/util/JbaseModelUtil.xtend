@@ -13,14 +13,14 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
  * Utility methods for accessing the Jbase model.
  * 
  * @author Lorenzo Bettini
- *
+ * 
  */
 @Singleton
 class JbaseModelUtil {
-	
+
 	@Inject extension JbaseNodeModelUtil
 	@Inject extension IJvmModelAssociations
-	
+
 	/**
 	 * The returned list contains XExpressions corresponding to
 	 * dimension specification in a XJArrayConstructorCall;
@@ -34,12 +34,11 @@ class JbaseModelUtil {
 	 */
 	def arrayDimensionIndexAssociations(XJArrayConstructorCall c) {
 		val sortedByOffset = (c.dimensions + c.indexes).sortBy[elementOffsetInProgram]
-		
+
 		// there's at least one dimension [ if we parsed a XJArrayConstructorCall
-		
 		val associations = <XExpression>newArrayList()
-		
-		val last = sortedByOffset.reduce[p1, p2|
+
+		val last = sortedByOffset.reduce [ p1, p2 |
 			if (p1 instanceof XJArrayDimension) {
 				if (p2 instanceof XExpression) {
 					// case "[ exp"
@@ -55,7 +54,7 @@ class JbaseModelUtil {
 		if (last instanceof XJArrayDimension) {
 			associations.add(null)
 		}
-		
+
 		return associations
 	}
 
@@ -68,7 +67,7 @@ class JbaseModelUtil {
 		if (p instanceof XJJvmFormalParameter) {
 			return p
 		}
-		
+
 		val orig = p.sourceElements.head
 		if (orig instanceof XJJvmFormalParameter) {
 			return orig
