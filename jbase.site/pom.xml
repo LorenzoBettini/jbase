@@ -156,7 +156,7 @@
 														<!-- Process class files only, ignore jacocoagent.jar -->
 														<fileset dir="../jbase/target/classes" 
 															includes="**/*.class"
-															excludes="**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*" 
+															excludes="**/*RuntimeModule*,**/*StandaloneSetup*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*" 
 														/>
 													</classfiles>
 													<sourcefiles>
@@ -168,7 +168,7 @@
 													<classfiles>
 														<fileset dir="../jbase.ui/target/classes" 
 															includes="**/*.class"
-															excludes="**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*"/>
+															excludes="**/*ExtensionFactory*,**/*UiModule*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*"/>
 													</classfiles>
 													<sourcefiles>
 														<fileset dir="../jbase.ui/src" />
