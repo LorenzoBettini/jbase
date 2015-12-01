@@ -34,7 +34,7 @@
 							<useUIHarness>true</useUIHarness>
 							<useUIThread>true</useUIThread>
 							<!-- tycho.testArgLine repeated to re-use the configuration for argLine for jacoco agent -->
-							<argLine>${tycho.testArgLine} ${memoryArgs} -DbuildingWithTycho=true</argLine>
+							<argLine>${memoryArgs} -DbuildingWithTycho=true</argLine>
 							<includes>
 								<include>**/tests/*Test*.java</include>
 							</includes>
