@@ -366,7 +366,7 @@
             project="jbase.sdk"/>
         <operand
             xsi:type="predicates:NamePredicate"
-            pattern=".*\.examples(\..*)?"/>
+            pattern=".*\.example(\..*)?"/>
       </predicate>
     </workingSet>
     <workingSet
@@ -378,7 +378,7 @@
             project="jbase.sdk"/>
         <operand
             xsi:type="predicates:NamePredicate"
-            pattern=".*\.tests(\..*)?"/>
+            pattern=".*\.test(.*)?"/>
         <operand
             xsi:type="workingsets:ExclusionPredicate"
             excludedWorkingSet="//@setupTasks.12/@workingSets.0"/>
