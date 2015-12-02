@@ -4,12 +4,13 @@ import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
 
-var grammarURI = "classpath:/jbase/example/jbasescript/Jbasescript.xtext"
 var fileExtensions = "jbasescript"
 var projectName = "jbase.example.jbasescript"
 var runtimeProject = "../${projectName}"
 var generateXtendStub = true
 var encoding = "UTF-8"
+// var grammarURI = "classpath:/jbase/example/jbasescript/Jbasescript.xtext"
+var grammarURI = "platform:/resource/${projectName}/src/jbase/example/jbasescript/Jbasescript.xtext"
 
 Workflow {
     bean = StandaloneSetup {
