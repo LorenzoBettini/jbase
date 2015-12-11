@@ -19,4 +19,13 @@ Then cd to jbase.releng directory and run
 mvn clean verify
 ```
 
-You will find the p2 update site in the target directory of the jbase.site project.
+You will find the p2 update site in the _target_ directory of the _jbase.site_ project.
+
+The above command will also execute all the tests, including UI tests that will run Eclipse instances (you will see Eclipse appear at some point during the build).
+
+If you want to skip tests, you should run the following command instead of the previous one:
+
+```
+mvn clean verify -DskipTests
+```
+
