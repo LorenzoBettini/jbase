@@ -17,7 +17,7 @@ import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbasescriptInjectorProviderCustom)) 
-class jbasescriptCompilerTest {
+class JbasescriptCompilerTest {
 
 	@Rule @Inject public TemporaryFolder temporaryFolder
 
