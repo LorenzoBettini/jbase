@@ -13,7 +13,21 @@
 
 	<artifactId>org.eclipse.xtext.example.domainmodel.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
-	
+
+	<profiles>
+		<profile>
+			<id>macosx-jvm-flags</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -34,7 +48,7 @@
 							<useUIHarness>true</useUIHarness>
 							<useUIThread>true</useUIThread>
 							<!-- tycho.testArgLine repeated to re-use the configuration for argLine for jacoco agent -->
-							<argLine>${memoryArgs} -DbuildingWithTycho=true</argLine>
+							<argLine>${memoryArgs} ${os-jvm-flags} -DbuildingWithTycho=true</argLine>
 							<includes>
 								<include>**/tests/*Test*.java</include>
 							</includes>
