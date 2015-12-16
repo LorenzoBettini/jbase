@@ -17,6 +17,7 @@ import org.eclipse.xtext.xbase.XIfExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
+import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
 
 /**
  * Detects references to variables which might not be initialized, according
@@ -136,7 +137,7 @@ class JbaseInitializedVariableFinder {
 		NotInitializedAcceptor acceptor) {
 		detectNotInitializedDispatch(e.^switch, initialized, acceptor)
 
-		// we consider effective branches the cases that end with a break
+		// we consider effective branches the cases that end with a break;
 		// cases without a break will not be considered as branches, as in Java
 		val effectiveOrNotEffectiveBranches =
 			e.cases.map[then].groupBy[isSureBranchStatement]
@@ -193,6 +194,49 @@ class JbaseInitializedVariableFinder {
 		inspectBranchesAndIntersect(
 			newArrayList(e.then, e.^else), initialized, acceptor
 		)
+	}
+
+	def dispatch void detectNotInitialized(XTryCatchFinallyExpression e, InitializedVariables initialized,
+		NotInitializedAcceptor acceptor) {
+		val finallyExpression = e.finallyExpression
+		if (finallyExpression != null) {
+			// when inspecting the finally block we can't assume anything about
+			// what's initialized in try and catch blocks
+			/*
+			 * Example:
+			 *  
+			 * int i;
+			 * int j;
+			 * try {
+			 * 	j = 0;
+			 * } catch (NullPointerException e) {
+			 * 	j = 0;
+			 * } finally {
+			 * 	i = 0;
+			 * 	i = j; // ERROR
+			 * }
+			 * System.out.println(i); // OK
+			 * System.out.println(j); // OK
+			 */
+			val temporaryCopy = initialized.createCopy
+			inspectBranchesAndIntersect(
+				newArrayList(e.expression) + e.catchClauses.map[expression],
+				temporaryCopy,
+				acceptor
+			)
+			// if present, the final block is always executed so we treat it as a block expression
+			// without any information about try and catch
+			detectNotInitializedDispatch(e.finallyExpression, initialized, acceptor)
+			// now we can update the information for the following expressions
+			// with what we had collected in try and catch
+			initialized += temporaryCopy
+		} else {
+			inspectBranchesAndIntersect(
+				newArrayList(e.expression) + e.catchClauses.map[expression],
+				initialized,
+				acceptor
+			)
+		}
 	}
 
 	protected def inspectContents(XExpression e, InitializedVariables initialized, NotInitializedAcceptor acceptor) {

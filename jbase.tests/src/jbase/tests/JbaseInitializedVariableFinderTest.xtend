@@ -701,6 +701,93 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		assertNotInitializedReferences("")
 	}
 
+	@Test def void testInitializedOnlyInTry() {
+		'''
+		int i;
+		try {
+			i = 0;
+		} catch (NullPointerException e) {
+			
+		}
+		System.out.println(i);
+		'''.
+		assertNotInitializedReferences("i in System.out.println(i);")
+	}
+
+	@Test def void testInitializedOnlyInCatch() {
+		'''
+		int i;
+		try {
+			
+		} catch (NullPointerException e) {
+			i = 0;
+		}
+		System.out.println(i);
+		'''.
+		assertNotInitializedReferences("i in System.out.println(i);")
+	}
+
+	@Test def void testInitializedBothInTryAndInCatch() {
+		'''
+		int i;
+		try {
+			i = 0;
+		} catch (NullPointerException e) {
+			i = 0;
+		}
+		System.out.println(i);
+		'''.
+		assertNotInitializedReferences("")
+	}
+
+	@Test def void testInitializedBothInTryAndInCatches() {
+		'''
+		int i;
+		try {
+			i = 0;
+		} catch (NullPointerException e) {
+			i = 0;
+		} catch (IllegalArgumentException e) {
+			i = 0;
+		}
+		System.out.println(i);
+		'''.
+		assertNotInitializedReferences("")
+	}
+
+	@Test def void testInitializedOnlyInFinally() {
+		'''
+		int i;
+		try {
+			
+		} catch (NullPointerException e) {
+			
+		} finally {
+			i = 0; // always executed
+		}
+		System.out.println(i);
+		'''.
+		assertNotInitializedReferences("")
+	}
+
+	@Test def void testInitializedNotInFinally() {
+		'''
+		int i;
+		int j;
+		try {
+			j = 0;
+		} catch (NullPointerException e) {
+			j = 0;
+		} finally {
+			i = 0;
+			i = j; // ERROR
+		}
+		System.out.println(i); // OK
+		System.out.println(j); // OK
+		'''.
+		assertNotInitializedReferences("j in i = j;")
+	}
+
 	private def assertNotInitializedReferences(CharSequence input, CharSequence expected) {
 		val builder = new StringBuilder()
 		val blockToParse = '''{
