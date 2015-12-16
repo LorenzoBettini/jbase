@@ -788,6 +788,31 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		assertNotInitializedReferences("j in i = j;")
 	}
 
+	@Test def void testInitializedAfterSynchronized() {
+		'''
+		int i, j;
+		Object o = null;
+		synchronized(o) {
+			i = 0;
+		}
+		System.out.println(i); // OK
+		System.out.println(j); // ERROR
+		'''.
+		assertNotInitializedReferences("j in System.out.println(j);")
+	}
+
+	@Test def void testNotInitializedInSynchronized() {
+		'''
+		int i, j;
+		Object o;
+		synchronized(o) { // ERROR
+			i = 0;
+		}
+		System.out.println(i); // OK
+		'''.
+		assertNotInitializedReferences("o in synchronized(o) { i = 0; }")
+	}
+
 	private def assertNotInitializedReferences(CharSequence input, CharSequence expected) {
 		val builder = new StringBuilder()
 		val blockToParse = '''{

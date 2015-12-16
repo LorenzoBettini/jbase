@@ -18,6 +18,7 @@ import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
+import org.eclipse.xtext.xbase.XSynchronizedExpression
 
 /**
  * Detects references to variables which might not be initialized, according
@@ -237,6 +238,18 @@ class JbaseInitializedVariableFinder {
 				acceptor
 			)
 		}
+	}
+
+	/**
+	 * This is just the same as the generic case for XExpression, but we put it here
+	 * all the same for documentation.
+	 * 
+	 * A synchronized block is always considered executed from the variable initialization point
+	 * of view.
+	 */
+	def dispatch void detectNotInitialized(XSynchronizedExpression e,
+		InitializedVariables initialized, NotInitializedAcceptor acceptor) {
+		inspectContents(e, initialized, acceptor)
 	}
 
 	protected def inspectContents(XExpression e, InitializedVariables initialized, NotInitializedAcceptor acceptor) {
