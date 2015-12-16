@@ -73,6 +73,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Inject ILogicalContainerProvider logicalContainerProvider
 	@Inject IBatchTypeResolver batchTypeResolver
 	@Inject JbaseSureReturnComputer sureReturnComputer
+	@Inject JbaseInitializedVariableFinder initializedVariableFinder
 
 	override protected checkAssignment(XExpression expression, EStructuralFeature feature, boolean simpleAssignment) {
 		if (expression instanceof XAbstractFeatureCall) {
@@ -289,6 +290,26 @@ class JbaseValidator extends AbstractJbaseValidator {
 		if (!sureReturnComputer.isSureReturn(lastExpression)) {
 			errorMissingReturnStatement(lastExpression)
 		}
+	}
+
+	/**
+	 * This can be explicitly called on an XBlockExpression which represents
+	 * the body of an inferred JvmOperation; it will check that
+	 * variable references refer to variables that are surely initialized,
+	 * according to the Java semantics.  This should be called only on
+	 * top block expressions, as stated above.
+	 */
+	def protected checkVariableInitialization(XBlockExpression e) {
+		initializedVariableFinder.detectNotInitialized(e) [
+			ref |
+			error(
+				"The local variable " +
+					ref.toString + " may not have been initialized",
+				ref,
+				xbasePackage.XAbstractFeatureCall_Feature,
+				NOT_INITIALIZED_VARIABLE
+			)
+		]
 	}
 
 	def protected errorMissingReturnStatement(XExpression e) {

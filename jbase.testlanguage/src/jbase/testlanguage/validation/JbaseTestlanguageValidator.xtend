@@ -3,8 +3,9 @@
  */
 package jbase.testlanguage.validation
 
-import org.eclipse.xtext.validation.Check
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
+import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XBlockExpression
 
 //import org.eclipse.xtext.validation.Check
@@ -19,5 +20,15 @@ class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
 	@Check
 	def void checkReturnInOperation(AbstractOperation op) {
 		checkMissingReturn(op.body as XBlockExpression)
+	}
+
+	@Check
+	def void checkVariableInitializationInMainBlock(JbaseTestLanguageModel m) {
+		checkVariableInitialization(m.block)
+	}
+
+	@Check
+	def void checkVariableInitializationInOperation(AbstractOperation op) {
+		checkVariableInitialization(op.body as XBlockExpression)
 	}
 }

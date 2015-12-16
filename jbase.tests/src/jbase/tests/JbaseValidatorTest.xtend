@@ -520,7 +520,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testVariableDeclarationsNoUnusedWarningsWhenUsed() {
 		'''
 		{
-			int i, j, k;
+			int i = 0, j = 0, k = 0;
 
 			System.out.println(i);
 			System.out.println(j);
@@ -532,7 +532,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testUnusedSeveralVariableDeclarations() {
 		'''
 		{
-			int i, j, k;
+			int i = 0, j = 0, k = 0;
 			System.out.println(j);
 		}
 		'''.parse.assertIssuesAsStrings(
@@ -612,7 +612,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testArrayAccessOnMemberFeatureCallAndClone() {
 		'''
 		// clone has a generic type, so the result is inferred
-		int[] a;
+		int[] a = null;
 		int[] cl1 = a.clone(); // OK
 		'''.parseAndAssertNoErrors
 	}
@@ -646,7 +646,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testArrayAccessOnMemberFeatureCallAndClone4() {
 		'''
 		// clone has a generic type, so the result is inferred
-		String[][] a;
+		String[][] a = null;
 		String[] cl1 = a[0].clone();
 		'''.parseAndAssertNoErrors
 	}
@@ -755,14 +755,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testFinalVariableNotInitialized() {
 		'''
 		final int i;
-		System.out.println(i);
-		'''.parse.assertIssuesAsStrings("Value must be initialized")
+		'''.parse.assertError(
+			jbasePackage.XJVariableDeclaration,
+			IssueCodes.MISSING_INITIALIZATION,
+			"Value must be initialized"
+		)
 	}
 
 	@Test def void testFinalVariableNotInitialized2() {
 		'''
 		final int i = 0, j;
-		System.out.println(j);
 		'''.parse.assertErrorsAsStrings("Value must be initialized")
 	}
 
@@ -1049,6 +1051,24 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testVariableNotInitializedInMain() {
+		val input = '''
+		int i;
+		System.out.println(i);
+		'''
+		input.parse.assertVariableNotInitialized("i")
+	}
+
+	@Test def void testVariableNotInitializedInMethod() {
+		val input = '''
+		op m() : void {
+			int i;
+			System.out.println(i);
+		}
+		'''
+		input.parse.assertVariableNotInitialized("i")
+	}
+
 	def private assertNumberLiteralTypeMismatch(EObject o, String expectedType, String actualType) {
 		o.assertTypeMismatch(XbasePackage.eINSTANCE.XNumberLiteral, expectedType, actualType)
 	}
@@ -1154,6 +1174,14 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			c,
 			JbaseIssueCodes.MISSING_RETURN,
 			'Missing return'
+		)
+	}
+
+	def private assertVariableNotInitialized(EObject o, String name) {
+		o.assertError(
+			XbasePackage.eINSTANCE.XFeatureCall,
+			JbaseIssueCodes.NOT_INITIALIZED_VARIABLE,
+			"The local variable " + name + " may not have been initialized"
 		)
 	}
 }
