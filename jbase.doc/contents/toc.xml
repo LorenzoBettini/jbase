@@ -8,4 +8,8 @@
 		<topic href="contents/02-GettingStarted.html#Domainmodel" label="The Domainmodel with Jbase" >
 		</topic>
 	</topic>
+	<topic href="contents/03-Additional.html#Additional" label="Additional Features" >
+		<topic href="contents/03-Additional.html#VariableInitialization" label="Checking Variable Initialization" >
+		</topic>
+	</topic>
 </toc>

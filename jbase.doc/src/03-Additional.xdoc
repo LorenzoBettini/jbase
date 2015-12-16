@@ -1,0 +1,50 @@
+chapter:Additional[Additional Features]
+
+section:VariableInitialization[Checking Variable Initialization]
+
+Xbase does not check whether a variable reference refers to a variable
+which is surely initialized, since in the generated Java code all Xbase variables
+will be initialized to default values unless a specific initialization expression
+is specified.
+
+Thus, the following code will be correct
+
+code[Java][
+int i;
+int j = i;
+]
+
+On the contrary, Java checks variable initialization.  For example, the above
+Java snippet, when compiled with Java, will issue the error
+
+code[
+The local variable i may not have been initialized
+]
+
+If you want to enforce the same semantic check in your Jbase language, you can
+use the following method in your inherited validator.
+
+code[Java][
+checkVariableInitialization(XBlockExpression e)
+]
+
+You should call such method only on an e[XBlockExpression] which is
+the block expression of an element representing a Java method (not on blocks
+contained in other blocks, otherwise the analysis will raise several false negatives).
+
+For example, the JbaseTestlanguage does the following:
+
+code[Xtend][
+class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
+
+	@Check
+	def void checkVariableInitializationInMainBlock(JbaseTestLanguageModel m) {
+		checkVariableInitialization(m.block)
+	}
+
+	@Check
+	def void checkVariableInitializationInOperation(AbstractOperation op) {
+		checkVariableInitialization(op.body as XBlockExpression)
+	}
+}
+]
