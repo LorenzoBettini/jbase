@@ -92,7 +92,7 @@ class JbaseTestlanguageInputs {
 			return i;
 		}
 		
-		int[] j;
+		int[] j = null;
 		getArg(j[0]);
 		'''
 	}

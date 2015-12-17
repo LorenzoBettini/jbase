@@ -1,0 +1,89 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
+<title>Additional Features</title>
+
+<link href="book.css" rel="stylesheet" type="text/css">
+<link href="code.css" rel="stylesheet" type="text/css">
+<link rel="home" href="00-Main.html" title="">
+</head>
+<body>
+<a name="Additional"></a>
+<h1>Additional Features</h1>
+<a name="VariableInitialization"></a>
+<h2>Checking Variable Initialization</h2>
+<p>
+Xbase does not check whether a variable reference refers to a variable
+which is surely initialized, since in the generated Java code all Xbase variables
+will be initialized to default values unless a specific initialization expression
+is specified.
+</p>
+<p>
+Thus, the following code will be correct
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">int</span>&nbsp;i;<br/>
+<span class="keyword">int</span>&nbsp;j&nbsp;=&nbsp;i;<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+On the contrary, Java checks variable initialization.  For example, the above
+Java snippet, when compiled with Java, will issue the error
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+The&nbsp;local&nbsp;variable&nbsp;i&nbsp;may&nbsp;not&nbsp;have&nbsp;been&nbsp;initialized<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+If you want to enforce the same semantic check in your Jbase language, you can
+use the following method in your inherited validator.
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+checkVariableInitialization(XBlockExpression&nbsp;e)<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+You should call such method only on an <em>XBlockExpression</em> which is
+the block expression of an element representing a Java method (not on blocks
+contained in other blocks, otherwise the analysis will raise several false negatives).
+</p>
+<p>
+For example, the JbaseTestlanguage does the following:
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">class</span>&nbsp;JbaseTestlanguageValidator&nbsp;<span class="keyword">extends</span>&nbsp;AbstractJbaseTestlanguageValidator&nbsp;{<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;@Check<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span>&nbsp;<span class="keyword">void</span>&nbsp;checkVariableInitializationInMainBlock(JbaseTestLanguageModel&nbsp;m)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkVariableInitialization(m.block)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;@Check<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span>&nbsp;<span class="keyword">void</span>&nbsp;checkVariableInitializationInOperation(AbstractOperation&nbsp;op)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkVariableInitialization(op.body&nbsp;<span class="keyword">as</span>&nbsp;XBlockExpression)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+}<br/>
+</p>
+</div>
+</div>
+</p>
+</body>
+</html>

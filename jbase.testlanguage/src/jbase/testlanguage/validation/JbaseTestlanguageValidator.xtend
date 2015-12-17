@@ -3,21 +3,44 @@
  */
 package jbase.testlanguage.validation
 
-import org.eclipse.xtext.validation.Check
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
+import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XBlockExpression
+import com.google.inject.Singleton
 
 //import org.eclipse.xtext.validation.Check
-
 /**
  * This class contains custom validation rules. 
- *
+ * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
+@Singleton
 class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
+
+	/**
+	 * For testing purposes
+	 */
+	var boolean skipVariableInitializationCheck = false
+
+	def setSkipVariableInitializationCheck(boolean b) {
+		skipVariableInitializationCheck = b
+	}
 
 	@Check
 	def void checkReturnInOperation(AbstractOperation op) {
 		checkMissingReturn(op.body as XBlockExpression)
+	}
+
+	@Check
+	def void checkVariableInitializationInMainBlock(JbaseTestLanguageModel m) {
+		if (!skipVariableInitializationCheck)
+			checkVariableInitialization(m.block)
+	}
+
+	@Check
+	def void checkVariableInitializationInOperation(AbstractOperation op) {
+		if (!skipVariableInitializationCheck)
+			checkVariableInitialization(op.body as XBlockExpression)
 	}
 }

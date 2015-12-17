@@ -18,14 +18,14 @@ class JbaseInputs {
 	def arrayAssign() {
 		'''
 		String[] a;
-		String[] b;
+		String[] b = null;
 		a = b;
 		'''
 	}
 
 	def arrayAccessInRightHandsideExpression() {
 		'''
-		int[] a;
+		int[] a = null;
 		int i;
 		i = a[0];
 		'''
@@ -33,7 +33,7 @@ class JbaseInputs {
 
 	def arrayAccessFromMemberFeatureCallReceiver() {
 		'''
-		int[][] arr;
+		int[][] arr = null;
 		int l;
 		l = arr[0].length;
 		System.out.println(arr[0].equals(arr[1]));
@@ -43,7 +43,7 @@ class JbaseInputs {
 
 	def arrayAccessFromMemberFeatureCallReceiverClone() {
 		'''
-		int[][] arr;
+		int[][] arr = null;
 		int[] cl = arr[0].clone();
 		'''
 	}
@@ -59,14 +59,14 @@ class JbaseInputs {
 
 	def arrayAccessInBinaryOp() {
 		'''
-		int[] a;
+		int[] a = null;
 		boolean result = a[1] > a[2];
 		'''
 	}
 
 	def arrayAccessInParenthesizedExpression() {
 		'''
-		int[] a;
+		int[] a = null;
 		int i;
 		i = (a)[1];
 		'''
@@ -74,7 +74,7 @@ class JbaseInputs {
 
 	def multiArrayAccessInRightHandsideExpression() {
 		'''
-		int[][] a;
+		int[][] a = null;
 		int i;
 		i = a[0][1+2];
 		'''
@@ -82,8 +82,8 @@ class JbaseInputs {
 
 	def multiArrayAccessInLeftHandsideExpression() {
 		'''
-		int[][] a;
-		int[][] b;
+		int[][] a = null;
+		int[][] b = null;
 		a[0][1+2] = 1;
 		a[0] = b[1];
 		a = b;
@@ -565,7 +565,7 @@ class JbaseInputs {
 
 	def switchStatementWithBytes() {
 		'''
-		byte b;
+		byte b = 0;
 		switch (b) {
 			case 10:
 				System.out.println("10");

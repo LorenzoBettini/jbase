@@ -1,10 +1,13 @@
 package jbase.tests
 
+import com.google.inject.Inject
 import jbase.testlanguage.JbaseTestlanguageInjectorProviderCustom
+import jbase.testlanguage.validation.JbaseTestlanguageValidator
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.Before
 
 /**
  * For compilation tests we use JbaseTestlanguage since we test also
@@ -13,6 +16,14 @@ import org.junit.runner.RunWith
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageInjectorProviderCustom))
 class JbaseCompilerTest extends JbaseAbstractCompilerTest {
+
+	@Inject
+	var JbaseTestlanguageValidator validator
+
+	@Before
+	def void initValidator() {
+		validator.skipVariableInitializationCheck = false
+	}
 
 	@Test def void testEmptyProgram() {
 		"".checkCompilation(
@@ -1565,7 +1576,7 @@ public class MyFile {
 
 	@Test def void testSeveralVariableDeclarations() {
 		'''
-		int i, j = 1, k;
+		int i = 0, j = 1, k = 0;
 		System.out.println(i);
 		System.out.println(j);
 		System.out.println(k);
@@ -1615,6 +1626,38 @@ public class MyFile {
 
 	@Test def void testSeveralVariableDeclarationsInForLoop() {
 		'''
+		for (int i = 0, j = 1, k = 0; i < 0; i++) {
+			System.out.println(i);
+			System.out.println(j);
+			System.out.println(k);
+		}
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    for (int i = 0, j = 1, k = 0; (i < 0); i++) {
+      {
+        System.out.println(i);
+        System.out.println(j);
+        System.out.println(k);
+      }
+    }
+  }
+}
+'''
+			)
+	}
+
+	@Test def void testSeveralVariableDeclarationsInForLoopWithoutVariableInitialization() {
+		// we want to check the compiler when there's no initialization for variables
+		// (which Xbase can handle)
+		// so we must disable the check for initialized variables
+		validator.skipVariableInitializationCheck = true
+
+		'''
 		for (int i, j = 1, k; i < 0; i++) {
 			System.out.println(i);
 			System.out.println(j);
@@ -1642,7 +1685,7 @@ public class MyFile {
 
 	@Test def void testSeveralUpdatesInForLoop() {
 		'''
-		for (int i, j = 1; i < 0; i++, j++) {
+		for (int i = 0, j = 1; i < 0; i++, j++) {
 			System.out.println(i);
 			System.out.println(j);
 		}
@@ -1667,7 +1710,7 @@ public class MyFile {
 
 	@Test def void testSeveralVariableDeclarationsInForLoopTranslatedToJavaWhile() {
 		'''
-		for (int i, j = 1, k; i < 0; i += 1) {
+		for (int i = 0, j = 1, k = 0; i < 0; i += 1) {
 			System.out.println(i);
 			System.out.println(j);
 			System.out.println(k);
@@ -2385,7 +2428,7 @@ public class MyFile {
 
 	@Test def void testSynchronized() {
 		'''
-		Object o;
+		Object o = null;
 		synchronized (o) {
 			o.wait();
 		}
