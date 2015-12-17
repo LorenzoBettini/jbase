@@ -9,6 +9,8 @@
 		</topic>
 	</topic>
 	<topic href="contents/03-Additional.html#Additional" label="Additional Features" >
+		<topic href="contents/03-Additional.html#MissingReturn" label="Checking Missing Return" >
+		</topic>
 		<topic href="contents/03-Additional.html#VariableInitialization" label="Checking Variable Initialization" >
 		</topic>
 	</topic>

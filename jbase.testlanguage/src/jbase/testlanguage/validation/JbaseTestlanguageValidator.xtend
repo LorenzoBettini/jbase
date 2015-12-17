@@ -9,11 +9,12 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XBlockExpression
 import com.google.inject.Singleton
 
-//import org.eclipse.xtext.validation.Check
 /**
- * This class contains custom validation rules. 
+ * This class contains custom validation rules for our test language.
  * 
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
+ * This class is a singleton because we want to set specific fields in our tests,
+ * so we want to make sure there's only a single instance that will be used
+ * during our tests.
  */
 @Singleton
 class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {

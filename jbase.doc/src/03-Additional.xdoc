@@ -1,5 +1,33 @@
 chapter:Additional[Additional Features]
 
+section:MissingReturn[Checking Missing Return]
+
+Xbase does not require an explicit return statement for methods body.
+To adhere to the Java semantics, in the Jbase validator, which all Jbase
+languages' validators automatically extend, we provide the method
+
+code[Java][
+protected void checkMissingReturn(XBlockExpression body)
+]
+
+This should be manually called from your validator passing an
+e[XBlockExpression] which represents the body of an inferred JvmOperation. It will check that,
+if the corresponding Java method is not void, a return
+is specified in all possible paths.
+
+For example, in our e[JbaseTestlanguage] we do
+
+code[Xtend][
+class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
+
+	@Check
+	def void checkReturnInOperation(AbstractOperation op) {
+		checkMissingReturn(op.body as XBlockExpression)
+	}
+]
+
+because for each e[AbstractOperation] we infer a Java method in the inferrer.
+
 section:VariableInitialization[Checking Variable Initialization]
 
 Xbase does not check whether a variable reference refers to a variable
@@ -25,14 +53,14 @@ If you want to enforce the same semantic check in your Jbase language, you can
 use the following method in your inherited validator.
 
 code[Java][
-checkVariableInitialization(XBlockExpression e)
+protected void checkVariableInitialization(XBlockExpression e)
 ]
 
 You should call such method only on an e[XBlockExpression] which is
 the block expression of an element representing a Java method (not on blocks
 contained in other blocks, otherwise the analysis will raise several false negatives).
 
-For example, the JbaseTestlanguage does the following:
+For example, the e[JbaseTestlanguage] does the following:
 
 code[Xtend][
 class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {

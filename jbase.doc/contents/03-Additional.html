@@ -10,6 +10,48 @@
 <body>
 <a name="Additional"></a>
 <h1>Additional Features</h1>
+<a name="MissingReturn"></a>
+<h2>Checking Missing Return</h2>
+<p>
+Xbase does not require an explicit return statement for methods body.
+To adhere to the Java semantics, in the Jbase validator, which all Jbase
+languages&apos; validators automatically extend, we provide the method
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">protected</span>&nbsp;<span class="keyword">void</span>&nbsp;checkMissingReturn(XBlockExpression&nbsp;body)<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+This should be manually called from your validator passing an
+<em>XBlockExpression</em> which represents the body of an inferred JvmOperation. It will check that,
+if the corresponding Java method is not void, a return
+is specified in all possible paths.
+</p>
+<p>
+For example, in our <em>JbaseTestlanguage</em> we do
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">class</span>&nbsp;JbaseTestlanguageValidator&nbsp;<span class="keyword">extends</span>&nbsp;AbstractJbaseTestlanguageValidator&nbsp;{<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;@Check<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span>&nbsp;<span class="keyword">void</span>&nbsp;checkReturnInOperation(AbstractOperation&nbsp;op)&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkMissingReturn(op.body&nbsp;<span class="keyword">as</span>&nbsp;XBlockExpression)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+</p>
+</div>
+</div>
+</p>
+<p>
+because for each <em>AbstractOperation</em> we infer a Java method in the inferrer.
+</p>
 <a name="VariableInitialization"></a>
 <h2>Checking Variable Initialization</h2>
 <p>
@@ -52,7 +94,7 @@ use the following method in your inherited validator.
 <div class="literallayout">
 <div class="incode">
 <p class="code">
-checkVariableInitialization(XBlockExpression&nbsp;e)<br/>
+<span class="keyword">protected</span>&nbsp;<span class="keyword">void</span>&nbsp;checkVariableInitialization(XBlockExpression&nbsp;e)<br/>
 </p>
 </div>
 </div>
@@ -63,7 +105,7 @@ the block expression of an element representing a Java method (not on blocks
 contained in other blocks, otherwise the analysis will raise several false negatives).
 </p>
 <p>
-For example, the JbaseTestlanguage does the following:
+For example, the <em>JbaseTestlanguage</em> does the following:
 </p>
 <p>
 <div class="literallayout">

@@ -273,9 +273,9 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	/**
 	 * This can be explicitly called on an XBlockExpression which represents
-	 * the body of an inferred JvmOperation; it will check that
-	 * if the corresponding Java method is not void, then a return
-	 * must be specified in all possible paths.
+	 * the body of an inferred JvmOperation; it will check that,
+	 * if the corresponding Java method is not void, a return
+	 * is specified in all possible paths.
 	 */
 	def protected void checkMissingReturn(XBlockExpression body) {
 		val jvmOperation = logicalContainerProvider.getLogicalContainer(body)
