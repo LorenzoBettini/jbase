@@ -1,6 +1,13 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.jbase.XJArrayAccessExpression
+import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJClassObject
+import jbase.jbase.XJConditionalExpression
+import jbase.jbase.XJVariableDeclaration
+import jbase.testlanguage.JbaseTestlanguageInjectorProvider
+import jbase.tests.inputs.JbaseInputs
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.xbase.XBlockExpression
@@ -9,18 +16,12 @@ import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XFeatureCall
 import org.eclipse.xtext.xbase.XIfExpression
 import org.eclipse.xtext.xbase.XInstanceOfExpression
+import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.XSwitchExpression
+import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
-import jbase.tests.inputs.JbaseInputs
-import jbase.jbase.XJArrayConstructorCall
-import jbase.jbase.XJConditionalExpression
-import jbase.jbase.XJMemberFeatureCall
-import jbase.jbase.XJVariableDeclaration
 
 import static org.junit.Assert.*
-import org.eclipse.xtext.xbase.XThrowExpression
-import jbase.jbase.XJClassObject
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -85,7 +86,15 @@ abstract class JbaseAbstractTest {
 	}
 
 	protected def getMemberFeatureCall(XExpression it) {
-		it as XJMemberFeatureCall
+		it as XMemberFeatureCall
+	}
+
+	protected def getMemberCallTargetArrayAccess(XExpression it) {
+		memberFeatureCall.memberCallTarget.arrayAccess
+	}
+
+	protected def getArrayAccess(XExpression it) {
+		it as XJArrayAccessExpression
 	}
 
 	protected def getFeatureCall(XExpression it) {

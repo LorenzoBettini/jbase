@@ -393,7 +393,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int[][] arr;
 		arr[0].length;
 		'''.assertLastExpression [
-			assertFalse(memberFeatureCall.indexes.empty)
+			assertFalse(memberCallTargetArrayAccess.indexes.empty)
 		]
 	}
 
@@ -401,7 +401,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		arr[0].;
 		'''.assertLastExpression [
-			assertFalse(memberFeatureCall.indexes.empty)
+			assertFalse(memberCallTargetArrayAccess.indexes.empty)
 		]
 	}
 
@@ -410,12 +410,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int[][] arr;
 		arr[0].length;
 		'''.assertLastExpression [
-			memberFeatureCall => [
-				assertTrue(memberCallTarget instanceof XJArrayAccessExpression)
-				val arrayAccessExpression = memberCallTarget as XJArrayAccessExpression
-				// getIndexes is redirected to the contained array access expression
-				assertSame(indexes, arrayAccessExpression.indexes)
-			]
+			memberCallTargetArrayAccess
 		]
 	}
 
