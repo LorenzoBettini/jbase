@@ -349,6 +349,9 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<environments>
+						
+					</environments>
 					<target>
 						<artifact>
 							<groupId>jbase</groupId>
@@ -356,10 +359,7 @@
 							<version>${project.version}</version>
 							<classifier>${target-file-name}</classifier>
 						</artifact>
-					</target>
-					<environments>
-						
-					</environments>
+					</target>	
 				</configuration>
 			</plugin>
 
