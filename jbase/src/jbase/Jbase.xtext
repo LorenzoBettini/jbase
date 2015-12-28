@@ -111,6 +111,13 @@ XAssignment returns XExpression :
 		=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpMultiAssign]) rightOperand=XAssignment
 	)?;
 
+XJFeatureCallWithArrayAccess returns XExpression:
+	XFeatureCall (
+		=>({XJArrayAccessExpression.array=current}
+			'[' indexes+=XExpression ']' (=>'[' indexes+=XExpression ']')*)
+	)?
+;
+
 XFeatureCall returns XExpression:
 	{XFeatureCall}
 	feature=[types::JvmIdentifiableElement|IdOrSuper] 
@@ -185,35 +192,6 @@ XMemberFeatureCall returns XExpression:
 		=>({XAssignment.assignable=current} '.'
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
 				value=XAssignment
-	|
-		// Note that the custom implementation XJMemberFeatureCallImplCustom
-		// will rearrange the containment when the assignment
-		// memberCallTarget=current
-		// is performed
-		// 1. a XJArrayAccessExpression will be created
-		// 2. perform the assignment XJArrayAccessExpression.array = current
-		// 3. indexes are delegated to XJArrayAccessExpression.indexes
-		// thus instead of 
-		// XJMemberFeatureCall {
-		// 		memberCallTarget=current,
-		// 		indexes=expressions
-		// }
-		// the actual model object will be
-		// XJMemberFeatureCall {
-		//		memberCallTarget=XJArrayAccessExpression {
-		// 			array=current,
-		// 			indexes=expressions
-		//		}
-		// }
-		=>({XJMemberFeatureCall.memberCallTarget=current}
-			'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
-			".") 
-			feature=[types::JvmIdentifiableElement|IdOrSuper] (
-				=>explicitOperationCall?='(' 
-					(
-					    memberCallArguments+=XExpression (',' memberCallArguments+=XExpression)*
-					)? 
-				')')?
 	|
 		=>({XMemberFeatureCall.memberCallTarget=current} ".") 
 			feature=[types::JvmIdentifiableElement|IdOrSuper] (
@@ -304,7 +282,7 @@ XPrimaryExpression returns XExpression:
 //	XBlockExpression |
 //	XSwitchExpression |
 //	XSynchronizedExpression |
-	XFeatureCall |
+	XJFeatureCallWithArrayAccess |
 	XLiteral |
 //	XIfExpression |
 //	XForLoopExpression |
