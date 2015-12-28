@@ -107,6 +107,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		checkBranchingStatementInternal(
 			st,
 			"a loop",
+			"continue",
 			XAbstractWhileExpression,
 			XBasicForLoopExpression
 		)
@@ -117,6 +118,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		checkBranchingStatementInternal(
 			st,
 			"a loop or a switch",
+			"break",
 			XAbstractWhileExpression,
 			XBasicForLoopExpression,
 			XSwitchExpression
@@ -124,6 +126,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 	}
 
 	def private checkBranchingStatementInternal(XJBranchingStatement st, String errorDetails,
+		String instruction,
 		Class<? extends EObject>... validContainers) {
 		val container = Wrapper.wrap(st.eContainer)
 		while (container.get != null) {
@@ -133,7 +136,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 			container.set(container.get.eContainer)
 		}
 		error(
-			st.instruction + " cannot be used outside of " + errorDetails,
+			instruction + " cannot be used outside of " + errorDetails,
 			st,
 			null,
 			INVALID_BRANCHING_STATEMENT

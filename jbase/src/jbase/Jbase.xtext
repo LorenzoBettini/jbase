@@ -63,8 +63,8 @@ XJSemicolonStatement returns XExpression:
 ;
 
 XJBranchingStatement returns XExpression:
-	{XJContinueStatement} instruction="continue" |
-	{XJBreakStatement} instruction="break"
+	{XJContinueStatement} "continue" |
+	{XJBreakStatement} "break"
 ;
 
 /* 
