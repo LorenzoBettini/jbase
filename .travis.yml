@@ -6,10 +6,6 @@ os:
   - linux
   - osx
 
-matrix:
-  jdk: oraclejdk7
-    - os: linux
-
 cache:
   directories:
   - $HOME/.m2
