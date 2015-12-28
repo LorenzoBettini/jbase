@@ -8,6 +8,8 @@ import org.eclipse.xtext.serializer.impl.Serializer
 import org.junit.Test
 import org.junit.runner.RunWith
 
+import static extension org.junit.Assert.*
+
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
 class JbaseSerializerTest extends JbaseAbstractTest {
@@ -16,18 +18,24 @@ class JbaseSerializerTest extends JbaseAbstractTest {
 
 	@Test def void testAssignmentLeft() {
 		assertSerialize('''
-		i = 1;
+			i = 1;
 		''')
 	}
 
 	@Test def void testVariableDeclarations() {
 		'''
-		int  i , j , k ;
+			int  i , j , k ;
+		'''.assertSerialize
+	}
+
+	@Test def void testMemberFeatureCallArrayAccesses() {
+		'''
+			args  [ 0 ]   . length;
 		'''.assertSerialize
 	}
 
 	def private assertSerialize(CharSequence input) {
 		val o = input.parse
-		serializer.serialize(o)
+		input.toString.assertEquals(serializer.serialize(o))
 	}
 }
