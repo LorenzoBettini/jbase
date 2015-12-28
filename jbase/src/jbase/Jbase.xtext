@@ -331,3 +331,7 @@ terminal CHARACTER:
 
 OpEquality:
 	'==' | '!=' ;
+
+// '**' is not valid in Java
+OpMulti:
+	'*' | '/' | '%';
