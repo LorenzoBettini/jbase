@@ -1,9 +1,11 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
+import jbase.testlanguage.JbaseTestlanguageInjectorProvider
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
+import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.serializer.impl.Serializer
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,8 +13,14 @@ import org.junit.runner.RunWith
 import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(JbaseInjectorProvider))
+@InjectWith(typeof(JbaseTestlanguageInjectorProvider))
 class JbaseSerializerTest extends JbaseAbstractTest {
+	
+	/**
+	 * Since we use both Jbase and JbaseTestlanguage we specify EObject
+	 * as the type returned by ParseHelper
+	 */
+	@Inject protected extension ParseHelper<EObject>
 
 	@Inject Serializer serializer
 
