@@ -114,12 +114,12 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 				b.newLine().append(varName).append(ASSIGNED_TRUE);
 			}
 		}
-		compileBranchingStatement(st, b);
+		compileBranchingStatement(st, b, "continue");
 	}
 
 	public void _toJavaStatement(XJBreakStatement st, ITreeAppendable b,
 			boolean isReferenced) {
-		compileBranchingStatement(st, b);
+		compileBranchingStatement(st, b, "break");
 	}
 
 	public void _toJavaStatement(XJClassObject e, ITreeAppendable b,
@@ -133,8 +133,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	}
 
 	private void compileBranchingStatement(XJBranchingStatement st,
-			ITreeAppendable b) {
-		b.newLine().append(st.getInstruction()).append(";");
+			ITreeAppendable b, String instruction) {
+		b.newLine().append(instruction).append(";");
 	}
 
 	@Override

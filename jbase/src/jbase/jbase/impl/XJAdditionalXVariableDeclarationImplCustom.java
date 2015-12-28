@@ -4,7 +4,6 @@
 package jbase.jbase.impl;
 
 import org.eclipse.xtext.common.types.JvmTypeReference;
-import org.eclipse.xtext.xbase.impl.XVariableDeclarationImplCustom;
 
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
@@ -16,7 +15,7 @@ import jbase.jbase.XJVariableDeclaration;
  * @author Lorenzo Bettini
  *
  */
-public class XJAdditionalXVariableDeclarationImplCustom extends XVariableDeclarationImplCustom implements XJAdditionalXVariableDeclaration  {
+public class XJAdditionalXVariableDeclarationImplCustom extends XJAdditionalXVariableDeclarationImpl implements XJAdditionalXVariableDeclaration  {
 
 	@Override
 	public boolean isWriteable() {
