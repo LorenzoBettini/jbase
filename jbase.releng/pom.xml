@@ -349,14 +349,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<target>
-						<artifact>
-							<groupId>jbase</groupId>
-							<artifactId>jbase.targetplatform</artifactId>
-							<version>${project.version}</version>
-							<classifier>${target-file-name}</classifier>
-						</artifact>
-					</target>
 					<environments>
 						<environment>
 							<os>win32</os>
@@ -373,13 +365,6 @@
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
 						</environment>
-						<!-- This is not present in Mars
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						 -->
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
@@ -391,6 +376,14 @@
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
+					<target>
+						<artifact>
+							<groupId>jbase</groupId>
+							<artifactId>jbase.targetplatform</artifactId>
+							<version>${project.version}</version>
+							<classifier>${target-file-name}</classifier>
+						</artifact>
+					</target>	
 				</configuration>
 			</plugin>
 
