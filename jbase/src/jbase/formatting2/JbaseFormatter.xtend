@@ -9,8 +9,9 @@ import jbase.jbase.JbasePackage
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
-import jbase.jbase.XJBranchingStatement
+import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJConditionalExpression
+import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJPrefixOperation
 import jbase.jbase.XJSwitchStatements
@@ -61,7 +62,9 @@ class JbaseFormatter extends XbaseFormatter {
 			_format(expr, document);
 		} else if (expr instanceof XJArrayConstructorCall) {
 			_format(expr, document);
-		} else if (expr instanceof XJBranchingStatement) {
+		} else if (expr instanceof XJBreakStatement) {
+			_format(expr, document);
+		} else if (expr instanceof XJContinueStatement) {
 			_format(expr, document);
 		} else {
 			super.format(expr, document)
@@ -117,7 +120,7 @@ class JbaseFormatter extends XbaseFormatter {
 			}
 		}
 		for (d : expr.dimensions) {
-			d.regionForFeature(JbasePackage.eINSTANCE.XJArrayDimension_OpenBracket).
+			d.regionForKeyword("[").
 				prepend[noSpace].append[noSpace]
 			d.immediatelyFollowingKeyword("]").prepend[noSpace]
 		}
@@ -150,8 +153,13 @@ class JbaseFormatter extends XbaseFormatter {
 		formatMandatorySemicolon(expr, document)
 	}
 
-	def void _format(XJBranchingStatement expr, extension IFormattableDocument document) {
-		expr.regionForFeature(JbasePackage.eINSTANCE.XJBranchingStatement_Instruction).surround[noSpace]
+	def void _format(XJBreakStatement expr, extension IFormattableDocument document) {
+		expr.regionForKeyword("break").surround[noSpace]
+		formatMandatorySemicolon(expr, document)
+	}
+
+	def void _format(XJContinueStatement expr, extension IFormattableDocument document) {
+		expr.regionForKeyword("continue").surround[noSpace]
 		formatMandatorySemicolon(expr, document)
 	}
 

@@ -63,8 +63,8 @@ XJSemicolonStatement returns XExpression:
 ;
 
 XJBranchingStatement returns XExpression:
-	{XJContinueStatement} instruction="continue" |
-	{XJBreakStatement} instruction="break"
+	{XJContinueStatement} "continue" |
+	{XJBreakStatement} "break"
 ;
 
 /* 
@@ -157,7 +157,7 @@ XJArrayConstructorCall returns XExpression:
 // need to find the corresponding node (and offset) with NodeModelUtils
 // in order to associate dimensions with indexes
 XJArrayDimension:
-	{XJArrayDimension} openBracket='['
+	{XJArrayDimension} '['
 ;
 
 XCastedExpression returns XExpression:
