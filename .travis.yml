@@ -6,7 +6,9 @@ os:
   - linux
   - osx
 
-jdk: oraclejdk7
+matrix:
+  jdk: oraclejdk7
+    - os: linux
 
 cache:
   directories:
