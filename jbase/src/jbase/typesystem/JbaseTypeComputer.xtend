@@ -10,7 +10,6 @@ import jbase.jbase.XJAssignment
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
-import jbase.jbase.XJMemberFeatureCall
 import jbase.jbase.XJVariableDeclaration
 import jbase.validation.JbaseIssueCodes
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -18,6 +17,7 @@ import org.eclipse.xtext.common.types.JvmIdentifiableElement
 import org.eclipse.xtext.common.types.util.Primitives
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl
+import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XFeatureCall
 import org.eclipse.xtext.xbase.XInstanceOfExpression
@@ -25,6 +25,7 @@ import org.eclipse.xtext.xbase.XStringLiteral
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XbasePackage
+import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState
@@ -32,8 +33,6 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
-import org.eclipse.xtext.xbase.XAbstractFeatureCall
-import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate
 
 /**
  * @author Lorenzo Bettini
@@ -57,8 +56,6 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJCharLiteral) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJVariableDeclaration) {
-			_computeTypes(expression, state)
-		} else if (expression instanceof XJMemberFeatureCall) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJClassObject) {
 			_computeTypes(expression, state)
@@ -230,11 +227,6 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		computeTypesOfArrayAccess(assignment, best, state, XbasePackage.Literals.XASSIGNMENT__ASSIGNABLE)
 	}
 
-	def protected _computeTypes(XJMemberFeatureCall call, ITypeComputationState state) {
-		super._computeTypes(call, state)
-		checkArrayIndexHasTypeInt(call, state)
-	}
-	
 	def protected _computeTypes(XJArrayAccessExpression arrayAccess, ITypeComputationState state) {
 		val actualType = state.withNonVoidExpectation.computeTypes(arrayAccess.array).actualExpressionType
 		val type = componentTypeOfArrayAccess(arrayAccess, actualType, state, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE)

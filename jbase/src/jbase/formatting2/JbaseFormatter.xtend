@@ -12,7 +12,6 @@ import jbase.jbase.XJAssignment
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJJvmFormalParameter
-import jbase.jbase.XJMemberFeatureCall
 import jbase.jbase.XJPrefixOperation
 import jbase.jbase.XJSwitchStatements
 import jbase.jbase.XJVariableDeclaration
@@ -45,8 +44,6 @@ class JbaseFormatter extends XbaseFormatter {
 		if (expr instanceof XJAssignment) {
 			_format(expr, document);
 		} else if (expr instanceof XJJvmFormalParameter) {
-			_format(expr, document);
-		} else if (expr instanceof XJMemberFeatureCall) {
 			_format(expr, document);
 		} else if (expr instanceof XJPrefixOperation) {
 			_format(expr, document);
@@ -150,11 +147,6 @@ class JbaseFormatter extends XbaseFormatter {
 	def void _format(XJArrayAccessExpression expr, extension IFormattableDocument document) {
 		format(expr.getArray(), document);
 		formatArrayIndexes(expr.indexes, document)
-		formatMandatorySemicolon(expr, document)
-	}
-
-	def void _format(XJMemberFeatureCall expr, extension IFormattableDocument document) {
-		super._format(expr, document)
 		formatMandatorySemicolon(expr, document)
 	}
 

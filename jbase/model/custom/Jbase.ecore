@@ -18,10 +18,6 @@
         eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJMemberFeatureCall" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XMemberFeatureCall #//XJArrayAccess">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="arrayAccessExpression"
-        eType="#//XJArrayAccessExpression" containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJArrayConstructorCall" eSuperTypes="#//XJArrayAccess ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmType"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="dimensions" upperBound="-1"
