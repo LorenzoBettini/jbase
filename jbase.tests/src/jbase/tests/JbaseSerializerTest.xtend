@@ -113,6 +113,27 @@ class JbaseSerializerTest extends JbaseAbstractTest {
 		'''.assertSerialize
 	}
 
+	@Test def void testArrayDimensions() {
+		'''
+			new List[1][] {0, 1, 1 + 2};
+			new List[1][2] {0, 1, 1 + 2};
+		'''.assertSerialize
+	}
+
+	@Test def void testArrayDimensions2() {
+		'''
+			new List[][2] {0, 1, 1 + 2};
+			new List[][] {0, 1, 1 + 2};
+			new List[][];
+		'''.assertSerialize
+	}
+
+	@Test def void testArrayDimensions3() {
+		'''
+			new List[][2][][1] {0, 1, 1 + 2};
+		'''.assertSerialize
+	}
+
 	def private assertSerialize(CharSequence input) {
 		val o = input.parse
 		input.toString.assertEquals(serializer.serialize(o))

@@ -120,7 +120,7 @@ class JbaseFormatter extends XbaseFormatter {
 			}
 		}
 		for (d : expr.dimensions) {
-			d.regionForFeature(JbasePackage.eINSTANCE.XJArrayDimension_OpenBracket).
+			d.regionForKeyword("[").
 				prepend[noSpace].append[noSpace]
 			d.immediatelyFollowingKeyword("]").prepend[noSpace]
 		}
