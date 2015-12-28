@@ -15,7 +15,7 @@ import static extension org.junit.Assert.*
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageInjectorProvider))
 class JbaseSerializerTest extends JbaseAbstractTest {
-	
+
 	/**
 	 * Since we use both Jbase and JbaseTestlanguage we specify EObject
 	 * as the type returned by ParseHelper
@@ -72,11 +72,17 @@ class JbaseSerializerTest extends JbaseAbstractTest {
 		'''.assertSerialize
 	}
 
-	@Test def void testForLoop() {
+	@Test def void testBinaryOperator() {
 		'''
 			for  (int  i  =  0  ; i  <  argsNum ;  i  +=  1 )  {
 				
 			}
+		'''.assertSerialize
+	}
+
+	@Test def void testBinaryOperator2() {
+		'''
+			int j = 1 + 0;
 		'''.assertSerialize
 	}
 
