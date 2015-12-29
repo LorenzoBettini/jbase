@@ -27,7 +27,7 @@ XImportDeclaration returns xtype::XImportDeclaration:
 	(=>'import' (
 		(static?='static' importedType=[types::JvmDeclaredType|QualifiedNameInStaticImport] (wildcard?='*' | memberName=ValidID)) 
 		| importedType=[types::JvmDeclaredType|QualifiedName] 
-		| importedNamespace=QualifiedNameWithWildcard) ';'*)
+		| importedNamespace=QualifiedNameWithWildcard) ->';'*)
 ;
 
 // customized with 'final' specification and varargs
@@ -42,24 +42,32 @@ XJSingleStatement returns XExpression:
 	XBasicForLoopExpression |
 	XWhileExpression |
 	XTryCatchFinallyExpression |
-	XSynchronizedExpression
+	XSynchronizedExpression |
+	XJEmptyStatement
 ;
 
 /*
  * These are the Java statements that require a semicolon at the end.
  * 
- * The final ; should be optional in order to be able to parse incomplete
- * expressions and give better content assist.
+ * The final ; is optional in order to be able to parse incomplete
+ * expressions, provide nicer error messages and give better content assist.
+ * The presence of ';' is checked by the validator
  */
 XJSemicolonStatement returns XExpression:
-//	XJArrayConstructorCall | not a valid statement
-	(
-	XJBranchingStatement |
-	XExpressionOrVarDeclaration |
-	XDoWhileExpression |
-	XReturnExpression |
-	XThrowExpression
-	) ->';'?
+	{XJSemicolonStatement}
+	expression=
+		(
+			XJBranchingStatement |
+			XExpressionOrVarDeclaration |
+			XDoWhileExpression |
+			XReturnExpression |
+			XThrowExpression
+		)
+	->semicolon=';'?
+;
+
+XJEmptyStatement returns XExpression:
+	{XJSemicolonStatement} semicolon=';'
 ;
 
 XJBranchingStatement returns XExpression:
@@ -68,13 +76,12 @@ XJBranchingStatement returns XExpression:
 ;
 
 /* 
- * The ';' only "eats" possible additional semicolons which is legal in Java.
- * The required ';' is taken care of in the XJSemicolonStatement rule
+ * The semicolons ';' are handled by the XJSemicolonStatement rule
  */
 XBlockExpression returns XExpression: 
 	{XBlockExpression}
 	'{'
-		(expressions+=XJStatementOrBlock ';'*)*
+		(expressions+=XJStatementOrBlock)*
 	'}';
 
 // Don't put the predicate in the rule for XExpressionOrVarDeclaration:
@@ -166,7 +173,6 @@ XCastedExpression returns XExpression:
 	XPostfixOperation
 ;
 
-
 XPostfixOperation returns XExpression:
 	=>({XJPrefixOperation} feature=[types::JvmIdentifiableElement|OpPostfix]) operand=XMemberFeatureCall
 	|
@@ -249,7 +255,7 @@ XCasePart:
  */
 XJSwitchStatements returns XExpression:
 	{XJSwitchStatements}
-	(expressions+=XJStatementOrBlock ';'*)*
+	(expressions+=XJStatementOrBlock)*
 ;
 
 /**
