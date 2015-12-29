@@ -25,4 +25,4 @@ before_script:
 # Build on MacOSX is triggered only for pull requests
 script:
  - export
- - sh -e ./travis_build.sh
+ - bash -e ./travis_build.sh
