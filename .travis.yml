@@ -24,4 +24,4 @@ before_script:
 
 script:
  - export
- - '[ "$TRAVIS_OS_NAME" == "osx" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] && mvn -f jbase.releng/pom.xml clean verify || [ "$TRAVIS_OS_NAME" != "osx" ] && mvn -f jbase.releng/pom.xml clean verify -U -Pjacoco-report coveralls:report'
+ - '[ "$TRAVIS_OS_NAME" == "osx" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] && mvn -f jbase.releng/pom.xml clean verify || [ "$TRAVIS_OS_NAME" != "osx" ] && mvn -f jbase.releng/pom.xml clean verify -U -Pjacoco-report coveralls:report || [ "$TRAVIS_OS_NAME" == "osx" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]'
