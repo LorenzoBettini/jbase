@@ -10,6 +10,7 @@ import jbase.jbase.XJAssignment
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
+import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.validation.JbaseIssueCodes
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -59,6 +60,8 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJClassObject) {
 			_computeTypes(expression, state)
+		} else if (expression instanceof XJSemicolonStatement) {
+			_computeTypes(expression, state)
 		} else {
 			super.computeTypes(expression, state)
 		}
@@ -103,6 +106,14 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			for (additional : localVariable.additionalVariables) {
 				addLocalToCurrentScope(additional, state)
 			}
+		}
+	}
+
+	override protected addLocalToCurrentScope(XExpression e, ITypeComputationState state) {
+		if (e instanceof XJSemicolonStatement) {
+			addLocalToCurrentScope(e.expression, state)
+		} else {
+			super.addLocalToCurrentScope(e, state)
 		}
 	}
 
@@ -290,6 +301,21 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 
 	def protected _computeTypes(XJBranchingStatement st, ITypeComputationState state) {
 		state.acceptActualType(state.primitiveVoid)
+	}
+
+	def protected _computeTypes(XJSemicolonStatement st, ITypeComputationState state) {
+		val expression = st.expression
+		if (expression != null) {
+			// it is crucial to specify withinScope, otherwise, FeatureScopeTracker
+			// (used for the content assist) won't work
+			// replacePreviousExpressionScope would throw an IllegalStateException
+			// when the anchor is AFTER
+			state.withinScope(st)
+			state.computeTypes(expression)
+		} else {
+			// empty statement
+			state.acceptActualType(state.primitiveVoid)
+		}
 	}
 	
 	private def computeTypesOfArrayAccess(XJArrayAccess arrayAccess, 
