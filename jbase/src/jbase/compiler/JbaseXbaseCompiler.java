@@ -43,6 +43,7 @@ import jbase.jbase.XJClassObject;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
+import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.util.JbaseModelUtil;
 
@@ -73,6 +74,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 			_toJavaStatement((XJBreakStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJClassObject) {
 			_toJavaStatement((XJClassObject) obj, appendable, isReferenced);
+		} else if (obj instanceof XJSemicolonStatement) {
+			_toJavaStatement((XJSemicolonStatement) obj, appendable, isReferenced);
 		} else {
 			super.doInternalToJavaStatement(obj, appendable, isReferenced);
 		}
@@ -135,6 +138,16 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	private void compileBranchingStatement(XJBranchingStatement st,
 			ITreeAppendable b, String instruction) {
 		b.newLine().append(instruction).append(";");
+	}
+
+	public void _toJavaStatement(XJSemicolonStatement st, ITreeAppendable b,
+			boolean isReferenced) {
+		XExpression expression = st.getExpression();
+		if (expression != null) {
+			doInternalToJavaStatement(expression, b, isReferenced);
+		} else {
+			b.append(";");
+		}
 	}
 
 	@Override
