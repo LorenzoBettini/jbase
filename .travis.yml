@@ -21,7 +21,7 @@ before_install:
 
 before_script:
  - sh -e ./before_script.sh
- 
+
 script:
  - export
  - mvn -f jbase.releng/pom.xml clean verify -U -Pjacoco-report coveralls:report
