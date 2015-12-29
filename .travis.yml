@@ -25,4 +25,4 @@ before_script:
 # Build on MacOSX is triggered only for pull requests
 script:
  - export
- - '[ "$TRAVIS_OS_NAME" == "osx" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] && mvn -f jbase.releng/pom.xml clean verify || [ "$TRAVIS_OS_NAME" != "osx" ] && mvn -f jbase.releng/pom.xml clean verify -U -Pjacoco-report coveralls:report || [ "$TRAVIS_OS_NAME" == "osx" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]'
+ - sh -e ./travis_build.sh
