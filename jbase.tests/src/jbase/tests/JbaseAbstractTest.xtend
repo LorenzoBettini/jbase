@@ -3,6 +3,7 @@ package jbase.tests
 import com.google.inject.Inject
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJVariableDeclaration
@@ -10,6 +11,7 @@ import jbase.testlanguage.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseInputs
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
+import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
@@ -20,8 +22,10 @@ import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
+import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
+import org.eclipse.xtext.xbase.XBasicForLoopExpression
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -117,6 +121,14 @@ abstract class JbaseAbstractTest {
 		it as XIfExpression
 	}
 
+	protected def getWhileExpression(XExpression it) {
+		it as XWhileExpression
+	}
+
+	protected def getBasicForLoop(XExpression it) {
+		it as XBasicForLoopExpression
+	}
+
 	protected def getSwitch(XExpression it) {
 		it as XSwitchExpression
 	}
@@ -127,5 +139,13 @@ abstract class JbaseAbstractTest {
 
 	protected def getClassObject(XExpression it) {
 		it as XJClassObject
+	}
+
+	protected def getAssignment(XExpression it) {
+		it as XAssignment
+	}
+
+	protected def getJAssignment(XExpression it) {
+		it as XJAssignment
 	}
 }

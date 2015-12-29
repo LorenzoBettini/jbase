@@ -1,9 +1,11 @@
 package jbase.tests
 
+import jbase.JbaseInjectorProvider
+import jbase.jbase.XJCharLiteral
+import jbase.jbase.XJClassObject
+import jbase.jbase.XJPrefixOperation
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.xbase.XAssignment
-import org.eclipse.xtext.xbase.XBasicForLoopExpression
 import org.eclipse.xtext.xbase.XBinaryOperation
 import org.eclipse.xtext.xbase.XBooleanLiteral
 import org.eclipse.xtext.xbase.XConstructorCall
@@ -13,23 +15,13 @@ import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.XNumberLiteral
 import org.eclipse.xtext.xbase.XPostfixOperation
 import org.eclipse.xtext.xbase.XStringLiteral
-import org.eclipse.xtext.xbase.XVariableDeclaration
-import org.eclipse.xtext.xbase.XWhileExpression
-import org.junit.Test
-import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
-import jbase.jbase.XJArrayAccessExpression
-import jbase.jbase.XJArrayConstructorCall
-import jbase.jbase.XJAssignment
-import jbase.jbase.XJCharLiteral
-import jbase.jbase.XJPrefixOperation
-import jbase.jbase.XJVariableDeclaration
-
-import static extension org.junit.Assert.*
+import org.eclipse.xtext.xbase.XSynchronizedExpression
 import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
-import org.eclipse.xtext.xbase.XSynchronizedExpression
-import jbase.jbase.XJClassObject
+import org.junit.Test
+import org.junit.runner.RunWith
+
+import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -39,7 +31,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		i = 1;
 		'''.assertLastExpression [
-			(it as XAssignment).feature as XFeatureCall
+			assignment.feature as XFeatureCall
 		]
 	}
 
@@ -48,7 +40,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int i;
 		i = m();
 		'''.assertLastExpression [
-			(it as XAssignment).value as XFeatureCall
+			assignment.value as XFeatureCall
 		]
 	}
 
@@ -58,7 +50,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int i;
 		i = j;
 		'''.assertLastExpression [
-			(it as XAssignment).value as XFeatureCall
+			assignment.value as XFeatureCall
 		]
 	}
 
@@ -66,7 +58,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		i[0] = 1;
 		'''.assertLastExpression [
-			assertTrue((it as XJAssignment).indexes.head instanceof XNumberLiteral)
+			assertTrue(JAssignment.indexes.head instanceof XNumberLiteral)
 		]
 	}
 
@@ -83,19 +75,19 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		i = m()[0];
 		'''.assertLastExpression [
-			assertTrue(((it as XAssignment).value as XJArrayAccessExpression).indexes.head instanceof XNumberLiteral)
+			assertTrue(getArrayAccess(assignment.value).indexes.head instanceof XNumberLiteral)
 		]
 	}
 
 	@Test def void testArrayAccessInParenthesizedExpression() {
 		arrayAccessInParenthesizedExpression.assertLastExpression [
-			assertTrue(((it as XAssignment).value as XJArrayAccessExpression).indexes.head instanceof XNumberLiteral)
+			assertTrue(getArrayAccess(assignment.value).indexes.head instanceof XNumberLiteral)
 		]
 	}
 
 	@Test def void testMultiArrayAccessInRightHandsideExpression() {
 		multiArrayAccessInRightHandsideExpression.assertLastExpression [
-			val indexes = ((it as XAssignment).value as XJArrayAccessExpression).indexes
+			val indexes = getArrayAccess(assignment.value).indexes
 			assertTrue(indexes.head instanceof XNumberLiteral)
 			assertTrue(indexes.last instanceof XBinaryOperation)
 		]
@@ -106,7 +98,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int[][] a;
 		a[0][1+2] = 1;
 		'''.assertLastExpression [
-			val indexes = (it as XJAssignment).indexes
+			val indexes = JAssignment.indexes
 			assertTrue(indexes.head instanceof XNumberLiteral)
 			assertTrue(indexes.last instanceof XBinaryOperation)
 		]
@@ -116,7 +108,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		System.out;
 		'''.assertLastExpression [
-			(it as XMemberFeatureCall).memberCallTarget
+			memberFeatureCall.memberCallTarget
 		]
 	}
 
@@ -125,7 +117,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		System.out.println("a");
 		'''.assertLastExpression [
 			// the whole call
-			(it as XMemberFeatureCall) => [
+			memberFeatureCall => [
 				// System.out
 				(memberCallTarget as XMemberFeatureCall)
 				// the argument
@@ -146,7 +138,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		int[] a = new int[0];
 		'''.assertLastExpression [
-			assertTrue(((it as XVariableDeclaration).right as XJArrayConstructorCall).indexes.head instanceof XNumberLiteral)
+			assertTrue(getVariableDeclarationRightAsArrayConstructorCall.indexes.head instanceof XNumberLiteral)
 		]
 	}
 
@@ -239,7 +231,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		arrayLiteral.assertLastExpression [
 			assertEquals(
 				3,
-				((it as XJVariableDeclaration).right
+				(variableDeclarationRight
 					as XListLiteral
 				).elements.size
 			)
@@ -266,7 +258,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		int i = a
 		'''.assertLastExpression[
-			(it as XJVariableDeclaration).right.assertNotNull
+			variableDeclarationRight.assertNotNull
 		]
 	}
 
@@ -274,7 +266,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		int i =
 		'''.assertLastExpression[
-			(it as XVariableDeclaration).right.assertNull
+			variableDeclarationRight.assertNull
 		]
 	}
 
@@ -282,7 +274,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		int i = ;
 		'''.assertLastExpression[
-			(it as XVariableDeclaration).right.assertNull
+			variableDeclarationRight.assertNull
 		]
 	}
 
@@ -290,7 +282,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		my
 		'''.assertLastExpression[
-			(it as XFeatureCall).actualReceiver.assertNull
+			featureCall.actualReceiver.assertNull
 		]
 	}
 
@@ -299,7 +291,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		String s = "";
 		s.m
 		'''.assertLastExpression[
-			(it as XMemberFeatureCall).actualReceiver.assertNotNull
+			memberFeatureCall.actualReceiver.assertNotNull
 		]
 	}
 
@@ -307,7 +299,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		s.m
 		'''.assertLastExpression[
-			(it as XMemberFeatureCall).actualReceiver.assertNotNull
+			memberFeatureCall.actualReceiver.assertNotNull
 		]
 	}
 
@@ -315,7 +307,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		s.
 		'''.assertLastExpression[
-			(it as XMemberFeatureCall).actualReceiver.assertNotNull
+			memberFeatureCall.actualReceiver.assertNotNull
 		]
 	}
 
@@ -325,7 +317,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 			i = i + 1;
 		}
 		'''.assertLastExpression[
-			(it as XWhileExpression).predicate.assertNotNull
+			whileExpression.predicate.assertNotNull
 		]
 	}
 
@@ -333,7 +325,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		int i, j = 0, k;
 		'''.assertLastExpression[
-			(it as XJVariableDeclaration) => [
+			variableDeclaration => [
 				type.assertNotNull
 				additionalVariables => [
 					2.assertEquals(size)
@@ -348,7 +340,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		'''
 		for (int i, j = 0, k; i < 0; i++) {}
 		'''.assertLastExpression[
-			((it as XBasicForLoopExpression).initExpressions.head as XJVariableDeclaration) => [
+			basicForLoop.initExpressions.head.variableDeclaration => [
 				type.assertNotNull
 				additionalVariables => [
 					2.assertEquals(size)
@@ -366,7 +358,7 @@ class JbaseParserTest extends JbaseAbstractTest {
 		int k;
 		for (i = 0, j = 0, k = 0; i < 0; i++) {}
 		'''.assertLastExpression[
-			3.assertEquals((it as XBasicForLoopExpression).initExpressions.size)
+			3.assertEquals(basicForLoop.initExpressions.size)
 		]
 	}
 
