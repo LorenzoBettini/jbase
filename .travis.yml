@@ -2,7 +2,9 @@ sudo: false
 
 language: java
 
-jdk: oraclejdk7
+os:
+  - linux
+  - osx
 
 cache:
   directories:
@@ -12,11 +14,15 @@ env: DISPLAY=:99.0
 
 install: true
 
-before_install: echo "MAVEN_OPTS='-Xmx2048m -XX:MaxPermSize=512m'" > ~/.mavenrc
+before_install:
+ - echo "MAVEN_OPTS='-Xmx2048m -XX:MaxPermSize=512m'" > ~/.mavenrc
+ - if [ "$TRAVIS_OS_NAME" == "osx" ]; then export JAVA_HOME=$(/usr/libexec/java_home); fi
+ - echo $JAVA_HOME
 
 before_script:
- - sh -e /etc/init.d/xvfb start
- 
+ - sh -e ./before_script.sh
+
+# Build on MacOSX is triggered only for pull requests
 script:
  - export
- - mvn -f jbase.releng/pom.xml clean verify -U -Pjacoco-report coveralls:report
+ - bash -e ./travis_build.sh
