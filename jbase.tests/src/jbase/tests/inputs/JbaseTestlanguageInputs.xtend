@@ -29,7 +29,7 @@ class JbaseTestlanguageInputs {
 
 	def additionalSemicolons() {
 		'''
-		op m() { return;;; }
+		op m() { return; }
 		int i = 0;;;
 		while (i < 10) {
 			i = i + 1;
