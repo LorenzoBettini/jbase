@@ -517,6 +517,13 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testValidAccessToVariable() {
+		'''
+		int i = 0;
+		System.out.println(i);
+		'''.parse.assertNoIssues
+	}
+
 	@Test def void testVariableDeclarationsNoUnusedWarningsWhenUsed() {
 		'''
 		{
@@ -1112,6 +1119,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			IssueCodes.UNREACHABLE_CODE,
 			'''Unreachable expression.'''
 		)
+	}
+
+	@Test def void testNoDeadCodeWithAdditionalSemicolons() {
+		additionalSemicolons.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeAfterReturnWithAdditionalSemicolons() {
+		'''
+		op m() : void {
+			return;;
+		}
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
 	def private assertInvalidContinueStatement(EObject o) {
