@@ -39,6 +39,34 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testEmptyStatement() {
+		";".checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {;
+  }
+}
+'''
+		)
+	}
+
+	@Test def void testEmptyStatements() {
+		";;".checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {;;
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testHelloWorld() {
 		helloWorld.checkCompilation(
 '''
@@ -505,6 +533,23 @@ package jbasetestlanguage;
 public class MyFile {
   public static void main(String[] args) throws Throwable {
     int[] a = {};
+  }
+}
+'''
+			)
+	}
+
+	@Test def void testWhileWithSemicolon() {
+		whileWithSemicolon.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int i = 0;
+    while ((i < 10)) {;
+    }
   }
 }
 '''
