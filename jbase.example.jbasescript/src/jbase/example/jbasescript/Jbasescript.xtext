@@ -10,7 +10,7 @@ JbasescriptLanguageModel:
 	
 SpecialBlockExpression returns xbase::XBlockExpression:
 	{xbase::XBlockExpression}
-	(expressions+=XJStatementOrBlock ';'*)*;
+	(expressions+=XJStatementOrBlock)*;
 
 Operation:
 	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'

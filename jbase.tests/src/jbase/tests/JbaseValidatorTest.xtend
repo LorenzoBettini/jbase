@@ -236,7 +236,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			return;
 			System.out.println("");
 		}
-		'''.parse.assertUnreachableExpression(XbasePackage.eINSTANCE.XMemberFeatureCall)
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
 	@Test def void testDeadCodeInForLoopTranslatedToJavaWhileEarlyExit() {
@@ -403,7 +403,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testMissingSemicolonInReturn() {
 		'''
-		void m() {
+		op m() : void {
 			return
 		}
 		'''.parse.assertMissingSemicolon(XbasePackage.eINSTANCE.XReturnExpression)
@@ -515,6 +515,13 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		Type mismatch: cannot convert from String to int
 		Type mismatch: cannot convert from boolean to int'''
 		)
+	}
+
+	@Test def void testValidAccessToVariable() {
+		'''
+		int i = 0;
+		System.out.println(i);
+		'''.parse.assertNoIssues
 	}
 
 	@Test def void testVariableDeclarationsNoUnusedWarningsWhenUsed() {
@@ -1112,6 +1119,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			IssueCodes.UNREACHABLE_CODE,
 			'''Unreachable expression.'''
 		)
+	}
+
+	@Test def void testNoDeadCodeWithAdditionalSemicolons() {
+		additionalSemicolons.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeAfterReturnWithAdditionalSemicolons() {
+		'''
+		op m() : void {
+			return;;
+		}
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
 	def private assertInvalidContinueStatement(EObject o) {

@@ -1,13 +1,16 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.JbaseInjectorProvider
+import jbase.jbase.XJSemicolonStatement
+import jbase.util.JbaseNodeModelUtil
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.xbase.XAssignment
+import org.eclipse.xtext.xbase.XBlockExpression
+import org.eclipse.xtext.xbase.XExpression
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
-import jbase.util.JbaseNodeModelUtil
 
 import static extension org.junit.Assert.*
 
@@ -39,7 +42,7 @@ class JbaseNodeModelUtilTest extends JbaseAbstractTest {
 		'''
 		{ i = 1 ;; }
 		'''.assertLastExpressionText(
-		"i = 1 ;"
+		";"
 		)
 	}
 
@@ -75,7 +78,7 @@ class JbaseNodeModelUtilTest extends JbaseAbstractTest {
 		i = 1
 		;
 		'''.parse => [
-			(it as XAssignment) => [
+			((it as XJSemicolonStatement).expression as XAssignment) => [
 				4.assertEquals(value.elementOffsetInProgram)
 			]
 		]
@@ -91,6 +94,18 @@ class JbaseNodeModelUtilTest extends JbaseAbstractTest {
 		assertLastExpression(input) [
 			expectedSemicolon.assertEquals(hasSemicolon)
 		]
+	}
+
+	/**
+	 * Here we really want to apply the tester on a possible semicolon statement,
+	 * not on the contained expression in the semicolon statement.
+	 */
+	override protected void applyTester(XExpression e, (XExpression)=>void tester) {
+		if (e instanceof XBlockExpression) {
+			e.expressions.last.applyTester(tester)
+		} else {
+			tester.apply(e)
+		}
 	}
 
 }

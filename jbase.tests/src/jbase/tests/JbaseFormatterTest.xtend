@@ -164,6 +164,18 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test def void testEmptyStatements() {
+		assertFormatted[
+			expectation = '''
+				;
+				;
+			'''
+			toBeFormatted = '''
+				; ; 
+			'''
+		]
+	}
+
 
 	@Test def void testFormatBlock() {
 		assertFormatted[
@@ -621,12 +633,12 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 	@Test def void testDoWhileStatements() {
 		assertFormatted[
 			expectation = '''
-				do  
+				do
 					System.out.println("No args");
-				while (args.length() == 0) ;
+				while (args.length() == 0);
 				do {
 					System.out.println("No args");
-				} while (args.length() == 0) ;
+				} while (args.length() == 0);
 			'''
 			toBeFormatted = '''
 				do  

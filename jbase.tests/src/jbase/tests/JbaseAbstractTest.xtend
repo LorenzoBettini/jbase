@@ -26,6 +26,7 @@ import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
 import org.eclipse.xtext.xbase.XBasicForLoopExpression
+import jbase.jbase.XJSemicolonStatement
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -66,8 +67,14 @@ abstract class JbaseAbstractTest {
 			'''
 		}
 		val e = toParse.parse
+		applyTester(e, tester)
+	}
+
+	def protected void applyTester(XExpression e, (XExpression)=>void tester) {
 		if (e instanceof XBlockExpression) {
-			tester.apply(e.expressions.last)
+			e.expressions.last.applyTester(tester)
+		} else if (e instanceof XJSemicolonStatement) {
+			e.expression.applyTester(tester)
 		} else {
 			tester.apply(e)
 		}

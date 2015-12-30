@@ -17,7 +17,7 @@ JbaseTestLanguageModel:
 	
 SpecialBlockExpression returns xbase::XBlockExpression:
 	{xbase::XBlockExpression}
-	(expressions+=XJStatementOrBlock ';'*)*;
+	(expressions+=XJStatementOrBlock)*;
 
 Property:
 	name=ValidID ':' type=JvmTypeReference;

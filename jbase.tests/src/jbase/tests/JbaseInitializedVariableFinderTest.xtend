@@ -42,7 +42,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i);
 		System.out.println(j);
 		'''.
-		assertNotInitializedReferences("i in System.out.println(i);")
+		assertNotInitializedReferences("i in System.out.println(i)")
 	}
 
 	@Test def void testNotInitializedInCall2() {
@@ -54,7 +54,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i);
 		System.out.println(j);
 		'''.
-		assertNotInitializedReferences("i in System.out.println( i );")
+		assertNotInitializedReferences("i in System.out.println( i )")
 	}
 
 	@Test def void testNotInitializedInCall3() {
@@ -99,7 +99,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		int j;
 		j = i;
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInAssignment2() {
@@ -107,7 +107,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		int i;
 		foo = i;
 		'''.
-		assertNotInitializedReferences("i in foo = i;")
+		assertNotInitializedReferences("i in foo = i")
 		// even if foo is unresolved we still inspect the contents
 	}
 
@@ -117,7 +117,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		int j = i;
 		i = j; // OK
 		'''.
-		assertNotInitializedReferences("i in int j = i;")
+		assertNotInitializedReferences("i in int j = i")
 	}
 
 	@Test def void testNotInitializedInSeveralVariableDeclarations() {
@@ -129,7 +129,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		'''.
 		assertNotInitializedReferences(
 		'''
-		i in int j = i, k = i, w = z;
+		i in int j = i, k = i, w = z
 		i in k = i'''
 		)
 	}
@@ -150,7 +150,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		int[] a = null;
 		a[i] = 0;
 		'''.
-		assertNotInitializedReferences("i in a[i] = 0;")
+		assertNotInitializedReferences("i in a[i] = 0")
 	}
 
 	@Test def void testNotInitializedInArrayAccess2() {
@@ -209,7 +209,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		k = i; // ERROR
 		k = j; // OK
 		'''.
-		assertNotInitializedReferences("i in k = i;")
+		assertNotInitializedReferences("i in k = i")
 		// even if foo is unresolved we still inspect the contents
 	}
 
@@ -231,7 +231,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 			j = i;
 		}
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInIf3() {
@@ -244,7 +244,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 			int k = i;
 		}
 		'''.
-		assertNotInitializedReferences("i in int k = i;")
+		assertNotInitializedReferences("i in int k = i")
 	}
 
 	@Test def void testNotInitializedInIf4() {
@@ -256,7 +256,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		System.out.println(i); // ERROR
 		'''.
-		assertNotInitializedReferences("i in System.out.println(i);")
+		assertNotInitializedReferences("i in System.out.println(i)")
 	}
 
 	@Test def void testInitializedInIfBothBranches() {
@@ -285,7 +285,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(k); // OK
 		System.out.println(z); // ERROR
 		'''.
-		assertNotInitializedReferences("z in System.out.println(z);")
+		assertNotInitializedReferences("z in System.out.println(z)")
 	}
 
 	@Test def void testInitializedInFor() {
@@ -333,7 +333,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		'''
 		i in i < 0
 		i in i++
-		i in j = i;'''
+		i in j = i'''
 		)
 	}
 
@@ -348,7 +348,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		System.out.println(k); // OK
 		'''.
-		assertNotInitializedReferences("j in System.out.println(j);")
+		assertNotInitializedReferences("j in System.out.println(j)")
 	}
 
 	@Test def void testNotInitializedInForEach() {
@@ -359,7 +359,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 			j = i;
 		}
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInForEach2() {
@@ -371,7 +371,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		j = i;
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInWhile() {
@@ -383,7 +383,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		j = i; // ERROR
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInWhile2() {
@@ -394,7 +394,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 			j = i; // ERROR
 		}
 		'''.
-		assertNotInitializedReferences("i in j = i;")
+		assertNotInitializedReferences("i in j = i")
 	}
 
 	@Test def void testNotInitializedInWhile3() {
@@ -419,7 +419,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		'''.
 		assertNotInitializedReferences(
 		'''
-		i in j = i;
+		i in j = i
 		i in i < 0'''
 		)
 	}
@@ -469,9 +469,9 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		'''.
 		assertNotInitializedReferences('''
-		i in z = i;
-		i in k = i;
-		i in w = i;'''
+		i in z = i
+		i in k = i
+		i in w = i'''
 		)
 		// cases without break are inspected before the cases
 		// with break, that's why i in z = i; is detected before
@@ -496,7 +496,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i); // OK
 		System.out.println(j); // ERROR
 		'''.
-		assertNotInitializedReferences("j in System.out.println(j);")
+		assertNotInitializedReferences("j in System.out.println(j)")
 	}
 
 	@Test def void testInitializedInSwitch2() {
@@ -522,8 +522,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		'''.
 		assertNotInitializedReferences(
 		'''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -547,7 +547,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i); // OK
 		System.out.println(j); // ERROR
 		'''.
-		assertNotInitializedReferences("j in System.out.println(j);")
+		assertNotInitializedReferences("j in System.out.println(j)")
 	}
 
 	@Test def void testInitializedInSwitch4() {
@@ -570,7 +570,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i); // ERROR
 		System.out.println(j); // OK
 		'''.
-		assertNotInitializedReferences("i in System.out.println(i);")
+		assertNotInitializedReferences("i in System.out.println(i)")
 	}
 
 	@Test def void testInitializedInSwitchWithoutDefault() {
@@ -590,8 +590,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		'''.
 		assertNotInitializedReferences('''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -611,8 +611,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		'''.
 		assertNotInitializedReferences('''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -633,8 +633,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		'''.
 		assertNotInitializedReferences('''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -657,8 +657,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		'''.
 		assertNotInitializedReferences('''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -678,8 +678,8 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(j); // ERROR
 		'''.
 		assertNotInitializedReferences('''
-		i in System.out.println(i);
-		j in System.out.println(j);'''
+		i in System.out.println(i)
+		j in System.out.println(j)'''
 		)
 	}
 
@@ -711,7 +711,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		System.out.println(i);
 		'''.
-		assertNotInitializedReferences("i in System.out.println(i);")
+		assertNotInitializedReferences("i in System.out.println(i)")
 	}
 
 	@Test def void testInitializedOnlyInCatch() {
@@ -724,7 +724,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		}
 		System.out.println(i);
 		'''.
-		assertNotInitializedReferences("i in System.out.println(i);")
+		assertNotInitializedReferences("i in System.out.println(i)")
 	}
 
 	@Test def void testInitializedBothInTryAndInCatch() {
@@ -785,7 +785,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i); // OK
 		System.out.println(j); // OK
 		'''.
-		assertNotInitializedReferences("j in i = j;")
+		assertNotInitializedReferences("j in i = j")
 	}
 
 	@Test def void testInitializedAfterSynchronized() {
@@ -798,7 +798,7 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		System.out.println(i); // OK
 		System.out.println(j); // ERROR
 		'''.
-		assertNotInitializedReferences("j in System.out.println(j);")
+		assertNotInitializedReferences("j in System.out.println(j)")
 	}
 
 	@Test def void testNotInitializedInSynchronized() {

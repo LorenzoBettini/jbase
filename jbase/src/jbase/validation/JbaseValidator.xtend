@@ -14,6 +14,7 @@ import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
+import jbase.jbase.XJSemicolonStatement
 import jbase.scoping.featurecalls.JbaseOperatorMapping
 import jbase.util.JbaseModelUtil
 import jbase.util.JbaseNodeModelUtil
@@ -25,15 +26,12 @@ import org.eclipse.xtext.util.Wrapper
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XAbstractWhileExpression
-import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.XBasicForLoopExpression
 import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XConstructorCall
-import org.eclipse.xtext.xbase.XDoWhileExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XFeatureCall
 import org.eclipse.xtext.xbase.XMemberFeatureCall
-import org.eclipse.xtext.xbase.XReturnExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XbasePackage
@@ -50,23 +48,6 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	static val xbasePackage = XbasePackage.eINSTANCE;
 	static val jbasePackage = JbasePackage.eINSTANCE;
-
-	val semicolonStatements = #{
-		XJBranchingStatement,
-		XVariableDeclaration,
-		XDoWhileExpression,
-		XReturnExpression,
-		XAssignment,
-		XAbstractFeatureCall
-	}
-
-	val featuresForRequiredSemicolon = #{
-		xbasePackage.XBlockExpression_Expressions,
-		xbasePackage.XIfExpression_Then,
-		xbasePackage.XIfExpression_Else,
-		xbasePackage.XCasePart_Then,
-		xbasePackage.XAbstractWhileExpression_Body
-	}
 
 	@Inject extension JbaseNodeModelUtil
 	@Inject extension JbaseModelUtil
@@ -93,11 +74,16 @@ class JbaseValidator extends AbstractJbaseValidator {
 	/**
 	 * In case of an additional variable declaration we must use the container of
 	 * the containing variable declaration, otherwise additional variables will always be
-	 * detected as unused
+	 * detected as unused; similarly if the container is a semicolon statement which
+	 * contains a variable declaration
 	 */
 	override protected isLocallyUsed(EObject target, EObject containerToFindUsage) {
-		if (target instanceof XJAdditionalXVariableDeclaration) {
-			return super.isLocallyUsed(target, containerToFindUsage.eContainer)
+		if (target instanceof XJAdditionalXVariableDeclaration &&
+				containerToFindUsage instanceof XVariableDeclaration) {
+			return isLocallyUsed(target, containerToFindUsage.eContainer)
+		}
+		if (containerToFindUsage instanceof XJSemicolonStatement) {
+			return isLocallyUsed(target, containerToFindUsage.eContainer)
 		}
 		return super.isLocallyUsed(target, containerToFindUsage)
 	}
@@ -144,9 +130,9 @@ class JbaseValidator extends AbstractJbaseValidator {
 	}
 
 	@Check
-	def checkMissingSemicolon(XExpression e) {
-		if (e.hasToBeCheckedForMissingSemicolon) {
-			checkMissingSemicolonInternal(e)
+	def checkMissingSemicolon(XJSemicolonStatement e) {
+		if (e.semicolon == null) {
+			errorMissingSemicolon(e.expression)
 		}
 	}
 
@@ -157,21 +143,15 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	def private checkMissingSemicolonInternal(EObject e) {
 		if (!e.hasSemicolon) {
-			error(
-				'Syntax error, insert ";" to complete Statement',
-				e,
-				null,
-				MISSING_SEMICOLON
-			)
+			errorMissingSemicolon(e)
 		}
 	}
-
-	def private hasToBeCheckedForMissingSemicolon(XExpression e) {
-		val expClass = e.class
-		val containingFeature = e.eContainingFeature
-		semicolonStatements.exists [ c |
-			c.isAssignableFrom(expClass) && featuresForRequiredSemicolon.exists[f|f == containingFeature]
-		]
+	
+	private def errorMissingSemicolon(EObject e) {
+		error(
+			'Syntax error, insert ";" to complete Statement',
+			e, null, MISSING_SEMICOLON
+		)
 	}
 
 	@Check
@@ -316,6 +296,10 @@ class JbaseValidator extends AbstractJbaseValidator {
 	}
 
 	def protected errorMissingReturnStatement(XExpression e) {
-		error("Missing return", e, null, MISSING_RETURN)
+		var source = e
+		if (e instanceof XJSemicolonStatement) {
+			source = e.expression
+		}
+		error("Missing return", source, null, MISSING_RETURN)
 	}
 }

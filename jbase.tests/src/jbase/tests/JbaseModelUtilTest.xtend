@@ -17,6 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import static extension org.junit.Assert.*
+import jbase.jbase.XJSemicolonStatement
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -117,7 +118,7 @@ class JbaseModelUtilTest extends JbaseAbstractTest {
 	}
 
 	private def lastArrayConstructorCall(CharSequence input) {
-		input.parse as XJArrayConstructorCall
+		(input.parse as XJSemicolonStatement).expression as XJArrayConstructorCall
 	}
 
 }

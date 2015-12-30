@@ -7,7 +7,6 @@ import java.util.Collections
 import org.eclipse.xtext.xbase.XCasePart
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
-import org.eclipse.xtext.xbase.controlflow.DefaultEarlyExitComputer
 
 /**
  * Customization to take into account that in Java, switch's cases automatically fall through
@@ -15,7 +14,7 @@ import org.eclipse.xtext.xbase.controlflow.DefaultEarlyExitComputer
  * 
  * @author Lorenzo Bettini
  */
-class JbaseEarlyExitComputer extends DefaultEarlyExitComputer {
+class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExitComputer {
 
 	@Inject extension JbaseBranchingStatementDetector
 

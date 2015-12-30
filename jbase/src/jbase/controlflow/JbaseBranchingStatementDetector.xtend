@@ -1,6 +1,7 @@
 package jbase.controlflow
 
 import jbase.jbase.XJBranchingStatement
+import jbase.jbase.XJSemicolonStatement
 import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XIfExpression
@@ -31,5 +32,9 @@ class JbaseBranchingStatementDetector {
 
 	def protected dispatch sureBranch(XBlockExpression e) {
 		e.expressions.exists[isSureBranchStatement]
+	}
+
+	def protected dispatch sureBranch(XJSemicolonStatement e) {
+		e.expression.isSureBranchStatement
 	}
 }

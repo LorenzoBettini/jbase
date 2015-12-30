@@ -61,8 +61,8 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		'''.assertAfterExtract('''
 			if(true) {
 				String string = "foo";
-				System.out.println(22 + string)
-			};
+				System.out.println(22 + string);
+			}
 		''', false)
 	}
 

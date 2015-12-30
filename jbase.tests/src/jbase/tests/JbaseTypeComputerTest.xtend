@@ -1,6 +1,10 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.JbaseInjectorProvider
+import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJVariableDeclaration
+import jbase.tests.util.SimpleJvmModelTestInjectorProvider
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.xbase.XExpression
@@ -8,9 +12,6 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
-import jbase.tests.util.SimpleJvmModelTestInjectorProvider
-import jbase.jbase.XJVariableDeclaration
 
 import static org.junit.Assert.*
 
@@ -99,6 +100,26 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	@Test
 	def testNumberLiteralInBinaryOperation() {
 		"int i = 1 + 128".assertVarExpressionActualType("int")
+	}
+
+	@Test
+	def void testEmptyStatement() {
+		";".parse.assertReturnType("void")
+	}
+
+	@Test
+	def void testVariableDeclaration() {
+		"int i;".assertLastExpression[
+			variableDeclaration.assertActualType("void")
+		]
+	}
+
+	@Test
+	def void testVariableDeclarationAddedToScope() {
+		'''
+		int i;
+		i;
+		'''.assertActualType("int")
 	}
 
 	@Test
@@ -398,7 +419,12 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		assertEquals("expression " + e.class.simpleName + ": " + e, expectedTypeName, toString(typeRef))
 	}
 
-	def private LightweightTypeReference getActualType(XExpression expression) {
+	def private LightweightTypeReference getActualType(XExpression e) {
+		var expression = e
+		if (expression.eContainer instanceof XJSemicolonStatement) {
+			// the type is assigned to the container semicolon statement
+			expression = expression.eContainer as XExpression
+		}
 		return typeResolver.resolveTypes(expression).getActualType(expression);
 	}
 
