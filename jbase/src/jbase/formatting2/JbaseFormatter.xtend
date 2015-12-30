@@ -14,18 +14,15 @@ import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJPrefixOperation
+import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJSwitchStatements
 import jbase.jbase.XJVariableDeclaration
 import jbase.util.JbaseModelUtil
 import org.eclipse.emf.common.util.EList
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XCastedExpression
-import org.eclipse.xtext.xbase.XDoWhileExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XForLoopExpression
-import org.eclipse.xtext.xbase.XIfExpression
-import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.XPostfixOperation
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
@@ -35,9 +32,9 @@ import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 
 class JbaseFormatter extends XbaseFormatter {
-	
+
 	@Inject extension JbaseModelUtil
-	
+
 	override void format(Object expr, extension IFormattableDocument document) {
 		// you could use dispatch methods, but that will generate many other
 		// if cases for inherited dispatch methods that will never be executed during the
@@ -66,6 +63,8 @@ class JbaseFormatter extends XbaseFormatter {
 			_format(expr, document);
 		} else if (expr instanceof XJContinueStatement) {
 			_format(expr, document);
+		} else if (expr instanceof XJSemicolonStatement) {
+			_format(expr, document);
 		} else {
 			super.format(expr, document)
 		}
@@ -89,8 +88,6 @@ class JbaseFormatter extends XbaseFormatter {
 			additionalVariable.immediatelyPrecedingKeyword(",").prepend[noSpace].append[oneSpace]
 			additionalVariable.regionForKeyword("=").surround[oneSpace]
 		}
-
-		formatMandatorySemicolon(expr, document)
 	}
 
 	def void _format(XJAssignment expr, extension IFormattableDocument document) {
@@ -150,75 +147,19 @@ class JbaseFormatter extends XbaseFormatter {
 	def void _format(XJArrayAccessExpression expr, extension IFormattableDocument document) {
 		format(expr.getArray(), document);
 		formatArrayIndexes(expr.indexes, document)
-		formatMandatorySemicolon(expr, document)
 	}
 
 	def void _format(XJBreakStatement expr, extension IFormattableDocument document) {
 		expr.regionForKeyword("break").surround[noSpace]
-		formatMandatorySemicolon(expr, document)
 	}
 
 	def void _format(XJContinueStatement expr, extension IFormattableDocument document) {
 		expr.regionForKeyword("continue").surround[noSpace]
-		formatMandatorySemicolon(expr, document)
-	}
-
-	override void _format(XMemberFeatureCall expr, extension IFormattableDocument document) {
-		super._format(expr, document)
-		formatMandatorySemicolon(expr, document)
 	}
 
 	override void _format(XForLoopExpression expr, extension IFormattableDocument format) {
 		super._format(expr, format)
 		format(expr.declaredParam, format)
-	}
-
-	override void _format(XIfExpression expr, extension IFormattableDocument format) {
-		expr.^if.surround[noSpace]
-		expr.regionForKeyword("if").append[oneSpace]
-		if (expr.then instanceof XBlockExpression) {
-			expr.then.prepend(bracesInNewLine)
-			if (expr.^else != null)
-				expr.then.append(bracesInNewLine)
-		} else {
-			expr.then.prepend[newLine increaseIndentation]
-			if (expr.^else != null) {
-				expr.then.immediatelyFollowingKeyword(";").append[newLine; decreaseIndentation]
-			} else
-				expr.then.append[decreaseIndentation]
-		}
-		if (expr.^else instanceof XBlockExpression) {
-			expr.^else.prepend(bracesInNewLine)
-		} else if (expr.^else instanceof XIfExpression) {
-			expr.^else.prepend[oneSpace]
-		} else {
-			expr.^else.prepend[newLine increaseIndentation]
-			expr.^else.append[decreaseIndentation]
-		}
-		expr.^if.format(format)
-		expr.then.format(format)
-		if (expr.^else != null)
-			expr.^else.format(format)
-
-//		super._format(expr, format)
-		// this is required otherwise there's no space after the if
-		// again, probably due to the way we implement XJMemberFeatureCall
-		// (see also JbaseHiddenRegionFormattingMerger)
-		expr.regionForKeyword("if").append[oneSpace; highPriority]
-	}
-
-	override void _format(XDoWhileExpression expr, extension IFormattableDocument format) {
-		expr.regionForKeyword("while").append(whitespaceBetweenKeywordAndParenthesisML)
-		expr.predicate.prepend[noSpace].append[noSpace]
-		if (expr.body instanceof XBlockExpression) {
-			expr.body.prepend(bracesInNewLine).append(bracesInNewLine)
-		} else {
-			expr.body.immediatelyFollowingKeyword(";").append[newLine; decreaseIndentation]
-		}
-		expr.predicate.format(format)
-		expr.body.format(format)
-		// the following does not seem to work...
-		formatMandatorySemicolon(expr, format)
 	}
 
 	override void _format(XSwitchExpression expr, extension IFormattableDocument document) {
@@ -231,6 +172,12 @@ class JbaseFormatter extends XbaseFormatter {
 		formatExpressions(expr.expressions, document, true)
 	}
 
+	def void _format(XJSemicolonStatement e, extension IFormattableDocument document) {
+		if (e.expression != null)
+			format(e.expression, document)
+		e.regionForKeyword(";").prepend[noSpace]
+	}
+
 	override createHiddenRegionFormattingMerger() {
 		new JbaseHiddenRegionFormattingMerger(this)
 	}
@@ -240,15 +187,9 @@ class JbaseFormatter extends XbaseFormatter {
 		val last = expressions.last
 		for (child : expressions) {
 			child.format(document)
-			val sem = child.immediatelyFollowingKeyword(";")
 
-			if (noLineAfterLastExpression && child == last) {
-				sem.prepend[noSpace]
-			} else {
-				if (sem != null)
-					sem.prepend[noSpace].append(blankLinesAroundExpression)
-				else
-					child.append(blankLinesAroundExpression)
+			if (!noLineAfterLastExpression || child != last) {
+				child.append(blankLinesAroundExpression)
 			}
 		}
 	}
@@ -258,14 +199,11 @@ class JbaseFormatter extends XbaseFormatter {
 			formatArrayIndex(index, document)
 		}
 	}
-	
+
 	private def formatArrayIndex(XExpression index, extension IFormattableDocument document) {
 		index.immediatelyPrecedingKeyword("[").prepend[noSpace; highPriority].append[noSpace]
 		format(index, document);
 		index.immediatelyFollowingKeyword("]").prepend[noSpace]
 	}
 
-	private def formatMandatorySemicolon(XExpression expr, extension IFormattableDocument document) {
-		expr.immediatelyFollowingKeyword(";").prepend[noSpace]
-	}
 }
