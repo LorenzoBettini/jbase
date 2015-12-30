@@ -236,7 +236,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			return;
 			System.out.println("");
 		}
-		'''.parse.assertUnreachableExpression(XbasePackage.eINSTANCE.XMemberFeatureCall)
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
 	@Test def void testDeadCodeInForLoopTranslatedToJavaWhileEarlyExit() {
@@ -403,7 +403,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testMissingSemicolonInReturn() {
 		'''
-		void m() {
+		op m() : void {
 			return
 		}
 		'''.parse.assertMissingSemicolon(XbasePackage.eINSTANCE.XReturnExpression)
