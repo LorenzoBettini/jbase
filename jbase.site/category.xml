@@ -6,14 +6,14 @@
    <feature id="jbase.sdk.source" version="0.0.0">
       <category name="main.source"/>
    </feature>
-   <category-def name="main" label="Jbase 0.1.x">
+   <category-def name="main" label="Jbase 0.1.x (for Xtext 2.8.4)">
       <description>
          Jbase
       </description>
    </category-def>
-   <category-def name="main.source" label="Jbase 0.1.x (Sources)">
+   <category-def name="main.source" label="Jbase 0.1.x Sources (for Xtext 2.8.4)">
       <description>
-         Jbase
+         Jbase Sources
       </description>
    </category-def>
 </site>
