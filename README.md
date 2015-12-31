@@ -9,6 +9,12 @@ http://sourceforge.net/projects/xtext-jbase/files/updates/releases
 
 Currently, Jbase requires Xtext 2.8.4, so please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features.
 
+## Documentation
+
+Jbase assumes that you are already familiar with Xtext and in particular with Xbase concepts.
+
+The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
+
 ## Contribute to Jbase
 
 We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which is available from the official Oomph catalog.
