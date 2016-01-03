@@ -10,5 +10,9 @@
   <requirement
       name="jbase.site.plain.project"/>
   <requirement
+      name="jbase.parent.plain.project"/>
+  <requirement
+      name="jbase.maven.releng.plain.project"/>
+  <requirement
       name="jbase.releng.plain.project"/>
 </targlets:ComponentExtension>
