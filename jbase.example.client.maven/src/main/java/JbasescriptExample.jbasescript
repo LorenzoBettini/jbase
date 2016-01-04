@@ -1,0 +1,9 @@
+import jbase.example.client.maven.Helper;
+
+op testMe(String s) {
+	return process(s);
+}
+
+op process(String s) {
+	return "passed: " + (s == null ? "null" : Helper.helpMe(s));
+}
