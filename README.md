@@ -9,6 +9,20 @@ http://sourceforge.net/projects/xtext-jbase/files/updates/releases
 
 Currently, Jbase requires Xtext 2.8.4, so please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features.
 
+## Maven Artifacts
+
+Maven Artifacts for Jbase are available from Maven Central (both releases and snapshots), in case you need to process your DSL files with the _xtext-maven-plugin_.  An example can be found in the project *jbase.example.client.maven*.
+
+The groupId and artifactId are as follows
+
+```
+<dependency>
+	<groupId>net.sf.xtext-jbase</groupId>
+	<artifactId>jbase</artifactId>
+	<version>...</version>
+</dependency>
+```
+
 ## Documentation
 
 Jbase assumes that you are already familiar with Xtext and in particular with Xbase concepts.
