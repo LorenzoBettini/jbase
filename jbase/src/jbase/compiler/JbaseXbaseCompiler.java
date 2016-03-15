@@ -20,7 +20,9 @@ import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
@@ -45,6 +47,9 @@ import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.util.JbaseExpressionHelper;
+import jbase.util.JbaseExpressionHelper.BaseCase;
+import jbase.util.JbaseExpressionHelper.StepCase;
 import jbase.util.JbaseModelUtil;
 
 /**
@@ -57,9 +62,12 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 
 	@Inject
 	private JbaseModelUtil modelUtil;
-	
+
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
+
+	@Inject
+	private JbaseExpressionHelper expressionHelper;
 
 	@Override
 	protected void doInternalToJavaStatement(XExpression obj,
@@ -455,7 +463,7 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	}
 
 	/**
-	 * Specialized for prefix operator
+	 * Specialized for prefix operator and unary expression
 	 * 
 	 * @see org.eclipse.xtext.xbase.compiler.FeatureCallCompiler#featureCalltoJavaExpression(org.eclipse.xtext.xbase.XAbstractFeatureCall, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
 	 */
@@ -473,13 +481,48 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 				// the only other possibility is minus minus
 				b.append("--");
 			}
-			
 			appendArgument(((XJPrefixOperation) call).getOperand(), b);
-			
 			return;
+		} else if (call instanceof XUnaryOperation) {
+			XUnaryOperation unaryOperation = (XUnaryOperation) call;
+			final StringBuilder builder = new StringBuilder();
+			boolean specialHandling = expressionHelper.specialHandling(unaryOperation,
+				new BaseCase() {
+					@Override
+					public Boolean apply(XUnaryOperation op, XNumberLiteral lit) {
+						builder.append(op.getConcreteSyntaxFeatureName() + lit.getValue());
+						return true;
+					}
+				},
+				new StepCase() {
+					@Override
+					public void accept(XUnaryOperation op) {
+						builder.insert(0, op.getConcreteSyntaxFeatureName() + "(").append(')');
+					}
+				}
+			);
+			if (specialHandling) {
+				b.append(builder);
+				return;
+			}
 		}
-		
+
 		super.featureCalltoJavaExpression(call, b, isExpressionContext);
+	}
+
+	/**
+	 * Customized for our special treatment of some unary operations
+	 * 
+	 * @param expr
+	 * @param b
+	 * @return
+	 */
+	@Override
+	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b) {
+		if (expr instanceof XUnaryOperation) {
+			return !expressionHelper.specialHandling((XUnaryOperation) expr);
+		}
+		return super.isVariableDeclarationRequired(expr, b);
 	}
 
 	private void compileArrayAccess(XExpression expr, ITreeAppendable b) {
