@@ -572,6 +572,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testPostfixOnArrayAccess() {
+		'''
+		{
+			int i = 0;
+			int[] a = {1,2,3,4};
+			a[i]++;
+		}
+		'''.parseAndAssertNoIssues
+	}
+
 	@Test def void testWrongPostfixOnNonAbstractFeatureCall() {
 		'''
 		double i = 0.1++;
