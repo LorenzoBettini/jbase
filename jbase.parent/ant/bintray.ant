@@ -17,14 +17,14 @@
 	<property name="bintray.releases.target.path" value="${bintray.releases.path}/${bintray.package.version}" />
 
 	<property name="main.composite.url" value="${bintray.url}/${bintray.composite.path}" />
-	<property name="target" value="target" />
+	<property name="target" value="${project.build.directory}" />
 	<property name="composite.repository.directory" value="composite-child" />
 	<property name="main.composite.repository.directory" value="composite-main" />
 
 	<property name="compositeArtifacts" value="compositeArtifacts.xml" />
 	<property name="compositeContent" value="compositeContent.xml" />
 
-	<property name="local.p2.repository" value="target/repository" />
+	<property name="local.p2.repository" value="${target}/repository" />
 
 	<target name="getMajorMinorVersion">
 		<script language="javascript">
