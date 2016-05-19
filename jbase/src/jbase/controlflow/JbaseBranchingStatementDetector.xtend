@@ -7,10 +7,13 @@ import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XIfExpression
 
 /**
+ * Whether in the passed expression a branching statement like break
+ * and continue is surely executed.
+ * 
  * @author Lorenzo Bettini
  */
 class JbaseBranchingStatementDetector {
-	
+
 	def boolean isSureBranchStatement(XExpression e) {
 		if (e == null)
 			return false;

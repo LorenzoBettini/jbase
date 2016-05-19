@@ -1183,6 +1183,102 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
+	@Test def void testNoDeadCodeWithBreakInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+			if (d == 3)
+				continue;
+		}
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testDeadCodeWithoutInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+		}
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testNoDeadCodeWithBreakInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				break;
+		} while (1 == 1);
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testNoDeadCodeWithBreakInSingleIfBranchInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				break;
+			else
+				d = 1;
+		} while (1 == 1);
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				continue;
+		} while (1 == 1);
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testNoDeadCodeWithBreakInABasicForLoopWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		for (;;) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInABasicForLoopWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		for (;;) {
+			d++;
+			if (d == 3)
+				continue;
+		}
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,

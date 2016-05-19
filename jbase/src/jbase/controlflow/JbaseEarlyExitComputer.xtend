@@ -10,13 +10,23 @@ import org.eclipse.xtext.xbase.XSwitchExpression
 
 /**
  * Customization to take into account that in Java, switch's cases automatically fall through
- * without an explicit break.
+ * without an explicit break; it also takes into consideration break statements in loops.
  * 
  * @author Lorenzo Bettini
  */
 class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExitComputer {
 
 	@Inject extension JbaseBranchingStatementDetector
+	@Inject JbaseBreakStatementDetector breakStatementDetector
+
+	@Override override Collection<ExitPoint> getExitPoints(XExpression expression) {
+		val exitPoints = super.getExitPoints(expression)
+		val head = exitPoints.head
+		if (head?.expression === expression && breakStatementDetector.containsPossibleBreakStatement(expression)) {
+			return emptyList
+		}
+		return exitPoints
+	}
 
 	override protected Collection<ExitPoint> _exitPoints(XSwitchExpression expression) {
 		var Collection<ExitPoint> result = Lists.newArrayList()
