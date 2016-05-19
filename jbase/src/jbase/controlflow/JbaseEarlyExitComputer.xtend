@@ -17,6 +17,16 @@ import org.eclipse.xtext.xbase.XSwitchExpression
 class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExitComputer {
 
 	@Inject extension JbaseBranchingStatementDetector
+	@Inject JbaseBreakStatementDetector breakStatementDetector
+
+	@Override override Collection<ExitPoint> getExitPoints(XExpression expression) {
+		val exitPoints = super.getExitPoints(expression)
+		val head = exitPoints.head
+		if (head?.expression === expression && breakStatementDetector.containsPossibleBreakStatement(expression)) {
+			return emptyList
+		}
+		return exitPoints
+	}
 
 	override protected Collection<ExitPoint> _exitPoints(XSwitchExpression expression) {
 		var Collection<ExitPoint> result = Lists.newArrayList()

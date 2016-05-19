@@ -2676,6 +2676,70 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testLoopsWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		
+		do {
+			d++;
+			if (d == 3)
+				break;
+		} while (1 == 1);
+		d = 0;
+		
+		for (;;) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int d = 1;
+    while ((1 == 1)) {
+      {
+        d++;
+        if ((d == 3)) {
+          break;
+        }
+      }
+    }
+    d = 0;
+    do {
+      {
+        d++;
+        if ((d == 3)) {
+          break;
+        }
+      }
+    } while((1 == 1));
+    d = 0;
+    for (;;) {
+      {
+        d++;
+        if ((d == 3)) {
+          break;
+        }
+      }
+    }
+    d = 0;
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testBubbleSort() {
 		bubbleSort.checkCompilation(
 '''
