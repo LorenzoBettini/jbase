@@ -819,6 +819,12 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertIssuesAsStrings("Assignment to final variable")
 	}
 
+	@Test def void testAssignmentToArrayParameterImplicitOk() {
+		'''
+		args = {"a"};
+		'''.parseAndAssertNoIssues
+	}
+
 	@Test def void testAssignmentToFinalArrayVariableElementOk() {
 		'''
 		{
