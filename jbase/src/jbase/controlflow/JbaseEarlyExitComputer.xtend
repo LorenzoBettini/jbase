@@ -10,7 +10,7 @@ import org.eclipse.xtext.xbase.XSwitchExpression
 
 /**
  * Customization to take into account that in Java, switch's cases automatically fall through
- * without an explicit break.
+ * without an explicit break; it also takes into consideration break statements in loops.
  * 
  * @author Lorenzo Bettini
  */
