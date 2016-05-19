@@ -572,6 +572,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testPostfixOnArrayAccess() {
+		'''
+		{
+			int i = 0;
+			int[] a = {1,2,3,4};
+			a[i]++;
+		}
+		'''.parseAndAssertNoIssues
+	}
+
 	@Test def void testWrongPostfixOnNonAbstractFeatureCall() {
 		'''
 		double i = 0.1++;
@@ -798,6 +808,30 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			i = 1;
 		}
 		'''.parse.assertIssuesAsStrings("Assignment to final variable")
+	}
+
+	@Test def void testAssignmentToFinalArrayVariable() {
+		'''
+		{
+			final int[] i = {0};
+			i = {0};
+		}
+		'''.parse.assertIssuesAsStrings("Assignment to final variable")
+	}
+
+	@Test def void testAssignmentToArrayParameterImplicitOk() {
+		'''
+		args = {"a"};
+		'''.parseAndAssertNoIssues
+	}
+
+	@Test def void testAssignmentToFinalArrayVariableElementOk() {
+		'''
+		{
+			final int[] i = {0};
+			i[0] = 0;
+		}
+		'''.parseAndAssertNoIssues
 	}
 
 	@Test def void testAssignmentToFinalVariableAdditional() {
@@ -1146,6 +1180,102 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		op m() : void {
 			return;;
 		}
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testNoDeadCodeWithBreakInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+			if (d == 3)
+				continue;
+		}
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testDeadCodeWithoutInAWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		while (1 == 1) {
+			d++;
+		}
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testNoDeadCodeWithBreakInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				break;
+		} while (1 == 1);
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testNoDeadCodeWithBreakInSingleIfBranchInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				break;
+			else
+				d = 1;
+		} while (1 == 1);
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInADoWhileWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		do {
+			d++;
+			if (d == 3)
+				continue;
+		} while (1 == 1);
+		d = 0;
+		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
+	}
+
+	@Test def void testNoDeadCodeWithBreakInABasicForLoopWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		for (;;) {
+			d++;
+			if (d == 3)
+				break;
+		}
+		d = 0;
+		'''.parseAndAssertNoErrors
+	}
+
+	@Test def void testDeadCodeWithContinueInABasicForLoopWithConditionAlwaysTrue() {
+		'''
+		int d = 1;
+		for (;;) {
+			d++;
+			if (d == 3)
+				continue;
+		}
+		d = 0;
 		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 

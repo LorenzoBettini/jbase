@@ -25,7 +25,6 @@ import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
-import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
@@ -56,7 +55,7 @@ import jbase.util.JbaseModelUtil;
  * @author Lorenzo Bettini
  *
  */
-public class JbaseXbaseCompiler extends XbaseCompiler {
+public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	
 	private static final String ASSIGNED_TRUE = " = true;";
 
