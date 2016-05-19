@@ -9,6 +9,7 @@ import jbase.controlflow.JbaseSureReturnComputer
 import jbase.jbase.JbasePackage
 import jbase.jbase.XJAdditionalXVariableDeclaration
 import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJAssignment
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJCharLiteral
@@ -57,6 +58,11 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Inject JbaseInitializedVariableFinder initializedVariableFinder
 
 	override protected checkAssignment(XExpression expression, EStructuralFeature feature, boolean simpleAssignment) {
+		if (expression instanceof XJAssignment) {
+			// it means that we're accessing an array element, thus the
+			// referred variable should not be treated as a variable
+			return;
+		}
 		if (expression instanceof XAbstractFeatureCall) {
 			val assignmentFeature = expression.feature
 			if (assignmentFeature instanceof JvmFormalParameter) {
