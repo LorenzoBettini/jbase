@@ -5,7 +5,7 @@ Jbase is a reusable Xtext Expression language: it is a austomization of Xtext Xb
 
 ## Eclipse Update Site
 
-http://sourceforge.net/projects/xtext-jbase/files/updates/releases
+All releases: https://dl.bintray.com/lorenzobettini/xtext-jbase/updates
 
 Currently, Jbase requires Xtext 2.8.4, so please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features.
 
