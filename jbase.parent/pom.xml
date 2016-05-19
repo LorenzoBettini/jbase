@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.sf.xtext-jbase</groupId>
 	<artifactId>jbase.parent</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Jbase</name>
@@ -130,21 +130,28 @@
 			to the directory of the pom where the pluginManagement's plugins are used -->
 		<ant-files-path>${project.basedir}/../jbase.parent/ant</ant-files-path>
 
-		<updates.dir>jbase</updates.dir>
+		<!-- for deployment on bintray -->
+		<!-- The name of your own Bintray repository -->
+		<bintray.repo>xtext-jbase</bintray.repo>
+		<!-- The name of your own Bintray repository's package for releases -->
+		<bintray.package>releases</bintray.package>
+		<!-- The label for the Composite sites -->
 		<site.label>Jbase Site</site.label>
-		<remote.dir>lbettini,xtext-jbase@frs.sourceforge.net:/home/frs/project/xtext-jbase</remote.dir>
-		<remote.updates.dir>updates/releases</remote.updates.dir>
-		<remote.zips.dir>zips</remote.zips.dir>
 
-		<!-- remote host zips dir -->
-		<rsync.remote.zips.dir>${remote.dir}/${remote.zips.dir}</rsync.remote.zips.dir> 
-		<!-- remote rsync host -->
-		<rsync.remote.dir>${remote.dir}/${remote.updates.dir}/</rsync.remote.dir> 
-		<!-- local source directory of p2 site for rsync -->
-		<rsync.local.dir>${user.home}/p2.repositories/${updates.dir}/</rsync.local.dir>
+		<!-- If the Bintray repository is owned by someone different from your
+			user, then specify the bintray.owner explicitly -->
+		<bintray.owner>${bintray.user}</bintray.owner>
+		<!-- Define bintray.user and bintray.apikey in some secret place,
+			like .m2/settings.xml -->
 
-		<!-- pass "-n" to perform a trial run with no changes made -->
-		<dryrun></dryrun>
+		<!-- Default values for remote directories -->
+		<bintray.base.path></bintray.base.path>
+		<bintray.releases.path>${bintray.base.path}releases</bintray.releases.path>
+		<bintray.composite.path>${bintray.base.path}updates</bintray.composite.path>
+		<bintray.zip.path>${bintray.base.path}zipped</bintray.zip.path>
+		<!-- note that the following must be consistent with the path schema
+			used to publish child composite repositories and actual released p2 repositories -->
+		<child.repository.path.prefix>../../releases/</child.repository.path.prefix>
 
 		<!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
 		<includeAllDependencies>false</includeAllDependencies>
@@ -170,6 +177,18 @@
 
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.3</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
@@ -460,6 +479,18 @@
 	</build>
 
 	<pluginRepositories>
+		<pluginRepository>
+			<id>codehaus-snapshots</id>
+			<name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
+			<url>http://nexus.codehaus.org/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+
 		<pluginRepository>
 			<id>sonatype_releases</id>
 			<url>https://oss.sonatype.org/content/repositories/releases/</url>

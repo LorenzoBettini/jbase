@@ -2,7 +2,7 @@
 <feature
       id="jbase.sdk"
       label="Jbase SDK Feature "
-      version="0.1.0.qualifier">
+      version="0.1.1.qualifier">
 
    <description>
       A Customization of Xbase to deal with pure Java expressions and statements.
@@ -121,6 +121,13 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <plugin
          id="jbase.ui.examples"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="jbase.mwe2"
          download-size="0"
          install-size="0"
          version="0.0.0"
