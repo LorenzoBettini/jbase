@@ -1994,6 +1994,7 @@ public class MyFile {
 	@Test def void testConditionalExpression() {
 		'''
 		int i = 0;
+		i = i > 0 ? 1 : 2;
 		int j = i > 0 ? 1 : 2;
 		Object o = i < 0 ? 1 : "a";
 		'''.checkCompilation(
@@ -2010,14 +2011,52 @@ public class MyFile {
     } else {
       _xjconditionalexpression = 2;
     }
-    int j = _xjconditionalexpression;
-    Object _xjconditionalexpression_1 = null;
-    if ((i < 0)) {
-      _xjconditionalexpression_1 = Integer.valueOf(1);
+    i = _xjconditionalexpression;
+    int _xjconditionalexpression_1 = (int) 0;
+    if ((i > 0)) {
+      _xjconditionalexpression_1 = 1;
     } else {
-      _xjconditionalexpression_1 = "a";
+      _xjconditionalexpression_1 = 2;
     }
-    Object o = ((Comparable<?>)_xjconditionalexpression_1);
+    int j = _xjconditionalexpression_1;
+    Object _xjconditionalexpression_2 = null;
+    if ((i < 0)) {
+      _xjconditionalexpression_2 = Integer.valueOf(1);
+    } else {
+      _xjconditionalexpression_2 = "a";
+    }
+    Object o = ((Comparable<?>)_xjconditionalexpression_2);
+  }
+}
+'''
+		)
+	}
+
+	@Test def void testConditionalExpression2() {
+		'''
+		int i = 0;
+		int n = 0;
+		if((i=(i==0?5:7)) > 0) n = 4;
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int i = 0;
+    int n = 0;
+    int _xjconditionalexpression = (int) 0;
+    if ((i == 0)) {
+      _xjconditionalexpression = 5;
+    } else {
+      _xjconditionalexpression = 7;
+    }
+    int _i = (i = _xjconditionalexpression);
+    boolean _greaterThan = (_i > 0);
+    if (_greaterThan) {
+      n = 4;
+    }
   }
 }
 '''
@@ -2370,6 +2409,36 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testAssignmentToAssignment2() {
+		'''
+		int i = 0;
+		int j = 0;
+		int n = 0;
+		n=i=(j==0 ? 1 : 2);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int i = 0;
+    int j = 0;
+    int n = 0;
+    int _xjconditionalexpression = (int) 0;
+    if ((j == 0)) {
+      _xjconditionalexpression = 1;
+    } else {
+      _xjconditionalexpression = 2;
+    }
+    int _i = (i = _xjconditionalexpression);
+    n = _i;
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testAssignmentAsCallArgument() {
 		'''
 		aString : String
@@ -2391,6 +2460,35 @@ public class MyFile {
   }
   
   public static void main(String[] args) throws Throwable {
+  }
+}
+'''
+		)
+	}
+
+	@Test def void testAssignmentAsCallArgument2() {
+		// the current code generation is wrong,
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=466974
+		// it is fixed in Xtext 2.9.0, so when we update to Xtext 2.9.0
+		// the generation will be fixed.
+		'''
+		int i = 0;
+		Math.max( i = i + 1, i == 1 ? 1 : 2);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int i = 0;
+    int _xjconditionalexpression = (int) 0;
+    if ((i == 1)) {
+      _xjconditionalexpression = 1;
+    } else {
+      _xjconditionalexpression = 2;
+    }
+    Math.max(i = (i + 1), _xjconditionalexpression);
   }
 }
 '''
