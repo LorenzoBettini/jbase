@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel;
 
+import org.eclipse.xtext.findReferences.TargetURICollector;
 import org.eclipse.xtext.resource.persistence.IResourceStorageFacade;
-import org.eclipse.xtext.xbase.file.AbstractFileSystemSupport;
-import org.eclipse.xtext.xbase.file.JavaIOFileSystemSupport;
+import org.eclipse.xtext.xbase.jvmmodel.JvmModelTargetURICollector;
 import org.eclipse.xtext.xbase.resource.BatchLinkableResourceStorageFacade;
 
 
@@ -22,7 +22,7 @@ public class DomainmodelRuntimeModule extends AbstractDomainmodelRuntimeModule {
 		return BatchLinkableResourceStorageFacade.class;
 	}
 	
-	public Class<? extends AbstractFileSystemSupport> bindAbstractFileSystemSupport() {
-		return JavaIOFileSystemSupport.class;
+	public Class<? extends TargetURICollector> bindTargetURICollector() {
+		return JvmModelTargetURICollector.class;
 	}
 }
