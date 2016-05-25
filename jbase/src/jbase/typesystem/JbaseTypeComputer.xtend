@@ -263,7 +263,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 	def protected _computeTypes(XJClassObject e, ITypeComputationState state) {
 		val typeExpression = e.typeExpression
 		val typeExpressionType = state.
-			withExpectation(getRawTypeForName(Class, state.referenceOwner)).
+			withExpectation(state.referenceOwner.newReferenceTo(Class)).
 				computeTypes(typeExpression).actualExpressionType
 		// given Class<T>...
 		val typeArgument = typeExpressionType.typeArguments.head
