@@ -24,5 +24,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.testlanguage.ui.quickfix,
  jbase.testlanguage.ui.contentassist,
  jbase.testlanguage.ui.internal,
- jbase.testlanguage.ui.contentassist.antlr
+ jbase.testlanguage.ui.contentassist.antlr,
+ jbase.testlanguage.ui.contentassist.antlr.internal
 Bundle-Activator: jbase.testlanguage.ui.internal.JbaseTestlanguageActivator

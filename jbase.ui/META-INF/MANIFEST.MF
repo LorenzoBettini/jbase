@@ -26,5 +26,6 @@ Export-Package: jbase.ui,
  jbase.ui.internal,
  jbase.ui.quickfix,
  jbase.ui.refactoring,
- jbase.ui.syntaxcoloring
+ jbase.ui.syntaxcoloring,
+ jbase.ui.contentassist.antlr.internal
 Bundle-Activator: jbase.ui.internal.JbaseActivator
