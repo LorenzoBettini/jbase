@@ -1,20 +1,20 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageInjectorProviderCustom
+import jbase.testlanguage.JbaseTestlanguageInjectorProvider
 import jbase.testlanguage.validation.JbaseTestlanguageValidator
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Before
 
 /**
  * For compilation tests we use JbaseTestlanguage since we test also
  * parameters.
  */
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(JbaseTestlanguageInjectorProviderCustom))
+@InjectWith(typeof(JbaseTestlanguageInjectorProvider))
 class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 
 	@Inject
