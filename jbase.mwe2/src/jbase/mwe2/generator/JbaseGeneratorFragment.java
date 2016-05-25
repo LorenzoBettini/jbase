@@ -11,9 +11,9 @@ import org.eclipse.xtext.generator.xbase.XbaseGeneratorFragment;
 import com.google.common.collect.Lists;
 
 /**
- * A customization of {@link XbaseGeneratorFragment} where we override the
- * base class for runtime and UI module, so that a DSL using Jbase will
- * inherit our customization.
+ * A customization of {@link XbaseGeneratorFragment} where we override the base
+ * class for runtime and UI module, so that a DSL using Jbase will inherit our
+ * customization. This must be used in the old MWE2 files (pre Xtext 2.9).
  * 
  * @author Lorenzo Bettini
  *
