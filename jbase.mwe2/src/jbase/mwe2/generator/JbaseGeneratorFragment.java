@@ -18,7 +18,6 @@ import com.google.common.collect.Lists;
  * @author Lorenzo Bettini
  *
  */
-@SuppressWarnings("restriction")
 public class JbaseGeneratorFragment extends XbaseGeneratorFragment {
 
 	/**
