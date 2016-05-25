@@ -57,35 +57,35 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 	}
 
 	def void _format(Property property, extension IFormattableDocument document) {
-		property.regionForKeyword(":").surround[noSpace]
+		property.regionFor.keyword(":").surround[noSpace]
 		format(property.type, document);
 	}
 
 	def void _format(OpMethod operation, extension IFormattableDocument document) {
-		operation.regionForKeyword("method").append[oneSpace]
+		operation.regionFor.keyword("method").append[oneSpace]
 		operation.formatAbstractOperation(document)
 	}
 
 	def void _format(Operation operation, extension IFormattableDocument document) {
-		operation.regionForKeyword("op").append[oneSpace]
+		operation.regionFor.keyword("op").append[oneSpace]
 		operation.formatAbstractOperation(document)
 	}
 
 	def void formatAbstractOperation(AbstractOperation operation, extension IFormattableDocument document) {
-		operation.regionForKeyword("(").surround[noSpace]
+		operation.regionFor.keyword("(").surround[noSpace]
 		if (!operation.params.isEmpty) {
-			for (comma : operation.regionsForKeywords(","))
+			for (comma : operation.regionFor.keywords(","))
 				comma.prepend[noSpace].append[oneSpace]
 			for (params : operation.params)
 				format(params, document);
-			operation.regionForKeyword(")").prepend[noSpace]
+			operation.regionFor.keyword(")").prepend[noSpace]
 		}
 		if (operation.type != null) {
-			operation.regionForKeyword(":").prepend[oneSpace]
+			operation.regionFor.keyword(":").prepend[oneSpace]
 			operation.type.surround[oneSpace]
 			format(operation.type, document);
 		} else {
-			operation.regionForKeyword(")").append[oneSpace]
+			operation.regionFor.keyword(")").append[oneSpace]
 		}
 		format(operation.body, document);
 	}
