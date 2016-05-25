@@ -10,7 +10,7 @@ import org.junit.Test
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(DomainmodelUiInjectorProvider))
 /**
- * @author Jan Koehnlein - copied and adapted form Xtend
+ * @author Jan Koehnlein - copied and adapted from Xtend
  */
 class ContentAssistTest extends AbstractContentAssistTest {
 	
