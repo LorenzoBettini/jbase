@@ -129,6 +129,13 @@ class JbaseFormatter extends XbaseFormatter {
 		}
 	}
 
+	override void _format(XCastedExpression expr, extension IFormattableDocument document) {
+		format(expr.getType(), document);
+		format(expr.getTarget(), document);
+		expr.regionFor.keyword("(").surround[noSpace]
+		expr.regionFor.keyword(")").prepend[noSpace].append[oneSpace]
+	}
+
 	def void _format(XJPrefixOperation expr, extension IFormattableDocument document) {
 		format(expr.getOperand(), document);
 		expr.regionFor.feature(XABSTRACT_FEATURE_CALL__FEATURE).append[noSpace]
