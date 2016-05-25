@@ -39,11 +39,12 @@ abstract class JbaseAbstractCompilerTest extends JbaseAbstractTest {
 			if (checkValidationErrors) {
 				assertNoValidationErrors
 			}
-
 			if (expectedGeneratedJava != null) {
 				assertGeneratedJavaCode(expectedGeneratedJava)
 			}
-			assertGeneratedJavaCodeCompiles
+			if (checkValidationErrors) {
+				assertGeneratedJavaCodeCompiles
+			}
 		]
 	}
 
