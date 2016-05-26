@@ -62,6 +62,48 @@ Greeting:<br/>
 </div>
 </p>
 <p>
+Tweak the MWE2 workflow as detailed in the next sections, making sure you read the
+one related to the version of Xtext&apos;s generator you are using.
+</p>
+<a name="NewGenerator"></a>
+<h3>Using the new Xtext generator (version 2.9 on)</h3>
+<p>
+Open the <em>MWE2</em> workflow, <em>GenerateMyDsl.mwe2</em> and
+</p>
+<p>
+<ul>
+	<li>
+		in the <em>StandardLanguage</em> part, add the references to the
+		<em>Jbase.gnemodel</em>, and use <em>JbaseGeneratorFragment2</em> as a replacement for Xbase support.
+		The modified part should look like this
+		<div class="literallayout">
+		<div class="incode">
+		<p class="code">
+		language&nbsp;=&nbsp;StandardLanguage&nbsp;{<br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;<span class="string">"org.xtext.example.mydsl.MyDsl"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;fileExtensions&nbsp;=&nbsp;<span class="string">"mydsl"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;new&nbsp;added&nbsp;lines&nbsp;to&nbsp;enable&nbsp;Jbase<br/>
+		</span>&nbsp;&nbsp;&nbsp;&nbsp;referencedResource&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;xbaseSupport&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment2&nbsp;{}<br/>
+		</p>
+		</div>
+		</div>
+		
+	</li>
+</ul>
+</p>
+<p>
+Run the <em>GenerateMyDsl.mwe2</em> just to make sure that the Xtext artifacts
+are correctly generated and that Jbase dependencies are added to the
+ui project.
+</p>
+<a name="OldGenerator"></a>
+<h3>Using the old Xtext generator (before version 2.9)</h3>
+<p>
+SKIP THIS SECTION IF YOU ARE USING THE NEW XTEXT GENERATOR
+(i.e., the one described in <a href="02-GettingStarted.html#NewGenerator" title="Go to &quot;Using the new Xtext generator (version 2.9 on)&quot;" >section NewGenerator</a>).
+</p>
+<p>
 Open the <em>MWE2</em> workflow, <em>GenerateMyDsl.mwe2</em> and
 </p>
 <p>
@@ -107,6 +149,8 @@ Run the <em>GenerateMyDsl.mwe2</em> just to make sure that the Xtext artifacts
 are correctly generated and that Jbase dependencies are added to the
 ui project.
 </p>
+<a name="UseJbaseGrammar"></a>
+<h3>Use Jbase rules in your grammar</h3>
 <p>
 Let&apos;s change the grammar as follows:
 </p>
