@@ -1,7 +1,6 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
 import jbase.util.JbaseNodeModelUtil
 import jbase.validation.JbaseInitializedVariableFinder
 import jbase.validation.JbaseInitializedVariableFinder.InitializedVariables

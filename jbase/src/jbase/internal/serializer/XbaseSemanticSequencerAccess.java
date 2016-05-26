@@ -1,13 +1,17 @@
 package jbase.internal.serializer;
 
+import java.util.List;
 import java.util.Set;
 
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.nodemodel.ICompositeNode;
+import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.IScopeProvider;
+import org.eclipse.xtext.serializer.ISerializationContext;
 import org.eclipse.xtext.serializer.acceptor.SequenceFeeder;
 import org.eclipse.xtext.serializer.diagnostic.SerializationDiagnostic;
 import org.eclipse.xtext.serializer.sequencer.ISemanticNodeProvider.INodesForEObjectProvider;
@@ -53,9 +57,9 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 	private JbaseGrammarAccess access;
 
 	@Override
-	protected void sequence_XAdditiveExpression_XAndExpression_XAssignment_XEqualityExpression_XMultiplicativeExpression_XOrExpression_XOtherOperatorExpression_XRelationalExpression(EObject context, XBinaryOperation operation) {
+	protected void sequence_XAdditiveExpression_XAndExpression_XAssignment_XEqualityExpression_XMultiplicativeExpression_XOrExpression_XOtherOperatorExpression_XRelationalExpression(ISerializationContext context, XBinaryOperation operation) {
 		INodesForEObjectProvider nodes = createNodeProvider(operation);
-		SequenceFeeder acceptor = createSequencerFeeder(operation, nodes);
+		SequenceFeeder acceptor = createSequencerFeeder(context, operation, nodes);
 		XAdditiveExpressionElements opAdd = grammarAccess.getXAdditiveExpressionAccess();
 		XMultiplicativeExpressionElements opMulti = grammarAccess.getXMultiplicativeExpressionAccess();
 		XOtherOperatorExpressionElements opOther = grammarAccess.getXOtherOperatorExpressionAccess();
@@ -66,11 +70,17 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 		// difference with respect to Xbase
 		jbase.services.JbaseGrammarAccess.XAssignmentElements opMultiAssign = access.getXAssignmentAccess();
 		
-		IScope scope = scopeProvider.getScope(operation, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE);
+		JvmIdentifiableElement feature = operation.getFeature();
 		Set<String> operatorNames = Sets.newHashSet();
-		for (IEObjectDescription desc : scope.getElements(operation.getFeature()))
-			operatorNames.add(qualifiedNameConverter.toString(desc.getName()));
-				
+		if (feature.eIsProxy()) {
+			List<INode> ops = NodeModelUtils.findNodesForFeature(operation, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE);
+			for (INode o : ops)
+				operatorNames.add(NodeModelUtils.getTokenText(o));
+		} else {
+			IScope scope = scopeProvider.getScope(operation, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE);
+			for (IEObjectDescription desc : scope.getElements(feature))
+				operatorNames.add(qualifiedNameConverter.toString(desc.getName()));
+		}
 		ICompositeNode featureNode = (ICompositeNode) nodes.getNodeForSingelValue(XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE, operation.getFeature());
 		String featureToken;
 		
@@ -108,8 +118,9 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 			acceptor.accept(opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_2_1_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
 			acceptor.accept(opMultiAssign.getRightOperandXAssignmentParserRuleCall_2_1_1_1_0(), operation.getRightOperand());
 		} else if (errorAcceptor != null) {
-			errorAcceptor.accept(new SerializationDiagnostic(OPERATOR_NOT_SUPPORTED, operation, context, "Operator "+operatorNames+" is not supported."));
+			errorAcceptor.accept(new SerializationDiagnostic(OPERATOR_NOT_SUPPORTED, operation, context, grammarAccess.getGrammar(), "Operator "+operatorNames+" is not supported."));
 		} 
 		acceptor.finish();
 	}
+
 }

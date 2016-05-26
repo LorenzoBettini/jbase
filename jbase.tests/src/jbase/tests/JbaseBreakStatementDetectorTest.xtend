@@ -1,8 +1,6 @@
 package jbase.tests
 
-import jbase.JbaseInjectorProvider
 import jbase.controlflow.JbaseBreakStatementDetector
-import jbase.tests.JbaseAbstractTest
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.xbase.XExpression

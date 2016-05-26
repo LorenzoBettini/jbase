@@ -15,9 +15,7 @@ Require-Bundle: jbase,
  org.eclipse.xtext.xbase.junit,
  org.eclipse.jdt.core,
  jbase.testlanguage.tests,
- org.eclipse.xtext.common.types.ui,
- org.eclipse.ui.ide,
- org.eclipse.pde.core;bundle-version="3.10.101"
+ org.eclipse.xtext.common.types.ui
 Import-Package: org.apache.log4j,
  org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
@@ -27,5 +25,4 @@ Import-Package: org.apache.log4j,
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: jbase,
- jbase
+Export-Package: jbase.tests

@@ -2,7 +2,6 @@ package jbase.testlanguage.tests
 
 import com.google.common.base.Joiner
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageInjectorProviderCustom
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.TemporaryFolder
@@ -16,7 +15,7 @@ import org.junit.runner.RunWith
 import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(JbaseTestlanguageInjectorProviderCustom)) 
+@InjectWith(typeof(JbaseTestlanguageInjectorProvider)) 
 class JbaseTestlanguageCompilerTest {
 	
 	@Rule @Inject public TemporaryFolder temporaryFolder

@@ -4,6 +4,8 @@ import com.google.common.base.Joiner
 import com.google.inject.Inject
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
+import jbase.tests.inputs.JbaseTestlanguageInputs
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.TemporaryFolder
@@ -12,8 +14,6 @@ import org.eclipse.xtext.xbase.compiler.CompilationTestHelper
 import org.eclipse.xtext.xbase.compiler.CompilationTestHelper.Result
 import org.junit.Rule
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
-import jbase.tests.inputs.JbaseTestlanguageInputs
 
 import static extension org.junit.Assert.*
 
@@ -39,11 +39,12 @@ abstract class JbaseAbstractCompilerTest extends JbaseAbstractTest {
 			if (checkValidationErrors) {
 				assertNoValidationErrors
 			}
-
 			if (expectedGeneratedJava != null) {
 				assertGeneratedJavaCode(expectedGeneratedJava)
 			}
-			assertGeneratedJavaCodeCompiles
+			if (checkValidationErrors) {
+				assertGeneratedJavaCodeCompiles
+			}
 		]
 	}
 

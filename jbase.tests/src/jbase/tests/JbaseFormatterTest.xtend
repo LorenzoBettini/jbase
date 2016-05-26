@@ -1,12 +1,12 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.formatter.FormatterTester
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageInjectorProvider))

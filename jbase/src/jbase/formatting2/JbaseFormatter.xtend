@@ -73,20 +73,20 @@ class JbaseFormatter extends XbaseFormatter {
 	def void _format(XJJvmFormalParameter param, extension IFormattableDocument document) {
 		super._format(param, document);
 		param.
-			regionForFeature(JbasePackage.eINSTANCE.XJJvmFormalParameter_Final).
+			regionFor.feature(JbasePackage.eINSTANCE.XJJvmFormalParameter_Final).
 			append[oneSpace]
 	}
 
 	def void _format(XJVariableDeclaration expr, extension IFormattableDocument document) {
 		expr.type.append[oneSpace]
-		expr.regionForKeyword("=").surround[oneSpace]
+		expr.regionFor.keyword("=").surround[oneSpace]
 		expr.type.format(document)
 		expr.right.format(document)
 		
 		for (XVariableDeclaration additionalVariable : expr.getAdditionalVariables()) {
 			format(additionalVariable, document);
-			additionalVariable.immediatelyPrecedingKeyword(",").prepend[noSpace].append[oneSpace]
-			additionalVariable.regionForKeyword("=").surround[oneSpace]
+			additionalVariable.immediatelyPreceding.keyword(",").prepend[noSpace].append[oneSpace]
+			additionalVariable.regionFor.keyword("=").surround[oneSpace]
 		}
 	}
 
@@ -100,13 +100,13 @@ class JbaseFormatter extends XbaseFormatter {
 		format(expr.getElse(), document);
 		format(expr.getIf(), document);
 
-		expr.regionForKeyword("?").surround[oneSpace]
-		expr.regionForKeyword(":").surround[oneSpace]
+		expr.regionFor.keyword("?").surround[oneSpace]
+		expr.regionFor.keyword(":").surround[oneSpace]
 	}
 
 	def void _format(XJArrayConstructorCall expr, extension IFormattableDocument document) {
 		expr.
-			regionForFeature(JbasePackage.eINSTANCE.XJArrayConstructorCall_Type).
+			regionFor.feature(JbasePackage.eINSTANCE.XJArrayConstructorCall_Type).
 			prepend[oneSpace]
 		
 		// we must consider the case of a dimension with index expression
@@ -117,31 +117,28 @@ class JbaseFormatter extends XbaseFormatter {
 			}
 		}
 		for (d : expr.dimensions) {
-			d.regionForKeyword("[").
+			d.regionFor.keyword("[").
 				prepend[noSpace].append[noSpace]
-			d.immediatelyFollowingKeyword("]").prepend[noSpace]
+			d.immediatelyFollowing.keyword("]").prepend[noSpace]
 		}
 		
 		val arrayLiteral = expr.getArrayLiteral()
 		if (arrayLiteral != null) {
 			format(arrayLiteral, document);
-			arrayLiteral.regionForKeyword("{").prepend[oneSpace]
+			arrayLiteral.regionFor.keyword("{").prepend[oneSpace]
 		}
 	}
 
-	/**
-	 * This can be removed when https://bugs.eclipse.org/bugs/show_bug.cgi?id=471239 is applied
-	 */
 	override void _format(XCastedExpression expr, extension IFormattableDocument document) {
 		format(expr.getType(), document);
 		format(expr.getTarget(), document);
-		expr.regionForKeyword("(").surround[noSpace]
-		expr.regionForKeyword(")").prepend[noSpace].append[oneSpace]
+		expr.regionFor.keyword("(").surround[noSpace]
+		expr.regionFor.keyword(")").prepend[noSpace].append[oneSpace]
 	}
 
 	def void _format(XJPrefixOperation expr, extension IFormattableDocument document) {
 		format(expr.getOperand(), document);
-		expr.regionForFeature(XABSTRACT_FEATURE_CALL__FEATURE).append[noSpace]
+		expr.regionFor.feature(XABSTRACT_FEATURE_CALL__FEATURE).append[noSpace]
 	}
 
 	def void _format(XJArrayAccessExpression expr, extension IFormattableDocument document) {
@@ -150,11 +147,11 @@ class JbaseFormatter extends XbaseFormatter {
 	}
 
 	def void _format(XJBreakStatement expr, extension IFormattableDocument document) {
-		expr.regionForKeyword("break").surround[noSpace]
+		expr.regionFor.keyword("break").surround[noSpace]
 	}
 
 	def void _format(XJContinueStatement expr, extension IFormattableDocument document) {
-		expr.regionForKeyword("continue").surround[noSpace]
+		expr.regionFor.keyword("continue").surround[noSpace]
 	}
 
 	override void _format(XForLoopExpression expr, extension IFormattableDocument format) {
@@ -164,8 +161,8 @@ class JbaseFormatter extends XbaseFormatter {
 
 	override void _format(XSwitchExpression expr, extension IFormattableDocument document) {
 		super._format(expr, document)
-		expr.regionForKeyword("(").append[noSpace]
-		expr.regionForKeyword(")").prepend[noSpace]
+		expr.regionFor.keyword("(").append[noSpace]
+		expr.regionFor.keyword(")").prepend[noSpace]
 	}
 
 	def void _format(XJSwitchStatements expr, extension IFormattableDocument document) {
@@ -175,7 +172,7 @@ class JbaseFormatter extends XbaseFormatter {
 	def void _format(XJSemicolonStatement e, extension IFormattableDocument document) {
 		if (e.expression != null)
 			format(e.expression, document)
-		e.regionForKeyword(";").prepend[noSpace]
+		e.regionFor.keyword(";").prepend[noSpace]
 	}
 
 	protected def formatExpressions(EList<XExpression> expressions, extension IFormattableDocument document,
@@ -197,9 +194,9 @@ class JbaseFormatter extends XbaseFormatter {
 	}
 
 	private def formatArrayIndex(XExpression index, extension IFormattableDocument document) {
-		index.immediatelyPrecedingKeyword("[").prepend[noSpace; highPriority].append[noSpace]
+		index.immediatelyPreceding.keyword("[").prepend[noSpace; highPriority].append[noSpace]
 		format(index, document);
-		index.immediatelyFollowingKeyword("]").prepend[noSpace]
+		index.immediatelyFollowing.keyword("]").prepend[noSpace]
 	}
 
 }

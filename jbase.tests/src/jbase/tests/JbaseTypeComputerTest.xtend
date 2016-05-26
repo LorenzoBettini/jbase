@@ -1,7 +1,6 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.tests.util.SimpleJvmModelTestInjectorProvider
@@ -285,7 +284,7 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 
 	@Test
 	def void testSwitchWithReturnAndExpectation() {
-		new SimpleJvmModelTestInjectorProvider().injector.injectMembers(this)
+		new SimpleJvmModelTestInjectorProvider().getInjector.injectMembers(this)
 		
 		'''
 		switch (argsNum) {
@@ -299,7 +298,7 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 
 	@Test
 	def void testSwitchWithReturnAndExpectationWithoutDefault() {
-		new SimpleJvmModelTestInjectorProvider().injector.injectMembers(this)
+		new SimpleJvmModelTestInjectorProvider().getInjector.injectMembers(this)
 
 		// this is not valid since the default is missing, but there'll
 		// be a specific error for that

@@ -5,7 +5,7 @@ package jbase.serializer;
 
 import java.util.List;
 
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.serializer.ISerializationContext;
 import org.eclipse.xtext.serializer.acceptor.SequenceFeeder;
 import org.eclipse.xtext.serializer.sequencer.ISemanticNodeProvider.INodesForEObjectProvider;
 import org.eclipse.xtext.xbase.XExpression;
@@ -33,9 +33,9 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 	private JbaseModelUtil modelUtil;
 
 	@Override
-	protected void sequence_XJArrayConstructorCall(EObject context, XJArrayConstructorCall semanticObject) {
+	protected void sequence_XJArrayConstructorCall(ISerializationContext context, XJArrayConstructorCall semanticObject) {
 		INodesForEObjectProvider nodes = createNodeProvider(semanticObject);
-		SequenceFeeder acceptor = createSequencerFeeder(semanticObject, nodes);
+		SequenceFeeder acceptor = createSequencerFeeder(context, semanticObject, nodes);
 		XJArrayConstructorCallElements elements = access.getXJArrayConstructorCallAccess();
 
 		acceptor.accept(elements.getTypeJvmTypeQualifiedNameParserRuleCall_0_0_2_0_1(), semanticObject.getType());

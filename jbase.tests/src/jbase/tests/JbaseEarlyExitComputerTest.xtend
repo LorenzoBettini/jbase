@@ -6,7 +6,6 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
 
 import static extension org.junit.Assert.*
 

@@ -1,6 +1,11 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.jbase.JbasePackage
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
+import jbase.tests.inputs.JbaseTestlanguageInputs
+import jbase.validation.JbaseIssueCodes
+import jbase.validation.JbaseJavaValidator
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.diagnostics.Diagnostic
@@ -13,11 +18,6 @@ import org.eclipse.xtext.xbase.validation.IssueCodes
 import org.eclipse.xtext.xtype.XtypePackage
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
-import jbase.validation.JbaseIssueCodes
-import jbase.jbase.JbasePackage
-import jbase.tests.inputs.JbaseTestlanguageInputs
-import jbase.validation.JbaseJavaValidator
 
 /**
  * For validation tests we use JbaseTestlanguage since we can also use
@@ -555,7 +555,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		"a"++;
 		'''.parse.assertIssuesAsStrings(
 		'''
-		The method ++() is undefined
+		++ cannot be resolved.
 		'''
 		)
 	}
@@ -597,7 +597,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		++"a";
 		'''.parse.assertIssuesAsStrings(
 		'''
-		The method ++() is undefined
+		++ cannot be resolved.
 		'''
 		)
 	}
@@ -620,7 +620,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		int l = a[0].length;
 		'''.parse.assertErrorsAsStrings(
 		'''
-		Couldn't resolve reference to JvmIdentifiableElement 'length'.
+		The method or field length is undefined for the type int
 		The type of the expression must be an array type but it resolved to int
 		'''
 		)
@@ -882,7 +882,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		if (d instanceof Date) {
 			System.out.println(d.getTime());
 		}
-		'''.parse.assertErrorsAsStrings("The method getTime() is undefined")
+		'''.parse.assertErrorsAsStrings("The method getTime() is undefined for the type Object")
 	}
 
 	@Test def void testInvalidUseOfVarArgs() {

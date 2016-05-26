@@ -1,20 +1,20 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageInjectorProviderCustom
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.testlanguage.validation.JbaseTestlanguageValidator
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Before
 
 /**
  * For compilation tests we use JbaseTestlanguage since we test also
  * parameters.
  */
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(JbaseTestlanguageInjectorProviderCustom))
+@InjectWith(typeof(JbaseTestlanguageInjectorProvider))
 class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 
 	@Inject
@@ -780,8 +780,17 @@ package jbasetestlanguage;
 @SuppressWarnings("all")
 public class MyFile {
   public static void main(String[] args) throws Throwable {
-    throw new Error("Unresolved compilation problems:"
-      + "\nUnreachable expression.");
+    int argsNum = args.length;
+    {
+      int i = 0;
+      boolean _while = (i < argsNum);
+      while (_while) {
+        return;
+        int _i = i;
+        i = (_i + 1);
+        _while = (i < argsNum);
+      }
+    }
   }
 }
 ''', false 
@@ -789,6 +798,8 @@ public class MyFile {
 		/** 
 		 * this is not valid input since i += 1 is considered not reachable
 		 * we use it only to test the compiler.
+		 * 
+		 * In Xtext 2.9 the body is generated anyway (not valid Java code).
 		 * 
 		 * In Xtext 2.8 the body is not generated, while in Xtext 2.7.3 the body
 		 * was generated anyway:
@@ -2025,7 +2036,7 @@ public class MyFile {
     } else {
       _xjconditionalexpression_2 = "a";
     }
-    Object o = ((Comparable<?>)_xjconditionalexpression_2);
+    Object o = _xjconditionalexpression_2;
   }
 }
 '''
@@ -2467,10 +2478,6 @@ public class MyFile {
 	}
 
 	@Test def void testAssignmentAsCallArgument2() {
-		// the current code generation is wrong,
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=466974
-		// it is fixed in Xtext 2.9.0, so when we update to Xtext 2.9.0
-		// the generation will be fixed.
 		'''
 		int i = 0;
 		Math.max( i = i + 1, i == 1 ? 1 : 2);
@@ -2482,13 +2489,14 @@ package jbasetestlanguage;
 public class MyFile {
   public static void main(String[] args) throws Throwable {
     int i = 0;
+    int _i = i = (i + 1);
     int _xjconditionalexpression = (int) 0;
     if ((i == 1)) {
       _xjconditionalexpression = 1;
     } else {
       _xjconditionalexpression = 2;
     }
-    Math.max(i = (i + 1), _xjconditionalexpression);
+    Math.max(_i, _xjconditionalexpression);
   }
 }
 '''
