@@ -2,7 +2,7 @@ package jbase.ui.tests
 
 import com.google.inject.Inject
 import com.google.inject.Provider
-import jbase.testlanguage.JbaseTestlanguageUiInjectorProvider
+import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider
 import jbase.tests.util.ui.PluginProjectHelper
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.text.TextSelection

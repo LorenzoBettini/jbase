@@ -20,8 +20,10 @@
 		<module>../jbase</module>
 		<module>../jbase.ui</module>
 		<module>../jbase.testlanguage</module>
+		<module>../jbase.testlanguage.ide</module>
 		<module>../jbase.testlanguage.ui</module>
 		<module>../jbase.testlanguage.tests</module>
+		<module>../jbase.testlanguage.ui.tests</module>
 		<module>../jbase.tests</module>
 		<module>../jbase.example.purejbase</module>
 		<module>../jbase.example.purejbase.ui</module>

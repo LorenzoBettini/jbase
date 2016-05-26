@@ -2,7 +2,6 @@ package jbase.testlanguage.tests
 
 import com.google.common.base.Joiner
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.TemporaryFolder

@@ -1,7 +1,7 @@
 package jbase.ui.tests
 
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageUiInjectorProvider
+import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider
 import jbase.tests.util.ui.PDETargetPlatformUtils
 import jbase.tests.util.ui.PluginProjectHelper
 import org.eclipse.xtext.junit4.InjectWith
