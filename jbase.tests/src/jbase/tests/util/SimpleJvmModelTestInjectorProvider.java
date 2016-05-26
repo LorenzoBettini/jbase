@@ -2,8 +2,8 @@ package jbase.tests.util;
 
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelInferrer;
 
-import jbase.JbaseInjectorProvider;
 import jbase.JbaseRuntimeModule;
+import jbase.tests.JbaseInjectorProvider;
 
 public class SimpleJvmModelTestInjectorProvider extends JbaseInjectorProvider {
 

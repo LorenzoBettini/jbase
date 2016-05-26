@@ -1,7 +1,6 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
 import jbase.jbase.XJSemicolonStatement
 import jbase.util.JbaseNodeModelUtil
 import org.eclipse.xtext.junit4.InjectWith

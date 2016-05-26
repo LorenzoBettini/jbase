@@ -18,12 +18,12 @@ Require-Bundle: jbase.testlanguage;visibility:=reexport,
  org.eclipse.jdt.debug.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare,
- jbase.ui;visibility:=reexport
+ jbase.ui;visibility:=reexport,
+ org.eclipse.xtend.lib;resolution:=optional,
+ jbase.testlanguage.ide
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: jbase.testlanguage.ui.quickfix,
- jbase.testlanguage.ui.contentassist,
+Export-Package: jbase.testlanguage.ui.contentassist,
  jbase.testlanguage.ui.internal,
- jbase.testlanguage.ui.contentassist.antlr,
- jbase.testlanguage.ui.contentassist.antlr.internal
-Bundle-Activator: jbase.testlanguage.ui.internal.JbaseTestlanguageActivator
+ jbase.testlanguage.ui.quickfix
+Bundle-Activator: jbase.testlanguage.ui.internal.TestlanguageActivator

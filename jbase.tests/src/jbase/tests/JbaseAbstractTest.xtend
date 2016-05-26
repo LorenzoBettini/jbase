@@ -6,12 +6,14 @@ import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
+import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJVariableDeclaration
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseInputs
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.xbase.XAssignment
+import org.eclipse.xtext.xbase.XBasicForLoopExpression
 import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
@@ -25,8 +27,6 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
-import org.eclipse.xtext.xbase.XBasicForLoopExpression
-import jbase.jbase.XJSemicolonStatement
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>

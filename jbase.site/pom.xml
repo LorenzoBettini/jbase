@@ -173,7 +173,7 @@
 													<classfiles>
 														<fileset dir="../jbase.ui/target/classes" 
 															includes="**/*.class"
-															excludes="**/*ExtensionFactory*,**/*UiModule*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*"/>
+															excludes="**/*ExtensionFactory*,**/*UiModule*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*,**/*LabelProvider.*,**/*TreeProvider.*"/>
 													</classfiles>
 													<sourcefiles>
 														<fileset dir="../jbase.ui/src" />

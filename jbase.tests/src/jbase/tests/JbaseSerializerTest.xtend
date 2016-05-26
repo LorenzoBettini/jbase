@@ -1,7 +1,7 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner

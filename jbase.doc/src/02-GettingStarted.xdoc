@@ -31,6 +31,38 @@ Greeting:
 	'Hello' name=ID '!';
 ]
 
+Tweak the MWE2 workflow as detailed in the next sections, making sure you read the
+one related to the version of Xtext's generator you are using.
+
+section2:NewGenerator[Using the new Xtext generator (version 2.9 on)]
+
+Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
+
+ul[
+item[in the e[StandardLanguage] part, add the references to the
+e[Jbase.gnemodel], and use e[JbaseGeneratorFragment2] as a replacement for Xbase support.
+The modified part should look like this
+
+code[MWE2][
+language = StandardLanguage {
+	name = "org.xtext.example.mydsl.MyDsl"
+	fileExtensions = "mydsl"
+	// new added lines to enable Jbase
+	referencedResource = "platform:/resource/jbase/model/custom/Jbase.genmodel"
+	xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {}
+]
+]
+]
+
+Run the e[GenerateMyDsl.mwe2] just to make sure that the Xtext artifacts
+are correctly generated and that Jbase dependencies are added to the
+ui project.
+
+section2:OldGenerator[Using the old Xtext generator (before version 2.9)]
+
+SKIP THIS SECTION IF YOU ARE USING THE NEW XTEXT GENERATOR
+(i.e., the one described in ref:NewGenerator[]).
+
 Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
 
 ul[
@@ -63,6 +95,8 @@ fragment = jbase.mwe2.generator.JbaseGeneratorFragment auto-inject {}
 Run the e[GenerateMyDsl.mwe2] just to make sure that the Xtext artifacts
 are correctly generated and that Jbase dependencies are added to the
 ui project.
+
+section2:UseJbaseGrammar[Use Jbase rules in your grammar]
 
 Let's change the grammar as follows:
 

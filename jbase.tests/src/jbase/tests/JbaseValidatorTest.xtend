@@ -1,6 +1,11 @@
 package jbase.tests
 
 import com.google.inject.Inject
+import jbase.jbase.JbasePackage
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
+import jbase.tests.inputs.JbaseTestlanguageInputs
+import jbase.validation.JbaseIssueCodes
+import jbase.validation.JbaseJavaValidator
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.diagnostics.Diagnostic
@@ -13,11 +18,6 @@ import org.eclipse.xtext.xbase.validation.IssueCodes
 import org.eclipse.xtext.xtype.XtypePackage
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
-import jbase.validation.JbaseIssueCodes
-import jbase.jbase.JbasePackage
-import jbase.tests.inputs.JbaseTestlanguageInputs
-import jbase.validation.JbaseJavaValidator
 
 /**
  * For validation tests we use JbaseTestlanguage since we can also use

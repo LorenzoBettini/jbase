@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jbase.testlanguage.ide
+Bundle-Vendor: My Company
+Bundle-Version: 0.1.1.qualifier
+Bundle-SymbolicName: jbase.testlanguage.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: jbase.testlanguage,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide,
+ jbase
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: jbase.testlanguage.ide.contentassist.antlr.internal,
+ jbase.testlanguage.ide.contentassist.antlr
+

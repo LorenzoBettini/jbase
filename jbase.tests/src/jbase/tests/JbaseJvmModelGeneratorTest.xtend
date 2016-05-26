@@ -2,6 +2,9 @@ package jbase.tests
 
 import com.google.inject.Inject
 import com.google.inject.MembersInjector
+import jbase.jbase.XJJvmFormalParameter
+import jbase.testlanguage.jvmmodel.JbaseTestlanguageJvmModelInferrer
+import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
@@ -9,9 +12,6 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmModelAssociator
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.testlanguage.JbaseTestlanguageInjectorProvider
-import jbase.testlanguage.jvmmodel.JbaseTestlanguageJvmModelInferrer
-import jbase.jbase.XJJvmFormalParameter
 
 /**
  * For compilation tests we use JbaseTestlanguage since we test also

@@ -1,7 +1,6 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
 import jbase.controlflow.JbaseSureReturnComputer
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
