@@ -41,7 +41,7 @@ public class JbaseGeneratorFragment extends XbaseGeneratorFragment {
 
 	@Override
 	public String getDefaultUiModuleClassName(Grammar grammar) {
-		return "jbase.ui.JbaseUiModule";
+		return "jbase.ui.DefaultJbaseUiModule";
 	}
 
 	@Override

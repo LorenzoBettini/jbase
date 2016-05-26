@@ -6,6 +6,7 @@ package jbase.ui;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
+import org.eclipse.xtext.xbase.ui.DefaultXbaseUiModule;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
@@ -13,11 +14,13 @@ import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
 
 /**
- * Use this class to register components to be used within the IDE.
+ * This is meant to be used as the default base class for DSLs using Jbase.
+ * 
+ * @author Lorenzo Bettini
  */
-public class JbaseUiModule extends jbase.ui.AbstractJbaseUiModule {
+public class DefaultJbaseUiModule extends DefaultXbaseUiModule {
 
-	public JbaseUiModule(AbstractUIPlugin plugin) {
+	public DefaultJbaseUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 	}
 
