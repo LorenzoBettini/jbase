@@ -7,7 +7,6 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelInferrer
 import org.junit.Test
 import org.junit.runner.RunWith
-import jbase.JbaseInjectorProvider
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))

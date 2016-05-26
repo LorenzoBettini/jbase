@@ -17,15 +17,15 @@ Require-Bundle: jbase;visibility:=reexport,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare,
  org.eclipse.xtext.xbase.ui,
- org.eclipse.jdt.debug.ui
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.xtend.lib;resolution:=optional,
+ jbase.ide
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.ui,
  jbase.ui.contentassist,
- jbase.ui.contentassist.antlr,
  jbase.ui.internal,
  jbase.ui.quickfix,
  jbase.ui.refactoring,
- jbase.ui.syntaxcoloring,
- jbase.ui.contentassist.antlr.internal
+ jbase.ui.syntaxcoloring
 Bundle-Activator: jbase.ui.internal.JbaseActivator

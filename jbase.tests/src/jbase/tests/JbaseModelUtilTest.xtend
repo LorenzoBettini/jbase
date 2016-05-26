@@ -1,9 +1,9 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.JbaseInjectorProvider
 import jbase.jbase.JbaseFactory
 import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJSemicolonStatement
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
 import jbase.util.JbaseModelUtil
 import org.eclipse.emf.ecore.EObject
@@ -17,7 +17,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import static extension org.junit.Assert.*
-import jbase.jbase.XJSemicolonStatement
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))

@@ -1,6 +1,5 @@
 package jbase.tests
 
-import jbase.JbaseInjectorProvider
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJPrefixOperation
@@ -25,7 +24,7 @@ import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
-class JbaseParserTest extends JbaseAbstractTest {
+class JbaseParsingTest extends JbaseAbstractTest {
 
 	@Test def void testAssignmentLeft() {
 		'''
