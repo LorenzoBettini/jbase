@@ -34,6 +34,11 @@ class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 				'jbase.ui'
 			])
 		}
+		if (projectConfig.genericIde.manifest !== null) {
+			projectConfig.genericIde.manifest.requiredBundles.addAll(#[
+				'jbase'
+			])
+		}
 
 		super.generate()
 	}
@@ -45,7 +50,7 @@ class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 
 	override protected contributeEclipsePluginGuiceBindings() {
 		super.contributeEclipsePluginGuiceBindings()
-		language.eclipsePluginGenModule.superClass = 'jbase.ui.JbaseUiModule'.typeRef
+		language.eclipsePluginGenModule.superClass = 'jbase.ui.DefaultJbaseUiModule'.typeRef
 	}
 
 }
