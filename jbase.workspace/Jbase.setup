@@ -458,6 +458,10 @@
   </setupTask>
   <setupTask
       xsi:type="launching:LaunchTask"
+      id="GenerateJbaseModelClasses"
+      launcher="GenerateJbaseModelClasses.mwe2"/>
+  <setupTask
+      xsi:type="launching:LaunchTask"
       id="GenerateJbase"
       launcher="Generate Language Infrastructure (jbase)"/>
   <setupTask
