@@ -9,7 +9,12 @@ All releases: https://dl.bintray.com/lorenzobettini/xtext-jbase/updates
 
 Zipped update sites: https://dl.bintray.com/lorenzobettini/xtext-jbase/zipped
 
-Currently, Jbase requires Xtext 2.8.4, so please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features.
+Please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features, so that all the requested Xtext bundles, with the specific version required by Jbase, are found.
+
+### Specific versions
+
+- Version 0.2.x is based on Xtext 2.10.x, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.2/
+- Version 0.1.x is based on Xtext 2.8.4, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.1/
 
 ## Maven Artifacts
 
