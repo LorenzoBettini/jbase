@@ -18,12 +18,12 @@ Require-Bundle: jbase.example.jbasescript;visibility:=reexport,
  org.eclipse.jdt.debug.ui,
  jbase.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
- org.eclipse.compare
+ org.eclipse.compare,
+ org.eclipse.xtend.lib;resolution:=optional,
+ jbase.example.jbasescript.ide
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript.ui.quickfix,
  jbase.example.jbasescript.ui.contentassist,
- jbase.example.jbasescript.ui.internal,
- jbase.example.jbasescript.ui.contentassist.antlr,
- jbase.example.jbasescript.ui.contentassist.antlr.internal
+ jbase.example.jbasescript.ui.internal
 Bundle-Activator: jbase.example.jbasescript.ui.internal.JbasescriptActivator
