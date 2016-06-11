@@ -2,7 +2,6 @@ package jbase.example.jbasescript.tests
 
 import com.google.common.base.Joiner
 import com.google.inject.Inject
-import jbase.example.jbasescript.JbasescriptInjectorProvider
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.TemporaryFolder

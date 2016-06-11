@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jbase.example.jbasescript.ide
+Bundle-Vendor: My Company
+Bundle-Version: 0.2.0.qualifier
+Bundle-SymbolicName: jbase.example.jbasescript.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: jbase.example.jbasescript,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide,
+ jbase
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: jbase.example.jbasescript.ide.contentassist.antlr.internal,
+ jbase.example.jbasescript.ide.contentassist.antlr
+

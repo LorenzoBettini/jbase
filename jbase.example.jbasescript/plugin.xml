@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-
 <plugin>
-
-  <extension point="org.eclipse.emf.ecore.generated_package">
-    <package 
-       uri = "http://www.example.jbase/jbasescript/Jbasescript" 
-       class = "jbase.example.jbasescript.jbasescript.JbasescriptPackage"
-       genModel = "model/generated/Jbasescript.genmodel" /> 
-	
-  </extension>
-
-
-
-
+	<extension point="org.eclipse.emf.ecore.generated_package">
+		<package 
+			uri = "http://www.example.jbase/jbasescript/Jbasescript"
+			class = "jbase.example.jbasescript.jbasescript.JbasescriptPackage"
+			genModel = "model/generated/Jbasescript.genmodel" />
+	</extension>
 </plugin>

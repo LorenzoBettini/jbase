@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.common.types,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.xtext.xbase,
- org.eclipse.emf.mwe2.launch;resolution:=optional
+ org.eclipse.emf.mwe2.launch;resolution:=optional,
+ org.eclipse.xtend.lib
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript,
@@ -30,4 +31,5 @@ Export-Package: jbase.example.jbasescript,
  jbase.example.jbasescript.parser.antlr.internal,
  jbase.example.jbasescript.validation,
  jbase.example.jbasescript.formatting,
- jbase.example.jbasescript.jvmmodel
+ jbase.example.jbasescript.jvmmodel,
+ jbase.example.jbasescript.scoping

@@ -90,6 +90,11 @@
                name="jbase.example.jbasescript">
          </projectDescriptor>
          <projectDescriptor
+               contentURI="contents/jbase.example.jbasescript.ide.zip"
+               description="IDE features for the language."
+               name="jbase.example.jbasescript.ide">
+         </projectDescriptor>
+         <projectDescriptor
                contentURI="contents/jbase.example.jbasescript.ui.zip"
                description="A smart editor for the language."
                name="jbase.example.jbasescript.ui">
@@ -98,6 +103,11 @@
                contentURI="contents/jbase.example.jbasescript.tests.zip"
                description="A test suite for the language."
                name="jbase.example.jbasescript.tests">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.jbasescript.ui.tests.zip"
+               description="A test suite for the language."
+               name="jbase.example.jbasescript.ui.tests">
          </projectDescriptor>
       </example>
    </extension>

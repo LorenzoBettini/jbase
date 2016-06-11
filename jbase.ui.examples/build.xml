@@ -31,8 +31,10 @@
 		<zip_example name="jbase.example.purejbase.ui" />
 		<zip_example name="jbase.example.purejbase.tests" />
 		<zip_example name="jbase.example.jbasescript" />
+		<zip_example name="jbase.example.jbasescript.ide" />
 		<zip_example name="jbase.example.jbasescript.ui" />
 		<zip_example name="jbase.example.jbasescript.tests" />
+		<zip_example name="jbase.example.jbasescript.ui.tests" />
 		<zip_example2 name="org.eclipse.xtext.example.domainmodel" />
 		<zip_example2 name="org.eclipse.xtext.example.domainmodel.ui" />
 		<zip_example2 name="org.eclipse.xtext.example.domainmodel.tests" />
