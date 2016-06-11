@@ -8,7 +8,7 @@
 		<relativePath>../jbase.parent/pom.xml</relativePath>
 		<groupId>net.sf.xtext-jbase</groupId>
 		<artifactId>jbase.parent</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>0.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jbase.ui</artifactId>
