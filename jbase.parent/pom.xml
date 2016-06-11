@@ -382,13 +382,7 @@
 						</goals>
 						<configuration>
 							<excludes>
-								<!-- These are bundles and feature that do not have a corresponding 
-									source version; NOT the ones that we do not want source versions -->
-								<plugin id="jbase.runtime" />
 								<plugin id="jbase.ui.examples" />
-								<plugin id="jbase.ide" />
-
-								<feature id="jbase.swtbot.tests.feature" />
 
 								<feature id="org.eclipse.swtbot.ide" />
 								<feature id="org.eclipse.xtext.sdk" />
