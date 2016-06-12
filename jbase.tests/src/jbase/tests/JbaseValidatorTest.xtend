@@ -1317,6 +1317,19 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testAnnotations() {
+		'''
+		import com.google.inject.Inject;
+		
+		@Inject
+		o : Object
+		
+		method @Inject m() {
+			return null;
+		}
+		'''.parseAndAssertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,

@@ -1,15 +1,18 @@
 package jbase.testlanguage.jvmmodel
 
 import com.google.inject.Inject
+import jbase.jbase.XJJvmFormalParameter
+import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.common.types.JvmAnnotationTarget
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmOperation
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
-import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
-import jbase.jbase.XJJvmFormalParameter
+import jbase.testlanguage.jbaseTestlanguage.OpMethod
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -51,7 +54,9 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 		val e = m.block
 		acceptor.accept(e.toClass("jbasetestlanguage." + e.eResource.name)) [
 			for (p : m.properties) {
-				members += p.toField(p.name, p.type)
+				members += p.toField(p.name, p.type) => [
+					translateAnnotations(p.annotations)
+				]
 			}
 
 			for (o : m.methods) {
@@ -75,7 +80,8 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 	private def inferJavaMethod(AbstractOperation o, JbaseTestLanguageModel m) {
 		o.toMethod(o.name, o.type ?: inferredType) [
 			documentation = m.documentation
-		
+			if (o instanceof OpMethod)
+				translateAnnotations(o.annotations)
 			for (p : o.params) {
 				inferParameter(it, p)
 			}
@@ -97,6 +103,10 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 	def name(Resource res) {
 		val s = res.URI.lastSegment
 		return s.substring(0, s.length - '.jbasetestlanguage'.length)
+	}
+
+	def private void translateAnnotations(JvmAnnotationTarget target, Iterable<XAnnotation> annotations) {
+		target.addAnnotations(annotations.filterNull.filter[annotationType != null])
 	}
 
 	/**

@@ -2704,6 +2704,30 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testAnnotation() {
+		'''
+		import com.google.inject.Inject;
+		
+		@Inject
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import com.google.inject.Inject;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @Inject
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
 	@Test def void testLoopsWithConditionAlwaysTrue() {
 		'''
 		int d = 1;
