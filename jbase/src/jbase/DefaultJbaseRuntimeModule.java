@@ -6,7 +6,7 @@ package jbase;
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
-import org.eclipse.xtext.xbase.DefaultXbaseRuntimeModule;
+import org.eclipse.xtext.xbase.annotations.DefaultXbaseWithAnnotationsRuntimeModule;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
@@ -32,7 +32,7 @@ import jbase.validation.JbaseConfigurableIssueCodes;
  * 
  * @author Lorenzo Bettini
  */
-public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
+public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntimeModule {
 
 	@Override
 	public Class<? extends IValueConverterService> bindIValueConverterService() {
@@ -43,6 +43,7 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
 		return JbaseOperatorMapping.class;
 	}
 
+	@Override
 	public Class<? extends ITypeComputer> bindITypeComputer() {
 		return JbaseTypeComputer.class;
 	}

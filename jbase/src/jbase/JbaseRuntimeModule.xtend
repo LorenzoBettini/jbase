@@ -36,7 +36,7 @@ class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 		return JbaseOperatorMapping
 	}
 
-	def Class<? extends ITypeComputer> bindITypeComputer() {
+	override Class<? extends ITypeComputer> bindITypeComputer() {
 		return JbaseTypeComputer
 	}
 
