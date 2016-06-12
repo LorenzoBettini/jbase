@@ -30,6 +30,11 @@ XImportDeclaration returns xtype::XImportDeclaration:
 		| importedNamespace=QualifiedNameWithWildcard) ->';'*)
 ;
 
+JvmTypeReference returns types::JvmTypeReference:
+	JvmParameterizedTypeReference =>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)* 
+	// | XFunctionTypeRef;
+;
+
 // customized with 'final' specification and varargs
 FullJvmFormalParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
