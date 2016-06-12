@@ -1357,25 +1357,42 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
-	@Test def void testAnnotationsCorrectAttributeType() {
+	@Test def void testAnnotationsNotConstantExpression() {
+		'''
+		import jbase.tests.util.ExampleAnnotation2;
+		
+		@ExampleAnnotation2(value = Integer.parseInt("0"))
+		o : Object
+		'''.parse.assertError(
+			XbasePackage.eINSTANCE.XMemberFeatureCall,
+			IssueCodes.ANNOTATIONS_ILLEGAL_ATTRIBUTE,
+			"The value for an annotation attribute must be a constant expression"
+		)
+	}
+
+	@Test def void testAnnotationsCorrectAttributeTypeButInvalidTypeLiteral() {
 		'''
 		import jbase.tests.util.ExampleAnnotation;
 		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
 		
 		@ExampleAnnotation(value = TypeSystemSmokeTester)
 		o : Object
-		'''.parse.assertNoErrors
+		'''.parse.assertError(
+			XbasePackage.eINSTANCE.XFeatureCall,
+			IssueCodes.ANNOTATIONS_ILLEGAL_ATTRIBUTE,
+			"The value for an annotation attribute must be a constant expression"
+		)
 	}
 
-//	@Test def void testAnnotationsCorrectAttributeType2() {
-//		'''
-//		import jbase.tests.util.ExampleAnnotation;
-//		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
-//		
-//		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
-//		o : Object
-//		'''.parse.assertNoErrors
-//	}
+	@Test def void testAnnotationsCorrectAttributeType() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
+		o : Object
+		'''.parse.assertNoErrors
+	}
 
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
