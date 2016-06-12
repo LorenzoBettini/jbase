@@ -294,6 +294,26 @@ public class MyFile {
 			)
 	}
 
+	@Test def void testArrayAccessFromMemberFeatureCallReceiverClone2() {
+		'''
+		// clone has a generic type, so the result is inferred
+		String[][] a = null;
+		String[] cl1 = a[0].clone();
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  public static void main(String[] args) throws Throwable {
+		    String[][] a = null;
+		    String[] cl1 = a[0].clone();
+		  }
+		}
+		'''
+			)
+	}
+
 	@Test def void testArrayAccessAsArgument() {
 		arrayAccessAsArgument.checkCompilation(
 '''

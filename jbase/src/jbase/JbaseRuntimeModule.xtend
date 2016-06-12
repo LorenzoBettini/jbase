@@ -3,29 +3,31 @@
  */
 package jbase
 
+import jbase.compiler.JbaseJvmModelGenerator
+import jbase.compiler.JbaseXbaseCompiler
+import jbase.controlflow.JbaseEarlyExitComputer
+import jbase.conversion.JbaseValueConverterService
+import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory
+import jbase.scoping.JbaseImplicitlyImportedFeatures
+import jbase.scoping.featurecalls.JbaseOperatorMapping
+import jbase.typesystem.JbaseExpressionArgumentFactory
+import jbase.typesystem.JbaseTypeComputer
+import jbase.validation.JbaseConfigurableIssueCodes
 import org.eclipse.xtext.conversion.IValueConverterService
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory
-import jbase.compiler.JbaseJvmModelGenerator
-import jbase.compiler.JbaseXbaseCompiler
-import jbase.controlflow.JbaseEarlyExitComputer
-import jbase.conversion.JbaseValueConverterService
-import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory
-import jbase.scoping.featurecalls.JbaseOperatorMapping
-import jbase.typesystem.JbaseExpressionArgumentFactory
-import jbase.typesystem.JbaseTypeComputer
-import jbase.validation.JbaseConfigurableIssueCodes
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
-class JbaseRuntimeModule extends jbase.AbstractJbaseRuntimeModule {
+class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 	override Class<? extends IValueConverterService> bindIValueConverterService() {
 		return JbaseValueConverterService
 	}
@@ -60,5 +62,9 @@ class JbaseRuntimeModule extends jbase.AbstractJbaseRuntimeModule {
 
 	override Class<? extends ConfigurableIssueCodesProvider> bindConfigurableIssueCodesProvider() {
 		return JbaseConfigurableIssueCodes
+	}
+
+	def Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedFeatures() {
+		return JbaseImplicitlyImportedFeatures
 	}
 }

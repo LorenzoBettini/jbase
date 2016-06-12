@@ -1289,6 +1289,34 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testNoPrintlnExtensionMethod() {
+		'''
+		println("Hello");
+		'''.parse.assertErrorsAsStrings(
+		'''
+		The method println(String) is undefined
+		'''
+		)
+	}
+
+	@Test def void testNoAddToCollectionExtensionMethod() {
+		'''
+		java.util.List<String> strings = new java.util.LinkedList<String>();
+		strings += "a";
+		'''.parse.assertTypeMismatch(
+			XbasePackage.eINSTANCE.XBinaryOperation,
+			"List<String>",
+			"String"
+		)
+	}
+
+	@Test def void testValidExplicitAddToCollection() {
+		'''
+		java.util.List<String> strings = new java.util.LinkedList<String>();
+		strings.add("a");
+		'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
