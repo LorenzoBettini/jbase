@@ -1279,6 +1279,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
+	@Test def void testInvalidFunctionalType() {
+		'''
+		()=>int f = null;
+		'''.parse.assertError(
+			XbasePackage.eINSTANCE.XBinaryOperation,
+			Diagnostic.SYNTAX_DIAGNOSTIC,
+			"no viable alternative at input ')'"
+		)
+	}
+
 	@Test def void testNoPrintlnExtensionMethod() {
 		'''
 		println("Hello");
