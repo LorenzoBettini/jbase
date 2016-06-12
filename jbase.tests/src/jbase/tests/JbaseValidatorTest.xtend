@@ -1279,6 +1279,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertUnreachableExpression(jbasePackage.XJSemicolonStatement)
 	}
 
+	@Test def void testNoPrintlnExtensionMethod() {
+		'''
+		println("Hello");
+		'''.parse.assertErrorsAsStrings(
+		'''
+		The method println(String) is undefined
+		'''
+		)
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,

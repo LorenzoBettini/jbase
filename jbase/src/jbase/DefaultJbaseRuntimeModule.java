@@ -10,6 +10,7 @@ import org.eclipse.xtext.xbase.DefaultXbaseRuntimeModule;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
@@ -20,6 +21,7 @@ import jbase.controlflow.JbaseEarlyExitComputer;
 import jbase.conversion.JbaseValueConverterService;
 import jbase.formatting2.JbaseFormatter;
 import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory;
+import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
@@ -69,6 +71,10 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
 	@Override
 	public Class<? extends ConfigurableIssueCodesProvider> bindConfigurableIssueCodesProvider() {
 		return JbaseConfigurableIssueCodes.class;
+	}
+
+	public Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedFeatures() {
+		return JbaseImplicitlyImportedFeatures.class;
 	}
 
 	public Class<? extends org.eclipse.xtext.formatting2.IFormatter2> bindIFormatter2() {
