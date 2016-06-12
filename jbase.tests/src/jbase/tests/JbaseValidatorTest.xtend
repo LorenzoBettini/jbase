@@ -18,6 +18,7 @@ import org.eclipse.xtext.xbase.validation.IssueCodes
 import org.eclipse.xtext.xtype.XtypePackage
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
 
 /**
  * For validation tests we use JbaseTestlanguage since we can also use
@@ -1329,6 +1330,52 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		}
 		'''.parseAndAssertNoErrors
 	}
+
+	@Test def void testAnnotationsMissingAttribute() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		
+		@ExampleAnnotation
+		o : Object
+		'''.parse.assertError(
+			XAnnotationsPackage.eINSTANCE.XAnnotation,
+			IssueCodes.ANNOTATIONS_MISSING_ATTRIBUTE_DEFINITION,
+			"The annotation must define the attribute 'value'"
+		)
+	}
+
+	@Test def void testAnnotationsWrongAttributeType() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		
+		@ExampleAnnotation(value = "foo")
+		o : Object
+		'''.parse.assertTypeMismatch(
+			XbasePackage.eINSTANCE.XStringLiteral,
+			"Class<? extends ScenarioProcessor>",
+			"String"
+		)
+	}
+
+	@Test def void testAnnotationsCorrectAttributeType() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@ExampleAnnotation(value = TypeSystemSmokeTester)
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
+//	@Test def void testAnnotationsCorrectAttributeType2() {
+//		'''
+//		import jbase.tests.util.ExampleAnnotation;
+//		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+//		
+//		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
+//		o : Object
+//		'''.parse.assertNoErrors
+//	}
 
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
