@@ -1,4 +1,4 @@
-grammar jbase.Jbase with org.eclipse.xtext.xbase.Xbase
+grammar jbase.Jbase with org.eclipse.xtext.xbase.annotations.XbaseWithAnnotations
 
 //generate jbase "http://www.Jbase.jbase"
 import "http://www.Jbase.jbase"
