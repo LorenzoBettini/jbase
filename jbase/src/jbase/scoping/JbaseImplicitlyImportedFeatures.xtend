@@ -26,15 +26,9 @@ class JbaseImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 			ComparableExtensions,
 			DoubleExtensions,
 			FloatExtensions,
-			FunctionExtensions,
 			IntegerExtensions,
-			IterableExtensions,
-			IteratorExtensions,
-			ListExtensions,
 			LongExtensions,
-			MapExtensions,
 			ObjectExtensions,
-			ProcedureExtensions,
 			ShortExtensions,
 			StringExtensions
 		]
