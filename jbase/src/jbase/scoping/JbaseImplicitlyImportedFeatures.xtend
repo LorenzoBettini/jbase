@@ -22,7 +22,6 @@ class JbaseImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 			BooleanExtensions,
 			ByteExtensions,
 			CharacterExtensions,
-			CollectionExtensions,
 			ComparableExtensions,
 			DoubleExtensions,
 			FloatExtensions,
