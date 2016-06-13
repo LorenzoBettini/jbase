@@ -101,6 +101,59 @@ class CompilerTest {
 		'''.toString, getSingleGeneratedCode)
 		]
 	}
-	
-	
+
+	@Test
+	def void testAnnotations() {
+		'''
+			import org.junit.Test;
+			
+			entity Foo {
+				bar : String
+				
+				@Test
+				op doStuff(String x) : String {
+					return x + " " + bar;
+				}
+			}
+		'''.compile[
+			assertEquals(
+			'''
+			import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+			import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+			import org.junit.Test;
+			
+			@SuppressWarnings("all")
+			public class Foo {
+			  public Foo() {
+			  }
+			  
+			  public Foo(Procedure1<Foo> initializer) {
+			    initializer.apply(this);
+			  }
+			  
+			  private String bar;
+			  
+			  public String getBar() {
+			    return this.bar;
+			  }
+			  
+			  public void setBar(String bar) {
+			    this.bar = bar;
+			  }
+			  
+			  @Test
+			  public String doStuff(String x) {
+			    return ((x + " ") + this.bar);
+			  }
+			  
+			  @Override
+			  public String toString() {
+			    String result = new ToStringBuilder(this).addAllFields().toString();
+			    return result;
+			  }
+			}
+			'''.toString, getSingleGeneratedCode)
+			compiledClass
+		]
+	}
 }

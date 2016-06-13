@@ -33,5 +33,6 @@ Property:
 	name=ValidID ':' type=JvmTypeReference;
 
 Operation:
+	annotations+=XAnnotation*
 	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')' (':' type=JvmTypeReference)? 
 		body=XBlockExpression;
