@@ -2844,32 +2844,29 @@ public class MyFile {
 		)
 	}
 
-	// the generated Java code is invalid:
-	// Pb(632) The value for annotation attribute ExampleAnnotation3.value must be an array initializer
-	// This should be fixed first: https://github.com/LorenzoBettini/jbase/issues/42
-//	@Test def void testAnnotationWithMultipleValues3() {
-//		'''
-//		import jbase.tests.util.ExampleAnnotation3;
-//		
-//		@ExampleAnnotation3(String.class, Integer.class)
-//		o : Object
-//		'''.checkCompilation(
-//		'''
-//		package jbasetestlanguage;
-//		
-//		import jbase.tests.util.ExampleAnnotation3;
-//		
-//		@SuppressWarnings("all")
-//		public class MyFile {
-//		  @ExampleAnnotation3(new Class[] { String.class, Integer.class })
-//		  private Object o;
-//		  
-//		  public static void main(String[] args) throws Throwable {
-//		  }
-//		}
-//		'''
-//		)
-//	}
+	@Test def void testAnnotationWithMultipleValues3() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(String.class, Integer.class)
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3({ String.class, Integer.class })
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
 
 	@Test def void testLoopsWithConditionAlwaysTrue() {
 		'''
