@@ -13,6 +13,7 @@ Please make sure you add the Xtext update site (http://download.eclipse.org/mode
 
 ### Specific versions
 
+- Version 0.3.x is based on Xtext 2.10.x, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.3/
 - Version 0.2.x is based on Xtext 2.10.x, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.2/
 - Version 0.1.x is based on Xtext 2.8.4, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.1/
 
