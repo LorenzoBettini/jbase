@@ -1394,6 +1394,33 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testAnnotationsWithMultipleValues() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(value = String.class)
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testAnnotationsWithMultipleValues2() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(String.class)
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testAnnotationsWithMultipleValues3() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(String.class, Integer.class)
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
