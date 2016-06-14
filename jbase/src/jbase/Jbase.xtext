@@ -350,7 +350,8 @@ OpMulti:
 // customization of multiple values for annotations to use the Java array literal syntax
 XAnnotationElementValueOrCommaList returns XExpression:
 	  =>({XListLiteral} '{') (elements+=XAnnotationOrExpression (',' elements+=XAnnotationOrExpression )*)? '}'
-	| XAnnotationOrExpression ({XListLiteral.elements+=current} (',' elements+=XAnnotationOrExpression )+)?
+	| XAnnotationOrExpression // in Java multiple values must be specified with an array literal
+	// ({XListLiteral.elements+=current} (',' elements+=XAnnotationOrExpression )+)?
 ;
 
 XAnnotationElementValue returns XExpression :
