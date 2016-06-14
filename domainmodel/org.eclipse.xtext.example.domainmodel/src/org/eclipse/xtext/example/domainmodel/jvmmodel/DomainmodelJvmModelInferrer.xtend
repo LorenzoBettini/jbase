@@ -1,14 +1,15 @@
 package org.eclipse.xtext.example.domainmodel.jvmmodel
 
 import com.google.inject.Inject
+import org.eclipse.xtext.common.types.JvmAnnotationTarget
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
 import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
 import org.eclipse.xtext.example.domainmodel.domainmodel.Property
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 
 class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 	
@@ -25,14 +26,14 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 			members += entity.toConstructor []
 			
 			// and one which can be called with a lambda for initialization.
-			val procedureType = typeRef(Procedure1, typeRef(it)) /* Procedure<MyEntity> */ 
-			members += entity.toConstructor [
-				parameters += entity.toParameter("initializer", procedureType)
-				// here we implement the body using black box Java code.
-				body = '''
-					initializer.apply(this);
-				'''
-			]
+//			val procedureType = typeRef(Procedure1, typeRef(it)) /* Procedure<MyEntity> */ 
+//			members += entity.toConstructor [
+//				parameters += entity.toParameter("initializer", procedureType)
+//				// here we implement the body using black box Java code.
+//				body = '''
+//					initializer.apply(this);
+//				'''
+//			]
 			
 			// now let's go over the features
 			for ( f : entity.features ) {
@@ -50,6 +51,7 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 					Operation : {
 						members += f.toMethod(f.name, f.type ?: inferredType) [
 							documentation = f.documentation
+							translateAnnotations(f.annotations)
 							for (p : f.params) {
 								parameters += p.toParameter(p.name, p.parameterType)
 							}
@@ -66,5 +68,8 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 			members += entity.toToStringMethod(it)
 		]
 	}
-	
+
+	def private void translateAnnotations(JvmAnnotationTarget target, Iterable<XAnnotation> annotations) {
+		target.addAnnotations(annotations.filterNull.filter[annotationType != null])
+	}
 }

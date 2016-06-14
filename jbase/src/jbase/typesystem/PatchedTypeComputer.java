@@ -13,9 +13,9 @@ import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XUnaryOperation;
+import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeExpectation;
-import org.eclipse.xtext.xbase.typesystem.computation.XbaseTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
@@ -31,7 +31,7 @@ import jbase.util.JbaseExpressionHelper.StepCase;
  * @author Lorenzo Bettini
  *
  */
-public class PatchedTypeComputer extends XbaseTypeComputer {
+public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 
 	@Inject
 	private Primitives primitives;

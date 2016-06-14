@@ -6,7 +6,8 @@ package jbase;
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
-import org.eclipse.xtext.xbase.DefaultXbaseRuntimeModule;
+import org.eclipse.xtext.xbase.annotations.DefaultXbaseWithAnnotationsRuntimeModule;
+import org.eclipse.xtext.xbase.annotations.validation.AnnotationValueValidator;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
@@ -15,6 +16,7 @@ import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
 
+import jbase.annotations.validation.JbaseAnnotationValueValidator;
 import jbase.compiler.JbaseJvmModelGenerator;
 import jbase.compiler.JbaseXbaseCompiler;
 import jbase.controlflow.JbaseEarlyExitComputer;
@@ -32,7 +34,7 @@ import jbase.validation.JbaseConfigurableIssueCodes;
  * 
  * @author Lorenzo Bettini
  */
-public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
+public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntimeModule {
 
 	@Override
 	public Class<? extends IValueConverterService> bindIValueConverterService() {
@@ -43,6 +45,7 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
 		return JbaseOperatorMapping.class;
 	}
 
+	@Override
 	public Class<? extends ITypeComputer> bindITypeComputer() {
 		return JbaseTypeComputer.class;
 	}
@@ -75,6 +78,10 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseRuntimeModule {
 
 	public Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedFeatures() {
 		return JbaseImplicitlyImportedFeatures.class;
+	}
+
+	public Class<? extends AnnotationValueValidator> bindAnnotationValueValidator() {
+		return JbaseAnnotationValueValidator.class;
 	}
 
 	public Class<? extends org.eclipse.xtext.formatting2.IFormatter2> bindIFormatter2() {

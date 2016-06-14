@@ -26,12 +26,12 @@ import org.eclipse.xtext.xbase.XForLoopExpression
 import org.eclipse.xtext.xbase.XPostfixOperation
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
-import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
+import org.eclipse.xtext.xbase.annotations.formatting2.XbaseWithAnnotationsFormatter
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 
-class JbaseFormatter extends XbaseFormatter {
+class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 
 	@Inject extension JbaseModelUtil
 

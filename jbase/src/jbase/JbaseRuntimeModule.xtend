@@ -23,6 +23,8 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory
+import org.eclipse.xtext.xbase.annotations.validation.AnnotationValueValidator
+import jbase.annotations.validation.JbaseAnnotationValueValidator
 
 /** 
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -36,7 +38,7 @@ class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 		return JbaseOperatorMapping
 	}
 
-	def Class<? extends ITypeComputer> bindITypeComputer() {
+	override Class<? extends ITypeComputer> bindITypeComputer() {
 		return JbaseTypeComputer
 	}
 
@@ -66,5 +68,9 @@ class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 
 	def Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedFeatures() {
 		return JbaseImplicitlyImportedFeatures
+	}
+
+	def Class<? extends AnnotationValueValidator> bindAnnotationValueValidator() {
+		return JbaseAnnotationValueValidator
 	}
 }

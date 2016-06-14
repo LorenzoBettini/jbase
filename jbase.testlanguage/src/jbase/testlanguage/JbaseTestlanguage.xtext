@@ -14,16 +14,19 @@ JbaseTestLanguageModel:
 	methods+=OpMethod* // correspond to Java methods
 	operations+=Operation* // correspond to Java static methods
 	block=SpecialBlockExpression;
-	
+
 SpecialBlockExpression returns xbase::XBlockExpression:
 	{xbase::XBlockExpression}
 	(expressions+=XJStatementOrBlock)*;
 
 Property:
+	annotations+=XAnnotation*
 	name=ValidID ':' type=JvmTypeReference;
 
 OpMethod:
-	'method' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'
+	'method'
+	annotations+=XAnnotation* // to avoid ambiguity with Property we put annotations after 'method'
+	name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')'
 						(':' type=JvmTypeReference)? 
 		body=XBlockExpression;
 

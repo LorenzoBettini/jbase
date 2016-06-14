@@ -2746,6 +2746,152 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testAnnotation() {
+		'''
+		import com.google.inject.Inject;
+		
+		@Inject
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import com.google.inject.Inject;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @Inject
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
+	@Test def void testAnnotation2() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation(value = TypeSystemSmokeTester.class)
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePair() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(value = String.class)
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3(value = String.class)
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePairAndMultiple() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(value = { String.class, Integer.class })
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3(value = { String.class, Integer.class })
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndSingleValue() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(String.class)
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3(String.class)
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
+	@Test def void testAnnotationsWithExpectedMultipleValuesArrayLiteral() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3({String.class, Integer.class})
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3({ String.class, Integer.class })
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
 	@Test def void testLoopsWithConditionAlwaysTrue() {
 		'''
 		int d = 1;
