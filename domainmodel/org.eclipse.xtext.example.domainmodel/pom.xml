@@ -8,7 +8,7 @@
 		<relativePath>../../jbase.parent/pom.xml</relativePath>
 		<groupId>net.sf.xtext-jbase</groupId>
 		<artifactId>jbase.parent</artifactId>
-		<version>0.2.1-SNAPSHOT</version>
+		<version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>org.eclipse.xtext.example.domainmodel</artifactId>
