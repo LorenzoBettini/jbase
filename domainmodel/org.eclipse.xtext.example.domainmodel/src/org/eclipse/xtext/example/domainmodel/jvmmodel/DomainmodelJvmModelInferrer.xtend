@@ -10,7 +10,6 @@ import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 
 class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 	
@@ -27,14 +26,14 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 			members += entity.toConstructor []
 			
 			// and one which can be called with a lambda for initialization.
-			val procedureType = typeRef(Procedure1, typeRef(it)) /* Procedure<MyEntity> */ 
-			members += entity.toConstructor [
-				parameters += entity.toParameter("initializer", procedureType)
-				// here we implement the body using black box Java code.
-				body = '''
-					initializer.apply(this);
-				'''
-			]
+//			val procedureType = typeRef(Procedure1, typeRef(it)) /* Procedure<MyEntity> */ 
+//			members += entity.toConstructor [
+//				parameters += entity.toParameter("initializer", procedureType)
+//				// here we implement the body using black box Java code.
+//				body = '''
+//					initializer.apply(this);
+//				'''
+//			]
 			
 			// now let's go over the features
 			for ( f : entity.features ) {
