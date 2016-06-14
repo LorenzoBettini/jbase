@@ -106,7 +106,7 @@
 	</target>
 
 	<target name="push-p2-repo-to-bintray">
-		<apply executable="curl" parallel="false" relative="true" addsourcefile="false">
+		<apply executable="curl" parallel="false" relative="true" addsourcefile="false" failonerror="true">
 			<arg value="-XPUT" />
 			<targetfile />
 
@@ -122,7 +122,7 @@
 	</target>
 
 	<target name="push-p2-repo-zipped-to-bintray">
-		<apply executable="curl" parallel="false" relative="true" addsourcefile="false">
+		<apply executable="curl" parallel="false" relative="true" addsourcefile="false" failonerror="true">
 			<arg value="-XPUT" />
 			<targetfile />
 
@@ -138,7 +138,7 @@
 	</target>
 
 	<target name="push-composite-to-bintray" depends="getMajorMinorVersion" >
-		<apply executable="curl" parallel="false" relative="true" addsourcefile="false">
+		<apply executable="curl" parallel="false" relative="true" addsourcefile="false" failonerror="true">
 			<arg value="-XPUT" />
 			<targetfile />
 
@@ -154,7 +154,7 @@
 	</target>
 
 	<target name="push-main-composite-to-bintray" >
-		<apply executable="curl" parallel="false" relative="true" addsourcefile="false">
+		<apply executable="curl" parallel="false" relative="true" addsourcefile="false" failonerror="true">
 			<arg value="-XPUT" />
 			<targetfile />
 
