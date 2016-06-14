@@ -2796,7 +2796,7 @@ public class MyFile {
 		)
 	}
 
-	@Test def void testAnnotationWithMultipleValues() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePair() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
@@ -2820,7 +2820,7 @@ public class MyFile {
 		)
 	}
 
-	@Test def void testAnnotationWithMultipleValues2() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndSingleValue() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
@@ -2844,11 +2844,11 @@ public class MyFile {
 		)
 	}
 
-	@Test def void testAnnotationWithMultipleValues3() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesArrayLiteral() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
-		@ExampleAnnotation3(String.class, Integer.class)
+		@ExampleAnnotation3({String.class, Integer.class})
 		o : Object
 		'''.checkCompilation(
 		'''

@@ -1394,7 +1394,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
-	@Test def void testAnnotationsWithMultipleValues() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePair() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
@@ -1403,7 +1403,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
-	@Test def void testAnnotationsWithMultipleValues2() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndSingleValue() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
@@ -1412,7 +1412,16 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
-	@Test def void testAnnotationsWithMultipleValues3() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesArrayLiteral() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3({String.class, Integer.class})
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testAnnotationsWithExpectedMultipleValuesCommaSeparated() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
