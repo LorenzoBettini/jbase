@@ -10,6 +10,7 @@ import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmOperation;
+import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.generator.trace.ILocationData;
@@ -138,7 +139,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	private void compileClassObject(XJClassObject e, ITreeAppendable b) {
-		b.append(e.getTypeExpression().toString()).
+		XAbstractFeatureCall featureCall = (XAbstractFeatureCall) e.getTypeExpression();
+		// we must append it as a JvmType so that the corresponding import statement
+		// is generated in the Java code
+		b.append((JvmType) featureCall.getFeature()).
 			append(Joiner.on("").join(e.getArrayDimensions())).append(".class");
 	}
 
