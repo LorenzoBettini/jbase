@@ -2820,6 +2820,30 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePairAndMultiple() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(value = { String.class, Integer.class })
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation3(value = { String.class, Integer.class })
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
+
 	@Test def void testAnnotationsWithExpectedMultipleValuesAndSingleValue() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;

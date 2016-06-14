@@ -1403,6 +1403,15 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testAnnotationsWithExpectedMultipleValuesAndExplicitValuePairAndMultiple() {
+		'''
+		import jbase.tests.util.ExampleAnnotation3;
+		
+		@ExampleAnnotation3(value = {String.class, Integer.class})
+		o : Object
+		'''.parse.assertNoErrors
+	}
+
 	@Test def void testAnnotationsWithExpectedMultipleValuesAndSingleValue() {
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
