@@ -524,6 +524,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b) {
 		if (expr instanceof XUnaryOperation) {
 			return !expressionHelper.specialHandling((XUnaryOperation) expr);
+		} else if (expr instanceof XJClassObject) {
+			return false;
 		}
 		return super.isVariableDeclarationRequired(expr, b);
 	}
