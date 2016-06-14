@@ -2749,31 +2749,31 @@ public class MyFile {
 		)
 	}
 
-//	@Test def void testAnnotation2() {
-//		'''
-//		import jbase.tests.util.ExampleAnnotation;
-//		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
-//		
-//		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
-//		o : Object
-//		'''.checkCompilation(
-//		'''
-//		package jbasetestlanguage;
-//		
-//		import jbase.tests.util.ExampleAnnotation;
-//		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
-//		
-//		@SuppressWarnings("all")
-//		public class MyFile {
-//		  @ExampleAnnotation(value = TypeSystemSmokeTester.class)
-//		  private Object o;
-//		  
-//		  public static void main(String[] args) throws Throwable {
-//		  }
-//		}
-//		'''
-//		)
-//	}
+	@Test def void testAnnotation2() {
+		'''
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
+		o : Object
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import jbase.tests.util.ExampleAnnotation;
+		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  @ExampleAnnotation(value = TypeSystemSmokeTester.class)
+		  private Object o;
+		  
+		  public static void main(String[] args) throws Throwable {
+		  }
+		}
+		'''
+		)
+	}
 
 	@Test def void testLoopsWithConditionAlwaysTrue() {
 		'''
