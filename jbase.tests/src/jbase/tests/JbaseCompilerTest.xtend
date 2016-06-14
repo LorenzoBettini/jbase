@@ -2672,6 +2672,27 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testClassObjectImported() {
+		'''
+		import java.util.Date;
+		
+		System.out.println(Date.class);
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import java.util.Date;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  public static void main(String[] args) throws Throwable {
+		    System.out.println(Date.class);
+		  }
+		}
+		'''
+		)
+	}
+
 	@Test def void testClassObject() {
 		'''
 		System.out.println(String.class);
