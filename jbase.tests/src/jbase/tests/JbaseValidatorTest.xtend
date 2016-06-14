@@ -1421,13 +1421,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
-	@Test def void testAnnotationsWithExpectedMultipleValuesCommaSeparated() {
+	@Test def void testAnnotationsWithExpectedMultipleValuesCommaSeparatedWrong() {
+		// this is invalid in Java: explicit array literal is required for multiple values
 		'''
 		import jbase.tests.util.ExampleAnnotation3;
 		
 		@ExampleAnnotation3(String.class, Integer.class)
 		o : Object
-		'''.parse.assertNoErrors
+		'''.parse.assertError(
+			XAnnotationsPackage.eINSTANCE.XAnnotation,
+			Diagnostic.SYNTAX_DIAGNOSTIC,
+			"mismatched input ',' expecting ')'"
+		)
 	}
 
 	def private assertInvalidContinueStatement(EObject o) {
