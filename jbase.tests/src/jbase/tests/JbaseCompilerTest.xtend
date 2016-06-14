@@ -2693,6 +2693,27 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testClassObjectInArray() {
+		'''
+		import java.util.Date;
+		
+		Class<?>[] classes = {String.class, Date.class};
+		'''.checkCompilation(
+		'''
+		package jbasetestlanguage;
+		
+		import java.util.Date;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  public static void main(String[] args) throws Throwable {
+		    Class<?>[] classes = { String.class, Date.class };
+		  }
+		}
+		'''
+		)
+	}
+
 	@Test def void testClassObject() {
 		'''
 		System.out.println(String.class);
