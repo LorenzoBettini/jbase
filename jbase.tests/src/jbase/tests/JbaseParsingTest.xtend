@@ -670,4 +670,16 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test
+	def void testBitwiseXor() {
+		'''
+		0 ^ 1;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseXor(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
 }

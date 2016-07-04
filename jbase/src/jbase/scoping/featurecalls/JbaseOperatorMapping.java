@@ -27,6 +27,7 @@ public class JbaseOperatorMapping extends OperatorMapping {
 
 	public static final QualifiedName BITWISE_AND = create("&");
 	public static final QualifiedName BITWISE_OR = create("|");
+	public static final QualifiedName BITWISE_XOR = create("^");
 
 	@Override
 	protected void initializeMapping() {
@@ -40,5 +41,6 @@ public class JbaseOperatorMapping extends OperatorMapping {
 
 		map.put(BITWISE_AND, create("bitwiseAnd"));
 		map.put(BITWISE_OR, create("bitwiseOr"));
+		map.put(BITWISE_XOR, create("bitwiseXor"));
 	}
 }

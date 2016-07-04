@@ -2754,6 +2754,8 @@ public class MyFile {
 		System.out.println(i & j);
 		result = i | j;
 		System.out.println(i | j);
+		result = i ^ j;
+		System.out.println(i ^ j);
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2768,6 +2770,8 @@ public class MyFile {
     System.out.println((i & j));
     result = (i | j);
     System.out.println((i | j));
+    result = (i ^ j);
+    System.out.println((i ^ j));
   }
 }
 '''
