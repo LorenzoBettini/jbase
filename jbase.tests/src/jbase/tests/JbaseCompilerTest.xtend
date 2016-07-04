@@ -2746,6 +2746,30 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testBitwiseOperators() {
+		'''
+		int result;
+		int i = 1, j = 2;
+		result = i & j;
+		System.out.println(i & j);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int result = 0;
+    int i = 1;
+    int j = 2;
+    result = (i & j);
+    System.out.println((i & j));
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testAnnotation() {
 		'''
 		import com.google.inject.Inject;

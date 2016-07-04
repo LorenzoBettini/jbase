@@ -27,6 +27,7 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
+import org.eclipse.xtext.xbase.XBinaryOperation
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -154,5 +155,9 @@ abstract class JbaseAbstractTest {
 
 	protected def getJAssignment(XExpression it) {
 		it as XJAssignment
+	}
+
+	protected def getXBinaryOperation(XExpression it) {
+		it as XBinaryOperation
 	}
 }

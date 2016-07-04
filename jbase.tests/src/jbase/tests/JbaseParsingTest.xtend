@@ -621,4 +621,30 @@ class JbaseParsingTest extends JbaseAbstractTest {
 			]
 		]
 	}
+
+	@Test
+	def void testBooleanAnd() {
+		// we parse it as a ClassObject though it is not well-typed
+		'''
+		true && false;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_and(boolean,boolean)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
+	@Test
+	def void testBitwiseAnd() {
+		// we parse it as a ClassObject though it is not well-typed
+		'''
+		0 & 1;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseAnd(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
 }
