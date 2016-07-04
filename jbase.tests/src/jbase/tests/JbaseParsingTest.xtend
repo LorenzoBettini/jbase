@@ -624,7 +624,6 @@ class JbaseParsingTest extends JbaseAbstractTest {
 
 	@Test
 	def void testBooleanAnd() {
-		// we parse it as a ClassObject though it is not well-typed
 		'''
 		true && false;
 		'''.assertLastExpression[
@@ -637,7 +636,6 @@ class JbaseParsingTest extends JbaseAbstractTest {
 
 	@Test
 	def void testBitwiseAnd() {
-		// we parse it as a ClassObject though it is not well-typed
 		'''
 		0 & 1;
 		'''.assertLastExpression[
@@ -647,4 +645,29 @@ class JbaseParsingTest extends JbaseAbstractTest {
 			]
 		]
 	}
+
+	@Test
+	def void testBooleanOr() {
+		'''
+		true || false;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_or(boolean,boolean)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
+	@Test
+	def void testBitwiseOr() {
+		'''
+		0 | 1;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseOr(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
 }

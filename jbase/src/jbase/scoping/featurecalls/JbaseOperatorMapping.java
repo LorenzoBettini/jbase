@@ -26,6 +26,7 @@ public class JbaseOperatorMapping extends OperatorMapping {
 	public static final String ARRAY_LENGTH = "length";
 
 	public static final QualifiedName BITWISE_AND = create("&");
+	public static final QualifiedName BITWISE_OR = create("|");
 
 	@Override
 	protected void initializeMapping() {
@@ -38,5 +39,6 @@ public class JbaseOperatorMapping extends OperatorMapping {
 		map.put(NOT_EQUALS, create(OP_PREFIX + "tripleNotEquals"));
 
 		map.put(BITWISE_AND, create("bitwiseAnd"));
+		map.put(BITWISE_OR, create("bitwiseOr"));
 	}
 }
