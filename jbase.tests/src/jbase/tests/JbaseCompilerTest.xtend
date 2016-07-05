@@ -2756,6 +2756,8 @@ public class MyFile {
 		System.out.println(i | j);
 		result = i ^ j;
 		System.out.println(i ^ j);
+		result = ~j;
+		System.out.println(~j);
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2772,6 +2774,10 @@ public class MyFile {
     System.out.println((i | j));
     result = (i ^ j);
     System.out.println((i ^ j));
+    int _bitwiseNot = (~j);
+    result = _bitwiseNot;
+    int _bitwiseNot_1 = (~j);
+    System.out.println(_bitwiseNot_1);
   }
 }
 '''

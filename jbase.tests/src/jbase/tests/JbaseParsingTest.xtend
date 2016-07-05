@@ -682,4 +682,15 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test
+	def void testBitwiseNot() {
+		'''
+		~1;
+		'''.assertLastExpression[
+			XUnaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseNot(int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
 }
