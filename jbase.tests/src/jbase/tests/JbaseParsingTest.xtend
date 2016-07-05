@@ -693,4 +693,41 @@ class JbaseParsingTest extends JbaseAbstractTest {
 			]
 		]
 	}
+
+	@Test
+	def void testLeftShift() {
+		'''
+		1 << 2;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleLessThan(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
+	@Test
+	def void testRightShift() {
+		'''
+		1 >> 2;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleGreaterThan(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
+	@Test
+	def void testUnsignedRightShift() {
+		'''
+		1 >>> 2;
+		'''.assertLastExpression[
+			XBinaryOperation => [
+				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_tripleGreaterThan(int,int)".
+				assertEquals(feature.identifier)
+			]
+		]
+	}
+
 }

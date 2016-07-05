@@ -2758,6 +2758,10 @@ public class MyFile {
 		System.out.println(i ^ j);
 		result = ~j;
 		System.out.println(~j);
+		
+		System.out.println(i << j);
+		System.out.println(i >> j);
+		System.out.println(i >>> j);
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2778,6 +2782,9 @@ public class MyFile {
     result = _bitwiseNot;
     int _bitwiseNot_1 = (~j);
     System.out.println(_bitwiseNot_1);
+    System.out.println((i << j));
+    System.out.println((i >> j));
+    System.out.println((i >>> j));
   }
 }
 '''

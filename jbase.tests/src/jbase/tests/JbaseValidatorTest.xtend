@@ -1284,7 +1284,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''
 		()=>int f = null;
 		'''.parse.assertError(
-			XbasePackage.eINSTANCE.XBinaryOperation,
+			jbasePackage.XJSemicolonStatement,
 			Diagnostic.SYNTAX_DIAGNOSTIC,
 			"no viable alternative at input ')'"
 		)
