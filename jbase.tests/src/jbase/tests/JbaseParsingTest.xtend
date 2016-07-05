@@ -626,108 +626,88 @@ class JbaseParsingTest extends JbaseAbstractTest {
 	def void testBooleanAnd() {
 		'''
 		true && false;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_and(boolean,boolean)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation(
+			"org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_and(boolean,boolean)")
 	}
 
 	@Test
 	def void testBitwiseAnd() {
 		'''
 		0 & 1;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseAnd(int,int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseAnd(int,int)")
 	}
 
 	@Test
 	def void testBooleanOr() {
 		'''
 		true || false;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_or(boolean,boolean)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.BooleanExtensions.operator_or(boolean,boolean)")
 	}
 
 	@Test
 	def void testBitwiseOr() {
 		'''
 		0 | 1;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseOr(int,int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseOr(int,int)")
 	}
 
 	@Test
 	def void testBitwiseXor() {
 		'''
 		0 ^ 1;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseXor(int,int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseXor(int,int)")
 	}
 
 	@Test
 	def void testBitwiseNot() {
 		'''
 		~1;
-		'''.assertLastExpression[
-			XUnaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseNot(int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertUnaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.bitwiseNot(int)")
 	}
 
 	@Test
 	def void testLeftShift() {
 		'''
 		1 << 2;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleLessThan(int,int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleLessThan(int,int)")
 	}
 
 	@Test
 	def void testRightShift() {
 		'''
 		1 >> 2;
-		'''.assertLastExpression[
-			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleGreaterThan(int,int)".
-				assertEquals(feature.identifier)
-			]
-		]
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_doubleGreaterThan(int,int)")
 	}
 
 	@Test
 	def void testUnsignedRightShift() {
 		'''
 		1 >>> 2;
-		'''.assertLastExpression[
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_tripleGreaterThan(int,int)")
+	}
+
+	@Test
+	def void testBitwiseOnChar() {
+		'''
+		'a' >>> 'b';
+		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_tripleGreaterThan(int,int)")
+	}
+
+	def private assertBinaryOperation(CharSequence input, String expectedResolvedFeature) {
+		input.assertLastExpression[
 			XBinaryOperation => [
-				"org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_tripleGreaterThan(int,int)".
+				expectedResolvedFeature.
 				assertEquals(feature.identifier)
 			]
 		]
 	}
 
+	def private assertUnaryOperation(CharSequence input, String expectedResolvedFeature) {
+		input.assertLastExpression[
+			XUnaryOperation => [
+				expectedResolvedFeature.
+				assertEquals(feature.identifier)
+			]
+		]
+	}
 }

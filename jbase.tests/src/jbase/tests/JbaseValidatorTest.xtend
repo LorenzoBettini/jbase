@@ -1430,6 +1430,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testBitwiseOperatorsOnChars() {
+		'''
+		System.out.println('a' & 'b');
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testBitwiseOperatorsOnCharsAndInts() {
+		'''
+		System.out.println('a' << 1);
+		'''.parse.assertNoErrors
+	}
+
 	@Test def void testAnnotationsWithExpectedMultipleValuesCommaSeparatedWrong() {
 		// this is invalid in Java: explicit array literal is required for multiple values
 		'''

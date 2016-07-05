@@ -2791,6 +2791,36 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testBitwiseOperatorsOnChars() {
+		'''
+		System.out.println('a' & 'b');
+		System.out.println('a' | 'b');
+		System.out.println('a' ^ 'b');
+		System.out.println(~'b');
+		System.out.println('a' << 'b');
+		System.out.println('a' >> 'b');
+		System.out.println('a' >>> 'b');
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    System.out.println(('a' & 'b'));
+    System.out.println(('a' | 'b'));
+    System.out.println(('a' ^ 'b'));
+    int _bitwiseNot = (~'b');
+    System.out.println(_bitwiseNot);
+    System.out.println(('a' << 'b'));
+    System.out.println(('a' >> 'b'));
+    System.out.println(('a' >>> 'b'));
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testAnnotation() {
 		'''
 		import com.google.inject.Inject;
