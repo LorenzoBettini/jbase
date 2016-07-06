@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 
 import jbase.serializer.AbstractJbaseSemanticSequencer;
 import jbase.services.JbaseGrammarAccess;
+import jbase.services.JbaseGrammarAccess.XBitwiseInclusiveOrExpressionElements;
 
 /**
  * Customizations needed since in the grammar we have
@@ -58,6 +59,15 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 
 	@Override
 	protected void sequence_XAdditiveExpression_XAndExpression_XAssignment_XEqualityExpression_XMultiplicativeExpression_XOrExpression_XOtherOperatorExpression_XRelationalExpression(ISerializationContext context, XBinaryOperation operation) {
+		handleCustomBinaryOperation(context, operation);
+	}
+
+	@Override
+	protected void sequence_XAdditiveExpression_XAndExpression_XAssignment_XBitwiseAndExpression_XBitwiseExclusiveOrExpression_XBitwiseInclusiveOrExpression_XEqualityExpression_XMultiplicativeExpression_XOrExpression_XOtherOperatorExpression_XRelationalExpression(ISerializationContext context, XBinaryOperation operation) {
+		handleCustomBinaryOperation(context, operation);
+	}
+
+	private void handleCustomBinaryOperation(ISerializationContext context, XBinaryOperation operation) {
 		INodesForEObjectProvider nodes = createNodeProvider(operation);
 		SequenceFeeder acceptor = createSequencerFeeder(context, operation, nodes);
 		XAdditiveExpressionElements opAdd = grammarAccess.getXAdditiveExpressionAccess();
@@ -69,6 +79,11 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 		XOrExpressionElements opOr = grammarAccess.getXOrExpressionAccess();
 		// difference with respect to Xbase
 		jbase.services.JbaseGrammarAccess.XAssignmentElements opMultiAssign = access.getXAssignmentAccess();
+		
+		// bitwise operators
+		XBitwiseInclusiveOrExpressionElements opBitwiseIncOr = access.getXBitwiseInclusiveOrExpressionAccess();
+//		XBitwiseExclusiveOrExpressionElements opBitwiseExclOr = access.getXBitwiseExclusiveOrExpressionAccess();
+//		XBitwiseAndExpressionElements opBitwiseAnd = access.getXBitwiseAndExpressionAccess();
 		
 		JvmIdentifiableElement feature = operation.getFeature();
 		Set<String> operatorNames = Sets.newHashSet();
@@ -117,10 +132,13 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 			acceptor.accept(opMultiAssign.getXBinaryOperationLeftOperandAction_2_1_1_0_0_0(), operation.getLeftOperand());
 			acceptor.accept(opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_2_1_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
 			acceptor.accept(opMultiAssign.getRightOperandXAssignmentParserRuleCall_2_1_1_1_0(), operation.getRightOperand());
+		} else if((featureToken = getValidOperator(operation, opBitwiseIncOr.getFeatureJvmIdentifiableElementOpInclusiveOrParserRuleCall_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
+			acceptor.accept(opOr.getXBinaryOperationLeftOperandAction_1_0_0_0(), operation.getLeftOperand());
+			acceptor.accept(opOr.getFeatureJvmIdentifiableElementOpOrParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
+			acceptor.accept(opOr.getRightOperandXAndExpressionParserRuleCall_1_1_0(), operation.getRightOperand());
 		} else if (errorAcceptor != null) {
 			errorAcceptor.accept(new SerializationDiagnostic(OPERATOR_NOT_SUPPORTED, operation, context, grammarAccess.getGrammar(), "Operator "+operatorNames+" is not supported."));
 		} 
 		acceptor.finish();
 	}
-
 }

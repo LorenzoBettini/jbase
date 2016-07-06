@@ -1438,7 +1438,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test def void testBitwiseOperatorsOnCharsAndInts() {
 		'''
-		System.out.println('a' << 1);
+		System.out.println('a' & 1);
 		'''.parse.assertNoErrors
 	}
 

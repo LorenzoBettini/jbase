@@ -134,6 +134,12 @@ class JbaseSerializerTest extends JbaseAbstractTest {
 		'''.assertSerialize
 	}
 
+	@Test def void testBitwiseInclusiveOr() {
+		'''
+			0 | 1;
+		'''.assertSerialize
+	}
+
 	@Test def void testBitwiseOperators() {
 		'''
 			0 & 1;

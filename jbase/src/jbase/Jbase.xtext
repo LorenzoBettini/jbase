@@ -352,13 +352,29 @@ OpOther:
 	  '>' (=>('>' '>') | '>') 
 	| '<<';
 
-// add bitwise operators
-OpOr:
-	'|' | '||' | '^';
+// add bitwise operators with their precedence
+XAndExpression returns XExpression:
+	XBitwiseInclusiveOrExpression (=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpAnd]) rightOperand=XBitwiseInclusiveOrExpression)*;
 
-OpAnd:
-	'&' | '&&';
+XBitwiseInclusiveOrExpression returns XExpression:
+	XBitwiseExclusiveOrExpression (=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpInclusiveOr]) rightOperand=XBitwiseExclusiveOrExpression)*;
 
+OpInclusiveOr:
+	'|';
+
+XBitwiseExclusiveOrExpression returns XExpression:
+	XBitwiseAndExpression (=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpExclusiveOr]) rightOperand=XBitwiseAndExpression)*;
+
+OpExclusiveOr:
+	'^';
+
+XBitwiseAndExpression returns XExpression:
+	XEqualityExpression (=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpBitwiseAnd]) rightOperand=XEqualityExpression)*;
+
+OpBitwiseAnd:
+	'&';
+
+// add bitwise not ~
 OpUnary:
 	"!" | "-" | "+" | "~";
 

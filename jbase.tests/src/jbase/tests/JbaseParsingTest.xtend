@@ -3,8 +3,11 @@ package jbase.tests
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJPrefixOperation
+import jbase.util.JbaseNodeModelUtil
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.xbase.XBinaryOperation
 import org.eclipse.xtext.xbase.XBooleanLiteral
 import org.eclipse.xtext.xbase.XConstructorCall
@@ -17,6 +20,7 @@ import org.eclipse.xtext.xbase.XStringLiteral
 import org.eclipse.xtext.xbase.XSynchronizedExpression
 import org.eclipse.xtext.xbase.XThrowExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
+import org.eclipse.xtext.xbase.XbasePackage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -693,6 +697,50 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''.assertBinaryOperation("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_tripleGreaterThan(int,int)")
 	}
 
+	@Test
+	def void testAndOrPrecedence() {
+		'''
+		1 && 2 || 3 && 4
+		'''.assertPrecedence(
+		'''
+		((1 && 2) || (3 && 4))
+		'''
+		)
+	}
+
+	@Test
+	def void testBitwisePrecedenceAnd() {
+		'''
+		1 && 2 & 3
+		'''.assertPrecedence(
+		'''
+		(1 && (2 & 3))
+		'''
+		)
+	}
+
+	@Test
+	def void testBitwisePrecedenceAndOr() {
+		'''
+		1 | 2 && 3
+		'''.assertPrecedence(
+		'''
+		((1 | 2) && 3)
+		'''
+		)
+	}
+
+	@Test
+	def void testBitwisePrecedence() {
+		'''
+		1 && 2 & 3 ^ 4
+		'''.assertPrecedence(
+		'''
+		(1 && ((2 & 3) ^ 4))
+		'''
+		)
+	}
+
 	def private assertBinaryOperation(CharSequence input, String expectedResolvedFeature) {
 		input.assertLastExpression[
 			XBinaryOperation => [
@@ -709,5 +757,28 @@ class JbaseParsingTest extends JbaseAbstractTest {
 				assertEquals(feature.identifier)
 			]
 		]
+	}
+
+	def private assertPrecedence(CharSequence input, CharSequence expected) {
+		input.assertLastExpression[
+			expected.toString.trim.assertEquals(stringRepr)
+		]
+	}
+
+	def private String stringRepr(EObject model) {
+		val util = new JbaseNodeModelUtil
+		switch (model) {
+			XBinaryOperation:
+				"(" + 
+				stringRepr(model.leftOperand) + " " +
+				NodeModelUtils.getTokenText(
+					NodeModelUtils.
+						findNodesForFeature(model, XbasePackage.eINSTANCE.XAbstractFeatureCall_Feature).
+						head
+				) + " " +
+				stringRepr(model.rightOperand)
+				+ ")"
+			default: util.getProgramText(model)
+		}
 	}
 }
