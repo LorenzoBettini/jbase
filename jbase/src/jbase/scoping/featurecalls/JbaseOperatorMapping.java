@@ -12,7 +12,7 @@ import com.google.inject.Singleton;
 
 /**
  * To make '==' be translated exactly to '==' as in Java, not into 'equals' like
- * it happens by default in Xbase for objects.
+ * it happens by default in Xbase for objects, and to handle bitwise operators.
  * 
  * @author Lorenzo Bettini
  *
