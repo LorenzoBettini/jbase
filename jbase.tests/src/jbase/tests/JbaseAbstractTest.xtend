@@ -14,6 +14,7 @@ import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.XBasicForLoopExpression
+import org.eclipse.xtext.xbase.XBinaryOperation
 import org.eclipse.xtext.xbase.XBlockExpression
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
@@ -23,6 +24,7 @@ import org.eclipse.xtext.xbase.XInstanceOfExpression
 import org.eclipse.xtext.xbase.XMemberFeatureCall
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XThrowExpression
+import org.eclipse.xtext.xbase.XUnaryOperation
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
@@ -154,5 +156,13 @@ abstract class JbaseAbstractTest {
 
 	protected def getJAssignment(XExpression it) {
 		it as XJAssignment
+	}
+
+	protected def getXBinaryOperation(XExpression it) {
+		it as XBinaryOperation
+	}
+
+	protected def getXUnaryOperation(XExpression it) {
+		it as XUnaryOperation
 	}
 }

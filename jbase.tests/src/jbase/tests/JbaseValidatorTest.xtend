@@ -1284,7 +1284,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''
 		()=>int f = null;
 		'''.parse.assertError(
-			XbasePackage.eINSTANCE.XBinaryOperation,
+			jbasePackage.XJSemicolonStatement,
 			Diagnostic.SYNTAX_DIAGNOSTIC,
 			"no viable alternative at input ')'"
 		)
@@ -1427,6 +1427,18 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		
 		@ExampleAnnotation3({String.class, Integer.class})
 		o : Object
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testBitwiseOperatorsOnChars() {
+		'''
+		System.out.println('a' & 'b');
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testBitwiseOperatorsOnCharsAndInts() {
+		'''
+		System.out.println('a' & 1);
 		'''.parse.assertNoErrors
 	}
 
