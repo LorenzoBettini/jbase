@@ -29,7 +29,8 @@ class JbaseImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 			LongExtensions,
 			ObjectExtensions,
 			ShortExtensions,
-			StringExtensions
+			StringExtensions,
+			JbaseBooleanExtensions
 		]
 	}
 
