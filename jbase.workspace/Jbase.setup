@@ -125,9 +125,9 @@
       <requirement
           name="org.eclipse.wst.xml_ui.feature.feature.group"/>
       <repository
-          url="http://download.eclipse.org/eclipse/updates/4.5"/>
+          url="http://download.eclipse.org/eclipse/updates/4.6"/>
       <repository
-          url="http://download.eclipse.org/releases/mars"/>
+          url="http://download.eclipse.org/releases/neon"/>
     </setupTask>
     <setupTask
         xsi:type="setup.p2:P2Task"
