@@ -464,7 +464,7 @@
       name="jbase-latest"
       version="${api.baseline.version}"
       location="${installation.location}/api/${api.baseline.version}/"
-      remoteURI="https://dl.bintray.com/lorenzobettini/jbase/zipped/${api.baseline.version}/${api.baseline.zip}"/>
+      remoteURI="https://dl.bintray.com/lorenzobettini/xtext-jbase/zipped/${api.baseline.zip}"/>
   <setupTask
       xsi:type="projects:ProjectsBuildTask"
       id="InitialBuild"
