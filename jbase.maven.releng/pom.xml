@@ -18,10 +18,23 @@
 		<module>../jbase.parent</module>
 		<module>../jbase.targetplatform</module>
 		<module>../jbase.mwe2</module>
+		<module>../jbase.lib</module>
 		<module>../jbase</module>
 	</modules>
 
 	<profiles>
+		<profile>
+			<!-- also installs in the local maven repo the jbasescript DSL for testing
+				the jbase.example.client.maven -->
+			<id>jbasescript</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<modules>
+				<module>../jbase.example.jbasescript</module>
+			</modules>
+		</profile>
 		<profile>
 			<id>set-version-release</id>
 			<activation>
@@ -35,7 +48,7 @@
 							This must be used explicitly with the goal set-version in order 
 							to update the versions removing the SNAPSHOT before deploying Maven artifacts:
 							
-							mvn org.apache.maven.plugins:maven-antrun-plugin:run -Dtycho.mode=maven -Pset-version-release
+							mvn org.apache.maven.plugins:maven-antrun-plugin:1.8:run -Dtycho.mode=maven -Pset-version-release
 						-->
 						<artifactId>maven-antrun-plugin</artifactId>
 						<version>${maven-antrun-plugin.version}</version>
