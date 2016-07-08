@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jbase.example.purejbase
 Bundle-Vendor: Lorenzo Bettini
-Bundle-Version: 0.3.1.qualifier
+Bundle-Version: 0.4.0.qualifier
 Bundle-SymbolicName: jbase.example.purejbase; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
