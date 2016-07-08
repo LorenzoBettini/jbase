@@ -1,5 +1,16 @@
 chapter:GettingStarted[Getting Started]
 
+section:JbaseLib[Jbase Runtime Library]
+
+If you already know Xbase, you know that the projects that use your DSL must have a dependency
+on e[org.eclipse.xtext.xbase.lib].
+
+If you switch to Jbase, you need to replace such a dependency with
+e[jbase.lib]. This library implicitly depends on e[org.eclipse.xtext.xbase.lib] and
+re-exports that.
+
+NOTE: e[jbase.lib] has been introduced in version 0.4.0.
+
 section:FirstTutorial[First Tutorial]
 
 Create an Xtext project, you can leave the defaults for names, e.g.,
