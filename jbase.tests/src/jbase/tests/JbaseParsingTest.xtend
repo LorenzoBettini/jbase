@@ -748,6 +748,20 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''.assertBinaryOperation("jbase.lib.JbaseBooleanExtensions.bitwiseXor(boolean,boolean)")
 	}
 
+	@Test
+	def void testBooleanBitwiseAnd() {
+		'''
+		true & false;
+		'''.assertBinaryOperation("jbase.lib.JbaseBooleanExtensions.bitwiseAnd(boolean,boolean)")
+	}
+
+	@Test
+	def void testBooleanBitwiseOr() {
+		'''
+		true | false;
+		'''.assertBinaryOperation("jbase.lib.JbaseBooleanExtensions.bitwiseOr(boolean,boolean)")
+	}
+
 	def private assertBinaryOperation(CharSequence input, String expectedResolvedFeature) {
 		input.assertLastExpression[
 			XBinaryOperation => [

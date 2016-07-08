@@ -31,4 +31,36 @@ import com.google.common.annotations.GwtCompatible;
 	public static boolean bitwiseXor(boolean a, boolean b) {
 		return a ^ b;
 	}
+
+	/**
+	 * The bitwise inclusive <code>or</code> operation on booleans, corresponding to a not-short-circuiting or.
+	 * This is the equivalent to the java <code>|</code> operator.
+	 * 
+	 * @param a
+	 *            a boolean.
+	 * @param b
+	 *            a boolean.
+	 * @return <code>a|b</code>
+	 */
+	@Pure
+	@Inline(value="($1 | $2)", constantExpression=true)
+	public static boolean bitwiseOr(boolean a, boolean b) {
+		return a | b;
+	}
+
+	/**
+	 * The bitwise <code>and</code> operation on booleans, corresponding to a not-short-circuiting and.
+	 * This is the equivalent to the java <code>&</code> operator.
+	 * 
+	 * @param a
+	 *            a boolean.
+	 * @param b
+	 *            a boolean.
+	 * @return <code>a&b</code>
+	 */
+	@Pure
+	@Inline(value="($1 & $2)", constantExpression=true)
+	public static boolean bitwiseAnd(boolean a, boolean b) {
+		return a & b;
+	}
 }
