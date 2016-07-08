@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jbase.scoping;
+package jbase.lib;
 
 import org.eclipse.xtext.xbase.lib.Inline;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -13,6 +13,8 @@ import com.google.common.annotations.GwtCompatible;
  * 
  * @author Sven Efftinge - Initial contribution and API
  * @author Lorenzo Bettini - Adapted for Jbase
+ * 
+ * @since 0.4.0
  */
 @GwtCompatible public class JbaseBooleanExtensions {
 	/**

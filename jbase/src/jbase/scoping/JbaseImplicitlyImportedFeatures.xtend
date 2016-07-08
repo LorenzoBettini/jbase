@@ -1,5 +1,6 @@
 package jbase.scoping
 
+import jbase.lib.JbaseBooleanExtensions
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures
 
 /**
