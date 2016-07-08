@@ -106,6 +106,15 @@
 			</fileset>
 		</replaceregexp>
 
+		<replaceregexp flags="g" byline="true">
+			<regexp pattern="label=&quot;(\w+)(\s+)(\d+\.\d+)(\.x)" />
+			<substitution expression="label=&quot;\1\2${majorMinorVersion}\4" />
+			<fileset id="path.pom" dir="${WORKSPACE}">
+				<include name="**/category.xml" />
+				<exclude name="**/target/**" />
+			</fileset>
+		</replaceregexp>
+
 		<!-- MANIFEST.MF -->
 		<replaceregexp>
 			<regexp pattern="Bundle-Version: .*" />
