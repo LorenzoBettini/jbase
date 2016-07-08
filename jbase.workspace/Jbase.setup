@@ -454,11 +454,11 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="api.baseline.version"
-      value="0.3.1"/>
+      value="0.4.0"/>
   <setupTask
       xsi:type="setup:VariableTask"
       name="api.baseline.zip"
-      value="jbase.site-0.3.1.v20160707-1039.zip"/>
+      value="jbase.site-0.4.0.v20160708-1309.zip"/>
   <setupTask
       xsi:type="pde:APIBaselineTask"
       name="jbase-latest"
