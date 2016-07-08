@@ -1,5 +1,6 @@
 package jbase.scoping
 
+import jbase.lib.JbaseBooleanExtensions
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures
 
 /**
@@ -29,7 +30,8 @@ class JbaseImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 			LongExtensions,
 			ObjectExtensions,
 			ShortExtensions,
-			StringExtensions
+			StringExtensions,
+			JbaseBooleanExtensions
 		]
 	}
 

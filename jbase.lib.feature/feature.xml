@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="jbase.sdk"
-      label="Jbase SDK Feature "
-      version="0.4.0.qualifier">
+      id="jbase.lib.feature"
+      label="Jbase Library Feature"
+      version="0.4.0.qualifier"
+      provider-name="Lorenzo Bettini">
 
    <description>
-      A Customization of Xbase to deal with pure Java expressions and statements.
+      Jbase Library Feature.
    </description>
 
    <license url="http://www.eclipse.org/org/documents/epl-v10.html">
@@ -98,47 +99,8 @@ Everyone is permitted to copy and distribute copies of this Agreement, but in or
 This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
    </license>
 
-   <includes
-         id="jbase.lib.feature"
-         version="0.0.0"/>
-
    <plugin
-         id="jbase"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.doc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.ui.examples"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.mwe2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.ide"
+         id="jbase.lib"
          download-size="0"
          install-size="0"
          version="0.0.0"

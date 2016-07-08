@@ -3031,6 +3031,130 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testShortCircuit() {
+		'''
+		op mTrue() : boolean {
+			System.out.println("mTrue called");
+			return true;
+		}
+		
+		op mFalse() : boolean {
+			System.out.println("mFalse called");
+			return false;
+		}
+		
+		op testMe() : void {
+			System.out.println("mFalse() && mTrue() = " + (mFalse() && mTrue()));
+		}
+		''' => [
+			checkCompilation(
+			'''
+			package jbasetestlanguage;
+			
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static boolean mTrue() {
+			    System.out.println("mTrue called");
+			    return true;
+			  }
+			  
+			  public static boolean mFalse() {
+			    System.out.println("mFalse called");
+			    return false;
+			  }
+			  
+			  public static void testMe() {
+			    String _plus = ("mFalse() && mTrue() = " + Boolean.valueOf((MyFile.mFalse() && MyFile.mTrue())));
+			    System.out.println(_plus);
+			  }
+			  
+			  public static void main(String[] args) throws Throwable {
+			  }
+			}
+			'''
+			)
+			assertExecuteMain(
+			'''
+			mFalse called
+			mFalse() && mTrue() = false
+			'''
+			)
+		]
+	}
+
+	@Test def void testNotShortCircuitBoolean() {
+		'''
+		op mTrue() : boolean {
+			System.out.println("mTrue called");
+			return true;
+		}
+		
+		op mFalse() : boolean {
+			System.out.println("mFalse called");
+			return false;
+		}
+		
+		op testMe() : void {
+			System.out.println("mFalse() ^ mTrue() = " + (mFalse() ^ mTrue()));
+			System.out.println("mFalse() & mTrue() = " + (mFalse() & mTrue()));
+			System.out.println("mTrue() | mFalse() = " + (mTrue() | mFalse()));
+		}
+		''' => [
+			checkCompilation(
+			'''
+			package jbasetestlanguage;
+			
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static boolean mTrue() {
+			    System.out.println("mTrue called");
+			    return true;
+			  }
+			  
+			  public static boolean mFalse() {
+			    System.out.println("mFalse called");
+			    return false;
+			  }
+			  
+			  public static void testMe() {
+			    boolean _mFalse = MyFile.mFalse();
+			    boolean _mTrue = MyFile.mTrue();
+			    boolean _bitwiseXor = (_mFalse ^ _mTrue);
+			    String _plus = ("mFalse() ^ mTrue() = " + Boolean.valueOf(_bitwiseXor));
+			    System.out.println(_plus);
+			    boolean _mFalse_1 = MyFile.mFalse();
+			    boolean _mTrue_1 = MyFile.mTrue();
+			    boolean _bitwiseAnd = (_mFalse_1 & _mTrue_1);
+			    String _plus_1 = ("mFalse() & mTrue() = " + Boolean.valueOf(_bitwiseAnd));
+			    System.out.println(_plus_1);
+			    boolean _mTrue_2 = MyFile.mTrue();
+			    boolean _mFalse_2 = MyFile.mFalse();
+			    boolean _bitwiseOr = (_mTrue_2 | _mFalse_2);
+			    String _plus_2 = ("mTrue() | mFalse() = " + Boolean.valueOf(_bitwiseOr));
+			    System.out.println(_plus_2);
+			  }
+			  
+			  public static void main(String[] args) throws Throwable {
+			  }
+			}
+			'''
+			)
+			assertExecuteMain(
+			'''
+			mFalse called
+			mTrue called
+			mFalse() ^ mTrue() = true
+			mFalse called
+			mTrue called
+			mFalse() & mTrue() = false
+			mTrue called
+			mFalse called
+			mTrue() | mFalse() = true
+			'''
+			)
+		]
+	}
+
 	@Test def void testBubbleSort() {
 		bubbleSort.checkCompilation(
 '''

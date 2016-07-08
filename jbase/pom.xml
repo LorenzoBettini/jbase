@@ -14,6 +14,16 @@
 	<artifactId>jbase</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<dependencies>
+		<!-- This is required only for allowing jbase to
+			be used as a Maven jar with the xtext-maven-plugin  -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>jbase.lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

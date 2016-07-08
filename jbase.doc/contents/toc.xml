@@ -3,6 +3,8 @@
 	<topic href="contents/01-Introduction.html#Introduction" label="Introduction" >
 	</topic>
 	<topic href="contents/02-GettingStarted.html#GettingStarted" label="Getting Started" >
+		<topic href="contents/02-GettingStarted.html#JbaseLib" label="Jbase Runtime Library" >
+		</topic>
 		<topic href="contents/02-GettingStarted.html#FirstTutorial" label="First Tutorial" >
 			<topic href="contents/02-GettingStarted.html#NewGenerator" label="Using the new Xtext generator (version 2.9 on)" >
 			</topic>

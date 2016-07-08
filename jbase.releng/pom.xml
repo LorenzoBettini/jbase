@@ -17,6 +17,7 @@
 	<modules>
 		<module>../jbase.targetplatform</module>
 		<module>../jbase.mwe2</module>
+		<module>../jbase.lib</module>
 		<module>../jbase</module>
 		<module>../jbase.ide</module>
 		<module>../jbase.ui</module>
@@ -40,6 +41,7 @@
 		<module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
 		<module>../jbase.ui.examples</module>
 		<module>../jbase.doc</module>
+		<module>../jbase.lib.feature</module>
 		<module>../jbase.sdk</module>
 		<module>../jbase.site</module>
 	</modules>

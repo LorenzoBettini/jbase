@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jbase Runtime Library
+Bundle-SymbolicName: jbase.lib
+Bundle-Version: 0.4.0.qualifier
+Bundle-Vendor: Lorenzo Bettini
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.xtext.xbase.lib;bundle-version="[2.10.0,2.11.0)";visibility:=reexport
+Export-Package: jbase.lib

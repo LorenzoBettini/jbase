@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.xtext;bundle-version="[2.10.0,2.11.0)";visibility:=r
  org.eclipse.xtext.ecore,
  org.eclipse.xtext.xbase;visibility:=reexport,
  org.eclipse.emf.mwe2.launch;bundle-version="2.8.1";resolution:=optional,
- org.eclipse.xtend.lib
+ org.eclipse.xtend.lib,
+ jbase.lib;visibility:=reexport
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase,

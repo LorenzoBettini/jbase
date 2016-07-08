@@ -161,7 +161,7 @@
 														<!-- Process class files only, ignore jacocoagent.jar -->
 														<fileset dir="../jbase/target/classes" 
 															includes="**/*.class"
-															excludes="**/*RuntimeModule*,**/*StandaloneSetup*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*" 
+															excludes="**/*RuntimeModule*,**/*StandaloneSetup*,**/*Internal*,**/*Sequencer*,**/*Abstract*,**/*GrammarAccess*,**/antlr/*.*,**/internal/*.*,**/jbase/jbase/util/*.*,**/jbase/jbase/impl/*.*,**/jbase/lib/*.*" 
 														/>
 													</classfiles>
 													<sourcefiles>
