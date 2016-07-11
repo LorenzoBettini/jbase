@@ -2829,6 +2829,33 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testBitwiseOperatorsMultiAssign() {
+		'''
+		int result;
+		int i = 1, j = 2;
+		i &= j;
+		System.out.println(i &= j);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    int result = 0;
+    int i = 1;
+    int j = 2;
+    int _i = i;
+    i = (_i & j);
+    int _i_1 = i;
+    int _bitwiseAnd = i = (_i_1 & j);
+    System.out.println(_bitwiseAnd);
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testBitwiseOperatorsOnChars() {
 		'''
 		System.out.println('a' & 'b');
