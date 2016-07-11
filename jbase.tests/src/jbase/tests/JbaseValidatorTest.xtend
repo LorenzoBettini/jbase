@@ -1456,6 +1456,19 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testJbaseExpressionArgumentFactory_Issue53() {
+		// https://github.com/LorenzoBettini/jbase/issues/53
+		'''
+		toString[0] = 0;
+		'''.parse.assertErrorsAsStrings(
+		'''
+		The type of the expression must be an array type but it resolved to String
+		Cannot make a static reference to the non-static method toString from the type __synthetic0
+		Invalid number of arguments. The method toString() is not applicable for the arguments (int)
+		'''
+		)
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
