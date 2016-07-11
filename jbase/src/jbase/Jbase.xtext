@@ -123,6 +123,12 @@ XAssignment returns XExpression :
 		=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpMultiAssign]) rightOperand=XAssignment
 	)?;
 
+OpMultiAssign:
+	'+=' | '-=' | '*=' | '/=' | '%=' | 
+	'&=' | '|=' | '^=' | // added in Jbase
+	'<' '<' '=' | 
+	'>' '>'? '>=';
+
 XJFeatureCallWithArrayAccess returns XExpression:
 	XFeatureCall (
 		=>({XJArrayAccessExpression.array=current}
