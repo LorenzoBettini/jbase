@@ -2791,6 +2791,44 @@ public class MyFile {
 		)
 	}
 
+	@Test def void testBitwiseOperatorsOnLong() {
+		'''
+		long result;
+		long i = 1, j = 2;
+		result = i & j;
+		System.out.println(i & j);
+		result = i | j;
+		System.out.println(i | j);
+		result = i ^ j;
+		System.out.println(i ^ j);
+		result = ~j;
+		System.out.println(~j);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    long result = 0;
+    long i = 1;
+    long j = 2;
+    result = (i & j);
+    System.out.println((i & j));
+    result = (i | j);
+    System.out.println((i | j));
+    result = (i ^ j);
+    System.out.println((i ^ j));
+    long _bitwiseNot = (~j);
+    result = _bitwiseNot;
+    long _bitwiseNot_1 = (~j);
+    System.out.println(_bitwiseNot_1);
+  }
+}
+'''
+		)
+	}
+
 	@Test def void testBitwiseOperatorsOnChars() {
 		'''
 		System.out.println('a' & 'b');
