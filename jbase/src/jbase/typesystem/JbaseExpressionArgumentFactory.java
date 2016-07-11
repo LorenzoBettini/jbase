@@ -25,9 +25,9 @@ public class JbaseExpressionArgumentFactory extends ExpressionArgumentFactory {
 	@Override
 	public IFeatureCallArguments createExpressionArguments(
 			XExpression expression, AbstractLinkingCandidate<?> candidate) {
-		
-		if (expression instanceof XJAssignment) {
-			AssignmentFeatureCallArguments assignmentFeatureCallArguments = (AssignmentFeatureCallArguments) super.createExpressionArguments(expression, candidate);
+		IFeatureCallArguments createExpressionArguments = super.createExpressionArguments(expression, candidate);
+		if (expression instanceof XJAssignment && createExpressionArguments instanceof AssignmentFeatureCallArguments) {
+			AssignmentFeatureCallArguments assignmentFeatureCallArguments = (AssignmentFeatureCallArguments) createExpressionArguments;
 			XJAssignment assignment = (XJAssignment) expression;
 			LightweightTypeReference featureType = assignmentFeatureCallArguments.getDeclaredType();
 			// if it's an array access we must take the array component type
@@ -39,7 +39,7 @@ public class JbaseExpressionArgumentFactory extends ExpressionArgumentFactory {
 			}
 		}
 		
-		return super.createExpressionArguments(expression, candidate);
+		return createExpressionArguments;
 	}
 
 	/**
