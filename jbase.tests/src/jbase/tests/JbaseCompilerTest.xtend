@@ -2835,6 +2835,10 @@ public class MyFile {
 		int i = 1, j = 2;
 		i &= j;
 		System.out.println(i &= j);
+		i |= j;
+		System.out.println(i |= j);
+		i ^= j;
+		System.out.println(i ^= j);
 		'''.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -2850,6 +2854,55 @@ public class MyFile {
     int _i_1 = i;
     int _bitwiseAnd = i = (_i_1 & j);
     System.out.println(_bitwiseAnd);
+    int _i_2 = i;
+    i = (_i_2 | j);
+    int _i_3 = i;
+    int _bitwiseOr = i = (_i_3 | j);
+    System.out.println(_bitwiseOr);
+    int _i_4 = i;
+    i = (_i_4 ^ j);
+    int _i_5 = i;
+    int _bitwiseXor = i = (_i_5 ^ j);
+    System.out.println(_bitwiseXor);
+  }
+}
+'''
+		)
+	}
+
+	@Test def void testBitwiseOperatorsMultiAssignOnBooleans() {
+		'''
+		boolean b = true, c = false;
+		b &= c;
+		System.out.println(b &= c);
+		b |= c;
+		System.out.println(b |= c);
+		b ^= c;
+		System.out.println(b ^= c);
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    boolean b = true;
+    boolean c = false;
+    boolean _b = b;
+    b = (_b & c);
+    boolean _b_1 = b;
+    boolean _bitwiseAnd = b = (_b_1 & c);
+    System.out.println(_bitwiseAnd);
+    boolean _b_2 = b;
+    b = (_b_2 | c);
+    boolean _b_3 = b;
+    boolean _bitwiseOr = b = (_b_3 | c);
+    System.out.println(_bitwiseOr);
+    boolean _b_4 = b;
+    b = (_b_4 ^ c);
+    boolean _b_5 = b;
+    boolean _bitwiseXor = b = (_b_5 ^ c);
+    System.out.println(_bitwiseXor);
   }
 }
 '''
