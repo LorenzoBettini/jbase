@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import static extension org.junit.Assert.*
+import jbase.jbase.XJTryWithResourcesStatement
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -581,6 +582,16 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		try
 		'''.assertLastExpression[
 			assertTrue("class: " + it.class, it instanceof XTryCatchFinallyExpression)
+			assertFalse("class: " + it.class, it instanceof XJTryWithResourcesStatement)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesIncomplete() {
+		'''
+		try (
+		'''.assertLastExpression[
+			assertTrue("class: " + it.class, it instanceof XJTryWithResourcesStatement)
 		]
 	}
 
