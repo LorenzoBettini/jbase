@@ -46,6 +46,7 @@ XJSingleStatement returns XExpression:
 	XForLoopExpression |
 	XBasicForLoopExpression |
 	XWhileExpression |
+	XJTryWithResourcesStatement |
 	XTryCatchFinallyExpression |
 	XSynchronizedExpression |
 	XJEmptyStatement
@@ -268,6 +269,19 @@ XJSwitchStatements returns XExpression:
 	{XJSwitchStatements}
 	(expressions+=XJStatementOrBlock)*
 ;
+
+/**
+ * Java 7 try-with-resources
+ */
+XJTryWithResourcesStatement returns XExpression:
+	=>({XJTryWithResourcesStatement} 'try' '(')
+		expression=XExpression
+		')'
+	(
+		catchClauses+=XCatchClause+
+		(=>'finally' finallyExpression=XBlockExpression)?
+	|	'finally' finallyExpression=XBlockExpression
+	);
 
 /**
  * Java needs blocks for try, catch, finally
