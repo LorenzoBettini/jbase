@@ -51,6 +51,9 @@
 							<includes>
 								<include>**/jbase/tests/*Test.java</include>
 							</includes>
+							<includes>
+								<include>**/jbase/smoke/tests/*Test.java</include>
+							</includes>
 						</configuration>
 						<goals>
 							<goal>test</goal>
