@@ -56,6 +56,25 @@
 							<goal>test</goal>
 						</goals>
 					</execution>
+					<execution>
+						<!-- smoke tests need an OSGI environment, but no UI -->
+						<id>smoke-test</id>
+						<phase>integration-test</phase>
+						<configuration>
+							<skip>${smoke.tests.only}</skip>
+							<useUIHarness>false</useUIHarness>
+							<useUIThread>false</useUIThread>
+							<!-- tycho.testArgLine repeated to re-use the configuration for argLine 
+								for jacoco agent -->
+							<argLine>${tycho.testArgLine} ${memoryArgs}</argLine>
+							<includes>
+								<include>**/jbase/smoke/tests/*Test.java</include>
+							</includes>
+						</configuration>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
 				</executions>
 			</plugin>
 

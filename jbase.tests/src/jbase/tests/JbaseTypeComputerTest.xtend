@@ -421,6 +421,15 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test
+	def void testArrayAccessExpressionWithoutMainArrayExpression() {
+		'''
+		()[0];
+		'''.assertLastExpression[
+			assertActualType("void")
+		]
+	}
+
 	def private void assertActualType(CharSequence input, String expectedTypeName) throws Exception {
 		input.assertLastExpression[
 			assertActualType(expectedTypeName)
