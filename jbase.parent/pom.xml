@@ -123,6 +123,7 @@
 		<findbugs.skip>true</findbugs.skip>
 		<swtbot.tests.only>false</swtbot.tests.only>
 		<swtbot.tests.skip>false</swtbot.tests.skip>
+		<smoke.tests.skip>false</smoke.tests.skip>
 
 		<!-- properties for deploying the composite update site and zipped products on Sourceforge -->
 
