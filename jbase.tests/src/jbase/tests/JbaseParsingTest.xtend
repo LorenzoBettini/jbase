@@ -643,7 +643,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		try (String s = "" ; String s = "";)
 		'''.assertLastExpression[
 			2.assertEquals(tryWithResources.expression.
-				tryWithResourcesVariableDeclarations.expressions.size
+				tryWithResourcesVariableDeclarations.resourceDeclarations.size
 			)
 		]
 	}
