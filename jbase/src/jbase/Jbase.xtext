@@ -275,13 +275,29 @@ XJSwitchStatements returns XExpression:
  */
 XJTryWithResourcesStatement returns XExpression:
 	=>({XJTryWithResourcesStatement} 'try' '(')
-		expression=XExpression
+		expression=XJTryWithResourcesVariableDeclarations
 		')'
 	(
 		catchClauses+=XCatchClause+
 		(=>'finally' finallyExpression=XBlockExpression)?
 	|	'finally' finallyExpression=XBlockExpression
 	);
+
+XJTryWithResourcesVariableDeclarations:
+	{XJTryWithResourcesVariableDeclarations}
+	(expressions+=XJTryWithResourcesVariableDeclaration)*
+;
+
+/*
+ * The final ; is optional in the last variable declaration in a
+ * try-with-resources
+ */
+XJTryWithResourcesVariableDeclaration:
+	{XJTryWithResourcesVariableDeclaration}
+	final?='final'?
+	type=JvmTypeReference name=ValidID '=' right=XExpression
+	->semicolon=';'?
+;
 
 /**
  * Java needs blocks for try, catch, finally
