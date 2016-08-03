@@ -616,6 +616,39 @@ class JbaseParsingTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def void testTryWithResources() {
+		'''
+		try (String s = "")
+		'''.assertLastExpression[
+			1.assertEquals(tryWithResources.expression.
+				tryWithResourcesVariableDeclarations.expressions.size
+			)
+		]
+	}
+
+	@Test
+	def void testTryWithResources2() {
+		'''
+		try (String s = "" ; String s = "")
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.expression.
+				tryWithResourcesVariableDeclarations.expressions.size
+			)
+		]
+	}
+
+	@Test
+	def void testTryWithResources3() {
+		'''
+		try (String s = "" ; String s = "";)
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.expression.
+				tryWithResourcesVariableDeclarations.expressions.size
+			)
+		]
+	}
+
+	@Test
 	def void testSynchronizedIncomplete() {
 		'''
 		synchronized (
