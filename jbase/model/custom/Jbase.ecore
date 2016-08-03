@@ -55,5 +55,11 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclarations"
-      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XBlockExpression"/>
+      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XBlockExpression">
+    <eOperations name="getResourceDeclarations">
+      <eGenericType eClassifier="ecore:EDataType ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//Iterable">
+        <eTypeArguments eClassifier="#//XJTryWithResourcesVariableDeclaration"/>
+      </eGenericType>
+    </eOperations>
+  </eClassifiers>
 </ecore:EPackage>
