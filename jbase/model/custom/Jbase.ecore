@@ -50,4 +50,10 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XTryCatchFinallyExpression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclaration"
+      eSuperTypes="#//XJVariableDeclaration">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclarations"
+      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XBlockExpression"/>
 </ecore:EPackage>
