@@ -240,8 +240,14 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 
 	def protected _computeTypes(XJArrayAccessExpression arrayAccess, ITypeComputationState state) {
 		val actualType = state.withNonVoidExpectation.computeTypes(arrayAccess.array).actualExpressionType
-		val type = componentTypeOfArrayAccess(arrayAccess, actualType, state, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE)
-		state.acceptActualType(type)
+		// arrayAccess.array can be null in expressions of the shape
+		// ()[0]
+		if (actualType == null) {
+			state.acceptActualType(getPrimitiveVoid(state))
+		} else {
+			val type = componentTypeOfArrayAccess(arrayAccess, actualType, state, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE)
+			state.acceptActualType(type)
+		}
 
 		checkArrayIndexHasTypeInt(arrayAccess, state);
 	}

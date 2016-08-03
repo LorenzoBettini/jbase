@@ -60,7 +60,7 @@
 		<platform-version>[3.9,4.0)</platform-version>
 		<fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
-		<target-file-name>mars-xtext-2.10</target-file-name>
+		<target-file-name>neon-xtext-2.10</target-file-name>
 
 		<!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
 		<!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
@@ -123,6 +123,7 @@
 		<findbugs.skip>true</findbugs.skip>
 		<swtbot.tests.only>false</swtbot.tests.only>
 		<swtbot.tests.skip>false</swtbot.tests.skip>
+		<smoke.tests.skip>false</smoke.tests.skip>
 
 		<!-- properties for deploying the composite update site and zipped products on Sourceforge -->
 
