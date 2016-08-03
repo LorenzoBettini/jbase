@@ -29,6 +29,8 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
+import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesVariableDeclarations
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -165,4 +167,13 @@ abstract class JbaseAbstractTest {
 	protected def getXUnaryOperation(XExpression it) {
 		it as XUnaryOperation
 	}
+
+	protected def getTryWithResources(XExpression it) {
+		it as XJTryWithResourcesStatement
+	}
+
+	protected def getTryWithResourcesVariableDeclarations(XExpression it) {
+		it as XJTryWithResourcesVariableDeclarations
+	}
+
 }
