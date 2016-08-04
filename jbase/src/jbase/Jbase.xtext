@@ -274,7 +274,7 @@ XJSwitchStatements returns XExpression:
  * Java 7 try-with-resources
  */
 XJTryWithResourcesStatement returns XExpression:
-	=>({XJTryWithResourcesStatement} 'try' '(')
+	=>({XJTryWithResourcesStatement} 'try' openParenthesis?='(')
 	declarationsBlock=XJTryWithResourcesVariableDeclarations
 	')'
 	expression=XBlockExpression
