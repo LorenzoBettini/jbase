@@ -16,6 +16,7 @@ import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.scoping.featurecalls.JbaseOperatorMapping
 import jbase.util.JbaseModelUtil
 import jbase.util.JbaseNodeModelUtil
@@ -41,7 +42,6 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
-import jbase.jbase.XJTryWithResourcesStatement
 
 /**
  * @author Lorenzo Bettini
@@ -151,12 +151,21 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	def checkTryWithResources(XJTryWithResourcesStatement e) {
-		if (e.declarationsBlock.resourceDeclarations.empty) {
+		val resourceDeclarations = e.declarationsBlock.resourceDeclarations
+		val numOfResources = resourceDeclarations.size
+		if (numOfResources == 0) {
 			error(
 				'Syntax error on token "(", Resources expected after this token',
 				e, jbasePackage.XJTryWithResourcesStatement_OpenParenthesis,
 				MISSING_RESOURCES
 			)
+		} else {
+			// in the last declaration the ';' is optional
+			for (r : resourceDeclarations.take(numOfResources-1)) {
+				if (r.semicolon == null) {
+					errorMissingSemicolon(r)
+				}
+			}
 		}
 	}
 

@@ -13,12 +13,15 @@ import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.util.ParseHelper
+import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.XbasePackage
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
 import org.eclipse.xtext.xbase.validation.IssueCodes
 import org.eclipse.xtext.xtype.XtypePackage
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
+
+import static extension org.junit.Assert.*
 
 /**
  * For validation tests we use JbaseTestlanguage since we can also use
@@ -1482,6 +1485,53 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testTryWithResourcesWithMissingSemicolon() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("")
+			java.io.FileReader fr2 = new java.io.FileReader("")
+		) {
+			
+		}
+		'''.parse => [
+			1.assertEquals(validationErrors.size) // the last ; is optional
+			assertMissingSemicolon(jbasePackage.XJTryWithResourcesVariableDeclaration)
+		]
+	}
+
+	@Test def void testTryWithResourcesWithSemicolonOk() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+			java.io.FileReader fr2 = new java.io.FileReader("") // last semicolon optional
+		) {
+			
+		}
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testTryWithResourcesWithSemicolonOk2() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+			java.io.FileReader fr2 = new java.io.FileReader(""); // last semicolon OK
+		) {
+			
+		}
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testTryWithResourcesWithAdditionalSemicolon() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+			java.io.FileReader fr2 = new java.io.FileReader("");;
+		) {
+			
+		}
+		'''.parse.assertErrorsAsStrings("extraneous input ';' expecting ')'")
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
@@ -1500,7 +1550,11 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	def private assertErrorsAsStrings(EObject o, CharSequence expected) {
 		expected.toString.trim.assertEqualsStrings(
-			o.validate.filter[severity == Severity.ERROR].map[message].join("\n"))
+			getValidationErrors(o).map[message].join("\n"))
+	}
+	
+	protected def Iterable<Issue> getValidationErrors(EObject o) {
+		o.validate.filter[severity == Severity.ERROR]
 	}
 
 	def private assertIssuesAsStrings(EObject o, CharSequence expected) {
