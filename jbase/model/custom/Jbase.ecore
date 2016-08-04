@@ -49,7 +49,10 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XTryCatchFinallyExpression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XTryCatchFinallyExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="declarationsBlock" eType="#//XJTryWithResourcesVariableDeclarations"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclaration"
       eSuperTypes="#//XJVariableDeclaration">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
