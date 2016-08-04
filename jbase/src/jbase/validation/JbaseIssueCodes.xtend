@@ -21,6 +21,7 @@ class JbaseIssueCodes {
 	public static val MISSING_RETURN = PREFIX + "MissingReturn"
 	public static val INVALID_CHARACTER_CONSTANT = PREFIX + "InvalidCharacterConstant"
 	public static val NOT_INITIALIZED_VARIABLE = PREFIX + "NotInitializedVariable"
+	public static val MISSING_RESOURCES = PREFIX + "MissingResources"
 
 	protected new() {
 	}

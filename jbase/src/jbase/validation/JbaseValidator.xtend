@@ -41,6 +41,7 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
+import jbase.jbase.XJTryWithResourcesStatement
 
 /**
  * @author Lorenzo Bettini
@@ -146,6 +147,17 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Check
 	def checkMissingSemicolon(XImportDeclaration e) {
 		checkMissingSemicolonInternal(e)
+	}
+
+	@Check
+	def checkTryWithResources(XJTryWithResourcesStatement e) {
+		if (e.declarationsBlock.resourceDeclarations.empty) {
+			error(
+				'Syntax error on token "(", Resources expected after this token',
+				e, jbasePackage.XJTryWithResourcesStatement_OpenParenthesis,
+				MISSING_RESOURCES
+			)
+		}
 	}
 
 	def private checkMissingSemicolonInternal(EObject e) {

@@ -1469,6 +1469,19 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testTryWithResourcesWithEmptyResources() {
+		'''
+		try () {
+			
+		}
+		'''.parse.assertError(
+			jbasePackage.XJTryWithResourcesStatement,
+			JbaseIssueCodes.MISSING_RESOURCES,
+			4, 1, // error placed on the '('
+			'Syntax error on token "(", Resources expected after this token'
+		)
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
