@@ -279,9 +279,8 @@ XJTryWithResourcesStatement returns XExpression:
 		')'
 		expression=XBlockExpression
 	(
-		catchClauses+=XCatchClause+
+		catchClauses+=XCatchClause*
 		(=>'finally' finallyExpression=XBlockExpression)?
-	|	'finally' finallyExpression=XBlockExpression
 	);
 
 // this is an XBlockExpression
