@@ -7,6 +7,7 @@ import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseInputs
@@ -29,8 +30,6 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
-import jbase.jbase.XJTryWithResourcesStatement
-import jbase.jbase.XJTryWithResourcesVariableDeclarations
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -170,10 +169,6 @@ abstract class JbaseAbstractTest {
 
 	protected def getTryWithResources(XExpression it) {
 		it as XJTryWithResourcesStatement
-	}
-
-	protected def getTryWithResourcesVariableDeclarations(XExpression it) {
-		it as XJTryWithResourcesVariableDeclarations
 	}
 
 }
