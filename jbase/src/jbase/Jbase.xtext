@@ -275,14 +275,16 @@ XJSwitchStatements returns XExpression:
  */
 XJTryWithResourcesStatement returns XExpression:
 	=>({XJTryWithResourcesStatement} 'try' '(')
-		expression=XJTryWithResourcesVariableDeclarations
+		declarationsBlock=XJTryWithResourcesVariableDeclarations
 		')'
+		expression=XBlockExpression
 	(
 		catchClauses+=XCatchClause+
 		(=>'finally' finallyExpression=XBlockExpression)?
 	|	'finally' finallyExpression=XBlockExpression
 	);
 
+// this is an XBlockExpression
 XJTryWithResourcesVariableDeclarations:
 	{XJTryWithResourcesVariableDeclarations}
 	(expressions+=XJTryWithResourcesVariableDeclaration)*
