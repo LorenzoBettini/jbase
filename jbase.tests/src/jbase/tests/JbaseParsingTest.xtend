@@ -609,8 +609,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s =
 		'''.assertLastExpression[
-			1.assertEquals(tryWithResources.declarationsBlock.expressions.size
-			)
+			1.assertEquals(tryWithResources.declarationsBlock.expressions.size)
 		]
 	}
 
@@ -619,8 +618,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "")
 		'''.assertLastExpression[
-			1.assertEquals(tryWithResources.declarationsBlock.expressions.size
-			)
+			1.assertEquals(tryWithResources.declarationsBlock.expressions.size)
 		]
 	}
 
@@ -629,8 +627,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "" ; String s = "")
 		'''.assertLastExpression[
-			2.assertEquals(tryWithResources.declarationsBlock.expressions.size
-			)
+			2.assertEquals(tryWithResources.declarationsBlock.expressions.size)
 		]
 	}
 
@@ -639,8 +636,54 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "" ; String s = "";)
 		'''.assertLastExpression[
-			2.assertEquals(tryWithResources.declarationsBlock.resourceDeclarations.size
-			)
+			2.assertEquals(tryWithResources.declarationsBlock.resourceDeclarations.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithCatches() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} catch (Exception e) {
+			
+		} catch (Exception e) {
+			
+		}
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.catchClauses.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithCatchesAndFinally() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} catch (Exception e) {
+			
+		} catch (Exception e) {
+			
+		} finally {
+			
+		}
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.catchClauses.size)
+			tryWithResources.finallyExpression.assertNotNull
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithFinally() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} finally {
+			
+		}
+		'''.assertLastExpression[
+			tryWithResources.catchClauses.empty.assertTrue
+			tryWithResources.finallyExpression.assertNotNull
 		]
 	}
 
