@@ -1559,6 +1559,27 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testTryWithResourcesDeclaredResourcesAvailableInResources() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+			java.io.FileReader fr2 = new java.io.FileReader(fr1.toString());
+		) {
+			
+		}
+		'''.parse.assertNoErrors
+	}
+
+	@Test def void testTryWithResourcesDeclaredResourcesAvailableInExpression() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+		) {
+			System.out.println(fr1);
+		}
+		'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,

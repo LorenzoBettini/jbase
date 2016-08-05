@@ -35,12 +35,13 @@ import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
 import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesVariableDeclarations
 
 /**
  * @author Lorenzo Bettini
  */
 class JbaseTypeComputer extends PatchedTypeComputer {
-	
+
 	@Inject 
 	private CommonTypeComputationServices services;
 
@@ -62,6 +63,8 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJClassObject) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJTryWithResourcesStatement) {
+			_computeTypes(expression, state)
+		} else if (expression instanceof XJTryWithResourcesVariableDeclarations) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJSemicolonStatement) {
 			_computeTypes(expression, state)
@@ -329,7 +332,22 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 
 	def protected _computeTypes(XJTryWithResourcesStatement e, ITypeComputationState state) {
 		state.withoutExpectation.computeTypes(e.declarationsBlock)
-		super._computeTypes(e, state)
+		val resourcesState = state.withoutExpectation
+		resourcesState.withinScope(e)
+		// manually add resource declarations to the scope, otherwise
+		// they would not be visible to the try-with-resources main expression
+		for (r : e.declarationsBlock.resourceDeclarations) {
+			resourcesState.computeTypes(r)
+			addLocalToCurrentScope(r, resourcesState)
+		}
+		super._computeTypes(e, resourcesState)
+	}
+
+	def protected _computeTypes(XJTryWithResourcesVariableDeclarations e, ITypeComputationState state) {
+		// we must give a type also to this block even though effective type computation
+		// is done in the previous method, since the variable declarations must be put
+		// in the scope of the try-with-resources main expression
+		state.acceptActualType(getPrimitiveVoid(state))
 	}
 
 	private def computeTypesOfArrayAccess(XJArrayAccess arrayAccess, 
