@@ -22,6 +22,12 @@ public class Java7JbaseTestlanguageInjectorProvider extends JbaseTestlanguageInj
 	@Override
 	protected JbaseTestlanguageRuntimeModule createRuntimeModule() {
 		return new JbaseTestlanguageRuntimeModule() {
+			@Override
+			public ClassLoader bindClassLoaderToInstance() {
+				// in order to access example annotations in maven build
+				return JbaseTestlanguageInjectorProvider.class.getClassLoader();
+			}
+
 			@SuppressWarnings("unused")
 			public Class<? extends OnTheFlyJavaCompiler2> bindOnTheFlyJavaCompiler2() {
 				return Java7OnTheFlyJavaCompiler2.class;
