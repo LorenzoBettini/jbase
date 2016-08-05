@@ -779,6 +779,29 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 		]
 	}
 
+	@Test def void testTryWithResources() {
+		assertFormatted[
+			expectation = '''
+				try (String s = ""; String s = "") {
+					int i = 0;
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					System.out.println("finally");
+				}
+			'''
+			toBeFormatted = '''
+				try  ( String s = "" ; String s =  "" )  {
+				int i = 0;
+				}  catch  ( Exception  e ) {
+					 e.printStackTrace();
+				}  finally  {
+					 System.out.println("finally");
+				}
+			'''
+		]
+	}
+
 	@Test def void testSynchronized() {
 		assertFormatted[
 			// formatting in the presence of catch does not seem to work

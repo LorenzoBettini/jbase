@@ -34,17 +34,19 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesVariableDeclarations
 
 /**
  * @author Lorenzo Bettini
  */
 class JbaseTypeComputer extends PatchedTypeComputer {
-	
+
 	@Inject 
 	private CommonTypeComputationServices services;
 
 	@Inject extension JbaseBranchingStatementDetector
-	
+
 	override computeTypes(XExpression expression, ITypeComputationState state) {
 		if (expression instanceof XJAssignment) {
 			_computeTypes(expression, state)
@@ -59,6 +61,10 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJVariableDeclaration) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJClassObject) {
+			_computeTypes(expression, state)
+		} else if (expression instanceof XJTryWithResourcesStatement) {
+			_computeTypes(expression, state)
+		} else if (expression instanceof XJTryWithResourcesVariableDeclarations) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJSemicolonStatement) {
 			_computeTypes(expression, state)
@@ -323,7 +329,32 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			state.acceptActualType(state.primitiveVoid)
 		}
 	}
-	
+
+	def protected _computeTypes(XJTryWithResourcesStatement e, ITypeComputationState state) {
+		state.withoutExpectation.computeTypes(e.declarationsBlock)
+		val resourcesState = state.withoutExpectation
+		resourcesState.withinScope(e)
+		// manually add resource declarations to the scope, otherwise
+		// they would not be visible to the try-with-resources main expression
+		for (r : e.declarationsBlock.resourceDeclarations) {
+			resourcesState.computeTypes(r)
+			addLocalToCurrentScope(r, resourcesState)
+		}
+		val referenceOwner = resourcesState.getReferenceOwner()
+		val caughtExceptions = e.catchClauses.map[referenceOwner.toLightweightTypeReference(getDeclaredParam().getParameterType())]
+		resourcesState.withExpectedExceptions(caughtExceptions).computeTypes(e.getExpression()) 
+		// the type computation for catch and finally is done with the original
+		// type computation state, so that declared resources are not visible
+		computeTypesForCatchFinally(e, state)
+	}
+
+	def protected _computeTypes(XJTryWithResourcesVariableDeclarations e, ITypeComputationState state) {
+		// we must give a type also to this block even though effective type computation
+		// is done in the previous method, since the variable declarations must be put
+		// in the scope of the try-with-resources main expression
+		state.acceptActualType(getPrimitiveVoid(state))
+	}
+
 	private def computeTypesOfArrayAccess(XJArrayAccess arrayAccess, 
 		ILinkingCandidate best, ITypeComputationState state, EStructuralFeature featureForError
 	) {
@@ -332,7 +363,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		val featureType = getDeclaredType(best.feature, expressionState)
 		componentTypeOfArrayAccess(arrayAccess, featureType, state, featureForError)
 	}
-	
+
 	private def componentTypeOfArrayAccess(XJArrayAccess arrayAccess, LightweightTypeReference type, ITypeComputationState state, EStructuralFeature featureForError) {
 		var currentType = type
 		for (index : arrayAccess.indexes) {
@@ -353,7 +384,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 		return currentType
 	}
-	
+
 	private def checkArrayIndexHasTypeInt(XJArrayAccess arrayAccess, ITypeComputationState state) {
 		for (index : arrayAccess.indexes) {
 			val conditionExpectation = state.withExpectation(getTypeForName(Integer.TYPE, state))

@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import static extension org.junit.Assert.*
+import jbase.jbase.XJTryWithResourcesStatement
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))
@@ -581,6 +582,108 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		try
 		'''.assertLastExpression[
 			assertTrue("class: " + it.class, it instanceof XTryCatchFinallyExpression)
+			assertFalse("class: " + it.class, it instanceof XJTryWithResourcesStatement)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesIncomplete() {
+		'''
+		try (
+		'''.assertLastExpression[
+			assertTrue("class: " + it.class, it instanceof XJTryWithResourcesStatement)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesIncomplete2() {
+		'''
+		try ()
+		'''.assertLastExpression[
+			assertTrue("class: " + it.class, it instanceof XJTryWithResourcesStatement)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesIncomplete3() {
+		'''
+		try (String s =
+		'''.assertLastExpression[
+			1.assertEquals(tryWithResources.declarationsBlock.expressions.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResources() {
+		'''
+		try (String s = "")
+		'''.assertLastExpression[
+			1.assertEquals(tryWithResources.declarationsBlock.expressions.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResources2() {
+		'''
+		try (String s = "" ; String s = "")
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.declarationsBlock.expressions.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResources3() {
+		'''
+		try (String s = "" ; String s = "";)
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.declarationsBlock.resourceDeclarations.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithCatches() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} catch (Exception e) {
+			
+		} catch (Exception e) {
+			
+		}
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.catchClauses.size)
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithCatchesAndFinally() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} catch (Exception e) {
+			
+		} catch (Exception e) {
+			
+		} finally {
+			
+		}
+		'''.assertLastExpression[
+			2.assertEquals(tryWithResources.catchClauses.size)
+			tryWithResources.finallyExpression.assertNotNull
+		]
+	}
+
+	@Test
+	def void testTryWithResourcesWithFinally() {
+		'''
+		try (String s = "" ; String s = "";) {
+			
+		} finally {
+			
+		}
+		'''.assertLastExpression[
+			tryWithResources.catchClauses.empty.assertTrue
+			tryWithResources.finallyExpression.assertNotNull
 		]
 	}
 

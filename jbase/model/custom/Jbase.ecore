@@ -44,9 +44,26 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJSemicolonStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+  <eClassifiers xsi:type="ecore:EClass" name="XJSemicolonStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression #//XJWithSemicolon">
     <eStructuralFeatures xsi:type="ecore:EReference" name="expression" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
         containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XTryCatchFinallyExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="openParenthesis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="declarationsBlock" eType="#//XJTryWithResourcesVariableDeclarations"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclaration"
+      eSuperTypes="#//XJVariableDeclaration #//XJWithSemicolon"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclarations"
+      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XBlockExpression">
+    <eOperations name="getResourceDeclarations">
+      <eGenericType eClassifier="ecore:EDataType ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//Iterable">
+        <eTypeArguments eClassifier="#//XJTryWithResourcesVariableDeclaration"/>
+      </eGenericType>
+    </eOperations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJWithSemicolon" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
 </ecore:EPackage>

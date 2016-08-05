@@ -16,6 +16,7 @@ import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.scoping.featurecalls.JbaseOperatorMapping
 import jbase.util.JbaseModelUtil
 import jbase.util.JbaseNodeModelUtil
@@ -41,6 +42,8 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
+import jbase.jbase.XJTryWithResourcesVariableDeclaration
+import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 
 /**
  * @author Lorenzo Bettini
@@ -146,6 +149,41 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Check
 	def checkMissingSemicolon(XImportDeclaration e) {
 		checkMissingSemicolonInternal(e)
+	}
+
+	@Check
+	def checkTryWithResources(XJTryWithResourcesStatement e) {
+		val resourceDeclarations = e.declarationsBlock.resourceDeclarations
+		val numOfResources = resourceDeclarations.size
+		if (numOfResources == 0) {
+			error(
+				'Syntax error on token "(", Resources expected after this token',
+				e, jbasePackage.XJTryWithResourcesStatement_OpenParenthesis,
+				MISSING_RESOURCES
+			)
+		} else {
+			// in the last declaration the ';' is optional
+			for (r : resourceDeclarations.take(numOfResources-1)) {
+				if (r.semicolon == null) {
+					errorMissingSemicolon(r)
+				}
+			}
+		}
+	}
+
+	@Check
+	def void checkAutoCloseableResource(XJTryWithResourcesVariableDeclaration e) {
+		val declaredType = getActualType(e.type.type)
+		val autoCloseable = new StandardTypeReferenceOwner(services, e).
+			toLightweightTypeReference
+			(services.typeReferences.getTypeForName(AutoCloseable, e))
+		if (!autoCloseable.isAssignableFrom(declaredType)) {
+			error(
+				'The resource type ' + declaredType + ' does not implement java.lang.AutoCloseable',
+				e, xbasePackage.XVariableDeclaration_Type,
+				NOT_AUTO_CLOSEABLE
+			)
+		}
 	}
 
 	def private checkMissingSemicolonInternal(EObject e) {

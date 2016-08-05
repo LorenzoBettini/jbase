@@ -46,6 +46,8 @@ import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
+import jbase.jbase.XJTryWithResourcesStatement;
+import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseExpressionHelper.BaseCase;
@@ -82,6 +84,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			_toJavaStatement((XJBreakStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJClassObject) {
 			_toJavaStatement((XJClassObject) obj, appendable, isReferenced);
+		} else if (obj instanceof XJTryWithResourcesStatement) {
+			_toJavaStatement((XJTryWithResourcesStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJSemicolonStatement) {
 			_toJavaStatement((XJSemicolonStatement) obj, appendable, isReferenced);
 		} else {
@@ -159,6 +163,17 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		} else {
 			b.append(";");
 		}
+	}
+
+	public void _toJavaStatement(XJTryWithResourcesStatement expr, ITreeAppendable outerAppendable, boolean isReferenced) {
+		ITreeAppendable b = outerAppendable.trace(expr, false);
+		b.newLine().append("try (").increaseIndentation();
+		internalToJavaStatement(expr.getDeclarationsBlock(), b, false);
+		b.decreaseIndentation();
+		b.newLine().append(") {").increaseIndentation();
+		internalToJavaStatement(expr.getExpression(), b, false);
+		b.decreaseIndentation().newLine().append("}");
+		appendCatchAndFinally(expr, b, isReferenced);
 	}
 
 	@Override
@@ -525,6 +540,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		if (expr instanceof XUnaryOperation) {
 			return !expressionHelper.specialHandling((XUnaryOperation) expr);
 		} else if (expr instanceof XJClassObject) {
+			return false;
+		} else if (EcoreUtil2.getContainerOfType(expr, XJTryWithResourcesVariableDeclaration.class) != null) {
+			// there must be no intermediate expressions in the context of the
+			// try-with-resources' resource declaration
 			return false;
 		}
 		return super.isVariableDeclarationRequired(expr, b);

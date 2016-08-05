@@ -7,6 +7,7 @@ import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseInputs
@@ -165,4 +166,9 @@ abstract class JbaseAbstractTest {
 	protected def getXUnaryOperation(XExpression it) {
 		it as XUnaryOperation
 	}
+
+	protected def getTryWithResources(XExpression it) {
+		it as XJTryWithResourcesStatement
+	}
+
 }

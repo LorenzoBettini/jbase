@@ -30,6 +30,8 @@ import org.eclipse.xtext.xbase.annotations.formatting2.XbaseWithAnnotationsForma
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
+import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJWithSemicolon
 
 class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 
@@ -62,6 +64,8 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		} else if (expr instanceof XJBreakStatement) {
 			_format(expr, document);
 		} else if (expr instanceof XJContinueStatement) {
+			_format(expr, document);
+		} else if (expr instanceof XJTryWithResourcesStatement) {
 			_format(expr, document);
 		} else if (expr instanceof XJSemicolonStatement) {
 			_format(expr, document);
@@ -165,6 +169,17 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		expr.regionFor.keyword(")").prepend[noSpace]
 	}
 
+	def void _format(XJTryWithResourcesStatement expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("try").append[oneSpace]
+		expr.regionFor.keyword("(").append[noSpace]
+		expr.regionFor.keyword(")").prepend[noSpace]
+		for (r : expr.declarationsBlock.resourceDeclarations) {
+			r.format(document)
+			r.formatSemicolon(document)
+		}
+		super._format(expr, document)
+	}
+
 	def void _format(XJSwitchStatements expr, extension IFormattableDocument document) {
 		formatExpressions(expr.expressions, document, true)
 	}
@@ -172,6 +187,10 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 	def void _format(XJSemicolonStatement e, extension IFormattableDocument document) {
 		if (e.expression != null)
 			format(e.expression, document)
+		formatSemicolon(e, document)
+	}
+
+	def void formatSemicolon(XJWithSemicolon e, extension IFormattableDocument document) {
 		e.regionFor.keyword(";").prepend[noSpace]
 	}
 

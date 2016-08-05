@@ -46,6 +46,7 @@ XJSingleStatement returns XExpression:
 	XForLoopExpression |
 	XBasicForLoopExpression |
 	XWhileExpression |
+	XJTryWithResourcesStatement |
 	XTryCatchFinallyExpression |
 	XSynchronizedExpression |
 	XJEmptyStatement
@@ -267,6 +268,35 @@ XCasePart:
 XJSwitchStatements returns XExpression:
 	{XJSwitchStatements}
 	(expressions+=XJStatementOrBlock)*
+;
+
+/**
+ * Java 7 try-with-resources
+ */
+XJTryWithResourcesStatement returns XExpression:
+	=>({XJTryWithResourcesStatement} 'try' openParenthesis?='(')
+	declarationsBlock=XJTryWithResourcesVariableDeclarations
+	')'
+	expression=XBlockExpression
+	catchClauses+=XCatchClause*
+	('finally' finallyExpression=XBlockExpression)?
+;
+
+// this is an XBlockExpression
+XJTryWithResourcesVariableDeclarations:
+	{XJTryWithResourcesVariableDeclarations}
+	(expressions+=XJTryWithResourcesVariableDeclaration)*
+;
+
+/*
+ * The final ; is optional in the last variable declaration in a
+ * try-with-resources
+ */
+XJTryWithResourcesVariableDeclaration:
+	{XJTryWithResourcesVariableDeclaration}
+	final?='final'?
+	type=JvmTypeReference name=ValidID '=' right=XExpression
+	semicolon=';'?
 ;
 
 /**

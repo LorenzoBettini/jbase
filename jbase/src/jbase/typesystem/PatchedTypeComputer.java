@@ -5,20 +5,24 @@ package jbase.typesystem;
 
 import java.util.List;
 
+import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmPrimitiveType;
+import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.common.types.util.Primitives.Primitive;
 import org.eclipse.xtext.xbase.XBinaryOperation;
-import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XCatchClause;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
+import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeExpectation;
-import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
+import org.eclipse.xtext.xbase.typesystem.references.ITypeReferenceOwner;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import jbase.util.JbaseExpressionHelper;
@@ -159,39 +163,35 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 	}
 
 	@Override
-	protected void _computeTypes(XBlockExpression object, ITypeComputationState state) {
-		List<XExpression> children = object.getExpressions();
-		if (children.isEmpty()) {
-			for (ITypeExpectation expectation: state.getExpectations()) {
-				LightweightTypeReference expectedType = expectation.getExpectedType();
-				if (expectedType != null && expectedType.isPrimitiveVoid()) {
-					expectation.acceptActualType(expectedType, ConformanceFlags.CHECKED_SUCCESS);
-				} else {
-					expectation.acceptActualType(expectation.getReferenceOwner().newAnyTypeReference(), ConformanceFlags.UNCHECKED);
-				}
-			}
-		} else {
-			state.withinScope(object);
-			for(int i = 0; i < children.size() - 1; i++) {
-				XExpression expression = children.get(i);
-				ITypeComputationState expressionState = state.withoutExpectation(); // no expectation
-				expressionState.computeTypes(expression);
-				addLocalToCurrentScope(expression, state);
-			}
-			XExpression lastExpression = children.get(children.size() - 1);
-			for (ITypeExpectation expectation: state.getExpectations()) {
-				LightweightTypeReference expectedType = expectation.getExpectedType();
-				if (expectedType != null && expectedType.isPrimitiveVoid()) {
-					ITypeComputationState expressionState = state.withoutExpectation(); // no expectation
-					expressionState.computeTypes(lastExpression);
-					addLocalToCurrentScope(lastExpression, state);
-					expectation.acceptActualType(getPrimitiveVoid(state), ConformanceFlags.CHECKED_SUCCESS);
-				} else {
-					state.computeTypes(lastExpression);
-					addLocalToCurrentScope(lastExpression, state);
-				}
-			}
+	protected void _computeTypes(XTryCatchFinallyExpression object, ITypeComputationState state) {
+		List<LightweightTypeReference> caughtExceptions = Lists.newArrayList();
+		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
+		for (XCatchClause catchClause : object.getCatchClauses())
+			if (catchClause.getDeclaredParam() != null && catchClause.getDeclaredParam().getParameterType() != null)
+				caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
+		state.withExpectedExceptions(caughtExceptions).computeTypes(object.getExpression());
+		computeTypesForCatchFinally(object, state);
+	}
+
+	/**
+	 * Common part for catch and finally, used both by try-catch-finally and
+	 * try-with-resource
+	 * 
+	 * @param object
+	 * @param state
+	 */
+	protected void computeTypesForCatchFinally(XTryCatchFinallyExpression object, ITypeComputationState state) {
+		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
+		for (XCatchClause catchClause : object.getCatchClauses()) {
+			JvmFormalParameter catchClauseParam = catchClause.getDeclaredParam();
+			JvmTypeReference parameterType = catchClauseParam.getParameterType();
+			LightweightTypeReference lightweightReference = referenceOwner.toLightweightTypeReference(parameterType);
+			ITypeComputationState catchClauseState = assignType(catchClauseParam, lightweightReference, state);
+			catchClauseState.withinScope(catchClause);
+			catchClauseState.computeTypes(catchClause.getExpression());
 		}
+		// TODO validate / handle return / throw in finally block
+		state.withoutExpectation().computeTypes(object.getFinallyExpression());
 	}
 
 }
