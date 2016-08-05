@@ -296,7 +296,7 @@ XJTryWithResourcesVariableDeclaration:
 	{XJTryWithResourcesVariableDeclaration}
 	final?='final'?
 	type=JvmTypeReference name=ValidID '=' right=XExpression
-	->semicolon=';'?
+	semicolon=';'?
 ;
 
 /**
