@@ -2654,7 +2654,7 @@ public class MyFile {
 		import java.io.FileReader;
 		
 		try (FileReader fr1 = new FileReader("");
-			FileReader fr2 = new FileReader(fr1.toString());)
+			FileReader fr2 = new FileReader(fr1.toString()+fr1.toString());)
 		{
 			int i = 0;
 		} catch (Exception e) {
@@ -2674,7 +2674,7 @@ public class MyFile {
   public static void main(String[] args) throws Throwable {
     try (
       FileReader fr1 = new FileReader("");
-      FileReader fr2 = new FileReader(fr1.toString());
+      FileReader fr2 = new FileReader((fr1.toString() + fr1.toString()));
     ) {
       int i = 0;
     } catch (final Throwable _t) {
