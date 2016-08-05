@@ -1612,6 +1612,19 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
+	@Test def void testTryWithResourcesResourceCreatedInMethod() {
+		'''
+		op createReader() {
+			return new java.io.FileReader("");
+		}
+		
+		try (
+			java.io.FileReader fr1 = createReader();
+		) {
+		
+		}'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
