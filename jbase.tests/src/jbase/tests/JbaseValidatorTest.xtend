@@ -1580,6 +1580,38 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertNoErrors
 	}
 
+	@Test def void testTryWithResourcesDeclaredResourcesNotAvailableInCatch() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+		) {
+		
+		} catch (Exception e) {
+			System.out.println(fr1);
+		}
+		'''.parse.assertErrorsAsStrings(
+		'''
+		The method or field fr1 is undefined
+		'''
+		)
+	}
+
+	@Test def void testTryWithResourcesDeclaredResourcesNotAvailableInFinally() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+		) {
+		
+		} finally {
+			System.out.println(fr1);
+		}
+		'''.parse.assertErrorsAsStrings(
+		'''
+		The method or field fr1 is undefined
+		'''
+		)
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
