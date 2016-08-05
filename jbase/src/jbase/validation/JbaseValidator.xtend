@@ -42,6 +42,8 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
+import jbase.jbase.XJTryWithResourcesVariableDeclaration
+import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 
 /**
  * @author Lorenzo Bettini
@@ -166,6 +168,21 @@ class JbaseValidator extends AbstractJbaseValidator {
 					errorMissingSemicolon(r)
 				}
 			}
+		}
+	}
+
+	@Check
+	def void checkAutoCloseableResource(XJTryWithResourcesVariableDeclaration e) {
+		val declaredType = getActualType(e.type.type)
+		val autoCloseable = new StandardTypeReferenceOwner(services, e).
+			toLightweightTypeReference
+			(services.typeReferences.getTypeForName(AutoCloseable, e))
+		if (!autoCloseable.isAssignableFrom(declaredType)) {
+			error(
+				'The resource type ' + declaredType + ' does not implement java.lang.AutoCloseable',
+				e, xbasePackage.XVariableDeclaration_Type,
+				NOT_AUTO_CLOSEABLE
+			)
 		}
 	}
 

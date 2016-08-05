@@ -1532,6 +1532,33 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''.parse.assertErrorsAsStrings("extraneous input ';' expecting ')'")
 	}
 
+	@Test def void testTryWithResourcesNotAutoCloseableType() {
+		// Note that the type of the declared variable is taken into consideration
+		// not the actual type of the initialization expression
+		'''
+		try (
+			Object fr1 = new java.io.FileReader("");
+		) {
+			
+		}
+		'''.parse.assertError(
+			jbasePackage.XJTryWithResourcesVariableDeclaration,
+			JbaseIssueCodes.NOT_AUTO_CLOSEABLE,
+			7, 6, // error placed on "Object"
+			'The resource type Object does not implement java.lang.AutoCloseable'
+		)
+	}
+
+	@Test def void testTryWithResourcesAutoCloseableType() {
+		'''
+		try (
+			java.io.FileReader fr1 = new java.io.FileReader("");
+		) {
+			
+		}
+		'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
