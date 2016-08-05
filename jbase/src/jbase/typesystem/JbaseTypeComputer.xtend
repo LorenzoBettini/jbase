@@ -34,6 +34,7 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import jbase.jbase.XJTryWithResourcesStatement
 
 /**
  * @author Lorenzo Bettini
@@ -44,7 +45,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 	private CommonTypeComputationServices services;
 
 	@Inject extension JbaseBranchingStatementDetector
-	
+
 	override computeTypes(XExpression expression, ITypeComputationState state) {
 		if (expression instanceof XJAssignment) {
 			_computeTypes(expression, state)
@@ -59,6 +60,8 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJVariableDeclaration) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJClassObject) {
+			_computeTypes(expression, state)
+		} else if (expression instanceof XJTryWithResourcesStatement) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJSemicolonStatement) {
 			_computeTypes(expression, state)
@@ -323,7 +326,12 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			state.acceptActualType(state.primitiveVoid)
 		}
 	}
-	
+
+	def protected _computeTypes(XJTryWithResourcesStatement e, ITypeComputationState state) {
+		state.withoutExpectation.computeTypes(e.declarationsBlock)
+		super._computeTypes(e, state)
+	}
+
 	private def computeTypesOfArrayAccess(XJArrayAccess arrayAccess, 
 		ILinkingCandidate best, ITypeComputationState state, EStructuralFeature featureForError
 	) {
@@ -332,7 +340,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		val featureType = getDeclaredType(best.feature, expressionState)
 		componentTypeOfArrayAccess(arrayAccess, featureType, state, featureForError)
 	}
-	
+
 	private def componentTypeOfArrayAccess(XJArrayAccess arrayAccess, LightweightTypeReference type, ITypeComputationState state, EStructuralFeature featureForError) {
 		var currentType = type
 		for (index : arrayAccess.indexes) {
@@ -353,7 +361,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 		return currentType
 	}
-	
+
 	private def checkArrayIndexHasTypeInt(XJArrayAccess arrayAccess, ITypeComputationState state) {
 		for (index : arrayAccess.indexes) {
 			val conditionExpectation = state.withExpectation(getTypeForName(Integer.TYPE, state))
