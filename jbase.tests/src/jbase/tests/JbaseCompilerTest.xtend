@@ -1,8 +1,8 @@
 package jbase.tests
 
 import com.google.inject.Inject
-import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.testlanguage.validation.JbaseTestlanguageValidator
+import jbase.tests.util.Java7JbaseTestlanguageInjectorProvider
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.junit.Before
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
  * parameters.
  */
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(JbaseTestlanguageInjectorProvider))
+@InjectWith(typeof(Java7JbaseTestlanguageInjectorProvider))
 class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 
 	@Inject
@@ -2640,6 +2640,50 @@ public class MyFile {
   public static void main(String[] args) throws Throwable {
     try {
       int i = 0;
+    } finally {
+      System.out.println("finally");
+    }
+  }
+}
+'''
+		)
+	}
+
+	@Test def void testTryWithResources() {
+		'''
+		import java.io.FileReader;
+		
+		try (FileReader fr1 = new FileReader("");
+			FileReader fr2 = new FileReader("");)
+		{
+			int i = 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.out.println("finally");
+		}
+		'''.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.io.FileReader;
+import org.eclipse.xtext.xbase.lib.Exceptions;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    try (
+      FileReader fr1 = new FileReader("");
+      FileReader fr2 = new FileReader("");
+    ) {
+      int i = 0;
+    } catch (final Throwable _t) {
+      if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        e.printStackTrace();
+      } else {
+        throw Exceptions.sneakyThrow(_t);
+      }
     } finally {
       System.out.println("finally");
     }
