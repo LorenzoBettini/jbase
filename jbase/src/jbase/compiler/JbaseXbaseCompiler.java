@@ -47,6 +47,7 @@ import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesStatement;
+import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseExpressionHelper.BaseCase;
@@ -539,6 +540,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		if (expr instanceof XUnaryOperation) {
 			return !expressionHelper.specialHandling((XUnaryOperation) expr);
 		} else if (expr instanceof XJClassObject) {
+			return false;
+		} else if (EcoreUtil2.getContainerOfType(expr, XJTryWithResourcesVariableDeclaration.class) != null) {
+			// there must be no intermediate expressions in the context of the
+			// try-with-resources' resource declaration
 			return false;
 		}
 		return super.isVariableDeclarationRequired(expr, b);
