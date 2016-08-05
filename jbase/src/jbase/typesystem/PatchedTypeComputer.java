@@ -223,9 +223,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		for (XCatchClause catchClause : object.getCatchClauses()) {
 			JvmFormalParameter catchClauseParam = catchClause.getDeclaredParam();
 			JvmTypeReference parameterType = catchClauseParam.getParameterType();
-			LightweightTypeReference lightweightReference = parameterType != null 
-					? referenceOwner.toLightweightTypeReference(parameterType)
-					: referenceOwner.newAnyTypeReference();
+			LightweightTypeReference lightweightReference = referenceOwner.toLightweightTypeReference(parameterType);
 			ITypeComputationState catchClauseState = assignType(catchClauseParam, lightweightReference, state);
 			catchClauseState.withinScope(catchClause);
 			catchClauseState.computeTypes(catchClause.getExpression());
