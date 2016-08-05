@@ -796,6 +796,33 @@ class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 		assertNotInitializedReferences("")
 	}
 
+	@Test def void testInitializedInTryWithResourcesCatch() {
+		'''
+		int i;
+		try (String s = "") {
+			i = 0;
+			System.out.println(s); // OK
+		} catch (NullPointerException e) {
+			i = 0;
+		}
+		System.out.println(i); // OK
+		'''.
+		assertNotInitializedReferences("")
+	}
+
+	@Test def void testInitializedInTryWithResourcesCatch2() {
+		'''
+		int i;
+		try (String s = "") {
+			System.out.println(s); // OK
+		} catch (NullPointerException e) {
+			i = 0;
+		}
+		System.out.println(i); // ERROR
+		'''.
+		assertNotInitializedReferences("i in System.out.println(i)")
+	}
+
 	@Test def void testInitializedAfterSynchronized() {
 		'''
 		int i, j;
