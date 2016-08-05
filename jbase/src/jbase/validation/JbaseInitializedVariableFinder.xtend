@@ -19,6 +19,7 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
 import org.eclipse.xtext.xbase.XSynchronizedExpression
+import jbase.jbase.XJTryWithResourcesStatement
 
 /**
  * Detects references to variables which might not be initialized, according
@@ -199,6 +200,31 @@ class JbaseInitializedVariableFinder {
 
 	def dispatch void detectNotInitialized(XTryCatchFinallyExpression e, InitializedVariables initialized,
 		NotInitializedAcceptor acceptor) {
+		detectNotInitializedTryCatchCommon(e, initialized, acceptor) [
+			initializedVariables |
+			inspectBranchesAndIntersect(
+				newArrayList(e.expression) + e.catchClauses.map[expression],
+				initializedVariables,
+				acceptor
+			)
+		]
+	}
+
+	def dispatch void detectNotInitialized(XJTryWithResourcesStatement e, InitializedVariables initialized,
+		NotInitializedAcceptor acceptor) {
+		detectNotInitializedTryCatchCommon(e, initialized, acceptor) [
+			initializedVariables |
+			loopOverExpressions(e.declarationsBlock.resourceDeclarations, initializedVariables, acceptor)
+			inspectBranchesAndIntersect(
+				newArrayList(e.expression) + e.catchClauses.map[expression],
+				initializedVariables,
+				acceptor
+			)
+		]
+	}
+
+	def protected void detectNotInitializedTryCatchCommon(XTryCatchFinallyExpression e, InitializedVariables initialized,
+		NotInitializedAcceptor acceptor, (InitializedVariables)=>void branchInspector) {
 		val finallyExpression = e.finallyExpression
 		if (finallyExpression != null) {
 			// when inspecting the finally block we can't assume anything about
@@ -220,11 +246,7 @@ class JbaseInitializedVariableFinder {
 			 * System.out.println(j); // OK
 			 */
 			val temporaryCopy = initialized.createCopy
-			inspectBranchesAndIntersect(
-				newArrayList(e.expression) + e.catchClauses.map[expression],
-				temporaryCopy,
-				acceptor
-			)
+			branchInspector.apply(temporaryCopy)
 			// if present, the final block is always executed so we treat it as a block expression
 			// without any information about try and catch
 			detectNotInitializedDispatch(e.finallyExpression, initialized, acceptor)
@@ -232,11 +254,7 @@ class JbaseInitializedVariableFinder {
 			// with what we had collected in try and catch
 			initialized += temporaryCopy
 		} else {
-			inspectBranchesAndIntersect(
-				newArrayList(e.expression) + e.catchClauses.map[expression],
-				initialized,
-				acceptor
-			)
+			branchInspector.apply(initialized)
 		}
 	}
 
