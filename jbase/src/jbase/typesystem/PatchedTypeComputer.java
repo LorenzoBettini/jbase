@@ -167,8 +167,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		List<LightweightTypeReference> caughtExceptions = Lists.newArrayList();
 		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
 		for (XCatchClause catchClause : object.getCatchClauses())
-			if (catchClause.getDeclaredParam() != null && catchClause.getDeclaredParam().getParameterType() != null)
-				caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
+			caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
 		state.withExpectedExceptions(caughtExceptions).computeTypes(object.getExpression());
 		computeTypesForCatchFinally(object, state);
 	}

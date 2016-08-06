@@ -341,7 +341,10 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			addLocalToCurrentScope(r, resourcesState)
 		}
 		val referenceOwner = resourcesState.getReferenceOwner()
-		val caughtExceptions = e.catchClauses.map[referenceOwner.toLightweightTypeReference(getDeclaredParam().getParameterType())]
+		val caughtExceptions = e.catchClauses.
+			map[
+				referenceOwner.toLightweightTypeReference(declaredParam.parameterType)
+			]
 		resourcesState.withExpectedExceptions(caughtExceptions).computeTypes(e.getExpression()) 
 		// the type computation for catch and finally is done with the original
 		// type computation state, so that declared resources are not visible
