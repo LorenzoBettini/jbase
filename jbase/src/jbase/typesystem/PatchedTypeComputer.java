@@ -91,6 +91,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			new StepCase() {
 				@Override
 				public void accept(XUnaryOperation t) {
+					// not needed
 				}
 			}
 		);
