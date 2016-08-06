@@ -61,7 +61,7 @@
 						<id>smoke-test</id>
 						<phase>integration-test</phase>
 						<configuration>
-							<skip>${smoke.tests.only}</skip>
+							<skip>${smoke.tests.skip}</skip>
 							<useUIHarness>false</useUIHarness>
 							<useUIThread>false</useUIThread>
 							<!-- tycho.testArgLine repeated to re-use the configuration for argLine 
