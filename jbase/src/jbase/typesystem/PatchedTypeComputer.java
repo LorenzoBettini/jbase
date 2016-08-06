@@ -189,7 +189,6 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			catchClauseState.withinScope(catchClause);
 			catchClauseState.computeTypes(catchClause.getExpression());
 		}
-		// TODO validate / handle return / throw in finally block
 		state.withoutExpectation().computeTypes(object.getFinallyExpression());
 	}
 
