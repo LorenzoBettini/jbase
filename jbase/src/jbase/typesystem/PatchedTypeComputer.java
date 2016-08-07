@@ -75,9 +75,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 					List<? extends ITypeExpectation> expectations = state.getExpectations();
 					for (ITypeExpectation typeExpectation : expectations) {
 						LightweightTypeReference expectedType = typeExpectation.getExpectedType();
-						if (expectedType != null && expectedType.getType() instanceof JvmPrimitiveType
-								&& checkConversionToPrimitive(op.getConcreteSyntaxFeatureName() + lit.getValue(),
-										primitives.primitiveKind((JvmPrimitiveType) expectedType.getType()))) {
+						if (checkConversionToPrimitive(lit, op, expectedType)) {
 							state.withExpectation(expectedType).computeTypes(op.getOperand());
 							state.acceptActualType(expectedType);
 							return true;
@@ -131,6 +129,13 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		}
 
 		super._computeTypes(object, state);
+	}
+
+	private boolean checkConversionToPrimitive(XNumberLiteral lit, XUnaryOperation op,
+			LightweightTypeReference expectedType) {
+		return expectedType != null && expectedType.getType() instanceof JvmPrimitiveType
+			&& checkConversionToPrimitive(op.getConcreteSyntaxFeatureName() + lit.getValue(),
+					primitives.primitiveKind((JvmPrimitiveType) expectedType.getType()));
 	}
 
 	private boolean checkConversionToPrimitive(XNumberLiteral object, Primitive kind) {
