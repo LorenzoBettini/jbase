@@ -841,4 +841,16 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 			'''
 		]
 	}
+
+	@Test def void testConstructorWithoutTypeArguments() {
+		assertFormatted[
+			expectation = '''
+				new java.util.List();
+			'''
+			toBeFormatted = '''
+				new  java.util.List  ( );
+			'''
+		]
+	}
+
 }
