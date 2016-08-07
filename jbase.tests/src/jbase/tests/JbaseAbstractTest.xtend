@@ -6,6 +6,7 @@ import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
+import jbase.jbase.XJConstructorCall
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
@@ -30,7 +31,6 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
-import org.eclipse.xtext.xbase.XConstructorCall
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -177,7 +177,7 @@ abstract class JbaseAbstractTest {
 	}
 
 	protected def getConstructorCall(XExpression it) {
-		it as XConstructorCall
+		it as XJConstructorCall
 	}
 
 

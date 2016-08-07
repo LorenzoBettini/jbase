@@ -98,6 +98,51 @@ class JbaseModelUtilTest extends JbaseAbstractTest {
 		assertSame(sourceParam, p.originalParam)
 	}
 
+	@Test def void testRawTypeFalse() {
+		'''
+		new java.util.LinkedList<>();
+		'''.
+		assertLastExpression[
+			constructorCall.isRawType.assertFalse
+		]
+	}
+
+	@Test def void testRawTypeFalse2() {
+		'''
+		new java.util.LinkedList<String>();
+		'''.
+		assertLastExpression[
+			constructorCall.isRawType.assertFalse
+		]
+	}
+
+	@Test def void testRawTypeFalse3() {
+		'''
+		new String();
+		'''.
+		assertLastExpression[
+			constructorCall.isRawType.assertFalse
+		]
+	}
+
+	@Test def void testRawTypeFalse4() {
+		'''
+		new int();
+		'''.
+		assertLastExpression[
+			constructorCall.isRawType.assertFalse
+		]
+	}
+
+	@Test def void testRawTypeTrue() {
+		'''
+		new java.util.LinkedList();
+		'''.
+		assertLastExpression[
+			constructorCall.isRawType.assertTrue
+		]
+	}
+
 	/**
 	 * Assumes that dimension expressions, if given, are number literals
 	 */
