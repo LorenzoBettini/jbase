@@ -391,6 +391,26 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard() {
+		'''
+		java.util.List<? extends String> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard2() {
+		'''
+		java.util.List<? super String> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
 	def void testBranchingStatement() {
 		'''
 		continue;
