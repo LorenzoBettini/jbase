@@ -5,7 +5,10 @@ import java.util.HashSet
 import jbase.controlflow.JbaseBranchingStatementDetector
 import jbase.jbase.XJAdditionalXVariableDeclaration
 import jbase.jbase.XJArrayAccess
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
+import jbase.validation.JbaseInitializedVariableFinder.InitializedVariables
+import jbase.validation.JbaseInitializedVariableFinder.NotInitializedAcceptor
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.XBasicForLoopExpression
@@ -15,11 +18,10 @@ import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XForLoopExpression
 import org.eclipse.xtext.xbase.XIfExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
+import org.eclipse.xtext.xbase.XSynchronizedExpression
+import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
-import org.eclipse.xtext.xbase.XTryCatchFinallyExpression
-import org.eclipse.xtext.xbase.XSynchronizedExpression
-import jbase.jbase.XJTryWithResourcesStatement
 
 /**
  * Detects references to variables which might not be initialized, according
@@ -202,11 +204,7 @@ class JbaseInitializedVariableFinder {
 		NotInitializedAcceptor acceptor) {
 		detectNotInitializedTryCatchCommon(e, initialized, acceptor) [
 			initializedVariables |
-			inspectBranchesAndIntersect(
-				newArrayList(e.expression) + e.catchClauses.map[expression],
-				initializedVariables,
-				acceptor
-			)
+			inspectTryCatchFinallyBranchesAndIntersect(e, initializedVariables, acceptor)
 		]
 	}
 
@@ -214,13 +212,17 @@ class JbaseInitializedVariableFinder {
 		NotInitializedAcceptor acceptor) {
 		detectNotInitializedTryCatchCommon(e, initialized, acceptor) [
 			initializedVariables |
-			loopOverExpressions(e.declarationsBlock.resourceDeclarations, initializedVariables, acceptor)
-			inspectBranchesAndIntersect(
-				newArrayList(e.expression) + e.catchClauses.map[expression],
-				initializedVariables,
-				acceptor
-			)
+			loopOverExpressions(e.resourceDeclarations, initializedVariables, acceptor)
+			inspectTryCatchFinallyBranchesAndIntersect(e, initializedVariables, acceptor)
 		]
+	}
+
+	protected def void inspectTryCatchFinallyBranchesAndIntersect(XTryCatchFinallyExpression e, InitializedVariables initializedVariables, NotInitializedAcceptor acceptor) {
+		inspectBranchesAndIntersect(
+			newArrayList(e.expression) + e.catchClauses.map[expression],
+			initializedVariables,
+			acceptor
+		)
 	}
 
 	def protected void detectNotInitializedTryCatchCommon(XTryCatchFinallyExpression e, InitializedVariables initialized,

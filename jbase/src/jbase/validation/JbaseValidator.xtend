@@ -153,7 +153,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	def checkTryWithResources(XJTryWithResourcesStatement e) {
-		val resourceDeclarations = e.declarationsBlock.resourceDeclarations
+		val resourceDeclarations = e.resourceDeclarations
 		val numOfResources = resourceDeclarations.size
 		if (numOfResources == 0) {
 			error(

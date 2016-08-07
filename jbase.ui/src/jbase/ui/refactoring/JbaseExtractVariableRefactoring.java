@@ -66,7 +66,7 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 		IResolvedTypes types = typeResolver.resolveTypes(expression);
 		LightweightTypeReference expressionType = types.getActualType(expression);
 		section
-		.append((isFinal) ? "final " : "")
+		.append(isFinal ? "final " : "")
 		.append(expressionType)
 		.append(" ")
 		.append(variableName)

@@ -75,14 +75,10 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 					List<? extends ITypeExpectation> expectations = state.getExpectations();
 					for (ITypeExpectation typeExpectation : expectations) {
 						LightweightTypeReference expectedType = typeExpectation.getExpectedType();
-						if (expectedType != null && expectedType.getType() instanceof JvmPrimitiveType) {
-							Primitive kind = primitives.primitiveKind((JvmPrimitiveType) expectedType.getType());
-							String unaryOp = op.getConcreteSyntaxFeatureName();
-							if (checkConversionToPrimitive(unaryOp + lit.getValue(), kind)) {
-								state.withExpectation(expectedType).computeTypes(op.getOperand());
-								state.acceptActualType(expectedType);
-								return true;
-							}
+						if (checkConversionToPrimitive(lit, op, expectedType)) {
+							state.withExpectation(expectedType).computeTypes(op.getOperand());
+							state.acceptActualType(expectedType);
+							return true;
 						}
 					}
 					return false;
@@ -91,6 +87,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			new StepCase() {
 				@Override
 				public void accept(XUnaryOperation t) {
+					// not needed
 				}
 			}
 		);
@@ -134,6 +131,13 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		super._computeTypes(object, state);
 	}
 
+	private boolean checkConversionToPrimitive(XNumberLiteral lit, XUnaryOperation op,
+			LightweightTypeReference expectedType) {
+		return expectedType != null && expectedType.getType() instanceof JvmPrimitiveType
+			&& checkConversionToPrimitive(op.getConcreteSyntaxFeatureName() + lit.getValue(),
+					primitives.primitiveKind((JvmPrimitiveType) expectedType.getType()));
+	}
+
 	private boolean checkConversionToPrimitive(XNumberLiteral object, Primitive kind) {
 		return checkConversionToPrimitive(object.getValue(), kind);
 	}
@@ -167,8 +171,7 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		List<LightweightTypeReference> caughtExceptions = Lists.newArrayList();
 		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
 		for (XCatchClause catchClause : object.getCatchClauses())
-			if (catchClause.getDeclaredParam() != null && catchClause.getDeclaredParam().getParameterType() != null)
-				caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
+			caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
 		state.withExpectedExceptions(caughtExceptions).computeTypes(object.getExpression());
 		computeTypesForCatchFinally(object, state);
 	}
@@ -190,7 +193,6 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			catchClauseState.withinScope(catchClause);
 			catchClauseState.computeTypes(catchClause.getExpression());
 		}
-		// TODO validate / handle return / throw in finally block
 		state.withoutExpectation().computeTypes(object.getFinallyExpression());
 	}
 
