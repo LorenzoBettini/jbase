@@ -375,8 +375,18 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 		'''
 		java.util.List<String> l = new java.util.ArrayList<>();
 		'''.assertLastExpression[
-			variableDeclaration.right.
+			variableDeclarationRight.
 				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithNestedTypeArg() {
+		'''
+		java.util.List<java.util.Collection<String>> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.util.Collection<java.lang.String>>")
 		]
 	}
 
