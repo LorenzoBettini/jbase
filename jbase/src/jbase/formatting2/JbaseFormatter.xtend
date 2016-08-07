@@ -32,6 +32,7 @@ import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJWithSemicolon
+import org.eclipse.xtext.xbase.XConstructorCall
 
 class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 
@@ -188,6 +189,15 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		if (e.expression != null)
 			format(e.expression, document)
 		formatSemicolon(e, document)
+	}
+
+	override void _format(XConstructorCall expr, extension IFormattableDocument document) {
+		// case for diamond
+		if (expr.typeArguments.empty) {
+			expr.regionFor.keyword("<").surround[noSpace]
+			expr.regionFor.keyword(">").prepend[noSpace]
+		}
+		super._format(expr, document)
 	}
 
 	def void formatSemicolon(XJWithSemicolon e, extension IFormattableDocument document) {
