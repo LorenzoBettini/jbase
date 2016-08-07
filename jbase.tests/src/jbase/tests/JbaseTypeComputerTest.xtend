@@ -411,6 +411,18 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard3() {
+		// this seems to be a bug in Xbase, since it should resolve as
+		// java.util.ArrayList<java.util.LinkedList<java.lang.String>>
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.util.LinkedList<? extends java.lang.String>>")
+		]
+	}
+
+	@Test
 	def void testBranchingStatement() {
 		'''
 		continue;
