@@ -178,6 +178,28 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		).parse.assertNoIssues
 	}
 
+	@Test def void testDiamondConstructorCallInAssignment() {
+		(constructorCallWithDiamondInAssignment
+		+
+		// to avoid unused variable warnings
+		'''
+		System.out.println(list1);
+		System.out.println(list2);
+		System.out.println(list3);
+		'''
+		).parse.assertNoIssues
+	}
+
+	@Test def void testDiamondConstructorCallInAssignmentNestedWildcard() {
+		(constructorCallWithDiamondInAssignmentNestedWildcard
+		+
+		// to avoid unused variable warnings
+		'''
+		System.out.println(list3);
+		'''
+		).parse.assertNoIssues
+	}
+
 	@Test def void testNotArrayTypeLeft() {
 		'''
 		int i;
