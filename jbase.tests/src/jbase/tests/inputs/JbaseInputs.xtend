@@ -111,6 +111,14 @@ class JbaseInputs {
 		'''
 	}
 
+	def constructorCallWithDiamondInVarDecl() {
+		'''
+		java.util.List<String> list1 = new java.util.ArrayList<>();
+		java.util.List<? extends String> list2 = new java.util.ArrayList<>();
+		java.util.List<java.util.LinkedList<String>> list3 = new java.util.ArrayList<>();
+		'''
+	}
+
 	def ifThenElseWithoutBlocks() {
 		'''
 		if (args.length() == 0)

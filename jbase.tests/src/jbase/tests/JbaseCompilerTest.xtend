@@ -496,6 +496,27 @@ public class MyFile {
 			)
 	}
 
+	@Test def void testArrayConstructorWithDiamondCallInVarDecl() {
+		constructorCallWithDiamondInVarDecl.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<String> list1 = new ArrayList<String>();
+    List<? extends String> list2 = new ArrayList<String>();
+    List<LinkedList<String>> list3 = new ArrayList<LinkedList<String>>();
+  }
+}
+'''
+			)
+	}
+
 	@Test def void testIfThenElseWithoutBlocks() {
 		ifThenElseWithoutBlocks.expectationsForIfThenElse
 	}
