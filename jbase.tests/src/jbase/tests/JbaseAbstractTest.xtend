@@ -100,6 +100,10 @@ abstract class JbaseAbstractTest {
 		(it as XVariableDeclaration).right
 	}
 
+	protected def getAssignmentRight(XExpression it) {
+		assignment.value
+	}
+
 	protected def getMemberFeatureCall(XExpression it) {
 		it as XMemberFeatureCall
 	}
