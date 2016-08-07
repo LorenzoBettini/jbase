@@ -156,13 +156,23 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		)
 	}
 
-	@Test def void testDiamondConstructorCall() {
+	@Test def void testDiamondConstructorCallInVarDecl() {
 		(constructorCallWithDiamondInVarDecl
 		+
 		// to avoid unused variable warnings
 		'''
 		System.out.println(list1);
 		System.out.println(list2);
+		System.out.println(list3);
+		'''
+		).parse.assertNoIssues
+	}
+
+	@Test def void testDiamondConstructorCallInVarDeclNestedWildcard() {
+		(constructorCallWithDiamondInVarDeclNestedWildcard
+		+
+		// to avoid unused variable warnings
+		'''
 		System.out.println(list3);
 		'''
 		).parse.assertNoIssues

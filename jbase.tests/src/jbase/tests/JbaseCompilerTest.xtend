@@ -517,6 +517,25 @@ public class MyFile {
 			)
 	}
 
+	@Test def void testArrayConstructorWithDiamondCallInVarDeclNestedWildcard() {
+		constructorCallWithDiamondInVarDeclNestedWildcard.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<LinkedList<? extends String>> list3 = new ArrayList<LinkedList<? extends String>>();
+  }
+}
+'''
+			)
+	}
+
 	@Test def void testIfThenElseWithoutBlocks() {
 		ifThenElseWithoutBlocks.expectationsForIfThenElse
 	}

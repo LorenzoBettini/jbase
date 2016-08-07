@@ -119,6 +119,12 @@ class JbaseInputs {
 		'''
 	}
 
+	def constructorCallWithDiamondInVarDeclNestedWildcard() {
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> list3 = new java.util.ArrayList<>();
+		'''
+	}
+
 	def ifThenElseWithoutBlocks() {
 		'''
 		if (args.length() == 0)
