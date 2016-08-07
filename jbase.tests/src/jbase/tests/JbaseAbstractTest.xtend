@@ -30,6 +30,7 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XWhileExpression
 
 import static org.junit.Assert.*
+import org.eclipse.xtext.xbase.XConstructorCall
 
 abstract class JbaseAbstractTest {
 	@Inject protected extension ParseHelper<XExpression>
@@ -170,5 +171,10 @@ abstract class JbaseAbstractTest {
 	protected def getTryWithResources(XExpression it) {
 		it as XJTryWithResourcesStatement
 	}
+
+	protected def getConstructorCall(XExpression it) {
+		it as XConstructorCall
+	}
+
 
 }

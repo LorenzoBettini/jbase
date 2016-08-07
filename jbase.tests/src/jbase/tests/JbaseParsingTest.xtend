@@ -230,7 +230,15 @@ class JbaseParsingTest extends JbaseAbstractTest {
 			getVariableDeclarationRightAsArrayConstructorCall
 		]
 	}
-	
+
+	@Test def void testDiamondConstructorCall() {
+		'''
+		new java.util.List<>();
+		'''.assertLastExpression [
+			assertTrue(constructorCall.typeArguments.empty)
+		]
+	}
+
 	@Test def void testArrayLiteral() {
 		arrayLiteral.assertLastExpression [
 			assertEquals(
