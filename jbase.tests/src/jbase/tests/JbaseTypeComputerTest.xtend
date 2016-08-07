@@ -362,6 +362,15 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def void testDiamondConstructorCall() {
+		'''
+		new java.util.List<>();
+		'''.assertLastExpression[
+			assertActualType("java.util.List<java.lang.Object>")
+		]
+	}
+
+	@Test
 	def void testBranchingStatement() {
 		'''
 		continue;
