@@ -200,6 +200,24 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		).parse.assertNoIssues
 	}
 
+	@Test def void testConstructorCallRawType() {
+		'''
+		System.out.println(new java.util.ArrayList());
+		'''.parse.assertWarningRawType
+	}
+
+	@Test def void testConstructorCallRawType2() {
+		'''
+		java.util.List<String> s = new java.util.ArrayList();
+		'''.parse.assertWarningRawType
+	}
+
+	@Test def void testConstructorCallNotRawType() {
+		'''
+		System.out.println(new java.util.ArrayList<>());
+		'''.parse.assertNoIssues
+	}
+
 	@Test def void testNotArrayTypeLeft() {
 		'''
 		int i;
@@ -1758,6 +1776,14 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 			XbasePackage.eINSTANCE.XFeatureCall,
 			JbaseIssueCodes.NOT_INITIALIZED_VARIABLE,
 			"The local variable " + name + " may not have been initialized"
+		)
+	}
+
+	def private assertWarningRawType(EObject o) {
+		o.assertWarning(
+			jbasePackage.XJConstructorCall,
+			IssueCodes.RAW_TYPE,
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized"
 		)
 	}
 }
