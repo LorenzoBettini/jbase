@@ -168,7 +168,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	public void _toJavaStatement(XJTryWithResourcesStatement expr, ITreeAppendable outerAppendable, boolean isReferenced) {
 		ITreeAppendable b = outerAppendable.trace(expr, false);
 		b.newLine().append("try (").increaseIndentation();
-		internalToJavaStatement(expr.getDeclarationsBlock(), b, false);
+		for (XJTryWithResourcesVariableDeclaration r : expr.getResourceDeclarations()) {
+			internalToJavaStatement(r, b.trace(r, true), false);
+		}
 		b.decreaseIndentation();
 		b.newLine().append(") {").increaseIndentation();
 		internalToJavaStatement(expr.getExpression(), b, false);

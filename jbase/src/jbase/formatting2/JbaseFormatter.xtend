@@ -173,7 +173,7 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		expr.regionFor.keyword("try").append[oneSpace]
 		expr.regionFor.keyword("(").append[noSpace]
 		expr.regionFor.keyword(")").prepend[noSpace]
-		for (r : expr.declarationsBlock.resourceDeclarations) {
+		for (r : expr.resourceDeclarations) {
 			r.format(document)
 			r.formatSemicolon(document)
 		}
