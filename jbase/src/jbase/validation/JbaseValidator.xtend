@@ -13,10 +13,12 @@ import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJCharLiteral
+import jbase.jbase.XJConstructorCall
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesVariableDeclaration
 import jbase.scoping.featurecalls.JbaseOperatorMapping
 import jbase.util.JbaseModelUtil
 import jbase.util.JbaseNodeModelUtil
@@ -24,6 +26,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.xtext.common.types.JvmFormalParameter
 import org.eclipse.xtext.common.types.JvmOperation
+import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.util.Wrapper
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
@@ -39,11 +42,12 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.XbasePackage
 import org.eclipse.xtext.xbase.jvmmodel.ILogicalContainerProvider
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
+import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
+import org.eclipse.xtext.xbase.validation.IssueCodes
+import org.eclipse.xtext.xbase.validation.ProxyAwareUIStrings
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
-import jbase.jbase.XJTryWithResourcesVariableDeclaration
-import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 
 /**
  * @author Lorenzo Bettini
@@ -59,6 +63,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 	@Inject IBatchTypeResolver batchTypeResolver
 	@Inject JbaseSureReturnComputer sureReturnComputer
 	@Inject JbaseInitializedVariableFinder initializedVariableFinder
+	@Inject ProxyAwareUIStrings proxyAwareUIStrings
 
 	override protected checkAssignment(XExpression expression, EStructuralFeature feature, boolean simpleAssignment) {
 		if (expression instanceof XJArrayAccess) {
@@ -218,6 +223,24 @@ class JbaseValidator extends AbstractJbaseValidator {
 				xbasePackage.XConstructorCall_Constructor,
 				MISSING_PARENTHESES
 			)
+		}
+	}
+
+	@Check
+	def checkConstructorCallRawType(XJConstructorCall call) {
+		if (call.isRawType) {
+			val constructor = call.constructor
+			val constructorType = constructor.eContainer as JvmType
+			var StringBuilder message=new StringBuilder(64) 
+			message.append(constructorType.getSimpleName()) 
+			message.append(" is a raw type. References to generic type ") 
+			message=proxyAwareUIStrings.appendTypeSignature(constructorType, message) 
+			message.append(" should be parameterized")
+			warning(
+				message.toString(),
+				xbasePackage.XConstructorCall_Constructor,
+				IssueCodes.RAW_TYPE
+			);
 		}
 	}
 

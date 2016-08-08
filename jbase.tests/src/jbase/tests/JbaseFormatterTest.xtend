@@ -819,4 +819,38 @@ class JbaseFormatterTest extends JbaseAbstractTest {
 			'''
 		]
 	}
+
+	@Test def void testConstructor() {
+		assertFormatted[
+			expectation = '''
+				new java.util.List<String>();
+			'''
+			toBeFormatted = '''
+				new  java.util.List < String > ( );
+			'''
+		]
+	}
+
+	@Test def void testDiamond() {
+		assertFormatted[
+			expectation = '''
+				new java.util.List<>();
+			'''
+			toBeFormatted = '''
+				new  java.util.List <  > ( );
+			'''
+		]
+	}
+
+	@Test def void testConstructorWithoutTypeArguments() {
+		assertFormatted[
+			expectation = '''
+				new java.util.List();
+			'''
+			toBeFormatted = '''
+				new  java.util.List  ( );
+			'''
+		]
+	}
+
 }

@@ -6,6 +6,7 @@ import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJConditionalExpression
+import jbase.jbase.XJConstructorCall
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
@@ -99,6 +100,10 @@ abstract class JbaseAbstractTest {
 		(it as XVariableDeclaration).right
 	}
 
+	protected def getAssignmentRight(XExpression it) {
+		assignment.value
+	}
+
 	protected def getMemberFeatureCall(XExpression it) {
 		it as XMemberFeatureCall
 	}
@@ -170,5 +175,10 @@ abstract class JbaseAbstractTest {
 	protected def getTryWithResources(XExpression it) {
 		it as XJTryWithResourcesStatement
 	}
+
+	protected def getConstructorCall(XExpression it) {
+		it as XJConstructorCall
+	}
+
 
 }

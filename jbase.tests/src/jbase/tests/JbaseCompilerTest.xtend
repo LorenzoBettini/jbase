@@ -496,6 +496,94 @@ public class MyFile {
 			)
 	}
 
+	@Test def void testArrayConstructorWithDiamondCallInVarDecl() {
+		constructorCallWithDiamondInVarDecl.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<String> list1 = new ArrayList<String>();
+    List<? extends String> list2 = new ArrayList<String>();
+    List<LinkedList<String>> list3 = new ArrayList<LinkedList<String>>();
+  }
+}
+'''
+			)
+	}
+
+	@Test def void testArrayConstructorWithDiamondCallInVarDeclNestedWildcard() {
+		constructorCallWithDiamondInVarDeclNestedWildcard.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<LinkedList<? extends String>> list3 = new ArrayList<LinkedList<? extends String>>();
+  }
+}
+'''
+			)
+	}
+
+	@Test def void testArrayConstructorWithDiamondCallInAssignment() {
+		constructorCallWithDiamondInAssignment.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<String> list1 = null;
+    ArrayList<String> _arrayList = new ArrayList<String>();
+    list1 = _arrayList;
+    List<? extends String> list2 = null;
+    ArrayList<String> _arrayList_1 = new ArrayList<String>();
+    list2 = _arrayList_1;
+    List<LinkedList<String>> list3 = null;
+    ArrayList<LinkedList<String>> _arrayList_2 = new ArrayList<LinkedList<String>>();
+    list3 = _arrayList_2;
+  }
+}
+'''
+			)
+	}
+
+	@Test def void testArrayConstructorWithDiamondCallInAssignmentNestedWildcard() {
+		constructorCallWithDiamondInAssignmentNestedWildcard.checkCompilation(
+'''
+package jbasetestlanguage;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+@SuppressWarnings("all")
+public class MyFile {
+  public static void main(String[] args) throws Throwable {
+    List<LinkedList<? extends String>> list3 = null;
+    ArrayList<LinkedList<? extends String>> _arrayList = new ArrayList<LinkedList<? extends String>>();
+    list3 = _arrayList;
+  }
+}
+'''
+			)
+	}
+
 	@Test def void testIfThenElseWithoutBlocks() {
 		ifThenElseWithoutBlocks.expectationsForIfThenElse
 	}

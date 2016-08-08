@@ -111,6 +111,38 @@ class JbaseInputs {
 		'''
 	}
 
+	def constructorCallWithDiamondInVarDecl() {
+		'''
+		java.util.List<String> list1 = new java.util.ArrayList<>();
+		java.util.List<? extends String> list2 = new java.util.ArrayList<>();
+		java.util.List<java.util.LinkedList<String>> list3 = new java.util.ArrayList<>();
+		'''
+	}
+
+	def constructorCallWithDiamondInVarDeclNestedWildcard() {
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> list3 = new java.util.ArrayList<>();
+		'''
+	}
+
+	def constructorCallWithDiamondInAssignment() {
+		'''
+		java.util.List<String> list1;
+		list1 = new java.util.ArrayList<>();
+		java.util.List<? extends String> list2;
+		list2 = new java.util.ArrayList<>();
+		java.util.List<java.util.LinkedList<String>> list3;
+		list3 = new java.util.ArrayList<>();
+		'''
+	}
+
+	def constructorCallWithDiamondInAssignmentNestedWildcard() {
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> list3;
+		list3 = new java.util.ArrayList<>();
+		'''
+	}
+
 	def ifThenElseWithoutBlocks() {
 		'''
 		if (args.length() == 0)

@@ -147,10 +147,11 @@ XFeatureCall returns XExpression:
 	')' 
 	)?;
 
+// also record '<' to tell whether it's a diamond operator
 XConstructorCall returns XExpression:
-	{XConstructorCall}
-	'new' constructor=[types::JvmConstructor|QualifiedName] 
-	(=>'<' typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)* '>')?
+	{XJConstructorCall}
+	'new' constructor=[types::JvmConstructor|QualifiedName]
+	(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
 	(=>explicitConstructorCall?='(' 
 		(
 		    arguments+=XExpression (',' arguments+=XExpression)*

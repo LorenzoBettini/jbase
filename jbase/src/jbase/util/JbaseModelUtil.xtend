@@ -8,6 +8,8 @@ import jbase.jbase.XJJvmFormalParameter
 import org.eclipse.xtext.common.types.JvmFormalParameter
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import jbase.jbase.XJConstructorCall
+import org.eclipse.xtext.common.types.JvmGenericType
 
 /**
  * Utility methods for accessing the Jbase model.
@@ -74,5 +76,15 @@ class JbaseModelUtil {
 		} else {
 			return null
 		}
+	}
+
+	def isRawType(XJConstructorCall e) {
+		val type = e.constructor.eContainer
+		if (type instanceof JvmGenericType)
+			return
+				e.typeArguments.empty &&
+				!e.isExplicitTypeArguments &&
+				!type.typeParameters.empty
+		return false
 	}
 }

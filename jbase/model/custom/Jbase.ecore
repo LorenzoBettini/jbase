@@ -58,4 +58,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="XJWithSemicolon" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJConstructorCall" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XConstructorCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="explicitTypeArguments"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
 </ecore:EPackage>

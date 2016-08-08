@@ -362,6 +362,124 @@ class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	def void testDiamondConstructorCallStandalone() {
+		'''
+		new java.util.List<>();
+		'''.assertLastExpression[
+			assertActualType("java.util.List<java.lang.Object>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDecl() {
+		'''
+		java.util.List<String> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithNestedTypeArg() {
+		'''
+		java.util.List<java.util.Collection<String>> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.util.Collection<java.lang.String>>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard() {
+		'''
+		java.util.List<? extends String> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard2() {
+		'''
+		java.util.List<? super String> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInVarDeclWithWildCard3() {
+		// this seems to be a bug in Xbase, since it should resolve as
+		// java.util.ArrayList<java.util.LinkedList<java.lang.String>>
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			variableDeclarationRight.
+				assertActualType("java.util.ArrayList<java.util.LinkedList<? extends java.lang.String>>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInAssignment() {
+		'''
+		java.util.List<String> l;
+		l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			assignmentRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInAssignmentWithNestedTypeArg() {
+		'''
+		java.util.List<java.util.Collection<String>> l;
+		l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			assignmentRight.
+				assertActualType("java.util.ArrayList<java.util.Collection<java.lang.String>>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInAssignmentWithWildCard() {
+		'''
+		java.util.List<? extends String> l;
+		l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			assignmentRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInAssignmentWithWildCard2() {
+		'''
+		java.util.List<? super String> l;
+		l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			assignmentRight.
+				assertActualType("java.util.ArrayList<java.lang.String>")
+		]
+	}
+
+	@Test
+	def void testDiamondConstructorCallInAssignmentWithWildCard3() {
+		// this seems to be a bug in Xbase, since it should resolve as
+		// java.util.ArrayList<java.util.LinkedList<java.lang.String>>
+		'''
+		java.util.List<java.util.LinkedList<? extends String>> l;
+		l = new java.util.ArrayList<>();
+		'''.assertLastExpression[
+			assignmentRight.
+				assertActualType("java.util.ArrayList<java.util.LinkedList<? extends java.lang.String>>")
+		]
+	}
+
+	@Test
 	def void testBranchingStatement() {
 		'''
 		continue;
