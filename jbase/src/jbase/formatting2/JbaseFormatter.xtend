@@ -137,8 +137,8 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 	override void _format(XCastedExpression expr, extension IFormattableDocument document) {
 		format(expr.getType(), document);
 		format(expr.getTarget(), document);
-		expr.regionFor.keyword("(").surround[noSpace]
-		expr.regionFor.keyword(")").prepend[noSpace].append[oneSpace]
+		expr.handleOpenCloseParenthesis("(", ")", document)
+		expr.regionFor.keyword(")").append[oneSpace]
 	}
 
 	def void _format(XJPrefixOperation expr, extension IFormattableDocument document) {
@@ -194,8 +194,7 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 	override void _format(XConstructorCall expr, extension IFormattableDocument document) {
 		// case for diamond
 		if (expr.typeArguments.empty) {
-			expr.regionFor.keyword("<").surround[noSpace]
-			expr.regionFor.keyword(">").prepend[noSpace]
+			expr.handleOpenCloseParenthesis("<", ">", document)
 		}
 		super._format(expr, document)
 	}
@@ -228,4 +227,8 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		index.immediatelyFollowing.keyword("]").prepend[noSpace]
 	}
 
+	def private handleOpenCloseParenthesis(XExpression expr, String open, String close, extension IFormattableDocument document) {
+		expr.regionFor.keyword(open).surround[noSpace]
+		expr.regionFor.keyword(close).prepend[noSpace]
+	}
 }
