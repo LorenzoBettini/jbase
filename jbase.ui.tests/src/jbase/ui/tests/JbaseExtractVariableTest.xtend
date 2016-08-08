@@ -66,6 +66,38 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		''', false)
 	}
 
+	@Test
+	def void testExtractVariableWithDiamondOperator() throws Exception {
+		'''
+			import java.util.List;
+			import java.util.LinkedList;
+			import java.util.ArrayList;
+			
+			List<LinkedList<String>> list = $new ArrayList<>()$;
+		'''.assertAfterExtract('''
+			import java.util.ArrayList;
+			import java.util.LinkedList;
+			import java.util.List;
+			
+			final ArrayList<LinkedList<String>> linkedLists = new ArrayList<>();
+			List<LinkedList<String>> list = linkedLists;
+		''', true)
+	}
+
+	@Test
+	def void testExtractVariableWithDiamondOperatorInMethodCall() throws Exception {
+		'''
+			import java.util.ArrayList;
+			
+			System.out.println($new ArrayList<>()$);
+		'''.assertAfterExtract('''
+			import java.util.ArrayList;
+			
+			final ArrayList<Object> objects = new ArrayList<>();
+			System.out.println(objects);
+		''', true)
+	}
+
 	def protected assertAfterExtract(CharSequence input, CharSequence expected, boolean isFinal) {
 		val inputString = input.toString
 		val model = inputString.replace('$','')
