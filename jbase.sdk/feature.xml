@@ -102,6 +102,11 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="jbase.lib.feature"
          version="0.0.0"/>
 
+   <requires>
+      <import feature="org.eclipse.xtext.xbase" version="2.10.0" match="equivalent"/>
+      <import feature="org.eclipse.xtext.ui" version="2.10.0" match="equivalent"/>
+   </requires>
+
    <plugin
          id="jbase"
          download-size="0"
