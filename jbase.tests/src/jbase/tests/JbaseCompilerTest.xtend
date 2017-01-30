@@ -496,7 +496,7 @@ public class MyFile {
 			)
 	}
 
-	@Test def void testArrayConstructorWithDiamondCallInVarDecl() {
+	@Test def void testConstructorWithDiamondCallInVarDecl() {
 		constructorCallWithDiamondInVarDecl.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -517,7 +517,7 @@ public class MyFile {
 			)
 	}
 
-	@Test def void testArrayConstructorWithDiamondCallInVarDeclNestedWildcard() {
+	@Test def void testConstructorWithDiamondCallInVarDeclNestedWildcard() {
 		constructorCallWithDiamondInVarDeclNestedWildcard.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -536,7 +536,7 @@ public class MyFile {
 			)
 	}
 
-	@Test def void testArrayConstructorWithDiamondCallInAssignment() {
+	@Test def void testConstructorWithDiamondCallInAssignment() {
 		constructorCallWithDiamondInAssignment.checkCompilation(
 '''
 package jbasetestlanguage;
@@ -563,7 +563,7 @@ public class MyFile {
 			)
 	}
 
-	@Test def void testArrayConstructorWithDiamondCallInAssignmentNestedWildcard() {
+	@Test def void testConstructorWithDiamondCallInAssignmentNestedWildcard() {
 		constructorCallWithDiamondInAssignmentNestedWildcard.checkCompilation(
 '''
 package jbasetestlanguage;
