@@ -23,6 +23,7 @@ XJStatementOrBlock returns XExpression:
 /**
  * Customize to reflect Java imports (e.g., no 'extension' keyword and mandatory ';' but many occurrences accepted)
  */
+@Override 
 XImportDeclaration returns xtype::XImportDeclaration: 
 	(=>'import' (
 		(static?='static' importedType=[types::JvmDeclaredType|QualifiedNameInStaticImport] (wildcard?='*' | memberName=ValidID)) 
@@ -30,12 +31,14 @@ XImportDeclaration returns xtype::XImportDeclaration:
 		| importedNamespace=QualifiedNameWithWildcard) ->';'*)
 ;
 
+@Override 
 JvmTypeReference returns types::JvmTypeReference:
 	JvmParameterizedTypeReference =>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)* 
 	// | XFunctionTypeRef;
 ;
 
 // customized with 'final' specification and varargs
+@Override 
 FullJvmFormalParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
 
@@ -84,6 +87,7 @@ XJBranchingStatement returns XExpression:
 /* 
  * The semicolons ';' are handled by the XJSemicolonStatement rule
  */
+@Override 
 XBlockExpression returns XExpression: 
 	{XBlockExpression}
 	'{'
@@ -98,6 +102,7 @@ XBlockExpression returns XExpression:
 //	=>XVariableDeclaration | XExpression;
 
 // Use the predicate to avoid ambiguities with XExpression
+@Override 
 XVariableDeclaration returns XVariableDeclaration:
 	=>({XJVariableDeclaration}
 	final?='final'?
@@ -112,6 +117,7 @@ XJAdditionalXVariableDeclaration returns XVariableDeclaration:
 	{XJAdditionalXVariableDeclaration}
 	name=ValidID ('=' right=XExpression)?;
 
+@Override 
 XAssignment returns XExpression :
 	=>({XJAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
 		'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
@@ -124,6 +130,7 @@ XAssignment returns XExpression :
 		=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpMultiAssign]) rightOperand=XAssignment
 	)?;
 
+@Override 
 OpMultiAssign:
 	'+=' | '-=' | '*=' | '/=' | '%=' | 
 	'&=' | '|=' | '^=' | // added in Jbase
@@ -137,6 +144,7 @@ XJFeatureCallWithArrayAccess returns XExpression:
 	)?
 ;
 
+@Override 
 XFeatureCall returns XExpression:
 	{XFeatureCall}
 	feature=[types::JvmIdentifiableElement|IdOrSuper] 
@@ -148,6 +156,7 @@ XFeatureCall returns XExpression:
 	)?;
 
 // also record '<' to tell whether it's a diamond operator
+@Override 
 XConstructorCall returns XExpression:
 	{XJConstructorCall}
 	'new' constructor=[types::JvmConstructor|QualifiedName]
@@ -180,12 +189,14 @@ XJArrayDimension:
 	{XJArrayDimension} '['
 ;
 
+@Override 
 XCastedExpression returns XExpression:
 	=>({XCastedExpression} '(' type=JvmTypeReference ')' target=XExpression)
 	|
 	XPostfixOperation
 ;
 
+@Override 
 XPostfixOperation returns XExpression:
 	=>({XJPrefixOperation} feature=[types::JvmIdentifiableElement|OpPostfix]) operand=XMemberFeatureCall
 	|
@@ -197,6 +208,7 @@ XPostfixOperation returns XExpression:
 	)?
 ;
 
+@Override 
 XMemberFeatureCall returns XExpression:
 	XPrimaryExpression
 	(
@@ -222,11 +234,13 @@ XMemberFeatureCall returns XExpression:
 	)*;
 
 // in Java the type must be specified so we must use FullJvmFormalParameter instead of JvmFormalParameter
+@Override 
 XForLoopExpression returns XExpression:
 	=>({XForLoopExpression}
 	'for' '(' declaredParam=FullJvmFormalParameter ':') forExpression=XExpression ')'
 		eachExpression=XJStatementOrBlock;
 
+@Override 
 XBasicForLoopExpression returns XExpression:
 	{XBasicForLoopExpression}
 	'for' '('(initExpressions+=XExpressionOrVarDeclaration (',' initExpressions+=XExpressionOrVarDeclaration)*)? ';' 
@@ -234,23 +248,27 @@ XBasicForLoopExpression returns XExpression:
 		(updateExpressions+=XExpression (',' updateExpressions+=XExpression)*)? ')'
 		eachExpression=XJStatementOrBlock;
 
+@Override 
 XIfExpression returns XExpression:
 	{XIfExpression}
 	'if' '(' if=XExpression ')'
 	then=XJStatementOrBlock
 	(=>'else' else=XJStatementOrBlock)?;
 
+@Override 
 XWhileExpression returns XExpression:
 	{XWhileExpression}
 	'while' '(' predicate=XExpression ')'
 		body=XJStatementOrBlock;
 
+@Override 
 XDoWhileExpression returns XExpression:
 	{XDoWhileExpression}
    'do'
        body=XJStatementOrBlock
    'while' '(' predicate=XExpression ')';
 
+@Override 
 XSwitchExpression returns XExpression:
 	{XSwitchExpression}
 	'switch' '(' switch=XExpression ')' '{'
@@ -258,6 +276,7 @@ XSwitchExpression returns XExpression:
 	('default' ':' default=XJSwitchStatements )?
 	'}';
 
+@Override 
 XCasePart:
 	{XCasePart}
 	'case' case=XExpression
@@ -297,6 +316,7 @@ XJTryWithResourcesVariableDeclaration:
 /**
  * Java needs blocks for try, catch, finally
  */
+@Override 
 XTryCatchFinallyExpression returns XExpression:
 	{XTryCatchFinallyExpression}
 	'try' 
@@ -308,16 +328,19 @@ XTryCatchFinallyExpression returns XExpression:
 	);
 
 // the explicit {XCatchClause} is required to make formatting work
+@Override 
 XCatchClause :
 	{XCatchClause} =>'catch' '(' declaredParam=FullJvmFormalParameter ')' expression=XBlockExpression;
 
 /**
  * Java needs block for synchronized
  */
+@Override 
 XSynchronizedExpression returns XExpression:
 	=>({XSynchronizedExpression}
 	'synchronized' '(') param=XExpression ')' expression=XBlockExpression;
 
+@Override 
 XPrimaryExpression returns XExpression:
 	XJArrayConstructorCall |
 	XConstructorCall |
@@ -336,6 +359,7 @@ XPrimaryExpression returns XExpression:
 //	XTryCatchFinallyExpression |
 	XParenthesizedExpression;
 
+@Override 
 XLiteral returns XExpression:
 //	XCollectionLiteral |
 //	XClosure |
@@ -362,28 +386,34 @@ XJArrayLiteral returns XJArrayLiteral:
 XCharLiteral returns XExpression:
 	{XJCharLiteral} value=CHARACTER;
 
+@Override 
 XStringLiteral returns XExpression:
 	{XStringLiteral} value=STRING;
 
+@Override 
 terminal STRING: 
 			'"' ( '\\' . /* ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') */ | !('\\'|'"') )* '"'?;
 
 terminal CHARACTER: 
 			"'" ( '\\' . /* ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') */ | !('\\'|"'") )* "'"?;
 
+@Override 
 OpEquality:
 	'==' | '!=' ;
 
 // '**' is not valid in Java
+@Override 
 OpMulti:
 	'*' | '/' | '%';
 
 // only valid Java operators
+@Override 
 OpOther:
 	  '>' (=>('>' '>') | '>') 
 	| '<<';
 
 // add bitwise operators with their precedence
+@Override 
 XAndExpression returns XExpression:
 	XBitwiseInclusiveOrExpression (=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpAnd]) rightOperand=XBitwiseInclusiveOrExpression)*;
 
@@ -406,16 +436,19 @@ OpBitwiseAnd:
 	'&';
 
 // add bitwise not ~
+@Override 
 OpUnary:
 	"!" | "-" | "+" | "~";
 
 // customization of multiple values for annotations to use the Java array literal syntax
+@Override 
 XAnnotationElementValueOrCommaList returns XExpression:
 	  =>({XJArrayLiteral} '{') (elements+=XAnnotationOrExpression (',' elements+=XAnnotationOrExpression )*)? '}'
 	| XAnnotationOrExpression // in Java multiple values must be specified with an array literal
 	// ({XListLiteral.elements+=current} (',' elements+=XAnnotationOrExpression )+)?
 ;
 
+@Override 
 XAnnotationElementValue returns XExpression :
 	  =>({XJArrayLiteral} '{') (elements+=XAnnotationOrExpression (',' elements+=XAnnotationOrExpression )*)? '}'
 	| XAnnotationOrExpression
