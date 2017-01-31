@@ -117,7 +117,7 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		// we must consider the case of a dimension with index expression
 		// and without index expression
 		for (XExpression index : expr.arrayDimensionIndexAssociations) {
-			if (index != null) {
+			if (index !== null) {
 				formatArrayIndex(index, document);
 			}
 		}
@@ -128,7 +128,7 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 		}
 		
 		val arrayLiteral = expr.getArrayLiteral()
-		if (arrayLiteral != null) {
+		if (arrayLiteral !== null) {
 			format(arrayLiteral, document);
 			arrayLiteral.regionFor.keyword("{").prepend[oneSpace]
 		}
@@ -186,7 +186,7 @@ class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 	}
 
 	def void _format(XJSemicolonStatement e, extension IFormattableDocument document) {
-		if (e.expression != null)
+		if (e.expression !== null)
 			format(e.expression, document)
 		formatSemicolon(e, document)
 	}

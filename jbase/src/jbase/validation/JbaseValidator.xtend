@@ -77,7 +77,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 			if (assignmentFeature instanceof JvmFormalParameter) {
 				// all parameters are considered NOT final by default
 				val originalParam = assignmentFeature.originalParam
-				if (originalParam == null || !originalParam.isFinal()) {
+				if (originalParam === null || !originalParam.isFinal()) {
 					return;
 				}
 			}
@@ -130,7 +130,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		String instruction,
 		Class<? extends EObject>... validContainers) {
 		val container = Wrapper.wrap(st.eContainer)
-		while (container.get != null) {
+		while (container.get !== null) {
 			if (validContainers.exists[c|c.isInstance(container.get)]) {
 				return;
 			}
@@ -146,7 +146,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	def checkMissingSemicolon(XJSemicolonStatement e) {
-		if (e.semicolon == null) {
+		if (e.semicolon === null) {
 			errorMissingSemicolon(e.expression)
 		}
 	}
@@ -169,7 +169,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		} else {
 			// in the last declaration the ';' is optional
 			for (r : resourceDeclarations.take(numOfResources-1)) {
-				if (r.semicolon == null) {
+				if (r.semicolon === null) {
 					errorMissingSemicolon(r)
 				}
 			}
@@ -249,14 +249,14 @@ class JbaseValidator extends AbstractJbaseValidator {
 		val arrayLiteral = cons.arrayLiteral
 		val dimensionExpressions = cons.indexes
 
-		if (dimensionExpressions.empty && arrayLiteral == null) {
+		if (dimensionExpressions.empty && arrayLiteral === null) {
 			error(
 				"Constructor must provide either dimension expressions or an array initializer",
 				cons,
 				null,
 				ARRAY_CONSTRUCTOR_EITHER_DIMENSION_EXPRESSION_OR_INITIALIZER
 			)
-		} else if (!dimensionExpressions.empty && arrayLiteral != null) {
+		} else if (!dimensionExpressions.empty && arrayLiteral !== null) {
 			error(
 				"Cannot define dimension expressions when an array initializer is provided",
 				cons,
@@ -267,7 +267,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 			val dimensionsAndIndexes = cons.arrayDimensionIndexAssociations
 			var foundEmptyDimension = false
 			for (d : dimensionsAndIndexes) {
-				if (d == null) {
+				if (d === null) {
 					foundEmptyDimension = true
 				} else if (foundEmptyDimension) {
 					error(
@@ -334,7 +334,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		if (types.getActualType(jvmOperation).isPrimitiveVoid()) 
 			return;
 		val lastExpression = body.expressions.last
-		if (lastExpression == null) {
+		if (lastExpression === null) {
 			errorMissingReturnStatement(body)
 			return
 		}

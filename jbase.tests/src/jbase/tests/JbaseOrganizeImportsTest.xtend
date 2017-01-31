@@ -35,7 +35,7 @@ class JbaseOrganizeImportsTest extends JbaseAbstractTest {
 		// "java.io.Serializable s = null;"
 		// so we must make sure to have enough leading whitespaces in the input
 		for(it: sortedChanges) {
-			if(lastChange != null && lastChange.endOffset > offset)
+			if(lastChange !== null && lastChange.endOffset > offset)
 				fail("Overlapping text edits: " + lastChange + ' and ' +it)
 			lastChange = it
 		}

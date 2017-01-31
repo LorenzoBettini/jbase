@@ -152,7 +152,7 @@ class JbaseModelUtilTest extends JbaseAbstractTest {
 				input.lastArrayConstructorCall.arrayDimensionIndexAssociations.
 					map[
 						e |
-						if (e == null) {
+						if (e === null) {
 							"null"
 						} else {
 							(e as XNumberLiteral).value

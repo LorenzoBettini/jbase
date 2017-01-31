@@ -15,7 +15,7 @@ import org.eclipse.xtext.xbase.XIfExpression
 class JbaseBranchingStatementDetector {
 
 	def boolean isSureBranchStatement(XExpression e) {
-		if (e == null)
+		if (e === null)
 			return false;
 		return sureBranch(e)
 	}
@@ -30,7 +30,7 @@ class JbaseBranchingStatementDetector {
 
 	def protected dispatch sureBranch(XIfExpression e) {
 		return isSureBranchStatement(e.then)
-			&& (e.^else == null || isSureBranchStatement(e.^else))
+			&& (e.^else === null || isSureBranchStatement(e.^else))
 	}
 
 	def protected dispatch sureBranch(XBlockExpression e) {

@@ -16,7 +16,7 @@ import org.eclipse.xtext.xbase.XIfExpression
 class JbaseBreakStatementDetector {
 
 	def boolean containsPossibleBreakStatement(XExpression e) {
-		if (e == null)
+		if (e === null)
 			return false;
 		return containsPossibleBreak(e)
 	}
@@ -38,7 +38,7 @@ class JbaseBreakStatementDetector {
 	}
 
 	def boolean isPossibleBreakStatement(XExpression e) {
-		if (e == null)
+		if (e === null)
 			return false;
 		return possibleBreak(e)
 	}
@@ -53,7 +53,7 @@ class JbaseBreakStatementDetector {
 
 	def protected dispatch possibleBreak(XIfExpression e) {
 		return isPossibleBreakStatement(e.then)
-			|| (e.^else != null && isPossibleBreakStatement(e.^else))
+			|| (e.^else !== null && isPossibleBreakStatement(e.^else))
 	}
 
 	def protected dispatch possibleBreak(XBlockExpression e) {
