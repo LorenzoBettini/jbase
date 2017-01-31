@@ -54,9 +54,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<os-jvm-flags />
 		<memoryArgs>-Xms256M -Xmx1024M -XX:PermSize=256M -XX:MaxPermSize=256M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
-		<xtext.version>2.10.0</xtext.version>
+		<xtext.version>2.11.0.RC2</xtext.version>
 		<xtext-version>${xtext.version}</xtext-version>
 		<xtextVersion>${xtext.version}</xtextVersion>
+		<mwe2Version>[2.9.0,2.10)</mwe2Version>
 		<platform-version>[3.9,4.0)</platform-version>
 		<fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
