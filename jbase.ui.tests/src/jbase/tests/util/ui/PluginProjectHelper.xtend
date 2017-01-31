@@ -90,7 +90,7 @@ class PluginProjectHelper {
 	def XtextEditor openEditor(IFile file) throws Exception {
 		val openEditor = openEditor(file, getEditorID());
 		val xtextEditor = EditorUtils.getXtextEditor(openEditor);
-		if (xtextEditor != null) {
+		if (xtextEditor !== null) {
 			xtextEditor.selectAndReveal(0, 0);
 			return xtextEditor;
 		} else if (openEditor instanceof ErrorEditorPart) {
