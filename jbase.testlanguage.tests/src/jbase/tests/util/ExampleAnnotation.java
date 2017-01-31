@@ -1,6 +1,6 @@
 package jbase.tests.util;
 
-import org.eclipse.xtext.junit4.smoketest.ScenarioProcessor;
+import org.eclipse.xtext.testing.smoketest.ScenarioProcessor;
 
 public @interface ExampleAnnotation {
 
