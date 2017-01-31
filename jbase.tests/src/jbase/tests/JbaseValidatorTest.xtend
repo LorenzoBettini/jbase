@@ -1438,7 +1438,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testAnnotationsCorrectAttributeTypeButInvalidTypeLiteral() {
 		'''
 		import jbase.tests.util.ExampleAnnotation;
-		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 		
 		@ExampleAnnotation(value = TypeSystemSmokeTester)
 		o : Object
@@ -1452,7 +1452,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testAnnotationsCorrectAttributeType() {
 		'''
 		import jbase.tests.util.ExampleAnnotation;
-		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 		
 		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
 		o : Object
