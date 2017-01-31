@@ -3,9 +3,9 @@ package org.eclipse.xtext.example.domainmodel.tests
 import com.google.inject.Inject
 import org.eclipse.xtext.example.domainmodel.DomainmodelInjectorProvider
 import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.junit4.formatter.FormatterTester
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.testing.formatter.FormatterTestHelper
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith
 @InjectWith(DomainmodelInjectorProvider)
 class FormatterTest {
 
-	@Inject extension FormatterTester
+	@Inject extension FormatterTestHelper
 
 	/**
 	 * This example tests if the formatted document equals the unformatted document.
