@@ -9,8 +9,8 @@ import jbase.util.JbaseModelUtil
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.common.types.JvmFormalParameter
 import org.eclipse.xtext.common.types.TypesFactory
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.xbase.XNumberLiteral
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
 import org.junit.Test

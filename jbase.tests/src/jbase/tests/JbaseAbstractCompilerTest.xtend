@@ -7,11 +7,11 @@ import java.io.PrintStream
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseTestlanguageInputs
 import org.eclipse.xtext.diagnostics.Severity
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.TemporaryFolder
-import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.xbase.compiler.CompilationTestHelper
-import org.eclipse.xtext.xbase.compiler.CompilationTestHelper.Result
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.xbase.testing.CompilationTestHelper
+import org.eclipse.xtext.xbase.testing.CompilationTestHelper.Result
+import org.eclipse.xtext.xbase.testing.TemporaryFolder
 import org.junit.Rule
 import org.junit.runner.RunWith
 
