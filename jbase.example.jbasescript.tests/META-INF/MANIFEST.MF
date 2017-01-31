@@ -7,12 +7,11 @@ Bundle-SymbolicName: jbase.example.jbasescript.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: jbase.example.jbasescript,
  org.eclipse.core.runtime,
- org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.lib,
- org.eclipse.ui.workbench;resolution:=optional,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.eclipse.xtext.xbase.junit,
- org.eclipse.jdt.core
+ org.eclipse.jdt.core,
+ org.eclipse.xtext.testing,
+ org.eclipse.xtext.xbase.testing
 Import-Package: org.apache.log4j,
  org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
@@ -22,4 +21,4 @@ Import-Package: org.apache.log4j,
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: jbase.example.jbasescript.tests
+Export-Package: jbase.example.jbasescript.tests;x-internal=true

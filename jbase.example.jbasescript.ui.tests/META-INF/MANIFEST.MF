@@ -10,9 +10,11 @@ Require-Bundle: jbase.example.jbasescript.ui,
  org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.junit,
  org.eclipse.ui.workbench;resolution:=optional,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.xtext.testing,
+ org.eclipse.xtext.xbase.testing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: jbase.example.jbasescript.ui.tests
+Export-Package: jbase.example.jbasescript.ui.tests;x-internal=true
 Import-Package: org.junit.runners;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core,
