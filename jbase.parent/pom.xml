@@ -217,11 +217,10 @@
 								<goals>
 									<goal>jar</goal>
 								</goals>
-								<!--  Use the following configuration with Java 8
+								<!--  Use the following configuration with Java 8 -->
 								<configuration>
 									<additionalparam>-Xdoclint:none</additionalparam>
 								</configuration>
-								 -->
 							</execution>
 						</executions>
 					</plugin>
