@@ -8,7 +8,8 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: jbase.testlanguage,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
- jbase
+ jbase,
+ org.antlr.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.testlanguage.ide.contentassist.antlr.internal,
  jbase.testlanguage.ide.contentassist.antlr
