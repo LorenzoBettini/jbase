@@ -4,8 +4,8 @@ import com.google.inject.Inject
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.tests.util.SimpleJvmModelTestInjectorProvider
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference

@@ -10,9 +10,9 @@ import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.diagnostics.Diagnostic
 import org.eclipse.xtext.diagnostics.Severity
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.junit4.util.ParseHelper
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.XbasePackage
 import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage
@@ -1438,7 +1438,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testAnnotationsCorrectAttributeTypeButInvalidTypeLiteral() {
 		'''
 		import jbase.tests.util.ExampleAnnotation;
-		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 		
 		@ExampleAnnotation(value = TypeSystemSmokeTester)
 		o : Object
@@ -1452,7 +1452,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testAnnotationsCorrectAttributeType() {
 		'''
 		import jbase.tests.util.ExampleAnnotation;
-		import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester;
+		import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 		
 		@ExampleAnnotation(value = TypeSystemSmokeTester.class)
 		o : Object

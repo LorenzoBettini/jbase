@@ -3,11 +3,12 @@ package jbase.tests
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJPrefixOperation
+import jbase.jbase.XJTryWithResourcesStatement
 import jbase.util.JbaseNodeModelUtil
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.xbase.XBinaryOperation
 import org.eclipse.xtext.xbase.XBooleanLiteral
 import org.eclipse.xtext.xbase.XConstructorCall
@@ -25,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import static extension org.junit.Assert.*
-import jbase.jbase.XJTryWithResourcesStatement
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseInjectorProvider))

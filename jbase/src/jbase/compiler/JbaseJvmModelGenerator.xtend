@@ -27,7 +27,7 @@ class JbaseJvmModelGenerator extends JvmModelGenerator {
 		
 		// all parameters are NOT final by default
 		val originalParam = it.originalParam
-		if (originalParam != null && originalParam.isFinal()) {
+		if (originalParam !== null && originalParam.isFinal()) {
 			tracedAppendable.append("final ")	
 		}
 

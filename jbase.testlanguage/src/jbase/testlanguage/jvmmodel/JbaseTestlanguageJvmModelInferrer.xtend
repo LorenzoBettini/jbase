@@ -106,7 +106,7 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def private void translateAnnotations(JvmAnnotationTarget target, Iterable<XAnnotation> annotations) {
-		target.addAnnotations(annotations.filterNull.filter[annotationType != null])
+		target.addAnnotations(annotations.filterNull.filter[annotationType !== null])
 	}
 
 	/**

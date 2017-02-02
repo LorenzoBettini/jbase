@@ -73,7 +73,7 @@ class DomainmodelFormatter extends JbaseFormatter {
 				params.format
 			operation.regionFor.keyword(")").prepend[noSpace]
 		}
-		if (operation.type != null) {
+		if (operation.type !== null) {
 			operation.regionFor.keyword(")").append[noSpace]
 			operation.type.prepend[noSpace].append[oneSpace]
 			operation.type.format

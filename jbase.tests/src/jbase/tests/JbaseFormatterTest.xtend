@@ -2,17 +2,17 @@ package jbase.tests
 
 import com.google.inject.Inject
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.junit4.formatter.FormatterTester
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.eclipse.xtext.testing.formatter.FormatterTestHelper
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageInjectorProvider))
 class JbaseFormatterTest extends JbaseAbstractTest {
 	
-	@Inject extension FormatterTester
+	@Inject extension FormatterTestHelper
 
 	@Test def void testProgramSpaces() {
 		assertFormatted[

@@ -85,7 +85,9 @@ Workflow {
 			fragment = exporting.QualifiedNamesFragment {}
 			
 			// testing API
-			fragment = junit.Junit4Fragment {}
+			fragment = junit.Junit4Fragment {
+				useDeprecatedClasses = false
+			}
 
 			// formatter API 
 			fragment = formatting2.Formatter2Fragment {}

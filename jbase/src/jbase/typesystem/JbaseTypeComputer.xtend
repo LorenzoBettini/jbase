@@ -152,7 +152,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			// we must use the type of the switch's expression to type the case part
 			val caseState = casePartState.withExpectation(expressionType)
 			caseState.withinScope(casePart);
-			if (casePart.getCase() != null) {
+			if (casePart.getCase() !== null) {
 				caseState.computeTypes(casePart.getCase());
 			}
 			val then = casePart.getThen();
@@ -176,12 +176,12 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 //				}
 		}
 		val defaultCase = object.getDefault();
-		if (defaultCase != null) {
+		if (defaultCase !== null) {
 			allCasePartsState.computeTypes(object.getDefault());
 		} else { // if (branchExpressionProcessor != null) {
 			// branchExpressionProcessor.commit();
-			val typeExpectation = state.expectations.findFirst[expectedType != null]
-			if (typeExpectation != null) {
+			val typeExpectation = state.expectations.findFirst[expectedType !== null]
+			if (typeExpectation !== null) {
 				val diagnostic = new EObjectDiagnosticImpl(
 					Severity.ERROR,
 					JbaseIssueCodes.MISSING_DEFAULT, 
@@ -222,7 +222,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		val expectations = state.expectations
 		for (typeExpectation : expectations.map[expectedType].filterNull) {
 			val primitive = typeExpectation.primitiveKind
-			if (primitive != null && primitive != Primitives.Primitive.Void &&
+			if (primitive !== null && primitive != Primitives.Primitive.Void &&
 				primitive != Primitives.Primitive.Boolean
 			) {
 				state.acceptActualType(typeExpectation)
@@ -245,7 +245,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		val actualType = state.withNonVoidExpectation.computeTypes(arrayAccess.array).actualExpressionType
 		// arrayAccess.array can be null in expressions of the shape
 		// ()[0]
-		if (actualType == null) {
+		if (actualType === null) {
 			state.acceptActualType(getPrimitiveVoid(state))
 		} else {
 			val type = componentTypeOfArrayAccess(arrayAccess, actualType, state, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE)
@@ -263,7 +263,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		for (i : 0..<call.dimensions.size) {
 			arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef)
 		}
-		if (call.arrayLiteral != null) {
+		if (call.arrayLiteral !== null) {
 			state.withExpectation(arrayTypeRef).computeTypes(call.arrayLiteral)
 		}
 		state.acceptActualType(arrayTypeRef)
@@ -276,7 +276,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 				computeTypes(typeExpression).actualExpressionType
 		// given Class<T>...
 		val typeArgument = typeExpressionType.typeArguments.head
-		if (typeArgument != null) {
+		if (typeArgument !== null) {
 			// ...we possibly create as result Class<T[]...>
 			var arrayTypeRef = typeArgument
 			for (i : 0..<e.arrayDimensions.size) {
@@ -314,7 +314,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 
 	def protected _computeTypes(XJSemicolonStatement st, ITypeComputationState state) {
 		val expression = st.expression
-		if (expression != null) {
+		if (expression !== null) {
 			// it is crucial to specify withinScope, otherwise, FeatureScopeTracker
 			// (used for the content assist) won't work
 			// replacePreviousExpressionScope would throw an IllegalStateException
@@ -386,7 +386,7 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 
 	def private getDeclaredType(JvmIdentifiableElement feature, AbstractTypeComputationState state) {
 		val result = state.getResolvedTypes().getActualType(feature);
-		if (result == null) {
+		if (result === null) {
 			return state.getReferenceOwner().newAnyTypeReference();
 		}
 		return result;

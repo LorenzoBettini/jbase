@@ -3,10 +3,10 @@ package jbase.tests
 import com.google.inject.Inject
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.junit4.InjectWith
-import org.eclipse.xtext.junit4.XtextRunner
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.util.ReplaceRegion
 import org.eclipse.xtext.xbase.imports.ImportOrganizer
 import org.junit.Test
@@ -35,7 +35,7 @@ class JbaseOrganizeImportsTest extends JbaseAbstractTest {
 		// "java.io.Serializable s = null;"
 		// so we must make sure to have enough leading whitespaces in the input
 		for(it: sortedChanges) {
-			if(lastChange != null && lastChange.endOffset > offset)
+			if(lastChange !== null && lastChange.endOffset > offset)
 				fail("Overlapping text edits: " + lastChange + ' and ' +it)
 			lastChange = it
 		}

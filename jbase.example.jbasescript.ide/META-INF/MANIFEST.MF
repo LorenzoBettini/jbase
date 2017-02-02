@@ -8,7 +8,8 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: jbase.example.jbasescript,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
- jbase
+ jbase,
+ org.antlr.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript.ide.contentassist.antlr.internal,
  jbase.example.jbasescript.ide.contentassist.antlr

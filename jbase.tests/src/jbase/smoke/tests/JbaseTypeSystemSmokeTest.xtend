@@ -1,11 +1,11 @@
 package jbase.smoke.tests
 
-import org.eclipse.xtext.junit4.smoketest.ProcessedBy
-import org.eclipse.xtext.junit4.smoketest.XtextSmokeTestRunner
-import org.eclipse.xtext.xbase.junit.typesystem.TypeSystemSmokeTester
+import jbase.tests.JbaseParsingTest
+import org.eclipse.xtext.testing.smoketest.ProcessedBy
+import org.eclipse.xtext.testing.smoketest.XtextSmokeTestRunner
+import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester
 import org.junit.runner.RunWith
 import org.junit.runners.Suite.SuiteClasses
-import jbase.tests.JbaseParsingTest
 
 @RunWith(XtextSmokeTestRunner)
 @ProcessedBy(

@@ -32,7 +32,7 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 
 	def void _format(JbaseTestLanguageModel model, extension IFormattableDocument document) {
 		val importSection = model.getImportSection()
-		if (importSection != null) {
+		if (importSection !== null) {
 			// to avoid a useless newline at the beginning of the program
 			model.prepend[setNewLines(0, 0, 0); noSpace]
 			format(importSection, document);
@@ -80,7 +80,7 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 				format(params, document);
 			operation.regionFor.keyword(")").prepend[noSpace]
 		}
-		if (operation.type != null) {
+		if (operation.type !== null) {
 			operation.regionFor.keyword(":").prepend[oneSpace]
 			operation.type.surround[oneSpace]
 			format(operation.type, document);

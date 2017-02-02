@@ -55,7 +55,7 @@ class JbaseInitializedVariableFinder {
 	 */
 	def void detectNotInitializedDispatch(XExpression e,
 		InitializedVariables initialized, NotInitializedAcceptor acceptor) {
-		if (e != null) {
+		if (e !== null) {
 			detectNotInitialized(e, initialized, acceptor)
 		}
 	}
@@ -94,7 +94,7 @@ class JbaseInitializedVariableFinder {
 
 	def protected void inspectVariableDeclaration(XVariableDeclaration e,
 		InitializedVariables initialized, NotInitializedAcceptor acceptor) {
-		if (e.right != null) {
+		if (e.right !== null) {
 			detectNotInitializedDispatch(
 				e.right, initialized, acceptor
 			)
@@ -146,10 +146,10 @@ class JbaseInitializedVariableFinder {
 		val effectiveOrNotEffectiveBranches =
 			e.cases.map[then].groupBy[isSureBranchStatement]
 
-		if (effectiveOrNotEffectiveBranches.get(true) == null) {
+		if (effectiveOrNotEffectiveBranches.get(true) === null) {
 			effectiveOrNotEffectiveBranches.put(true, newArrayList)
 		}
-		if (effectiveOrNotEffectiveBranches.get(false) == null) {
+		if (effectiveOrNotEffectiveBranches.get(false) === null) {
 			effectiveOrNotEffectiveBranches.put(false, newArrayList)
 		}
 
@@ -228,7 +228,7 @@ class JbaseInitializedVariableFinder {
 	def protected void detectNotInitializedTryCatchCommon(XTryCatchFinallyExpression e, InitializedVariables initialized,
 		NotInitializedAcceptor acceptor, (InitializedVariables)=>void branchInspector) {
 		val finallyExpression = e.finallyExpression
-		if (finallyExpression != null) {
+		if (finallyExpression !== null) {
 			// when inspecting the finally block we can't assume anything about
 			// what's initialized in try and catch blocks
 			/*

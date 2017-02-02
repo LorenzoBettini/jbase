@@ -15,9 +15,11 @@ Require-Bundle: jbase.ui,
  org.eclipse.ui.ide,
  org.eclipse.pde.core;bundle-version="3.10.101",
  jbase.testlanguage.ui.tests,
- org.eclipse.xtext.common.types.ui
+ org.eclipse.xtext.common.types.ui,
+ org.eclipse.xtext.testing,
+ org.eclipse.xtext.xbase.testing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: jbase.ui.tests
+Export-Package: jbase.ui.tests;x-internal=true
 Import-Package: org.junit.runners;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core,
