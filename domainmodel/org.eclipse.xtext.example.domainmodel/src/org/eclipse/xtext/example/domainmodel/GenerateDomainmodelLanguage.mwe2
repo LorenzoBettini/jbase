@@ -22,12 +22,13 @@ Workflow {
 
 	bean = StandaloneSetup {
 		scanClassPath  = true
-		platformUri = "${runtimeProject}/.."
 
 		projectMapping = {
 			projectName = '${projectName}' 
 			path = '${runtimeProject}'
 		}
+
+		platformUri = "${runtimeProject}/.."
 
 		registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
 		registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
