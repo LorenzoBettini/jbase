@@ -1687,6 +1687,15 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		}'''.parse.assertNoErrors
 	}
 
+	@Test def void testComparisonWithNull_Issue72() {
+		// Xbase would issue this warning:
+		// 'The operator '==' should be replaced by '===' when null is one of the arguments.'
+		'''
+		Object o = new Object();
+		System.out.println(o == null);
+		'''.parse.assertNoErrors
+	}
+
 	def private assertInvalidContinueStatement(EObject o) {
 		o.assertError(
 			jbasePackage.XJContinueStatement,
