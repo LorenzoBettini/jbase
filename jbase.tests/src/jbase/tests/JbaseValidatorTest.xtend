@@ -1693,7 +1693,7 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 		'''
 		Object o = new Object();
 		System.out.println(o == null);
-		'''.parse.assertNoErrors
+		'''.parse.assertNoIssues
 	}
 
 	def private assertInvalidContinueStatement(EObject o) {
