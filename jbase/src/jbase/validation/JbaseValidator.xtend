@@ -370,4 +370,16 @@ class JbaseValidator extends AbstractJbaseValidator {
 		}
 		error("Missing return", source, null, MISSING_RETURN)
 	}
+
+	/**
+	 * Avoids issues that are specific to Xbase, like the warning when you
+	 * compare to null with '==' instead of '==='
+	 * (see https://github.com/LorenzoBettini/jbase/issues/72)
+	 */
+	override protected addIssue(String message, EObject source, EStructuralFeature feature, int index, String issueCode, String... issueData) {
+		if (IssueCodes.EQUALS_WITH_NULL == issueCode)
+			return;
+		super.addIssue(message, source, feature, index, issueCode, issueData)
+	}
+
 }
