@@ -19,7 +19,7 @@ class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExitComput
 	@Inject extension JbaseBranchingStatementDetector
 	@Inject JbaseBreakStatementDetector breakStatementDetector
 
-	@Override override Collection<ExitPoint> getExitPoints(XExpression expression) {
+	override Collection<ExitPoint> getExitPoints(XExpression expression) {
 		val exitPoints = super.getExitPoints(expression)
 		val head = exitPoints.head
 		if (head?.expression === expression && breakStatementDetector.containsPossibleBreakStatement(expression)) {
