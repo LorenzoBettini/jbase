@@ -4,15 +4,15 @@ import com.google.inject.Inject
 import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider
 import jbase.tests.util.ui.PDETargetPlatformUtils
 import jbase.tests.util.ui.PluginProjectHelper
-import org.eclipse.xtext.junit4.ui.AbstractWorkbenchTest
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.ui.testing.AbstractWorkbenchTest
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import static org.eclipse.xtext.junit4.ui.util.IResourcesSetupUtil.*
+import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*
 
 @RunWith(typeof(XtextRunner))
 @InjectWith(typeof(JbaseTestlanguageUiInjectorProvider))

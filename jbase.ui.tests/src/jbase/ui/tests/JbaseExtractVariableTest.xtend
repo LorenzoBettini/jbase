@@ -6,9 +6,9 @@ import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider
 import jbase.tests.util.ui.PluginProjectHelper
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.text.TextSelection
-import org.eclipse.xtext.junit4.ui.AbstractWorkbenchTest
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
+import org.eclipse.xtext.ui.testing.AbstractWorkbenchTest
 import org.eclipse.xtext.xbase.ui.refactoring.ExpressionUtil
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring
 import org.junit.Before
