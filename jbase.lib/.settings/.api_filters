@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="jbase.lib" version="2">
     <resource path="META-INF/MANIFEST.MF">
-        <filter id="927989779">
+        <filter id="926941240">
             <message_arguments>
-                <message_argument value="0.6.1"/>
-                <message_argument value="org.eclipse.xtext.xbase.lib"/>
+                <message_argument value="0.7.0"/>
+                <message_argument value="0.6.0"/>
             </message_arguments>
         </filter>
     </resource>
