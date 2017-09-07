@@ -141,8 +141,6 @@
         label="M2E"
         licenseConfirmationDisabled="true">
       <requirement
-          name="org.sonatype.tycho.m2e.feature.feature.group"/>
-      <requirement
           name="org.eclipse.m2e.feature.feature.group"/>
       <requirement
           name="org.sonatype.m2e.buildhelper.feature.feature.group"/>
