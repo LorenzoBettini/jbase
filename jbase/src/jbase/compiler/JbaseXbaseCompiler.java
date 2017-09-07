@@ -535,10 +535,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * 
 	 * @param expr
 	 * @param b
+	 * @param recursive
 	 * @return
 	 */
 	@Override
-	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b) {
+	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b, boolean recursive) {
 		if (expr instanceof XUnaryOperation) {
 			return !expressionHelper.specialHandling((XUnaryOperation) expr);
 		} else if (expr instanceof XJClassObject ||
@@ -547,7 +548,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			// try-with-resources' resource declaration
 			return false;
 		}
-		return super.isVariableDeclarationRequired(expr, b);
+		return super.isVariableDeclarationRequired(expr, b, recursive);
 	}
 
 	private void compileArrayAccess(XExpression expr, ITreeAppendable b) {
