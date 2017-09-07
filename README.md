@@ -13,9 +13,15 @@ Please make sure you add the Xtext update site (http://download.eclipse.org/mode
 
 ### Specific versions
 
-- Version 0.3.x is based on Xtext 2.10.x, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.3/
-- Version 0.2.x is based on Xtext 2.10.x, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.2/
-- Version 0.1.x is based on Xtext 2.8.4, https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.1/
+Please make sure to use the version of Jbase that corresponds to the version of Xtext you want to use.  You can find the right version by looking at the update site category that is of the shape, for example
+
+```
+Jbase 0.6.x (for Xtext 2.11.0)
+```
+
+If you want to make sure you do not upgrade to a newer version of Jbase by using the "All releases" update site, you can use the update site of a specific major.minor version, for example, for version 0.6.x you can use the update site
+
+https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.6/
 
 ## Maven Artifacts
 
