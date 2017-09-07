@@ -3,7 +3,7 @@ package jbase.ui.tests
 import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
-import org.eclipse.xtext.xbase.junit.ui.AbstractContentAssistTest
+import org.eclipse.xtext.ui.testing.AbstractContentAssistTest
 import org.junit.Test
 import org.junit.runner.RunWith
 

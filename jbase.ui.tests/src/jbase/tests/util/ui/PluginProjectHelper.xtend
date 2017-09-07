@@ -3,28 +3,28 @@ package jbase.tests.util.ui
 import com.google.inject.Inject
 import com.google.inject.Provider
 import java.util.List
+import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Status
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.xtext.junit4.ui.util.JavaProjectSetupUtil
-import org.eclipse.xtext.ui.XtextProjectHelper
-import org.eclipse.xtext.ui.util.PluginProjectFactory
-
-import static org.eclipse.xtext.junit4.ui.util.IResourcesSetupUtil.*
-import static org.junit.Assert.*
-import org.eclipse.xtext.ui.editor.XtextEditor
-import org.eclipse.xtext.ui.editor.utils.EditorUtils
-import org.eclipse.core.runtime.Status
 import org.eclipse.ui.IEditorPart
 import org.eclipse.ui.IWorkbench
-import org.eclipse.core.resources.IFile
 import org.eclipse.ui.PartInitException
-import org.eclipse.ui.part.FileEditorInput
-import org.eclipse.xtext.ui.editor.XtextEditorInfo
 import org.eclipse.ui.internal.ErrorEditorPart
+import org.eclipse.ui.part.FileEditorInput
 import org.eclipse.xtext.resource.FileExtensionProvider
+import org.eclipse.xtext.ui.XtextProjectHelper
+import org.eclipse.xtext.ui.editor.XtextEditor
+import org.eclipse.xtext.ui.editor.XtextEditorInfo
+import org.eclipse.xtext.ui.editor.utils.EditorUtils
+import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil
+import org.eclipse.xtext.ui.util.PluginProjectFactory
+
+import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*
+import static org.junit.Assert.*
 
 class PluginProjectHelper {
 
