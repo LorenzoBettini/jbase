@@ -201,23 +201,6 @@
     </setupTask>
     <setupTask
         xsi:type="setup.p2:P2Task"
-        label="Findbugs">
-      <requirement
-          name="edu.umd.cs.findbugs.plugin.eclipse.feature.group"
-          optional="true"/>
-      <repository
-          url="http://findbugs.cs.umd.edu/eclipse/"/>
-    </setupTask>
-    <setupTask
-        xsi:type="setup.p2:P2Task"
-        label="B3 Aggregator">
-      <requirement
-          name="org.eclipse.b3.aggregator.editor.feature.feature.group"/>
-      <repository
-          url="http://download.eclipse.org/modeling/emft/b3/updates-4.4"/>
-    </setupTask>
-    <setupTask
-        xsi:type="setup.p2:P2Task"
         label="Oomph Extensions">
       <requirement
           name="org.eclipse.oomph.setup.git.feature.group"/>
