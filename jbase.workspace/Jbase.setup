@@ -98,7 +98,7 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="eclipse.target.platform"
-      defaultValue="Neon"
+      defaultValue="Oxygen"
       storageURI="scope://Workspace"/>
   <setupTask
       xsi:type="setup:ResourceCreationTask"
@@ -351,6 +351,21 @@
         <repository
             url="https://dl.bintray.com/lorenzobettini/xtext-xdoc/updates/"/>
       </repositoryList>
+      <repositoryList
+          name="Oxygen">
+        <repository
+            url="http://download.eclipse.org/releases/oxygen"/>
+        <repository
+            url="http://download.itemis.com/updates/releases/2.1.1/"/>
+        <repository
+            url="${xtext.site}"/>
+        <repository
+            url="${mwe2.site}"/>
+        <repository
+            url="http://download.eclipse.org/technology/swtbot/releases/latest/"/>
+        <repository
+            url="https://dl.bintray.com/lorenzobettini/xtext-xdoc/updates/"/>
+      </repositoryList>
     </targlet>
   </setupTask>
   <setupTask
@@ -444,11 +459,11 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="api.baseline.version"
-      value="0.6.0"/>
+      value="0.7.0"/>
   <setupTask
       xsi:type="setup:VariableTask"
       name="api.baseline.zip"
-      value="jbase.site-0.6.0.v20170203-1216.zip"/>
+      value="jbase.site-0.7.0.v20170907-0911.zip"/>
   <setupTask
       xsi:type="pde:APIBaselineTask"
       name="jbase-latest"
