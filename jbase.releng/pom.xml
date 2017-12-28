@@ -42,6 +42,7 @@
 		<module>../jbase.ui.examples</module>
 		<module>../jbase.doc</module>
 		<module>../jbase.lib.feature</module>
+		<module>../jbase.ui.feature</module>
 		<module>../jbase.sdk</module>
 		<module>../jbase.site</module>
 	</modules>
