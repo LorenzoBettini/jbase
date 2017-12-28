@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<relativePath>../jbase.parent/pom.xml</relativePath>
+		<relativePath>../jbase.tests.parent/pom.xml</relativePath>
 		<groupId>net.sf.xtext-jbase</groupId>
-		<artifactId>jbase.parent</artifactId>
+		<artifactId>jbase.tests.parent</artifactId>
 		<version>0.7.0-SNAPSHOT</version>
 	</parent>
 
@@ -42,11 +42,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
@@ -59,8 +54,7 @@
 							<skip>${swtbot.tests.only}</skip>
 							<useUIHarness>true</useUIHarness>
 							<useUIThread>true</useUIThread>
-							<!-- tycho.testArgLine repeated to re-use the configuration for argLine for jacoco agent -->
-							<argLine>${tycho.testArgLine} ${os-jvm-flags} ${memoryArgs} -DbuildingWithTycho=true</argLine>
+							<argLine>${additionalTestArgLine} ${os-jvm-flags} ${memoryArgs} -DbuildingWithTycho=true</argLine>
 							<includes>
 								<include>**/jbase/ui/tests/*Test.java</include>
 							</includes>

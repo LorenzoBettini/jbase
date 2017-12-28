@@ -10,7 +10,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 	fi
 else
 	echo "Build on Linux"
-	mvn -f jbase.releng/pom.xml clean verify -Declipse-target=$ECLIPSE_TARGET -Pjacoco-report coveralls:report
+	mvn -f jbase.releng/pom.xml clean verify -Declipse-target=$ECLIPSE_TARGET $ADDITIONAL
 fi
 
 #  -Dtycho.disableP2Mirrors=true
