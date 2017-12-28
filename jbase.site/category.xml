@@ -6,6 +6,12 @@
    <feature id="jbase.sdk.source" version="0.0.0">
       <category name="main.source"/>
    </feature>
+   <feature id="jbase.ui.feature" version="0.0.0">
+      <category name="main"/>
+   </feature>
+   <feature id="jbase.ui.feature.source" version="0.0.0">
+      <category name="main.source"/>
+   </feature>
    <feature id="jbase.lib.feature" version="0.0.0">
       <category name="main"/>
    </feature>

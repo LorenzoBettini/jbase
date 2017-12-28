@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="jbase.sdk"
-      label="Jbase SDK Feature "
+      id="jbase.ui.feature"
+      label="Jbase UI Feature "
       version="0.7.0.qualifier">
 
    <description>
@@ -99,18 +99,37 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <includes
-         id="jbase.ui.feature"
+         id="jbase.lib.feature"
          version="0.0.0"/>
 
+   <requires>
+      <import feature="org.eclipse.xtext.xbase" version="2.12.0" match="equivalent"/>
+      <import feature="org.eclipse.xtext.ui" version="2.12.0" match="equivalent"/>
+   </requires>
+
    <plugin
-         id="jbase.doc"
+         id="jbase"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="jbase.ui.examples"
+         id="jbase.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="jbase.mwe2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="jbase.ide"
          download-size="0"
          install-size="0"
          version="0.0.0"
