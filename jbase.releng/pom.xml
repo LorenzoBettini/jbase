@@ -26,8 +26,10 @@
 		<module>../jbase.testlanguage.ui</module>
 		<module>../jbase.testlanguage.tests</module>
 		<module>../jbase.testlanguage.ui.tests</module>
+		<module>../jbase.tests.parent</module>
 		<module>../jbase.tests</module>
 		<module>../jbase.ui.tests</module>
+		<module>../jbase.tests.report</module>
 		<module>../jbase.example.purejbase</module>
 		<module>../jbase.example.purejbase.ui</module>
 		<module>../jbase.example.purejbase.tests</module>
