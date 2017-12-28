@@ -7,7 +7,7 @@ Bundle-SymbolicName: jbase.example.jbasescript.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: jbase.example.jbasescript,
  org.eclipse.core.runtime,
- org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.13.0",
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.jdt.core,
  org.eclipse.xtext.testing,
