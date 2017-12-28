@@ -61,7 +61,8 @@
 		<platform-version>[3.9,4.0)</platform-version>
 		<fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
-		<target-file-name>oxygen-xtext-2.13</target-file-name>
+		<eclipse-target>oxygen</eclipse-target>
+		<target-file-name>${eclipse-target}-xtext-2.13</target-file-name>
 
 		<!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
 		<!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
