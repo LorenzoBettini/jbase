@@ -530,7 +530,7 @@
     <setupTask
         xsi:type="setup:VariableTask"
         name="xtext.site"
-        value="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.12.0/"/>
+        value="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.13.0/"/>
     <setupTask
         xsi:type="setup.p2:P2Task"
         id="p2.org.eclipse.xtext.3"
@@ -538,7 +538,7 @@
         licenseConfirmationDisabled="true">
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.12.0,2.13.0)"/>
+          versionRange="[2.13.0,2.14.0)"/>
       <requirement
           name="de.itemis.xtext.antlr.feature.feature.group"/>
       <repository
