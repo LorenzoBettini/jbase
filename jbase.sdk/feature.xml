@@ -99,27 +99,8 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <includes
-         id="jbase.lib.feature"
+         id="jbase.ui.feature"
          version="0.0.0"/>
-
-   <requires>
-      <import feature="org.eclipse.xtext.xbase" version="2.12.0" match="equivalent"/>
-      <import feature="org.eclipse.xtext.ui" version="2.12.0" match="equivalent"/>
-   </requires>
-
-   <plugin
-         id="jbase"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="jbase.doc"
@@ -130,20 +111,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <plugin
          id="jbase.ui.examples"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.mwe2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="jbase.ide"
          download-size="0"
          install-size="0"
          version="0.0.0"
