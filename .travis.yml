@@ -8,7 +8,7 @@ matrix:
     # always build this environment
     - os: linux
       jdk: oraclejdk8
-      env: DISPLAY=:99.0 ECLIPSE_TARGET=oxygen ADDITIONAL="-Pjacoco-report coveralls:report"
+      env: DISPLAY=:99.0 ECLIPSE_TARGET=oxygen ADDITIONAL="-Pjacoco-report coveralls:report sonar:sonar"
     # only on PR
     - os: linux
       jdk: oraclejdk8
@@ -18,9 +18,21 @@ matrix:
       # default: osx_image: xcode8
       if: type IN (pull_request)
 
+addons:
+  sonarcloud:
+    branches:
+      - sonarcloud
+      - master
+    organization: "lorenzobettini-github"
+    token:
+      secure: "kkME0j/RZIgUR7fwV6I2PoHT3STD0SMze0R+fCIzZBgnrKtEv5w9stl52j5l8o4Ag7tApUb4rauQrskJETFgbp8AlwLO5puIBWxv9t3fO8o1XlGJkwdOiFUSMBcOnF/frtQoUxNqvx6StHXtcBINiawa2sBsbgD5ylHmXJ6lT7Mh2lW15E2KKIPMo0ddnSzUKgfWpnBb9GdCcBEjTDhBeZ+/hLNh4vgH8RnzX46FBJ7owNx6dLE40Xxhw2zT8qCt6zKn3W54mQ90QZlWA3XYIxOeX2eQ+iIDuFRSkqNLtYbI2t+N5k1QThNG9fkd+JhiajOiVpZAEuu/94pOiQV1zLApe17kiOjZzmdzvbwPY+cgpuQ7MOvZmWPKNHLy7baPJ/35YFu/hFEJxPUR+yZJbv/Jl9l2bDCJplPH/2EYjYHCdrFf1PkO228NOutMzENYcMmAWAoHSVzPyvsNpK+sVR5Dcy3H30iTrCpSeaG6oOq69Aq5M4L2RDf6l3fIy0AXatC6JY/V8SPFB96Xi7DnpBWJPccb3ohzRcIz9AmUaiGGAnqZ5pbGZDfpFrwlDxVm2emRWYSgRIcN0SMN+jIMG0uBb3SXgx9wJHIDvaMj6Y6uZs7Vy9d8nlSU2Ry9hI5G17TdeOXHwdssYs7WHsfwbUPtLd4usaocom3QeKsUoyI="
+    github_token:
+      secure: "dVZKezpWoOPQQWk51Oxa90CGaysUjHOhwgttu6ScijDTy9KVB8mzVcAA0/e9t7LyAZLjj1mB3BfAiinChA2uyLoEmZpVTSsUCLWPA9DYHDo5GLLcFLQj6SH2yvw+TXVksTBxmWiei1h87hdQqL2S5N5MqSSv2dA9lbvctWcojxRRmtxlsn4H+FhrDsSbXkQjEmpWCJW8KkZc0HWLoqPP6GnimGxP/xwJ9huEjKqwCwGjYjjuyFtq1VElDiGYn4KMqChBMont5Z5Uxv2+pQnz288Oy0ZrJ+j49xCK6ypvokgntOi9nCl+CJ+7xnM6IMVP6tje+aoKMdxhMvKie4i1UoI3xk1XaAMdulJ4vCLF/Yyqu9krIEZ+8zXjzG658QoBXTrm7LbwLFd5w5fAqlUDRtAQXFqh8D84br4Ph8HQO4EgSvHc00IDlhxZ1As5Qgs5Vcc7AcEGG+7W0AgUR/Ce75GmMkCKqvwl4/XeNoiOOh7BAbyQAb67bDJIbsRMH+rPfldhMyhk3HTJQqTCLr2jE5V1VTZQ48u6hfZzzET+6lKroFBBbDwhyCbWYKTFqud9vW2ML6SlqDwUqdDMCIJtrEzD6NwZi9v9GlKIOX1znH8r9niJRpzf9RfTzdd1jkXaSpln/3wPYRG9zFwNyN4YlCybiJqIeFAluzxRpXXag7Q="
+
 cache:
   directories:
-  - $HOME/.m2
+    - '$HOME/.m2'
+    - '$HOME/.sonar/cache'
 
 install: true
 
