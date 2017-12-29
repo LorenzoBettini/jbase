@@ -70,7 +70,27 @@
 
     <!-- Sonar -->
     <!-- <sonar.junit.reportsPath>../${project.artifactId}.tests/target/surefire-reports/</sonar.junit.reportsPath> -->
-    <sonar.exclusions>file:**/testlanguage/**,file:**/example/**,file:**/mwe2/**,file:**/New*FileWizard*.java,file:**/src-gen/**,file:**/emf-gen/**,file:**/impl/*ImplCustom.java,file:**/tests/**,**/*RuntimeModule.java,**/*UiModule.java,**/*XcoreReader.java,**/*UiExamples.java,**/*TypeSystemGen*.java,**/*StandaloneSetup*.java,file:**/jbase/lib/**,file:**/jbase/internal/**,file:**/jbase/serializer/**,**/*LabelProvider.*,**/*TreeProvider.*</sonar.exclusions>
+    <sonar.exclusions>
+      **/testlanguage/**,
+      **/example/**,
+      **/mwe2/**,
+      **/New*FileWizard*.java,
+      **/src-gen/**,
+      **/emf-gen/**,
+      **/impl/*ImplCustom.java,
+      **/tests/**,
+      **/*RuntimeModule.java,
+      **/*UiModule.java,
+      **/*XcoreReader.java,
+      **/*UiExamples.java,
+      **/*TypeSystemGen*.java,
+      **/*StandaloneSetup*.java,
+      **/jbase/lib/**,
+      **/jbase/internal/**,
+      **/jbase/serializer/**,
+      **/*LabelProvider.*,
+      **/*TreeProvider.*
+    </sonar.exclusions>
 
     <!-- see http://sonarqube.15.x6.nabble.com/sonar-issue-ignore-multicriteria-td5021722.html 
       and http://stackoverflow.com/questions/21825469/configure-sonar-sonar-issue-ignore-multicriteria-through-maven 
