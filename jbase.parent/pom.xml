@@ -70,6 +70,11 @@
 
     <!-- Sonar -->
     <!-- <sonar.junit.reportsPath>../${project.artifactId}.tests/target/surefire-reports/</sonar.junit.reportsPath> -->
+
+    <sonar.jacoco.reportPaths>
+      ../${project.artifactId}.tests/target/jacoco.exec
+    </sonar.jacoco.reportPaths>
+
     <sonar.exclusions>
       **/testlanguage/**,
       **/example/**,
