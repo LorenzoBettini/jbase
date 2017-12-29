@@ -1,517 +1,513 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.sf.xtext-jbase</groupId>
-	<artifactId>jbase.parent</artifactId>
-	<version>0.7.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.xtext-jbase</groupId>
+  <artifactId>jbase.parent</artifactId>
+  <version>0.7.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<name>Jbase</name>
-	<url>http://xtext-jbase.sf.net</url>
-	<description>Jbase: a Customization of Xtext Xbase to deal with pure Java.</description>
+  <name>Jbase</name>
+  <url>http://xtext-jbase.sf.net</url>
+  <description>Jbase: a Customization of Xtext Xbase to deal with pure Java.</description>
 
-	<licenses>
-		<license>
-			<name>Eclipse Public License</name>
-			<url>http://www.eclipse.org/legal/epl-v10.html</url>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>Eclipse Public License</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+    </license>
+  </licenses>
 
-	<developers>
-		<developer>
-			<name>Lorenzo Bettini</name>
-			<email>lorenzo.bettini@gmail.com</email>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
-			<organization>Dip. Informatica, Univ. Torino</organization>
-			<organizationUrl>http://www.di.unito.it</organizationUrl>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <name>Lorenzo Bettini</name>
+      <email>lorenzo.bettini@gmail.com</email>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <organization>Dip. Informatica, Univ. Torino</organization>
+      <organizationUrl>http://www.di.unito.it</organizationUrl>
+    </developer>
+  </developers>
 
-	<scm>
-		<url>git@github.com/LorenzoBettini/jbase.git</url>
-		<developerConnection>scm:git:https://github.com/LorenzoBettini/jbase.git</developerConnection>
-		<connection>scm:git:git@github.com/LorenzoBettini/jbase.git</connection>
-	</scm>
+  <scm>
+    <url>git@github.com/LorenzoBettini/jbase.git</url>
+    <developerConnection>scm:git:https://github.com/LorenzoBettini/jbase.git</developerConnection>
+    <connection>scm:git:git@github.com/LorenzoBettini/jbase.git</connection>
+  </scm>
 
-	<issueManagement>
-		<system>Github</system>
-		<url>https://github.com/LorenzoBettini/jbase/issues</url>
-	</issueManagement>
+  <issueManagement>
+    <system>Github</system>
+    <url>https://github.com/LorenzoBettini/jbase/issues</url>
+  </issueManagement>
 
-	<properties>
-		<tycho-version>1.0.0</tycho-version>
-		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
-		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
-		<junit-version>4.11</junit-version>
-		<jacoco-version>0.7.9</jacoco-version>
-		<findbugs-version>2.5.5</findbugs-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<os-jvm-flags />
-		<memoryArgs>-Xms256M -Xmx1024M -XX:PermSize=256M -XX:MaxPermSize=256M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
-		<xtext.version>2.13.0</xtext.version>
-		<xtext-version>${xtext.version}</xtext-version>
-		<xtextVersion>${xtext.version}</xtextVersion>
-		<mwe2Version>2.9.1.201705291010</mwe2Version>
-		<platform-version>[3.9,4.0)</platform-version>
-		<fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
+  <properties>
+    <tycho-version>1.0.0</tycho-version>
+    <tycho-extras-version>${tycho-version}</tycho-extras-version>
+    <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
+    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <junit-version>4.11</junit-version>
+    <jacoco-version>0.7.9</jacoco-version>
+    <findbugs-version>2.5.5</findbugs-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <os-jvm-flags />
+    <memoryArgs>-Xms256M -Xmx1024M -XX:PermSize=256M
+      -XX:MaxPermSize=256M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
+    <xtext.version>2.13.0</xtext.version>
+    <xtext-version>${xtext.version}</xtext-version>
+    <xtextVersion>${xtext.version}</xtextVersion>
+    <mwe2Version>2.9.1.201705291010</mwe2Version>
+    <platform-version>[3.9,4.0)</platform-version>
+    <fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
-		<eclipse-target>oxygen</eclipse-target>
-		<target-file-name>${eclipse-target}-xtext-2.13</target-file-name>
+    <eclipse-target>oxygen</eclipse-target>
+    <target-file-name>${eclipse-target}-xtext-2.13</target-file-name>
 
-		<!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
-		<!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
+    <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
+    <!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
 
-		<!-- Sonar -->
-		<!--  <sonar.junit.reportsPath>../${project.artifactId}.tests/target/surefire-reports/</sonar.junit.reportsPath> -->
-		<sonar.exclusions>file:**/testlanguage/**,file:**/example/**,file:**/mwe2/**,file:**/New*FileWizard*.java,file:**/src-gen/**,file:**/emf-gen/**,file:**/impl/*ImplCustom.java,file:**/tests/**,**/*RuntimeModule.java,**/*UiModule.java,**/*XcoreReader.java,**/*UiExamples.java,**/*TypeSystemGen*.java,**/*StandaloneSetup*.java,file:**/jbase/lib/**,file:**/jbase/internal/**,file:**/jbase/serializer/**,**/*LabelProvider.*,**/*TreeProvider.*</sonar.exclusions>
-		
-		<!-- see http://sonarqube.15.x6.nabble.com/sonar-issue-ignore-multicriteria-td5021722.html and
-		 http://stackoverflow.com/questions/21825469/configure-sonar-sonar-issue-ignore-multicriteria-through-maven
-		 for the multicriteria property -->
-		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e2,e3,e4,e5,e6,e7,e8</sonar.issue.ignore.multicriteria>
-		
-		<!-- standard convention for method names: in the outline tree provider we
-		 must use methods that start with _ and they'd violate the rule squid:S00100 -->
-		<sonar.issue.ignore.multicriteria.e11.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e11.ruleKey>
-		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*OutlineTreeProvider.java</sonar.issue.ignore.multicriteria.e11.resourceKey>
+    <!-- Sonar -->
+    <!-- <sonar.junit.reportsPath>../${project.artifactId}.tests/target/surefire-reports/</sonar.junit.reportsPath> -->
+    <sonar.exclusions>file:**/testlanguage/**,file:**/example/**,file:**/mwe2/**,file:**/New*FileWizard*.java,file:**/src-gen/**,file:**/emf-gen/**,file:**/impl/*ImplCustom.java,file:**/tests/**,**/*RuntimeModule.java,**/*UiModule.java,**/*XcoreReader.java,**/*UiExamples.java,**/*TypeSystemGen*.java,**/*StandaloneSetup*.java,file:**/jbase/lib/**,file:**/jbase/internal/**,file:**/jbase/serializer/**,**/*LabelProvider.*,**/*TreeProvider.*</sonar.exclusions>
 
-		<sonar.issue.ignore.multicriteria.e12.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e12.ruleKey>
-		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
+    <!-- see http://sonarqube.15.x6.nabble.com/sonar-issue-ignore-multicriteria-td5021722.html 
+      and http://stackoverflow.com/questions/21825469/configure-sonar-sonar-issue-ignore-multicriteria-through-maven 
+      for the multicriteria property -->
+    <sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e2,e3,e4,e5,e6,e7,e8</sonar.issue.ignore.multicriteria>
 
-		<sonar.issue.ignore.multicriteria.e13.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e13.ruleKey>
-		<sonar.issue.ignore.multicriteria.e13.resourceKey>**/*XbaseCompiler.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
+    <!-- standard convention for method names: in the outline tree provider 
+      we must use methods that start with _ and they'd violate the rule squid:S00100 -->
+    <sonar.issue.ignore.multicriteria.e11.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e11.ruleKey>
+    <sonar.issue.ignore.multicriteria.e11.resourceKey>**/*OutlineTreeProvider.java</sonar.issue.ignore.multicriteria.e11.resourceKey>
 
-		<sonar.issue.ignore.multicriteria.e14.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e14.ruleKey>
-		<sonar.issue.ignore.multicriteria.e14.resourceKey>**/*ValueConverterService.java</sonar.issue.ignore.multicriteria.e14.resourceKey>
+    <sonar.issue.ignore.multicriteria.e12.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e12.ruleKey>
+    <sonar.issue.ignore.multicriteria.e12.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
 
-		<sonar.issue.ignore.multicriteria.e15.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e15.ruleKey>
-		<sonar.issue.ignore.multicriteria.e15.resourceKey>**/*TypeComputer.java</sonar.issue.ignore.multicriteria.e15.resourceKey>
+    <sonar.issue.ignore.multicriteria.e13.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e13.ruleKey>
+    <sonar.issue.ignore.multicriteria.e13.resourceKey>**/*XbaseCompiler.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
 
-		<!-- "Tabulation characters should not be used"
-		 sorry... I don't agree :) -->
-		<sonar.issue.ignore.multicriteria.e2.ruleKey>squid:S00105</sonar.issue.ignore.multicriteria.e2.ruleKey>
-		<sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
+    <sonar.issue.ignore.multicriteria.e14.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e14.ruleKey>
+    <sonar.issue.ignore.multicriteria.e14.resourceKey>**/*ValueConverterService.java</sonar.issue.ignore.multicriteria.e14.resourceKey>
 
-		<!-- Unused parameters are needed in these files for polymorphic dispatching -->
-		<sonar.issue.ignore.multicriteria.e3.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e3.ruleKey>
-		<sonar.issue.ignore.multicriteria.e3.resourceKey>**/*XbaseCompiler.java</sonar.issue.ignore.multicriteria.e3.resourceKey>
+    <sonar.issue.ignore.multicriteria.e15.ruleKey>squid:S00100</sonar.issue.ignore.multicriteria.e15.ruleKey>
+    <sonar.issue.ignore.multicriteria.e15.resourceKey>**/*TypeComputer.java</sonar.issue.ignore.multicriteria.e15.resourceKey>
 
-		<!-- Unused parameters are needed in these files for polymorphic dispatching -->
-		<sonar.issue.ignore.multicriteria.e4.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e4.ruleKey>
-		<sonar.issue.ignore.multicriteria.e4.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e4.resourceKey>
+    <!-- "Tabulation characters should not be used" sorry... I don't agree 
+      :) -->
+    <sonar.issue.ignore.multicriteria.e2.ruleKey>squid:S00105</sonar.issue.ignore.multicriteria.e2.ruleKey>
+    <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
 
-		<!-- Useless parenthesis; these files use code automatically generated -->
-		<sonar.issue.ignore.multicriteria.e5.ruleKey>squid:UselessParenthesesCheck</sonar.issue.ignore.multicriteria.e5.ruleKey>
-		<sonar.issue.ignore.multicriteria.e5.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e5.resourceKey>
+    <!-- Unused parameters are needed in these files for polymorphic dispatching -->
+    <sonar.issue.ignore.multicriteria.e3.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e3.ruleKey>
+    <sonar.issue.ignore.multicriteria.e3.resourceKey>**/*XbaseCompiler.java</sonar.issue.ignore.multicriteria.e3.resourceKey>
 
-		<!-- since we extend Xbase it's normal to have a deep inheritance -->
-		<sonar.issue.ignore.multicriteria.e6.ruleKey>squid:MaximumInheritanceDepth</sonar.issue.ignore.multicriteria.e6.ruleKey>
-		<sonar.issue.ignore.multicriteria.e6.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e6.resourceKey>
+    <!-- Unused parameters are needed in these files for polymorphic dispatching -->
+    <sonar.issue.ignore.multicriteria.e4.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e4.ruleKey>
+    <sonar.issue.ignore.multicriteria.e4.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e4.resourceKey>
 
-		<!-- The return value of "parseByte" and "parseShort" must be used.
-			We just need to check whether they're parsable -->
-		<sonar.issue.ignore.multicriteria.e7.ruleKey>squid:S2201</sonar.issue.ignore.multicriteria.e7.ruleKey>
-		<sonar.issue.ignore.multicriteria.e7.resourceKey>**/*PatchedTypeComputer.java</sonar.issue.ignore.multicriteria.e7.resourceKey>
+    <!-- Useless parenthesis; these files use code automatically generated -->
+    <sonar.issue.ignore.multicriteria.e5.ruleKey>squid:UselessParenthesesCheck</sonar.issue.ignore.multicriteria.e5.ruleKey>
+    <sonar.issue.ignore.multicriteria.e5.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e5.resourceKey>
 
-		<!-- Disable rule for undocumented API (we have no API) -->
-		<sonar.issue.ignore.multicriteria.e8.ruleKey>squid:UndocumentedApi</sonar.issue.ignore.multicriteria.e8.ruleKey>
-		<sonar.issue.ignore.multicriteria.e8.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e8.resourceKey>
+    <!-- since we extend Xbase it's normal to have a deep inheritance -->
+    <sonar.issue.ignore.multicriteria.e6.ruleKey>squid:MaximumInheritanceDepth</sonar.issue.ignore.multicriteria.e6.ruleKey>
+    <sonar.issue.ignore.multicriteria.e6.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e6.resourceKey>
 
-		<!--  sonar.skippedModules is deprecated: https://jira.codehaus.org/browse/SONAR-5109 -->
-		<!-- instead we must use advanced reactor options: https://jira.codehaus.org/browse/MSONAR-61  -->
-		<!-- Example:
-			mvn sonar:sonar -pl :jbase.parent,:jbase.runtime,:jbase,:jbase.ui
-		 -->
-		
-		<!-- Otherwise we'll have problems due to generated sources, which are
-		 not in the git repository (since Sonarqube 5) -->
-		<sonar.scm.disabled>true</sonar.scm.disabled>		
+    <!-- The return value of "parseByte" and "parseShort" must be used. We 
+      just need to check whether they're parsable -->
+    <sonar.issue.ignore.multicriteria.e7.ruleKey>squid:S2201</sonar.issue.ignore.multicriteria.e7.ruleKey>
+    <sonar.issue.ignore.multicriteria.e7.resourceKey>**/*PatchedTypeComputer.java</sonar.issue.ignore.multicriteria.e7.resourceKey>
 
-		<findbugs.skip>true</findbugs.skip>
-		<swtbot.tests.only>false</swtbot.tests.only>
-		<swtbot.tests.skip>false</swtbot.tests.skip>
-		<smoke.tests.skip>false</smoke.tests.skip>
+    <!-- Disable rule for undocumented API (we have no API) -->
+    <sonar.issue.ignore.multicriteria.e8.ruleKey>squid:UndocumentedApi</sonar.issue.ignore.multicriteria.e8.ruleKey>
+    <sonar.issue.ignore.multicriteria.e8.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e8.resourceKey>
 
-		<!-- properties for deploying the composite update site and zipped products on Sourceforge -->
+    <!-- sonar.skippedModules is deprecated: https://jira.codehaus.org/browse/SONAR-5109 -->
+    <!-- instead we must use advanced reactor options: https://jira.codehaus.org/browse/MSONAR-61 -->
+    <!-- Example: mvn sonar:sonar -pl :jbase.parent,:jbase.runtime,:jbase,:jbase.ui -->
 
-		<!-- since this is used in the pluginManagement section, we need to make sure
-			the path always points to this pom's directory; project.basedir will always point
-			to the directory of the pom where the pluginManagement's plugins are used -->
-		<ant-files-path>${project.basedir}/../jbase.parent/ant</ant-files-path>
+    <!-- Otherwise we'll have problems due to generated sources, which are 
+      not in the git repository (since Sonarqube 5) -->
+    <sonar.scm.disabled>true</sonar.scm.disabled>
 
-		<!-- for deployment on bintray -->
-		<!-- The name of your own Bintray repository -->
-		<bintray.repo>xtext-jbase</bintray.repo>
-		<!-- The name of your own Bintray repository's package for releases -->
-		<bintray.package>releases</bintray.package>
-		<!-- The label for the Composite sites -->
-		<site.label>Jbase Site</site.label>
+    <findbugs.skip>true</findbugs.skip>
+    <swtbot.tests.only>false</swtbot.tests.only>
+    <swtbot.tests.skip>false</swtbot.tests.skip>
+    <smoke.tests.skip>false</smoke.tests.skip>
 
-		<!-- If the Bintray repository is owned by someone different from your
-			user, then specify the bintray.owner explicitly -->
-		<bintray.owner>${bintray.user}</bintray.owner>
-		<!-- Define bintray.user and bintray.apikey in some secret place,
-			like .m2/settings.xml -->
+    <!-- properties for deploying the composite update site and zipped products 
+      on Sourceforge -->
 
-		<!-- Default values for remote directories -->
-		<bintray.base.path></bintray.base.path>
-		<bintray.releases.path>${bintray.base.path}releases</bintray.releases.path>
-		<bintray.composite.path>${bintray.base.path}updates</bintray.composite.path>
-		<bintray.zip.path>${bintray.base.path}zipped</bintray.zip.path>
-		<!-- note that the following must be consistent with the path schema
-			used to publish child composite repositories and actual released p2 repositories -->
-		<child.repository.path.prefix>../../releases/</child.repository.path.prefix>
+    <!-- since this is used in the pluginManagement section, we need to make 
+      sure the path always points to this pom's directory; project.basedir will 
+      always point to the directory of the pom where the pluginManagement's plugins 
+      are used -->
+    <ant-files-path>${project.basedir}/../jbase.parent/ant</ant-files-path>
 
-		<!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
-		<includeAllDependencies>false</includeAllDependencies>
-	</properties>
+    <!-- for deployment on bintray -->
+    <!-- The name of your own Bintray repository -->
+    <bintray.repo>xtext-jbase</bintray.repo>
+    <!-- The name of your own Bintray repository's package for releases -->
+    <bintray.package>releases</bintray.package>
+    <!-- The label for the Composite sites -->
+    <site.label>Jbase Site</site.label>
 
-	<profiles>
-		<profile>
-			<id>local</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
+    <!-- If the Bintray repository is owned by someone different from your 
+      user, then specify the bintray.owner explicitly -->
+    <bintray.owner>${bintray.user}</bintray.owner>
+    <!-- Define bintray.user and bintray.apikey in some secret place, like 
+      .m2/settings.xml -->
 
-			<properties>
-				<target-file-name>local</target-file-name>
-			</properties>
-		</profile>
+    <!-- Default values for remote directories -->
+    <bintray.base.path></bintray.base.path>
+    <bintray.releases.path>${bintray.base.path}releases</bintray.releases.path>
+    <bintray.composite.path>${bintray.base.path}updates</bintray.composite.path>
+    <bintray.zip.path>${bintray.base.path}zipped</bintray.zip.path>
+    <!-- note that the following must be consistent with the path schema 
+      used to publish child composite repositories and actual released p2 repositories -->
+    <child.repository.path.prefix>../../releases/</child.repository.path.prefix>
 
-		<profile>
-			<id>sonatype-oss-release</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
+    <!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
+    <includeAllDependencies>false</includeAllDependencies>
+  </properties>
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.sonatype.plugins</groupId>
-						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.3</version>
-						<extensions>true</extensions>
-						<configuration>
-							<serverId>ossrh</serverId>
-							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<autoReleaseAfterClose>true</autoReleaseAfterClose>
-						</configuration>
-					</plugin>
-					
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.9.1</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<!--  Use the following configuration with Java 8 -->
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.5</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-				    </plugin>
-				</plugins>
-			</build>
-		</profile>
+  <profiles>
+    <profile>
+      <id>local</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
 
-		<profile>
-			<id>release-composite</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<xtext.maven.skip>true</xtext.maven.skip>
-				<skipTests>true</skipTests>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-pack200b-plugin</artifactId>
-						<version>${tycho-version}</version>
-						<executions>
-							<execution>
-								<id>pack200-pack</id>
-								<goals>
-									<goal>pack</goal>
-								</goals>
-								<phase>package</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>tycho-p2-plugin</artifactId>
-						<version>${tycho-version}</version>
-						<executions>
-							<execution>
-								<id>p2-metadata</id>
-								<goals>
-									<goal>p2-metadata</goal>
-								</goals>
-								<phase>package</phase>
-							</execution>
-						</executions>
-						<configuration>
-							<defaultP2Metadata>false</defaultP2Metadata>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+      <properties>
+        <target-file-name>local</target-file-name>
+      </properties>
+    </profile>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
-					so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
-					we can list it after. -->
+    <profile>
+      <id>sonatype-oss-release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
 
-				<plugin>
-					<groupId>org.eclipse.xtend</groupId>
-					<artifactId>xtend-maven-plugin</artifactId>
-					<version>${xtext.version}</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>compile</goal>
-								<goal>xtend-install-debug-info</goal>
-								<goal>testCompile</goal>
-								<goal>xtend-test-install-debug-info</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<outputDirectory>xtend-gen</outputDirectory>
-						<xtendAsPrimaryDebugSource>true</xtendAsPrimaryDebugSource>
-					</configuration>
-				</plugin>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.3</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
 
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-clean-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<filesets>
-							<fileset>
-								<directory>${basedir}/xtend-gen</directory>
-							</fileset>
-						</filesets>
-					</configuration>
-				</plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <!-- Use the following configuration with Java 8 -->
+                <configuration>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
 
-				<plugin>
-					<groupId>org.eluder.coveralls</groupId>
-					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.3.0</version>
-					<configuration>
-						<jacocoReports>
-							<!-- by default Jacoco generates its report here -->
-							<jacocoReport>${project.basedir}/../jbase.tests.report/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
-						</jacocoReports>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
+    <profile>
+      <id>release-composite</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <xtext.maven.skip>true</xtext.maven.skip>
+        <skipTests>true</skipTests>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho.extras</groupId>
+            <artifactId>tycho-pack200b-plugin</artifactId>
+            <version>${tycho-version}</version>
+            <executions>
+              <execution>
+                <id>pack200-pack</id>
+                <goals>
+                  <goal>pack</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-p2-plugin</artifactId>
+            <version>${tycho-version}</version>
+            <executions>
+              <execution>
+                <id>p2-metadata</id>
+                <goals>
+                  <goal>p2-metadata</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <defaultP2Metadata>false</defaultP2Metadata>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
+          so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
+          we can list it after. -->
 
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho-extras-version}</version>
-				<executions>
-					<execution>
-						<id>source-feature</id>
-						<phase>package</phase>
-						<goals>
-							<goal>source-feature</goal>
-						</goals>
-						<configuration>
-							<excludes>
-								<plugin id="jbase.ui.examples" />
+        <plugin>
+          <groupId>org.eclipse.xtend</groupId>
+          <artifactId>xtend-maven-plugin</artifactId>
+          <version>${xtext.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>xtend-install-debug-info</goal>
+                <goal>testCompile</goal>
+                <goal>xtend-test-install-debug-info</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <outputDirectory>xtend-gen</outputDirectory>
+            <xtendAsPrimaryDebugSource>true</xtendAsPrimaryDebugSource>
+          </configuration>
+        </plugin>
 
-								<feature id="org.eclipse.swtbot.ide" />
-								<feature id="org.eclipse.xtext.sdk" />
-								<feature id="org.eclipse.xtend.sdk" />
-								<feature id="org.eclipse.pde" />
-								<feature id="org.eclipse.emf.mwe2.language.sdk" />
-								<feature id="org.eclipse.emf.mwe2.runtime.sdk" />
-							</excludes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.5</version>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>${basedir}/xtend-gen</directory>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>attach-p2-metadata</id>
-						<phase>package</phase>
-						<goals>
-							<goal>p2-metadata</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+        <plugin>
+          <groupId>org.eluder.coveralls</groupId>
+          <artifactId>coveralls-maven-plugin</artifactId>
+          <version>4.3.0</version>
+          <configuration>
+            <jacocoReports>
+              <!-- by default Jacoco generates its report here -->
+              <jacocoReport>${project.basedir}/../jbase.tests.report/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
+            </jacocoReports>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
 
-			<plugin>
-				<!-- in standard build, use only the current environment -->
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<target>
-						<artifact>
-							<groupId>net.sf.xtext-jbase</groupId>
-							<artifactId>jbase.targetplatform</artifactId>
-							<version>${project.version}</version>
-							<classifier>${target-file-name}</classifier>
-						</artifact>
-					</target>
-					<environments>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<!-- This is not present in Mars
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						 -->
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-					<includePackedArtifacts>true</includePackedArtifacts>
-				</configuration>
-			</plugin>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<format>'v'yyyyMMdd'-'HHmm</format>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-source-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+          <execution>
+            <id>plugin-source</id>
+            <goals>
+              <goal>plugin-source</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>codehaus-snapshots</id>
-			<name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
-			<url>http://nexus.codehaus.org/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
+      <plugin>
+        <groupId>org.eclipse.tycho.extras</groupId>
+        <artifactId>tycho-source-feature-plugin</artifactId>
+        <version>${tycho-extras-version}</version>
+        <executions>
+          <execution>
+            <id>source-feature</id>
+            <phase>package</phase>
+            <goals>
+              <goal>source-feature</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <plugin id="jbase.ui.examples" />
 
-		<pluginRepository>
-			<id>sonatype_releases</id>
-			<url>https://oss.sonatype.org/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
+                <feature id="org.eclipse.swtbot.ide" />
+                <feature id="org.eclipse.xtext.sdk" />
+                <feature id="org.eclipse.xtend.sdk" />
+                <feature id="org.eclipse.pde" />
+                <feature id="org.eclipse.emf.mwe2.language.sdk" />
+                <feature id="org.eclipse.emf.mwe2.runtime.sdk" />
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-		<pluginRepository>
-			<id>sonatype_snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <executions>
+          <execution>
+            <id>attach-p2-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>p2-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
+      <plugin>
+        <!-- in standard build, use only the current environment -->
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <target>
+            <artifact>
+              <groupId>net.sf.xtext-jbase</groupId>
+              <artifactId>jbase.targetplatform</artifactId>
+              <version>${project.version}</version>
+              <classifier>${target-file-name}</classifier>
+            </artifact>
+          </target>
+          <environments>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <!-- This is not present in Mars <environment> <os>macosx</os> 
+              <ws>cocoa</ws> <arch>x86</arch> </environment> -->
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+          <includePackedArtifacts>true</includePackedArtifacts>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <format>'v'yyyyMMdd'-'HHmm</format>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>codehaus-snapshots</id>
+      <name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
+      <url>http://nexus.codehaus.org/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+
+    <pluginRepository>
+      <id>sonatype_releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+
+    <pluginRepository>
+      <id>sonatype_snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 </project>
