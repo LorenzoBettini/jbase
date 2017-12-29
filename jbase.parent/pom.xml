@@ -79,6 +79,12 @@
       ../${project.artifactId}.tests/target/jacoco.exec
     </sonar.jacoco.reportPaths>
 
+    <!-- For this class code coverage information doesn't seem to be picked 
+      correctly. -->
+    <sonar.coverage.exclusions>
+      **/JbaseIssueCodes.java
+    </sonar.coverage.exclusions>
+
     <sonar.exclusions>
       **/testlanguage/**,
       **/example/**,
@@ -160,7 +166,7 @@
 
     <!-- Otherwise we'll have problems due to generated sources, which are 
       not in the git repository (since Sonarqube 5) -->
-    <sonar.scm.disabled>true</sonar.scm.disabled>
+    <!-- <sonar.scm.disabled>true</sonar.scm.disabled> -->
 
     <findbugs.skip>true</findbugs.skip>
     <swtbot.tests.only>false</swtbot.tests.only>
