@@ -78,6 +78,12 @@
       ../${project.artifactId}.tests/target/jacoco.exec
     </sonar.jacoco.reportPaths>
 
+    <!-- Since test projects are excluded from the analysis, we
+      force the use of JUnit reports from the corresponding tests projects -->
+    <sonar.junit.reportPaths>
+      ../${project.artifactId}.tests/target/surefire-reports
+    </sonar.junit.reportPaths>
+
     <!-- For this class code coverage information doesn't seem to be picked 
       correctly. -->
     <sonar.coverage.exclusions>
