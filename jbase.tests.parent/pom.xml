@@ -15,6 +15,7 @@
   <packaging>pom</packaging>
 
   <properties>
+    <jacoco-version>0.7.9</jacoco-version>
     <additionalTestArgLine></additionalTestArgLine>
   </properties>
 
