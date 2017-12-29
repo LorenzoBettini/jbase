@@ -287,21 +287,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			} else {
 				appendDefaultLiteral(loopAppendable, type);
 			}
-			
 			// custom implementation since possible additional declarations are contained (i.e., parsed)
 			// in JavamXVariableDeclaration
-			EList<XVariableDeclaration> additionalVariables = variableDeclaration.getAdditionalVariables();
-			for (int i = 0; i < additionalVariables.size(); i++) {
-				loopAppendable.append(", ");
-				XVariableDeclaration initExpression = additionalVariables.get(i);
-				loopAppendable.append(loopAppendable.declareVariable(initExpression, makeJavaIdentifier(initExpression.getName())));
-				loopAppendable.append(" = ");
-				if (initExpression.getRight() != null) {
-					compileAsJavaExpression(initExpression.getRight(), loopAppendable, type);
-				} else {
-					appendDefaultLiteral(loopAppendable, type);
-				}
-			}
+			handleForStatementAdditionalVariables(variableDeclaration, type, loopAppendable);
 		} else {
 			for (int i = 0; i < initExpressions.size(); i++) {
 				if (i != 0) {
@@ -337,6 +325,24 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		
 		loopAppendable.decreaseIndentation().newLine().append("}");
 		loopAppendable.closeScope();
+	}
+
+	protected void handleForStatementAdditionalVariables(XJVariableDeclaration variableDeclaration,
+			LightweightTypeReference type, ITreeAppendable loopAppendable) {
+		// custom implementation since possible additional declarations are contained (i.e., parsed)
+		// in JavamXVariableDeclaration
+		EList<XVariableDeclaration> additionalVariables = variableDeclaration.getAdditionalVariables();
+		for (int i = 0; i < additionalVariables.size(); i++) {
+			loopAppendable.append(", ");
+			XVariableDeclaration initExpression = additionalVariables.get(i);
+			loopAppendable.append(loopAppendable.declareVariable(initExpression, makeJavaIdentifier(initExpression.getName())));
+			loopAppendable.append(" = ");
+			if (initExpression.getRight() != null) {
+				compileAsJavaExpression(initExpression.getRight(), loopAppendable, type);
+			} else {
+				appendDefaultLiteral(loopAppendable, type);
+			}
+		}
 	}
 
 	/**
