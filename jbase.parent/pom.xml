@@ -91,6 +91,7 @@
       **/*TypeSystemGen*.java,
       **/*StandaloneSetup*.java,
       **/jbase/lib/**,
+      **/jbase/ide/**,
       **/jbase/internal/**,
       **/jbase/serializer/**,
       **/*LabelProvider.*,
