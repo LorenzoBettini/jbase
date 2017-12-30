@@ -15,7 +15,11 @@
   <packaging>pom</packaging>
 
   <properties>
+    <jacoco-version>0.7.9</jacoco-version>
     <additionalTestArgLine></additionalTestArgLine>
+    <!-- To enable JUnit test collection, sonarqube analysis must
+      be enabled. -->
+    <sonar.skip>false</sonar.skip>
   </properties>
 
   <profiles>
