@@ -30,3 +30,4 @@ Export-Package: jbase.ui,
  jbase.ui.syntaxcoloring,
  jbase.ui.editor
 Bundle-Activator: jbase.ui.internal.JbaseActivator
+Automatic-Module-Name: jbase.ui

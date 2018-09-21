@@ -33,3 +33,4 @@ Export-Package: jbase.example.jbasescript,
  jbase.example.jbasescript.formatting,
  jbase.example.jbasescript.jvmmodel,
  jbase.example.jbasescript.scoping
+Automatic-Module-Name: jbase.example.jbasescript

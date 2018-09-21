@@ -42,3 +42,4 @@ Export-Package: jbase,
  jbase.typesystem,
  jbase.util,
  jbase.validation
+Automatic-Module-Name: jbase

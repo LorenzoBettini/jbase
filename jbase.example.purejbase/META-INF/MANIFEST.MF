@@ -31,3 +31,4 @@ Export-Package: jbase.example.purejbase,
  jbase.example.purejbase.validation,
  jbase.example.purejbase.formatting,
  jbase.example.purejbase.jvmmodel
+Automatic-Module-Name: jbase.example.purejbase

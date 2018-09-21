@@ -28,3 +28,4 @@ Export-Package: jbase.testlanguage.ui.contentassist,
  jbase.testlanguage.ui.quickfix,
  jbase.testlanguage.ui.editor
 Bundle-Activator: jbase.testlanguage.ui.internal.TestlanguageActivator
+Automatic-Module-Name: jbase.testlanguage.ui

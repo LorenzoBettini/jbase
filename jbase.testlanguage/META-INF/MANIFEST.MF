@@ -33,3 +33,4 @@ Export-Package: jbase.testlanguage,
  jbase.testlanguage.jbaseTestlanguage.util,
  jbase.testlanguage.scoping,
  jbase.testlanguage.formatting2
+Automatic-Module-Name: jbase.testlanguage

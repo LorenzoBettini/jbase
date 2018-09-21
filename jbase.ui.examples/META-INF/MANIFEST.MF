@@ -11,3 +11,4 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.0",
  org.eclipse.xtext.junit4,
  jbase.ui,
  org.eclipse.xtext.xbase.junit
+Automatic-Module-Name: jbase.ui.examples

@@ -13,4 +13,5 @@ Require-Bundle: jbase.example.jbasescript,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript.ide.contentassist.antlr.internal,
  jbase.example.jbasescript.ide.contentassist.antlr
+Automatic-Module-Name: jbase.example.jbasescript.ide
 
