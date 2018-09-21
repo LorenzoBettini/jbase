@@ -25,5 +25,6 @@ Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.testlanguage.ui.contentassist,
  jbase.testlanguage.ui.internal,
- jbase.testlanguage.ui.quickfix
+ jbase.testlanguage.ui.quickfix,
+ jbase.testlanguage.ui.editor
 Bundle-Activator: jbase.testlanguage.ui.internal.TestlanguageActivator

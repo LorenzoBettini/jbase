@@ -9,7 +9,7 @@ Require-Bundle: jbase.example.jbasescript,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  jbase,
- org.antlr.runtime
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript.ide.contentassist.antlr.internal,
  jbase.example.jbasescript.ide.contentassist.antlr
