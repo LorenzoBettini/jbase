@@ -484,7 +484,7 @@
 	</extension>
 	<extension point="org.eclipse.core.runtime.adapters">
 		<factory class="jbase.testlanguage.ui.JbaseTestlanguageExecutableExtensionFactory:org.eclipse.xtext.builder.smap.StratumBreakpointAdapterFactory"
-			adaptableType="org.eclipse.xtext.ui.editor.XtextEditor">
+			adaptableType="jbase.testlanguage.ui.editor.JbaseTestlanguageEditor">
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
 		</factory> 
 	</extension>
@@ -578,12 +578,18 @@
 			class="jbase.testlanguage.ui.JbaseTestlanguageExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
 			extensions="jbasetestlanguage">
 		</viewer>
+		<contentTypeBinding
+			contentTypeId="jbase.testlanguage.JbaseTestlanguage.contenttype"
+			contentViewerId="jbase.testlanguage.JbaseTestlanguage.compare.contentViewers" />
 	</extension>
 	<extension point="org.eclipse.compare.contentMergeViewers">
 		<viewer id="jbase.testlanguage.JbaseTestlanguage.compare.contentMergeViewers"
 			class="jbase.testlanguage.ui.JbaseTestlanguageExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
 			extensions="jbasetestlanguage" label="JbaseTestlanguage Compare">
 		</viewer>
+		<contentTypeBinding
+			contentTypeId="jbase.testlanguage.JbaseTestlanguage.contenttype"
+			contentMergeViewerId="jbase.testlanguage.JbaseTestlanguage.compare.contentMergeViewers" />
 	</extension>
 	<extension point="org.eclipse.ui.editors.documentProviders">
 		<provider id="jbase.testlanguage.JbaseTestlanguage.editors.documentProviders"

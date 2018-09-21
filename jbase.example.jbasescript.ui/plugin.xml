@@ -484,7 +484,7 @@
 	</extension>
 	<extension point="org.eclipse.core.runtime.adapters">
 		<factory class="jbase.example.jbasescript.ui.JbasescriptExecutableExtensionFactory:org.eclipse.xtext.builder.smap.StratumBreakpointAdapterFactory"
-			adaptableType="org.eclipse.xtext.ui.editor.XtextEditor">
+			adaptableType="jbase.example.jbasescript.ui.editor.JbasescriptEditor">
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
 		</factory> 
 	</extension>
@@ -578,12 +578,18 @@
 			class="jbase.example.jbasescript.ui.JbasescriptExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
 			extensions="jbasescript">
 		</viewer>
+		<contentTypeBinding
+			contentTypeId="jbase.example.jbasescript.Jbasescript.contenttype"
+			contentViewerId="jbase.example.jbasescript.Jbasescript.compare.contentViewers" />
 	</extension>
 	<extension point="org.eclipse.compare.contentMergeViewers">
 		<viewer id="jbase.example.jbasescript.Jbasescript.compare.contentMergeViewers"
 			class="jbase.example.jbasescript.ui.JbasescriptExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
 			extensions="jbasescript" label="Jbasescript Compare">
 		</viewer>
+		<contentTypeBinding
+			contentTypeId="jbase.example.jbasescript.Jbasescript.contenttype"
+			contentMergeViewerId="jbase.example.jbasescript.Jbasescript.compare.contentMergeViewers" />
 	</extension>
 	<extension point="org.eclipse.ui.editors.documentProviders">
 		<provider id="jbase.example.jbasescript.Jbasescript.editors.documentProviders"
