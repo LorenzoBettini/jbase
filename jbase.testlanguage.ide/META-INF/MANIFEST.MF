@@ -13,4 +13,5 @@ Require-Bundle: jbase.testlanguage,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.testlanguage.ide.contentassist.antlr.internal,
  jbase.testlanguage.ide.contentassist.antlr
+Automatic-Module-Name: jbase.testlanguage.ide
 

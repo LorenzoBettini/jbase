@@ -27,3 +27,4 @@ Export-Package: jbase.example.jbasescript.ui.quickfix,
  jbase.example.jbasescript.ui.contentassist,
  jbase.example.jbasescript.ui.internal
 Bundle-Activator: jbase.example.jbasescript.ui.internal.JbasescriptActivator
+Automatic-Module-Name: jbase.example.jbasescript.ui
