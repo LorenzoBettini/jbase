@@ -38,11 +38,6 @@
 						<phase>integration-test</phase>
 						<configuration>
 							<skip>${swtbot.tests.only}</skip>
-							<useUIHarness>false</useUIHarness>
-							<useUIThread>false</useUIThread>
-							<!-- tycho.testArgLine repeated to re-use the configuration for argLine 
-								for jacoco agent -->
-							<argLine>${memoryArgs} ${moduleProperties}</argLine>
 							<includes>
 								<include>**/jbase/testlanguage/tests/*Test.java</include>
 							</includes>
@@ -51,23 +46,6 @@
 							<goal>test</goal>
 						</goals>
 					</execution>
-<!-- 					<execution> -->
-<!-- 						<id>TychoSurefirePluginUiTest</id> -->
-<!-- 						<phase>integration-test</phase> -->
-<!-- 						<configuration> -->
-<!-- 							<skip>${swtbot.tests.only}</skip> -->
-<!-- 							<useUIHarness>true</useUIHarness> -->
-<!-- 							<useUIThread>true</useUIThread> -->
-<!-- 							tycho.testArgLine repeated to re-use the configuration for argLine for jacoco agent -->
-<!-- 							<argLine>${tycho.testArgLine} ${memoryArgs} -DbuildingWithTycho=true</argLine> -->
-<!-- 							<includes> -->
-<!-- 								<include>**/jbase/ui/tests/*Test.java</include> -->
-<!-- 							</includes> -->
-<!-- 						</configuration> -->
-<!-- 						<goals> -->
-<!-- 							<goal>test</goal> -->
-<!-- 						</goals> -->
-<!-- 					</execution> -->
 				</executions>
 			</plugin>
 			
