@@ -64,8 +64,6 @@
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
 
-    <tycho.testArgLine></tycho.testArgLine>
-
     <eclipse-target>2018-09</eclipse-target>
     <target-file-name>${eclipse-target}-xtext-2.15</target-file-name>
 
