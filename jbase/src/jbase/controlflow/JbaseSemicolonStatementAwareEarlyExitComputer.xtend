@@ -12,7 +12,7 @@ import org.eclipse.xtext.xbase.XExpression
  * 
  * @author Lorenzo Bettini
  */
-public class JbaseSemicolonStatementAwareEarlyExitComputer extends DefaultEarlyExitComputer {
+class JbaseSemicolonStatementAwareEarlyExitComputer extends DefaultEarlyExitComputer {
 
 	/**
 	 * A semicolon statement wraps an expression, so we delegate to the contained expression.

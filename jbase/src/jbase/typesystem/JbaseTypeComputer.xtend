@@ -41,8 +41,7 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
  */
 class JbaseTypeComputer extends PatchedTypeComputer {
 
-	@Inject 
-	private CommonTypeComputationServices services;
+	@Inject CommonTypeComputationServices services;
 
 	@Inject extension JbaseBranchingStatementDetector
 

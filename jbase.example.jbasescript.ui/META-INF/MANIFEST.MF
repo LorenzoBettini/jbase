@@ -25,6 +25,7 @@ Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.example.jbasescript.ui.quickfix,
  jbase.example.jbasescript.ui.contentassist,
- jbase.example.jbasescript.ui.internal
+ jbase.example.jbasescript.ui.internal,
+ jbase.example.jbasescript.ui.editor
 Bundle-Activator: jbase.example.jbasescript.ui.internal.JbasescriptActivator
 Automatic-Module-Name: jbase.example.jbasescript.ui

@@ -48,6 +48,9 @@ import org.eclipse.xtext.xbase.validation.ProxyAwareUIStrings
 import org.eclipse.xtext.xtype.XImportDeclaration
 
 import static jbase.validation.JbaseIssueCodes.*
+import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference
+import org.eclipse.xtext.xbase.util.XbaseUsageCrossReferencer
+import jbase.jbase.XJAssignment
 
 /**
  * @author Lorenzo Bettini
@@ -99,6 +102,16 @@ class JbaseValidator extends AbstractJbaseValidator {
 		}
 		if (containerToFindUsage instanceof XJSemicolonStatement) {
 			return isLocallyUsed(target, containerToFindUsage.eContainer)
+		}
+		if (target instanceof XVariableDeclaration) {
+			if (target.type instanceof JvmGenericArrayTypeReference && !super.isLocallyUsed(target, containerToFindUsage)) {
+				// assigning to one of its elements should mark it as used
+				if (!XbaseUsageCrossReferencer.find(target, containerToFindUsage)
+						.map[EObject]
+						.filter(XJAssignment)
+						.empty)
+					return true
+			}
 		}
 		return super.isLocallyUsed(target, containerToFindUsage)
 	}
