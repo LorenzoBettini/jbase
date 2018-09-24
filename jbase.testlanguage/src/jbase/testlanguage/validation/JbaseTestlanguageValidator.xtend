@@ -5,9 +5,15 @@ package jbase.testlanguage.validation
 
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
+import jbase.testlanguage.jbaseTestlanguage.Property
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xbase.XBlockExpression
 import com.google.inject.Singleton
+import com.google.inject.Inject
+import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.xtext.common.types.JvmField
+import org.eclipse.xtext.xbase.validation.IssueCodes
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestlanguagePackage
 
 /**
  * This class contains custom validation rules for our test language.
@@ -23,6 +29,8 @@ class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
 	 * For testing purposes
 	 */
 	var boolean skipVariableInitializationCheck = false
+
+	@Inject extension IJvmModelAssociations
 
 	def setSkipVariableInitializationCheck(boolean b) {
 		skipVariableInitializationCheck = b
@@ -43,5 +51,22 @@ class JbaseTestlanguageValidator extends AbstractJbaseTestlanguageValidator {
 	def void checkVariableInitializationInOperation(AbstractOperation op) {
 		if (!skipVariableInitializationCheck)
 			checkVariableInitialization(op.body as XBlockExpression)
+	}
+
+	/**
+	 * For testing purposes
+	 */
+	@Check
+	def void checkLocalUsageOfDeclaredFields(Property p) {
+		val jvmField = p.jvmElements.filter(JvmField).head
+		if (jvmField !== null) {
+			if (!isLocallyUsed(jvmField, p.eContainer)) {
+				val message = "The value of the property " + p.getName() + " is not used";
+				addIssueToState(IssueCodes.UNUSED_LOCAL_VARIABLE,
+					message,
+					JbaseTestlanguagePackage.Literals.PROPERTY__NAME
+				);
+			}
+		}
 	}
 }
