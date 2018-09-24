@@ -40,6 +40,7 @@
 							<skip>${swtbot.tests.only}</skip>
 							<useUIHarness>false</useUIHarness>
 							<useUIThread>false</useUIThread>
+							<argLine>${tycho.testArgLine} ${moduleProperties}</argLine>
 							<includes>
 								<include>**/jbase/tests/*Test.java</include>
 							</includes>
