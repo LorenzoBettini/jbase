@@ -20,6 +20,20 @@
 		<sonar.tests>src,xtend-gen</sonar.tests>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>macosx-jvm-flags</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -40,6 +54,7 @@
 							<skip>${swtbot.tests.only}</skip>
 							<useUIHarness>true</useUIHarness>
 							<useUIThread>true</useUIThread>
+							<argLine>${additionalTestArgLine} ${os-jvm-flags} ${memoryArgs} -DbuildingWithTycho=true</argLine>
 							<includes>
 								<include>**/jbase/ui/tests/*Test.java</include>
 							</includes>
