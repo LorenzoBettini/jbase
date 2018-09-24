@@ -13,10 +13,10 @@ import org.eclipse.xtext.xbase.lib.Functions.Function2
  */
 class JbaseExpressionHelper {
 
-	public static abstract class BaseCase implements Function2<XUnaryOperation, XNumberLiteral, Boolean> {
+	static abstract class BaseCase implements Function2<XUnaryOperation, XNumberLiteral, Boolean> {
 	}
 
-	public static abstract class StepCase implements IAcceptor<XUnaryOperation> {
+	static abstract class StepCase implements IAcceptor<XUnaryOperation> {
 	}
 
 	/**
