@@ -7,3 +7,4 @@ Bundle-Vendor: Lorenzo Bettini
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.xtext.xbase.lib;visibility:=reexport
 Export-Package: jbase.lib
+Automatic-Module-Name: jbase.lib

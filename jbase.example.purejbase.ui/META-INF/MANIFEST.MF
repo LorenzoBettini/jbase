@@ -27,3 +27,4 @@ Export-Package: jbase.example.purejbase.ui.quickfix,
  jbase.example.purejbase.ui.contentassist.antlr,
  jbase.example.purejbase.ui.contentassist.antlr.internal
 Bundle-Activator: jbase.example.purejbase.ui.internal.PureJbaseActivator
+Automatic-Module-Name: jbase.example.purejbase.ui

@@ -12,4 +12,5 @@ Require-Bundle: jbase,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: jbase.ide.contentassist.antlr,
  jbase.ide.contentassist.antlr.internal
+Automatic-Module-Name: jbase.ide
 
