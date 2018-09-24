@@ -325,6 +325,15 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>jdk9-or-newer</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
+      </properties>
+    </profile>
   </profiles>
 
   <build>
