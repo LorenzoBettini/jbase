@@ -26,7 +26,6 @@ import org.eclipse.xtext.xbase.XForLoopExpression
 import org.eclipse.xtext.xbase.XPostfixOperation
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
-import org.eclipse.xtext.xbase.annotations.formatting2.XbaseWithAnnotationsFormatter
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
@@ -34,7 +33,7 @@ import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJWithSemicolon
 import org.eclipse.xtext.xbase.XConstructorCall
 
-class JbaseFormatter extends XbaseWithAnnotationsFormatter {
+class JbaseFormatter extends XbasePatchedFormatter {
 
 	@Inject extension JbaseModelUtil
 
