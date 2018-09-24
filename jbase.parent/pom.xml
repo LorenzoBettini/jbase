@@ -111,7 +111,8 @@
       **/jbase/internal/**,
       **/jbase/serializer/**,
       **/*LabelProvider.*,
-      **/*TreeProvider.*
+      **/*TreeProvider.*,
+      **/*XbasePatchedFormatter.*
     </sonar.exclusions>
 
     <!-- see http://sonarqube.15.x6.nabble.com/sonar-issue-ignore-multicriteria-td5021722.html 
