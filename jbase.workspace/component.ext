@@ -15,4 +15,8 @@
       name="jbase.maven.releng.plain.project"/>
   <requirement
       name="jbase.releng.plain.project"/>
+  <requirement
+      name="jbase.tests.parent.plain.project"/>
+  <requirement
+      name="jbase.tests.report.plain.project"/>
 </targlets:ComponentExtension>
