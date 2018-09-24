@@ -61,6 +61,9 @@
     <platform-version>[3.9,4.0)</platform-version>
     <fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
+    <!-- For tests for Java 9 and above -->
+    <moduleProperties></moduleProperties>
+
     <eclipse-target>2018-09</eclipse-target>
     <target-file-name>${eclipse-target}-xtext-2.15</target-file-name>
 
@@ -373,6 +376,22 @@
                 <directory>${basedir}/xtend-gen</directory>
               </fileset>
             </filesets>
+          </configuration>
+        </plugin>
+
+        <!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
+          To skip tests, but still compile them, use: -DskipTests
+          To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
+          at end) -->
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
+            <argLine>${tycho.testArgLine} ${moduleProperties}</argLine>
+            <failIfNoTests>false</failIfNoTests>
+            <useUIHarness>false</useUIHarness>
           </configuration>
         </plugin>
 
