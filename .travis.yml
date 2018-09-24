@@ -52,3 +52,5 @@ script:
 after_success:
  - ls -lR jbase.site/target/repository/
 
+after_failure:
+ - find ./jbase/jbase.tests/target/ -name "*.log" -exec cat {} \;
