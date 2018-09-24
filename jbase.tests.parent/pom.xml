@@ -66,6 +66,8 @@
                 <exclude>**/*TreeProvider*</exclude>
                 <exclude>**/*RuntimeModule*</exclude>
                 <exclude>**/*StandaloneSetup*</exclude>
+                <exclude>**/*XbasePatchedFormatter*</exclude>
+                <exclude>**/ui/editor/*</exclude>
               </excludes>
             </configuration>
           </plugin>
