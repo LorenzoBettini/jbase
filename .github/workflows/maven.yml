@@ -10,6 +10,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Shallow clones should be disabled for reproducible tycho-packaging-plugin:build-qualifier
+        # and a better relevancy of SonarQube analysis
+        fetch-depth: 0
     - name: Set up JDK 8
       uses: actions/setup-java@v1
       with:
