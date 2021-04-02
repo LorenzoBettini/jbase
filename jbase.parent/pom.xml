@@ -65,7 +65,7 @@
     <moduleProperties></moduleProperties>
 
     <eclipse-target>2018-09</eclipse-target>
-    <target-file-name>${eclipse-target}-xtext-2.15</target-file-name>
+    <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
     <!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
