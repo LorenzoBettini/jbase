@@ -1650,16 +1650,17 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test def void testTryWithResourcesNotAutoCloseableType() {
 		// Note that the type of the declared variable is taken into consideration
 		// not the actual type of the initialization expression
-		'''
+		val input = '''
 		try (
 			Object fr1 = new java.io.FileReader("");
 		) {
 			
 		}
-		'''.parse.assertError(
+		'''
+		input.parse.assertError(
 			jbasePackage.XJTryWithResourcesVariableDeclaration,
 			JbaseIssueCodes.NOT_AUTO_CLOSEABLE,
-			7, 6, // error placed on "Object"
+			input.indexOf("Object"), 6, // error placed on "Object"
 			'The resource type Object does not implement java.lang.AutoCloseable'
 		)
 	}
