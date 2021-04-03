@@ -356,6 +356,11 @@
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.2.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.6.0</version>
+        </plugin>
         <!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
           so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
           we can list it after. -->
