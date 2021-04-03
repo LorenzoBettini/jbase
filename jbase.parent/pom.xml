@@ -177,37 +177,20 @@
     <swtbot.tests.skip>false</swtbot.tests.skip>
     <smoke.tests.skip>false</smoke.tests.skip>
 
-    <!-- properties for deploying the composite update site and zipped products 
-      on Sourceforge -->
-
     <!-- since this is used in the pluginManagement section, we need to make 
       sure the path always points to this pom's directory; project.basedir will 
       always point to the directory of the pom where the pluginManagement's plugins 
       are used -->
     <ant-files-path>${project.basedir}/../jbase.parent/ant</ant-files-path>
 
-    <!-- for deployment on bintray -->
-    <!-- The name of your own Bintray repository -->
-    <bintray.repo>xtext-jbase</bintray.repo>
-    <!-- The name of your own Bintray repository's package for releases -->
-    <bintray.package>releases</bintray.package>
+    <!-- properties for deploying the composite update site
+      on GitHub Pages -->
+    <github-update-repo>git@github.com:LorenzoBettini/jbase-releases.git</github-update-repo>
+    <github-local-clone>${project.build.directory}/checkout</github-local-clone>
+    <releases-directory>${github-local-clone}/releases</releases-directory>
+    <current-release-directory>${releases-directory}/${qualifiedVersion}</current-release-directory>
     <!-- The label for the Composite sites -->
     <site.label>Jbase Site</site.label>
-
-    <!-- If the Bintray repository is owned by someone different from your 
-      user, then specify the bintray.owner explicitly -->
-    <bintray.owner>${bintray.user}</bintray.owner>
-    <!-- Define bintray.user and bintray.apikey in some secret place, like 
-      .m2/settings.xml -->
-
-    <!-- Default values for remote directories -->
-    <bintray.base.path></bintray.base.path>
-    <bintray.releases.path>${bintray.base.path}releases</bintray.releases.path>
-    <bintray.composite.path>${bintray.base.path}updates</bintray.composite.path>
-    <bintray.zip.path>${bintray.base.path}zipped</bintray.zip.path>
-    <!-- note that the following must be consistent with the path schema 
-      used to publish child composite repositories and actual released p2 repositories -->
-    <child.repository.path.prefix>../../releases/</child.repository.path.prefix>
 
     <!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
     <includeAllDependencies>false</includeAllDependencies>
@@ -244,7 +227,6 @@
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
-
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
@@ -291,6 +273,25 @@
         <skipTests>true</skipTests>
       </properties>
       <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>maven-install-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>default-install</id>
+                  <phase>none</phase>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <configuration>
+                <skip>true</skip>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
         <plugins>
           <plugin>
             <groupId>org.eclipse.tycho.extras</groupId>
@@ -340,10 +341,24 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho.extras</groupId>
+          <artifactId>tycho-eclipserun-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
         <!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
           so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
           we can list it after. -->
-
         <plugin>
           <groupId>org.eclipse.xtend</groupId>
           <artifactId>xtend-maven-plugin</artifactId>
@@ -363,7 +378,6 @@
             <xtendAsPrimaryDebugSource>true</xtendAsPrimaryDebugSource>
           </configuration>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
@@ -376,7 +390,6 @@
             </filesets>
           </configuration>
         </plugin>
-
         <!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
           To skip tests, but still compile them, use: -DskipTests
           To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
@@ -392,7 +405,6 @@
             <useUIHarness>false</useUIHarness>
           </configuration>
         </plugin>
-
         <plugin>
           <groupId>org.eluder.coveralls</groupId>
           <artifactId>coveralls-maven-plugin</artifactId>
@@ -413,7 +425,6 @@
             </dependency>
           </dependencies>
         </plugin>
-
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-packaging-plugin</artifactId>
@@ -444,7 +455,6 @@
         <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
-
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-source-plugin</artifactId>
@@ -458,7 +468,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.eclipse.tycho.extras</groupId>
         <artifactId>tycho-source-feature-plugin</artifactId>
@@ -473,7 +482,6 @@
             <configuration>
               <excludes>
                 <plugin id="jbase.ui.examples" />
-
                 <feature id="org.eclipse.swtbot.ide" />
                 <feature id="org.eclipse.xtext.sdk" />
                 <feature id="org.eclipse.xtend.sdk" />
@@ -485,7 +493,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-plugin</artifactId>
@@ -500,7 +507,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <!-- in standard build, use only the current environment -->
         <groupId>org.eclipse.tycho</groupId>
@@ -519,24 +525,12 @@
             <environment>
               <os>win32</os>
               <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
               <arch>x86_64</arch>
             </environment>
             <environment>
               <os>macosx</os>
               <ws>cocoa</ws>
               <arch>x86_64</arch>
-            </environment>
-            <!-- This is not present in Mars <environment> <os>macosx</os> 
-              <ws>cocoa</ws> <arch>x86</arch> </environment> -->
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
             </environment>
             <environment>
               <os>linux</os>
