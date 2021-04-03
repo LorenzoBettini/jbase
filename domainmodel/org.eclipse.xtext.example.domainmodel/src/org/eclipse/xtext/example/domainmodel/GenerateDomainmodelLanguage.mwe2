@@ -14,7 +14,7 @@ import org.eclipse.xtext.ui.generator.*
 var file.extensions = "dmodel"
 var projectName = "org.eclipse.xtext.example.domainmodel"
 var runtimeProject = "../${projectName}"
-var lineDelimiter = '\n'
+var encoding = "UTF-8"
 // var grammarURI = "classpath:/org/eclipse/xtext/example/domainmodel/Domainmodel.xtext"
 var grammarURI = "platform:/resource/${projectName}/src/org/eclipse/xtext/example/domainmodel/Domainmodel.xtext"
 
