@@ -49,7 +49,6 @@
     <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
     <junit-version>4.12</junit-version>
-    <findbugs-version>2.5.5</findbugs-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:PermSize=256M
@@ -68,7 +67,6 @@
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
-    <!-- <findbugs.reportPath>../target/findbugs</findbugs.reportPath> -->
 
     <!-- Sonar -->
     <!-- <sonar.junit.reportsPath>../${project.artifactId}.tests/target/surefire-reports/</sonar.junit.reportsPath> -->
@@ -175,7 +173,6 @@
       not in the git repository (since Sonarqube 5) -->
     <!-- <sonar.scm.disabled>true</sonar.scm.disabled> -->
 
-    <findbugs.skip>true</findbugs.skip>
     <swtbot.tests.only>false</swtbot.tests.only>
     <swtbot.tests.skip>false</swtbot.tests.skip>
     <smoke.tests.skip>false</smoke.tests.skip>
