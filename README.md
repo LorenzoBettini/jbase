@@ -3,25 +3,29 @@ Jbase is a reusable Xtext Expression language: it is a customization of Xtext Xb
 
 [![Build Status](https://travis-ci.org/LorenzoBettini/jbase.svg?branch=master)](https://travis-ci.org/LorenzoBettini/jbase) [![Coverage Status](https://coveralls.io/repos/LorenzoBettini/jbase/badge.svg?branch=master&service=github)](https://coveralls.io/github/LorenzoBettini/jbase?branch=master) [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=net.sf.xtext-jbase%3Ajbase.releng)](https://sonarcloud.io/dashboard?id=net.sf.xtext-jbase%3Ajbase.releng)
 
-## Eclipse Update Site
+## Eclipse Update Site (new URL)
 
-All releases: https://dl.bintray.com/lorenzobettini/xtext-jbase/updates
-
-Zipped update sites: https://dl.bintray.com/lorenzobettini/xtext-jbase/zipped
+All releases: https://lorenzobettini.github.io/jbase-releases/
 
 Please make sure you add the Xtext update site (http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/) before you install Jbase features, so that all the requested Xtext bundles, with the specific version required by Jbase, are found.
+
+WARNING: the previous update site hosted on bintray will disappear soon, so please make sure you update your existing Eclipse distribution and Target Platform where you were already using Jbase.
 
 ### Specific versions
 
 Please make sure to use the version of Jbase that corresponds to the version of Xtext you want to use.  You can find the right version by looking at the update site category that is of the shape, for example
 
 ```
-Jbase 0.6.x (for Xtext 2.11.0)
+Jbase 0.9.x (for Xtext 2.15.0)
 ```
 
-If you want to make sure you do not upgrade to a newer version of Jbase by using the "All releases" update site, you can use the update site of a specific major.minor version, for example, for version 0.6.x you can use the update site
+If you want to make sure you do not upgrade to a newer version of Jbase by using the "All releases" update site, you can use the update site of a specific major.minor version, for example, for version 0.9.x you can use the update site
 
-https://dl.bintray.com/lorenzobettini/xtext-jbase/updates/0.6/
+https://lorenzobettini.github.io/jbase-releases/updates/0.x/0.9.x
+
+or you can use the update site of a specific major version, for example, for version 0.x you can use the update site
+
+https://lorenzobettini.github.io/jbase-releases/updates/0.x
 
 ## Maven Artifacts
 
@@ -49,15 +53,7 @@ We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which i
 
 ## Compiling From Sources
 
-If you want to build Jbase update site locally, you need Maven.
-
-First of all, make sure to increase memory
-
-```
-export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=256m"
-```
-
-Then cd to jbase.releng directory and run
+If you want to build Jbase update site locally, you need Maven: cd to `jbase.releng` directory and run
 
 ```
 mvn clean verify
