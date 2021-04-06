@@ -5,6 +5,7 @@ logs.zip
 *.orig
 *.java._trace
 *.smap
+*.xtendbin
 
 # we handle separately in the projects
 # src-gen/
@@ -16,4 +17,4 @@ buildroot
 
 target
 #generated
-generated-sources
+#generated-sources
