@@ -44,6 +44,7 @@
     <module>../jbase.example.jbasescript.ui</module>
     <module>../jbase.example.jbasescript.tests</module>
     <module>../jbase.example.jbasescript.ui.tests</module>
+    <module>../jbase.example.client.maven</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
