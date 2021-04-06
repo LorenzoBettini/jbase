@@ -4,7 +4,7 @@ Bundle-Name: Jbase Custom Mwe2
 Bundle-SymbolicName: jbase.mwe2
 Bundle-Version: 0.9.0.qualifier
 Bundle-Vendor: Lorenzo Bettini
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.emf.mwe2.lib,
  org.eclipse.emf.mwe2.runtime,
  com.google.guava;bundle-version="15.0.0",
