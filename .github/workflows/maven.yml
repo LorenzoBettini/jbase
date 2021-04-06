@@ -18,10 +18,10 @@ jobs:
         # Shallow clones should be disabled for reproducible tycho-packaging-plugin:build-qualifier
         # and a better relevancy of SonarQube analysis
         fetch-depth: 0
-    - name: Set up JDK 8
+    - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 11
     - name: Cache Maven packages
       uses: actions/cache@v2
       with:
