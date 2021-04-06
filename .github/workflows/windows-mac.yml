@@ -5,11 +5,15 @@ name: Java CI with Maven on Windows and Mac
 
 on:
   push:
+    paths-ignore:
+      - 'README.md'
     # Sequence of patterns matched against refs/heads
     branches:
       # Push events on the main branch
       - master
   pull_request:
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build:
