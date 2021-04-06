@@ -19,8 +19,8 @@
     label="Jbase">
   <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-1.8"
-      location="${jre.location-1.8}">
+      version="JavaSE-11"
+      location="${jre.location-11}">
     <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -97,7 +97,7 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="eclipse.target.platform"
-      defaultValue="2018-09"
+      defaultValue="2021-03"
       storageURI="scope://Workspace"/>
   <setupTask
       xsi:type="setup:ResourceCreationTask"
@@ -315,32 +315,17 @@
           rootFolder="${git.clone.location}"
           locateNestedProjects="true"/>
       <repositoryList
-          name="Oxygen">
+          name="2021-03">
         <repository
-            url="http://download.eclipse.org/releases/oxygen"/>
+            url="https://download.eclipse.org/releases/2021-03"/>
         <repository
-            url="http://download.itemis.com/updates/releases/2.1.1/"/>
-        <repository
-            url="${xtext.site}"/>
-        <repository
-            url="${mwe2.site}"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest/"/>
-        <repository
-            url="https://dl.bintray.com/lorenzobettini/xtext-xdoc/updates/"/>
-      </repositoryList>
-      <repositoryList
-          name="2018-09">
-        <repository
-            url="http://download.eclipse.org/releases/2018-09"/>
-        <repository
-            url="http://download.itemis.com/updates/releases/2.1.1/"/>
+            url="https://download.itemis.com/updates/releases/2.1.1/"/>
         <repository
             url="${xtext.site}"/>
         <repository
             url="${mwe2.site}"/>
         <repository
-            url="https://dl.bintray.com/lorenzobettini/xtext-xdoc/updates/"/>
+            url="https://lorenzobettini.github.io/xtext-xdoc-releases/"/>
       </repositoryList>
     </targlet>
   </setupTask>
@@ -511,11 +496,11 @@
     <setupTask
         xsi:type="setup:VariableTask"
         name="mwe2.site"
-        value="http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.1"/>
+        value="https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.12.1"/>
     <setupTask
         xsi:type="setup:VariableTask"
         name="xtext.site"
-        value="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.15.0/"/>
+        value="https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.25.0/"/>
     <setupTask
         xsi:type="setup.p2:P2Task"
         id="p2.org.eclipse.xtext.3"
@@ -523,7 +508,7 @@
         licenseConfirmationDisabled="true">
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.15.0,2.16.0)"
+          versionRange="[2.25.0,2.26.0)"
           filter=""/>
       <requirement
           name="de.itemis.xtext.antlr.feature.feature.group"/>
@@ -532,7 +517,7 @@
       <repository
           url="${mwe2.site}"/>
       <repository
-          url="http://download.itemis.com/updates/releases/2.1.1/"/>
+          url="https://download.itemis.com/updates/releases/2.1.1/"/>
       <description>Xtext &amp; Xtend</description>
     </setupTask>
   </stream>
