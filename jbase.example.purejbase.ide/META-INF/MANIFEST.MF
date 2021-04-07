@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: jbase.example.purejbase.ide
+Bundle-ManifestVersion: 2
+Bundle-Name: jbase.example.purejbase.ide
+Bundle-Vendor: Lorenzo Bettini
+Bundle-Version: 0.9.0.qualifier
+Bundle-SymbolicName: jbase.example.purejbase.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: jbase.example.purejbase,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ jbase
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: jbase.example.purejbase.ide.contentassist.antlr,
+ jbase.example.purejbase.ide.contentassist.antlr.internal

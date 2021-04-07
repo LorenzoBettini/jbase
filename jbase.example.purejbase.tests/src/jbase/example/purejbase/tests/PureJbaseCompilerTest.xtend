@@ -2,7 +2,6 @@ package jbase.example.purejbase.tests
 
 import com.google.common.base.Joiner
 import com.google.inject.Inject
-import jbase.example.purejbase.PureJbaseInjectorProvider
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
@@ -16,69 +15,69 @@ import org.junit.runner.RunWith
 import static extension org.junit.Assert.*
 
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(PureJbaseInjectorProvider)) 
+@InjectWith(typeof(PureJbaseInjectorProvider))
 class PureJbaseCompilerTest {
-	
+
 	@Rule @Inject public TemporaryFolder temporaryFolder
-	
+
 	@Inject extension CompilationTestHelper
 
 	@Test
 	def void testHelloWorld() {
 		'''
-System.out.println("Hello World!");
+			System.out.println("Hello World!");
 		'''.checkCompilation('''
-package purejbase;
-
-@SuppressWarnings("all")
-public class MyFile {
-  public static void main(String[] args) throws Throwable {
-    System.out.println("Hello World!");
-  }
-}
+			package purejbase;
+			
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    System.out.println("Hello World!");
+			  }
+			}
 		''')
 	}
 
 	@Test
 	def void testLiterals() {
 		'''
-Object o = null;
-
-// String Literal
-String s = "Hello World";
-
-// Number Literals are mostly like in Java
-// (consult the documentation for more details)
-int i = 42;
-double d = 0.42e2;
-
-// Boolean Literal
-boolean b1 = true;
-boolean b2 = false;
-
-// Into the bargain, there are number literals for 
-// java.math.BigInteger and java.math.BigDecimal
-java.math.BigInteger bi = 0xbeef_beef_beef_beef_beef#BI;
-java.math.BigDecimal bd = 0.123_456_789_123_456_789_123_456_789_123_456_789e4242BD;
+			Object o = null;
+			
+			// String Literal
+			String s = "Hello World";
+			
+			// Number Literals are mostly like in Java
+			// (consult the documentation for more details)
+			int i = 42;
+			double d = 0.42e2;
+			
+			// Boolean Literal
+			boolean b1 = true;
+			boolean b2 = false;
+			
+			// Into the bargain, there are number literals for 
+			// java.math.BigInteger and java.math.BigDecimal
+			java.math.BigInteger bi = 0xbeef_beef_beef_beef_beef#BI;
+			java.math.BigDecimal bd = 0.123_456_789_123_456_789_123_456_789_123_456_789e4242BD;
 		'''.checkCompilation('''
-package purejbase;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-@SuppressWarnings("all")
-public class MyFile {
-  public static void main(String[] args) throws Throwable {
-    Object o = null;
-    String s = "Hello World";
-    int i = 42;
-    double d = 0.42e2;
-    boolean b1 = true;
-    boolean b2 = false;
-    BigInteger bi = new BigInteger("beefbeefbeefbeefbeef", 16);
-    BigDecimal bd = new BigDecimal("0.123456789123456789123456789123456789e4242");
-  }
-}
+			package purejbase;
+			
+			import java.math.BigDecimal;
+			import java.math.BigInteger;
+			
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    Object o = null;
+			    String s = "Hello World";
+			    int i = 42;
+			    double d = 0.42e2;
+			    boolean b1 = true;
+			    boolean b2 = false;
+			    BigInteger bi = new BigInteger("beefbeefbeefbeefbeef", 16);
+			    BigDecimal bd = new BigDecimal("0.123456789123456789123456789123456789e4242");
+			  }
+			}
 		''')
 	}
 
@@ -86,24 +85,25 @@ public class MyFile {
 		checkCompilation(input, expectedGeneratedJava, true)
 	}
 
-	def private checkCompilation(CharSequence input, CharSequence expectedGeneratedJava, boolean checkValidationErrors) {
-		input.compile[
+	def private checkCompilation(CharSequence input, CharSequence expectedGeneratedJava,
+		boolean checkValidationErrors) {
+		input.compile [
 			if (checkValidationErrors) {
 				assertNoValidationErrors
 			}
-			
+
 			if (expectedGeneratedJava !== null) {
 				assertGeneratedJavaCode(expectedGeneratedJava)
 			}
 			assertGeneratedJavaCodeCompiles
 		]
 	}
-	
+
 	private def assertNoValidationErrors(Result it) {
 		val allErrors = getErrorsAndWarnings.filter[severity == Severity.ERROR]
 		if (!allErrors.empty) {
-			throw new IllegalStateException("One or more resources contained errors : "+
-				Joiner.on(',').join(allErrors)
+			throw new IllegalStateException(
+				"One or more resources contained errors : " + Joiner.on(',').join(allErrors)
 			);
 		}
 	}
