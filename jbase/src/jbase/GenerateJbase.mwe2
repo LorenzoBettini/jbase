@@ -43,21 +43,6 @@ Workflow {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
 				generateXtendStub = true
 			}
-			labelProvider = {
-				generateXtendStub = false
-			}
-			outline = {
-				generateXtendStub = false
-			}
-			quickFixProvider = {
-				generateXtendStub = false
-			}
-			contentAssist = {
-				generateXtendStub = false
-			}
-			scopeProvider = {
-				generateXtendStub = false
-			}
 		}
 	}
 }
