@@ -70,10 +70,18 @@ class CompilerTest {
 				name : String
 			}
 		'''.compile[assertEquals('''
+			import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 			import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 			
 			@SuppressWarnings("all")
 			public class Foo {
+			  public Foo() {
+			  }
+			  
+			  public Foo(Procedure1<Foo> initializer) {
+			    initializer.apply(this);
+			  }
+			  
 			  private String name;
 			  
 			  public String getName() {
@@ -110,11 +118,19 @@ class CompilerTest {
 		'''.compile[
 			assertEquals(
 			'''
+			import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 			import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 			import org.junit.Test;
 			
 			@SuppressWarnings("all")
 			public class Foo {
+			  public Foo() {
+			  }
+			  
+			  public Foo(Procedure1<Foo> initializer) {
+			    initializer.apply(this);
+			  }
+			  
 			  private String bar;
 			  
 			  public String getBar() {
