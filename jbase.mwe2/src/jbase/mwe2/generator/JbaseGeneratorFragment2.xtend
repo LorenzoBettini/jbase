@@ -25,19 +25,13 @@ class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 			return;
 
 		if (projectConfig.runtime.manifest !== null) {
-			projectConfig.runtime.manifest.requiredBundles.addAll(#[
-				'jbase'
-			])
+			projectConfig.runtime.manifest.requiredBundles.add('jbase')
 		}
 		if (projectConfig.eclipsePlugin.manifest !== null) {
-			projectConfig.eclipsePlugin.manifest.requiredBundles.addAll(#[
-				'jbase.ui'
-			])
+			projectConfig.eclipsePlugin.manifest.requiredBundles.add('jbase.ui')
 		}
 		if (projectConfig.genericIde.manifest !== null) {
-			projectConfig.genericIde.manifest.requiredBundles.addAll(#[
-				'jbase'
-			])
+			projectConfig.genericIde.manifest.requiredBundles.add('jbase')
 		}
 
 		super.generate()
