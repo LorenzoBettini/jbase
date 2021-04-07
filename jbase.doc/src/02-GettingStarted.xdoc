@@ -71,6 +71,9 @@ ui project.
 
 section2:OldGenerator[Using the old Xtext generator (before version 2.9)]
 
+e[IMPORTANT]: Please keep in mind that the old generator has been deprecated
+for a long time now.
+
 SKIP THIS SECTION IF YOU ARE USING THE NEW XTEXT GENERATOR
 (i.e., the one described in ref:NewGenerator[]).
 
