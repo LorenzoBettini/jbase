@@ -53,6 +53,9 @@ Workflow {
 			contentAssist = {
 				generateXtendStub = false
 			}
+			scopeProvider = {
+				generateXtendStub = false
+			}
 		}
 	}
 }
