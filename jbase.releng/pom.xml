@@ -37,8 +37,10 @@
     <module>../jbase.ui.tests</module>
     <module>../jbase.tests.report</module>
     <module>../jbase.example.purejbase</module>
+    <module>../jbase.example.purejbase.ide</module>
     <module>../jbase.example.purejbase.ui</module>
     <module>../jbase.example.purejbase.tests</module>
+    <module>../jbase.example.purejbase.ui.tests</module>
     <module>../jbase.example.jbasescript</module>
     <module>../jbase.example.jbasescript.ide</module>
     <module>../jbase.example.jbasescript.ui</module>

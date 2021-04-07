@@ -28,8 +28,10 @@
 
 	<target name="zip_all_examples">
 		<zip_example name="jbase.example.purejbase" />
+		<zip_example name="jbase.example.purejbase.ide" />
 		<zip_example name="jbase.example.purejbase.ui" />
 		<zip_example name="jbase.example.purejbase.tests" />
+		<zip_example name="jbase.example.purejbase.ui.tests" />
 		<zip_example name="jbase.example.jbasescript" />
 		<zip_example name="jbase.example.jbasescript.ide" />
 		<zip_example name="jbase.example.jbasescript.ui" />

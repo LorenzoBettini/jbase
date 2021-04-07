@@ -45,6 +45,11 @@
                name="jbase.example.purejbase">
          </projectDescriptor>
          <projectDescriptor
+               contentURI="contents/jbase.example.purejbase.ide.zip"
+               description="IDE features for the language."
+               name="jbase.example.purejbase.ide">
+         </projectDescriptor>
+         <projectDescriptor
                contentURI="contents/jbase.example.purejbase.ui.zip"
                description="A smart editor for the language."
                name="jbase.example.purejbase.ui">
@@ -53,6 +58,11 @@
                contentURI="contents/jbase.example.purejbase.tests.zip"
                description="A test suite for the language."
                name="jbase.example.purejbase.tests">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/jbase.example.purejbase.ui.tests.zip"
+               description="A test suite for the language."
+               name="jbase.example.purejbase.ui.tests">
          </projectDescriptor>
       </example>
    </extension>
