@@ -42,10 +42,14 @@ Workflow {
 			}
 			validator = {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+				generateXtendStub = true
 			}
 			formatter = {
 				generateStub = true
 				generateXtendStub = true
+			}
+			contentAssist = {
+				generateXtendStub = false
 			}
 		}
 	}
