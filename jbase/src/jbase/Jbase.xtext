@@ -295,7 +295,7 @@ XJSwitchStatements returns XExpression:
  */
 XJTryWithResourcesStatement returns XExpression:
 	=>({XJTryWithResourcesStatement} 'try' openParenthesis?='(')
-	resourceDeclarations+=XJTryWithResourcesVariableDeclaration*
+	resources+=XJTryWithResourcesVariableDeclaration*
 	')'
 	expression=XBlockExpression
 	catchClauses+=XCatchClause*

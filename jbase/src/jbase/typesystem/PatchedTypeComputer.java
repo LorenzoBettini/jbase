@@ -5,24 +5,18 @@ package jbase.typesystem;
 
 import java.util.List;
 
-import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmPrimitiveType;
-import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.common.types.util.Primitives.Primitive;
 import org.eclipse.xtext.xbase.XBinaryOperation;
-import org.eclipse.xtext.xbase.XCatchClause;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
-import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeExpectation;
-import org.eclipse.xtext.xbase.typesystem.references.ITypeReferenceOwner;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import jbase.util.JbaseExpressionHelper;
@@ -164,36 +158,6 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			success = false;
 		}
 		return success;
-	}
-
-	@Override
-	protected void _computeTypes(XTryCatchFinallyExpression object, ITypeComputationState state) {
-		List<LightweightTypeReference> caughtExceptions = Lists.newArrayList();
-		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
-		for (XCatchClause catchClause : object.getCatchClauses())
-			caughtExceptions.add(referenceOwner.toLightweightTypeReference(catchClause.getDeclaredParam().getParameterType()));
-		state.withExpectedExceptions(caughtExceptions).computeTypes(object.getExpression());
-		computeTypesForCatchFinally(object, state);
-	}
-
-	/**
-	 * Common part for catch and finally, used both by try-catch-finally and
-	 * try-with-resource
-	 * 
-	 * @param object
-	 * @param state
-	 */
-	protected void computeTypesForCatchFinally(XTryCatchFinallyExpression object, ITypeComputationState state) {
-		ITypeReferenceOwner referenceOwner = state.getReferenceOwner();
-		for (XCatchClause catchClause : object.getCatchClauses()) {
-			JvmFormalParameter catchClauseParam = catchClause.getDeclaredParam();
-			JvmTypeReference parameterType = catchClauseParam.getParameterType();
-			LightweightTypeReference lightweightReference = referenceOwner.toLightweightTypeReference(parameterType);
-			ITypeComputationState catchClauseState = assignType(catchClauseParam, lightweightReference, state);
-			catchClauseState.withinScope(catchClause);
-			catchClauseState.computeTypes(catchClause.getExpression());
-		}
-		state.withoutExpectation().computeTypes(object.getFinallyExpression());
 	}
 
 }

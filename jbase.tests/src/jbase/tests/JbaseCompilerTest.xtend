@@ -2745,33 +2745,49 @@ public class MyFile {
 			System.out.println("finally");
 		}
 		'''.checkCompilation(
-'''
-package jbasetestlanguage;
-
-import java.io.FileReader;
-import org.eclipse.xtext.xbase.lib.Exceptions;
-
-@SuppressWarnings("all")
-public class MyFile {
-  public static void main(String[] args) throws Throwable {
-    try (
-      FileReader fr1 = new FileReader("");
-      FileReader fr2 = new FileReader((fr1.toString() + fr1.toString()));
-    ) {
-      int i = 0;
-    } catch (final Throwable _t) {
-      if (_t instanceof Exception) {
-        final Exception e = (Exception)_t;
-        e.printStackTrace();
-      } else {
-        throw Exceptions.sneakyThrow(_t);
-      }
-    } finally {
-      System.out.println("finally");
-    }
-  }
-}
-'''
+		'''
+		package jbasetestlanguage;
+		
+		import java.io.FileReader;
+		import org.eclipse.xtext.xbase.lib.Exceptions;
+		import org.eclipse.xtext.xbase.lib.Functions.Function0;
+		
+		@SuppressWarnings("all")
+		public class MyFile {
+		  public static void main(String[] args) throws Throwable {
+		    try (FileReader fr1 = new Function0<FileReader>() {
+		      @Override
+		      public FileReader apply() {
+		        try {
+		          return new FileReader("");
+		        } catch (Throwable _e) {
+		          throw Exceptions.sneakyThrow(_e);
+		        }
+		      }
+		    }.apply(); FileReader fr2 = new Function0<FileReader>() {
+		      @Override
+		      public FileReader apply() {
+		        try {
+		          return new FileReader((fr1.toString() + fr1.toString()));
+		        } catch (Throwable _e) {
+		          throw Exceptions.sneakyThrow(_e);
+		        }
+		      }
+		    }.apply()) {
+		      int i = 0;
+		    } catch (final Throwable _t) {
+		      if (_t instanceof Exception) {
+		        final Exception e = (Exception)_t;
+		        e.printStackTrace();
+		      } else {
+		        throw Exceptions.sneakyThrow(_t);
+		      }
+		    } finally {
+		      System.out.println("finally");
+		    }
+		  }
+		}
+		'''
 		)
 	}
 

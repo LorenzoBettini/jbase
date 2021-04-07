@@ -46,7 +46,6 @@ import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
-import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.util.JbaseExpressionHelper;
@@ -84,8 +83,6 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			_toJavaStatement((XJBreakStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJClassObject) {
 			_toJavaStatement((XJClassObject) obj, appendable, isReferenced);
-		} else if (obj instanceof XJTryWithResourcesStatement) {
-			_toJavaStatement((XJTryWithResourcesStatement) obj, appendable, isReferenced);
 		} else if (obj instanceof XJSemicolonStatement) {
 			_toJavaStatement((XJSemicolonStatement) obj, appendable, isReferenced);
 		} else {
@@ -163,19 +160,6 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		} else {
 			b.append(";");
 		}
-	}
-
-	public void _toJavaStatement(XJTryWithResourcesStatement expr, ITreeAppendable outerAppendable, boolean isReferenced) {
-		ITreeAppendable b = outerAppendable.trace(expr, false);
-		b.newLine().append("try (").increaseIndentation();
-		for (XJTryWithResourcesVariableDeclaration r : expr.getResourceDeclarations()) {
-			internalToJavaStatement(r, b.trace(r, true), false);
-		}
-		b.decreaseIndentation();
-		b.newLine().append(") {").increaseIndentation();
-		internalToJavaStatement(expr.getExpression(), b, false);
-		b.decreaseIndentation().newLine().append("}");
-		appendCatchAndFinally(expr, b, isReferenced);
 	}
 
 	@Override
