@@ -481,23 +481,14 @@
               <goal>plugin-source</goal>
             </goals>
           </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho.extras</groupId>
-        <artifactId>tycho-source-feature-plugin</artifactId>
-        <version>${tycho-extras-version}</version>
-        <executions>
           <execution>
-            <id>source-feature</id>
-            <phase>package</phase>
+            <id>feature-source</id>
             <goals>
-              <goal>source-feature</goal>
+              <goal>feature-source</goal>
             </goals>
             <configuration>
               <excludes>
                 <plugin id="jbase.ui.examples" />
-                <feature id="org.eclipse.swtbot.ide" />
                 <feature id="org.eclipse.xtext.sdk" />
                 <feature id="org.eclipse.xtend.sdk" />
                 <feature id="org.eclipse.pde" />
