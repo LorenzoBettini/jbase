@@ -8,7 +8,8 @@
 	</extension>
 	<extension point="org.eclipse.ui.newWizards">
 		<category id="jbase.project.Examples" 
-				  name="Examples" />
+				  name="Examples" 
+				  parentCategory="jbase.ui.category" />
 	</extension>
 
 	<extension point="org.eclipse.ui.newWizards">
