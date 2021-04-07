@@ -7,5 +7,52 @@
     runtimeVersion="2.10" usedGenPackages="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel#//types ../../../org.eclipse.xtext.xbase/model/Xbase.genmodel#//xbase">
   <genPackages prefix="Jbase" basePackage="jbase" disposableProviderFactory="true"
       fileExtensions="jbase" ecorePackage="Jbase.ecore#/">
+    <genClasses ecoreClass="Jbase.ecore#//XJJvmFormalParameter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/final"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/varArgs"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAssignment"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJVariableDeclaration">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJVariableDeclaration/final"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJVariableDeclaration/additionalVariables"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAdditionalXVariableDeclaration"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayAccess">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayAccess/indexes"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayConstructorCall">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/dimensions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/arrayLiteral"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayDimension"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayLiteral"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayAccessExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayAccessExpression/array"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJBranchingStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJContinueStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJBreakStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJCharLiteral"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJPrefixOperation"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJConditionalExpression"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJSwitchStatements"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJClassObject">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJClassObject/typeExpression"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJClassObject/arrayDimensions"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJSemicolonStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJSemicolonStatement/expression"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJTryWithResourcesStatement/openParenthesis"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesVariableDeclaration"/>
+    <genClasses image="false" ecoreClass="Jbase.ecore#//XJWithSemicolon">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJWithSemicolon/semicolon"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJConstructorCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJConstructorCall/explicitTypeArguments"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

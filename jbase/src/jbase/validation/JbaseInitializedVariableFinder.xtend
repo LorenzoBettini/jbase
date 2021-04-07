@@ -212,7 +212,7 @@ class JbaseInitializedVariableFinder {
 		NotInitializedAcceptor acceptor) {
 		detectNotInitializedTryCatchCommon(e, initialized, acceptor) [
 			initializedVariables |
-			loopOverExpressions(e.resourceDeclarations, initializedVariables, acceptor)
+			loopOverExpressions(e.resources, initializedVariables, acceptor)
 			inspectTryCatchFinallyBranchesAndIntersect(e, initializedVariables, acceptor)
 		]
 	}

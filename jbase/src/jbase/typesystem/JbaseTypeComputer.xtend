@@ -11,7 +11,6 @@ import jbase.jbase.XJBranchingStatement
 import jbase.jbase.XJCharLiteral
 import jbase.jbase.XJClassObject
 import jbase.jbase.XJSemicolonStatement
-import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJVariableDeclaration
 import jbase.validation.JbaseIssueCodes
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -59,8 +58,6 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 		} else if (expression instanceof XJVariableDeclaration) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJClassObject) {
-			_computeTypes(expression, state)
-		} else if (expression instanceof XJTryWithResourcesStatement) {
 			_computeTypes(expression, state)
 		} else if (expression instanceof XJSemicolonStatement) {
 			_computeTypes(expression, state)
@@ -324,26 +321,6 @@ class JbaseTypeComputer extends PatchedTypeComputer {
 			// empty statement
 			state.acceptActualType(state.primitiveVoid)
 		}
-	}
-
-	def protected _computeTypes(XJTryWithResourcesStatement e, ITypeComputationState state) {
-		val resourcesState = state.withoutExpectation
-		resourcesState.withinScope(e)
-		// manually add resource declarations to the scope, otherwise
-		// they would not be visible to the try-with-resources main expression
-		for (r : e.resourceDeclarations) {
-			resourcesState.computeTypes(r)
-			addLocalToCurrentScope(r, resourcesState)
-		}
-		val referenceOwner = resourcesState.getReferenceOwner()
-		val caughtExceptions = e.catchClauses.
-			map[
-				referenceOwner.toLightweightTypeReference(declaredParam.parameterType)
-			]
-		resourcesState.withExpectedExceptions(caughtExceptions).computeTypes(e.getExpression()) 
-		// the type computation for catch and finally is done with the original
-		// type computation state, so that declared resources are not visible
-		computeTypesForCatchFinally(e, state)
 	}
 
 	private def computeTypesOfArrayAccess(XJArrayAccess arrayAccess, 

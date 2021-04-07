@@ -44,25 +44,24 @@
   </issueManagement>
 
   <properties>
-    <tycho-version>1.2.0</tycho-version>
+    <tycho-version>2.2.0</tycho-version>
     <tycho-extras-version>${tycho-version}</tycho-extras-version>
-    <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
-    <junit-version>4.12</junit-version>
+    <junit-version>4.13.1</junit-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
-    <xtext.version>2.15.0</xtext.version>
+    <xtext.version>2.25.0</xtext.version>
     <xtext-version>${xtext.version}</xtext-version>
     <xtextVersion>${xtext.version}</xtextVersion>
-    <mwe2Version>2.9.1.201705291010</mwe2Version>
-    <platform-version>[3.9,4.0)</platform-version>
+    <mwe2Version>2.12.1</mwe2Version>
     <fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
 
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
 
-    <eclipse-target>2018-09</eclipse-target>
+    <eclipse-target>2021-03</eclipse-target>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
@@ -194,6 +193,18 @@
     <!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
     <includeAllDependencies>false</includeAllDependencies>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse.xtext</groupId>
+        <artifactId>xtext-dev-bom</artifactId>
+        <version>${xtextVersion}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <profiles>
     <profile>
@@ -470,23 +481,14 @@
               <goal>plugin-source</goal>
             </goals>
           </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho.extras</groupId>
-        <artifactId>tycho-source-feature-plugin</artifactId>
-        <version>${tycho-extras-version}</version>
-        <executions>
           <execution>
-            <id>source-feature</id>
-            <phase>package</phase>
+            <id>feature-source</id>
             <goals>
-              <goal>source-feature</goal>
+              <goal>feature-source</goal>
             </goals>
             <configuration>
               <excludes>
                 <plugin id="jbase.ui.examples" />
-                <feature id="org.eclipse.swtbot.ide" />
                 <feature id="org.eclipse.xtext.sdk" />
                 <feature id="org.eclipse.xtend.sdk" />
                 <feature id="org.eclipse.pde" />

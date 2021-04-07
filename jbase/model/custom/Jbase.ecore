@@ -50,8 +50,6 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XTryCatchFinallyExpression">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="openParenthesis" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceDeclarations" upperBound="-1"
-        eType="#//XJTryWithResourcesVariableDeclaration" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclaration"
       eSuperTypes="#//XJVariableDeclaration #//XJWithSemicolon"/>

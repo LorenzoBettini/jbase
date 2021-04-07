@@ -32,6 +32,7 @@ import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 import jbase.jbase.XJTryWithResourcesStatement
 import jbase.jbase.XJWithSemicolon
 import org.eclipse.xtext.xbase.XConstructorCall
+import jbase.jbase.XJTryWithResourcesVariableDeclaration
 
 class JbaseFormatter extends XbasePatchedFormatter {
 
@@ -173,7 +174,7 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		expr.regionFor.keyword("try").append[oneSpace]
 		expr.regionFor.keyword("(").append[noSpace]
 		expr.regionFor.keyword(")").prepend[noSpace]
-		for (r : expr.resourceDeclarations) {
+		for (r : expr.resources.filter(XJTryWithResourcesVariableDeclaration)) {
 			r.format(document)
 			r.formatSemicolon(document)
 		}

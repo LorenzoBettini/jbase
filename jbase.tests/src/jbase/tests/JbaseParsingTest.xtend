@@ -617,7 +617,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s =
 		'''.assertLastExpression[
-			1.assertEquals(tryWithResources.resourceDeclarations.size)
+			1.assertEquals(tryWithResources.resources.size)
 		]
 	}
 
@@ -626,7 +626,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "")
 		'''.assertLastExpression[
-			1.assertEquals(tryWithResources.resourceDeclarations.size)
+			1.assertEquals(tryWithResources.resources.size)
 		]
 	}
 
@@ -635,7 +635,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "" ; String s = "")
 		'''.assertLastExpression[
-			2.assertEquals(tryWithResources.resourceDeclarations.size)
+			2.assertEquals(tryWithResources.resources.size)
 		]
 	}
 
@@ -644,7 +644,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''
 		try (String s = "" ; String s = "";)
 		'''.assertLastExpression[
-			2.assertEquals(tryWithResources.resourceDeclarations.size)
+			2.assertEquals(tryWithResources.resources.size)
 		]
 	}
 

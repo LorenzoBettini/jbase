@@ -4,7 +4,6 @@
 package jbase.jbase.impl;
 
 import jbase.jbase.XJVariableDeclaration;
-import jbase.jbase.impl.XJVariableDeclarationImpl;
 
 /**
  * Custom implementation so that isWritable is always true.
