@@ -1,7 +1,6 @@
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
-import org.eclipse.xtext.example.domainmodel.DomainmodelInjectorProvider
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.testing.InjectWith

@@ -514,7 +514,6 @@
         </executions>
       </plugin>
       <plugin>
-        <!-- in standard build, use only the current environment -->
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
@@ -545,6 +544,20 @@
             </environment>
           </environments>
           <includePackedArtifacts>true</includePackedArtifacts>
+          <dependency-resolution>
+            <extraRequirements>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.xtext.ui.codemining</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.xtext.logging</id>
+                <versionRange>1.2.15</versionRange>
+              </requirement>
+            </extraRequirements>
+          </dependency-resolution>
         </configuration>
       </plugin>
     </plugins>

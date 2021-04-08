@@ -31,6 +31,7 @@ public class FantasticEditStrategyProvider extends DefaultAutoEditStrategyProvid
 					contents = document.get();
 					document.set(getText());
 					command.text="";
+					command.offset = getText().lastIndexOf("M") + 1;
 				} else {
 					if (contents!=null) {
 						document.set(contents);
@@ -59,13 +60,13 @@ public class FantasticEditStrategyProvider extends DefaultAutoEditStrategyProvid
             "\t\t\tMMMMMMMMMMMMMMMMMMMM            MMMMMMMMMMMMMMMMMMMM\n"+
             "\t\t\tMMMMMMMMMMMMMMMMM                     MMMMMMMMMMMMMM\n"+
             "\t\t\tMMMMMMMMMMMMMM                           MMMMMMMMMMM\n"+
-            "\t\t\tMMMMMMMMMMMM       MMM                      MMMMMMMM\n"+ 
-            "\t\t\tMMMMMMMMMM    MMMMMMMMMMMMMMM                 MMMMMM\n"+  
-            "\t\t\tMMMMMMMMM   MMMMMMMMMMMMMMMMMMMM                MMMM\n"+  
-            "\t\t\tMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMM               MM\n"+  
-            "\t\t\tMMMMMMM   MMMMMMMMMMMMMMMMMMMMMMMMMMM            MMM\n"+             
-            "\t\t\tMMMMMM    MMMMMMMMMMMMMMMMMMMMMMMMMMMMM        MMMMM\n"+        
-            "\t\t\tMMMMMM      MMMMMMMMMMMMMMMMMMMMMMMMMMMMM    MMMMMMM\n"+    
+            "\t\t\tMMMMMMMMMMMM       MMM                      MMMMMMMM\n"+
+            "\t\t\tMMMMMMMMMM    MMMMMMMMMMMMMMM                 MMMMMM\n"+
+            "\t\t\tMMMMMMMMM   MMMMMMMMMMMMMMMMMMMM                MMMM\n"+
+            "\t\t\tMMMMMMMM  MMMMMMMMMMMMMMMMMMMMMMMMM               MM\n"+
+            "\t\t\tMMMMMMM   MMMMMMMMMMMMMMMMMMMMMMMMMMM            MMM\n"+
+            "\t\t\tMMMMMM    MMMMMMMMMMMMMMMMMMMMMMMMMMMMM        MMMMM\n"+
+            "\t\t\tMMMMMM      MMMMMMMMMMMMMMMMMMMMMMMMMMMMM    MMMMMMM\n"+
             "\t\t\tMMMMMM      MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMMMMM\n"+
             "\t\t\tMMMMMMM    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n"+
             "\t\t\tMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n";

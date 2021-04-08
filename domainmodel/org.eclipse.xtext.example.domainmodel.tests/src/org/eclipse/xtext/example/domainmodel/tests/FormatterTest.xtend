@@ -1,7 +1,6 @@
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
-import org.eclipse.xtext.example.domainmodel.DomainmodelInjectorProvider
 import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
