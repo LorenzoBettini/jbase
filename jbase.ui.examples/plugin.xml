@@ -155,6 +155,11 @@
                name="org.eclipse.xtext.example.domainmodel">
          </projectDescriptor>
          <projectDescriptor
+               contentURI="contents/org.eclipse.xtext.example.domainmodel.ide.zip"
+               description="IDE features for the language."
+               name="org.eclipse.xtext.example.domainmodel.ide">
+         </projectDescriptor>
+         <projectDescriptor
                contentURI="contents/org.eclipse.xtext.example.domainmodel.ui.zip"
                description="A smart editor for the language."
                name="org.eclipse.xtext.example.domainmodel.ui">
@@ -163,6 +168,11 @@
                contentURI="contents/org.eclipse.xtext.example.domainmodel.tests.zip"
                description="A test suite for the language."
                name="org.eclipse.xtext.example.domainmodel.tests">
+         </projectDescriptor>
+         <projectDescriptor
+               contentURI="contents/org.eclipse.xtext.example.domainmodel.ui.tests.zip"
+               description="A test suite for the language."
+               name="org.eclipse.xtext.example.domainmodel.ui.tests">
          </projectDescriptor>
       </example>
    </extension>
