@@ -1,6 +1,5 @@
-package org.eclipse.xtext.example.domainmodel.tests
+package org.eclipse.xtext.example.domainmodel.ui.tests
 
-import org.eclipse.xtext.example.domainmodel.DomainmodelUiInjectorProvider
 import org.eclipse.xtext.example.domainmodel.ui.internal.DomainmodelActivator
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, 2020 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2011, 2019 itemis AG (http://www.itemis.eu) and others.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
@@ -31,11 +31,11 @@ import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 /**
- * This class contains custom validation rules.
- * 
+ * This class contains custom validation rules. 
+ *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-public class DomainmodelJavaValidator extends AbstractDomainmodelJavaValidator {
+public class DomainmodelValidator extends AbstractDomainmodelValidator {
 	@Inject
 	private IJvmModelAssociations jvmModelAssociations;
 

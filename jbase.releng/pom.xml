@@ -48,8 +48,10 @@
     <module>../jbase.example.jbasescript.ui.tests</module>
     <module>../jbase.example.client.maven</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
+    <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ide</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.tests</module>
+    <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui.tests</module>
     <module>../jbase.ui.examples</module>
     <module>../jbase.doc</module>
     <module>../jbase.lib.feature</module>

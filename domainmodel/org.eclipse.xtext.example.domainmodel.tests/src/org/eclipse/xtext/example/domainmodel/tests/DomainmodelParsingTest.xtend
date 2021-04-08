@@ -1,9 +1,16 @@
+/**
+ * Copyright (c) 2011, 2019 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.TypesPackage
-import org.eclipse.xtext.example.domainmodel.DomainmodelInjectorProvider
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
 import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
@@ -19,10 +26,9 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(typeof(XtextRunner))
-@InjectWith(typeof(DomainmodelInjectorProvider))
-class ParserTest {
-	
+@RunWith(XtextRunner)
+@InjectWith(DomainmodelInjectorProvider)
+class DomainmodelParsingTest {
 	@Inject extension ParseHelper<DomainModel>
 	@Inject extension ValidationTestHelper
 	@Inject extension IJvmModelAssociations
