@@ -38,7 +38,7 @@ class AutoEditTest extends AbstractAutoEditTest {
 	@Test def fantasting_autoedit() throws Exception {
 		'''
 			Xtex|
-		'''.testAutoEdit('t', '''
+		'''.testAutoEdit('t','''
 		«""»
 
 
@@ -69,7 +69,7 @@ class AutoEditTest extends AbstractAutoEditTest {
 					MMMMMM      MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM  MMMMMMMM
 					MMMMMMM    MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 					MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM|
-		''')
+		'''.toString.replace("\r", ""))
 	}
 
 	private def testAutoEdit(CharSequence it, char key, CharSequence newContent) throws Exception {
