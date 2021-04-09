@@ -48,7 +48,6 @@
         <version>${tycho-version}</version>
         <executions>
           <execution>
-            <!-- compiler tests need UI -->
             <id>default-test</id>
             <phase>integration-test</phase>
             <configuration>
@@ -56,9 +55,6 @@
               <useUIHarness>true</useUIHarness>
               <useUIThread>true</useUIThread>
               <argLine>${additionalTestArgLine} ${os-jvm-flags} ${memoryArgs} -DbuildingWithTycho=true</argLine>
-              <includes>
-                <include>**/jbase/ui/tests/*Test.java</include>
-              </includes>
             </configuration>
             <goals>
               <goal>test</goal>
