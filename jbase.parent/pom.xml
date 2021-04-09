@@ -49,6 +49,7 @@
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
     <junit-version>4.13.1</junit-version>
+    <jacoco-version>0.8.6</jacoco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
@@ -418,6 +419,44 @@
             <argLine>${moduleProperties}</argLine>
             <failIfNoTests>false</failIfNoTests>
             <useUIHarness>false</useUIHarness>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco-version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <!-- binds by default to the phase "initialize" -->
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <excludes>
+              <exclude>**/org/eclipse/**/*.class</exclude>
+              <exclude>**/antlr/**/*.class</exclude>
+              <exclude>**Abstract*RuntimeModule.class</exclude>
+              <exclude>**/*SetupGenerated*.class</exclude>
+              <exclude>**/Abstract*Validator.class</exclude>
+              <exclude>**/*GrammarAccess*.class</exclude>
+              <exclude>**/*UiModule.class</exclude>
+              <exclude>**/Abstract*ProposalProvider.class</exclude>
+              <exclude>**/*Test.class</exclude>
+              <exclude>**/*Internal*</exclude>
+              <exclude>**/*Sequencer*</exclude>
+              <exclude>**/internal/*</exclude>
+              <exclude>**/jbase/jbase/util/*</exclude>
+              <exclude>**/jbase/jbase/impl/*</exclude>
+              <exclude>**/*ExtensionFactory*</exclude>
+              <exclude>**/*LabelProvider*</exclude>
+              <exclude>**/*TreeProvider*</exclude>
+              <exclude>**/*RuntimeModule*</exclude>
+              <exclude>**/*StandaloneSetup*</exclude>
+              <exclude>**/*XbasePatchedFormatter*</exclude>
+              <exclude>**/ui/editor/*</exclude>
+            </excludes>
           </configuration>
         </plugin>
         <plugin>
