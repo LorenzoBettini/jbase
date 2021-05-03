@@ -145,5 +145,25 @@
         </dependencies>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <!-- Make sure we don't install nor deploy this example -->
+      <plugins>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-install</id>
+              <phase>none</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>
