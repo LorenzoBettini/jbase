@@ -36,33 +36,5 @@
         <module>../jbase.example.jbasescript</module>
       </modules>
     </profile>
-    <profile>
-      <id>set-version-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <!-- This must be used explicitly with the goal set-version in 
-                order to update the versions removing the SNAPSHOT before deploying Maven 
-                artifacts: mvn antrun:run -Dtycho.mode=maven -Pset-version-release -->
-              <artifactId>maven-antrun-plugin</artifactId>
-              <version>${maven-antrun-plugin.version}</version>
-              <configuration>
-                <target>
-                  <ant
-                    antfile="${ant-files-path}/increment_versions.ant"
-                    target="set-version-release">
-                  </ant>
-                </target>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
   </profiles>
 </project>
