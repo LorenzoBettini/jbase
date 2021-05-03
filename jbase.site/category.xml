@@ -18,12 +18,12 @@
    <feature id="jbase.lib.feature.source" version="0.0.0">
       <category name="main.source"/>
    </feature>
-   <category-def name="main" label="Jbase 0.9.x (for Xtext 2.15.0)">
+   <category-def name="main" label="Jbase 0.10.x (for Xtext 2.25.0)">
       <description>
          Jbase
       </description>
    </category-def>
-   <category-def name="main.source" label="Jbase 0.9.x Sources (for Xtext 2.15.0)">
+   <category-def name="main.source" label="Jbase 0.10.x Sources (for Xtext 2.25.0)">
       <description>
          Jbase Sources
       </description>

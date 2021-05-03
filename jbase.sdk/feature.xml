@@ -2,7 +2,7 @@
 <feature
       id="jbase.sdk"
       label="Jbase SDK Feature "
-      version="0.9.0.qualifier">
+      version="0.10.0.qualifier">
 
    <description>
       A Customization of Xbase to deal with pure Java expressions and statements.
