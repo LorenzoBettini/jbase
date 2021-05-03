@@ -42,7 +42,6 @@
         <version>${tycho-version}</version>
         <executions>
           <execution>
-            <!-- compiler tests need UI -->
             <id>default-test</id>
             <phase>integration-test</phase>
             <configuration>
@@ -65,15 +64,8 @@
           <dependency-resolution>
             <extraRequirements
               combine.children="append">
-              <!-- to get the org.eclipse.osgi.compatibility.state plugin 
-                iff the targeted Eclipse version (e.g., Luna) has it (backwards compatible 
-                with kepler and previous versions) -->
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.rcp</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <!-- See https://github.com/LorenzoBettini/jbase/issues/3 https://www.eclipse.org/forums/index.php/t/1073366/ -->
+              <!-- See https://github.com/LorenzoBettini/jbase/issues/3
+                https://www.eclipse.org/forums/index.php/t/1073366/ -->
               <requirement>
                 <type>eclipse-feature</type>
                 <id>org.eclipse.jdt</id>
