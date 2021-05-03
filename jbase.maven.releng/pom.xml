@@ -43,32 +43,25 @@
       </activation>
 
       <build>
-        <plugins>
-          <plugin>
-            <!-- This must be used explicitly with the goal set-version in 
-              order to update the versions removing the SNAPSHOT before deploying Maven 
-              artifacts: mvn antrun:run -Dtycho.mode=maven -Pset-version-release -->
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>${maven-antrun-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>default-cli</id>
-                <phase>validate</phase>
-                <configuration>
-                  <target>
-                    <ant
-                      antfile="${ant-files-path}/increment_versions.ant"
-                      target="set-version-release">
-                    </ant>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <!-- This must be used explicitly with the goal set-version in 
+                order to update the versions removing the SNAPSHOT before deploying Maven 
+                artifacts: mvn antrun:run -Dtycho.mode=maven -Pset-version-release -->
+              <artifactId>maven-antrun-plugin</artifactId>
+              <version>${maven-antrun-plugin.version}</version>
+              <configuration>
+                <target>
+                  <ant
+                    antfile="${ant-files-path}/increment_versions.ant"
+                    target="set-version-release">
+                  </ant>
+                </target>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
     </profile>
   </profiles>
