@@ -47,7 +47,7 @@
     <tycho-version>2.2.0</tycho-version>
     <tycho-extras-version>${tycho-version}</tycho-extras-version>
     <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
-    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
     <junit-version>4.13.1</junit-version>
     <jacoco-version>0.8.6</jacoco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
