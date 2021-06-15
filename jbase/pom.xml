@@ -65,6 +65,11 @@
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <classpathScope>compile</classpathScope>
+          <includePluginDependencies>true</includePluginDependencies>
+          <cleanupDaemonThreads>false</cleanupDaemonThreads>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
