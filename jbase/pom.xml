@@ -50,7 +50,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>mwe2Launcher</id>
+            <id>generateLanguage</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>java</goal>
