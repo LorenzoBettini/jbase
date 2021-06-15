@@ -79,10 +79,12 @@
     <!-- For this class code coverage information doesn't seem to be picked 
       correctly.
       Exclude Xtend generated files from code coverage:
-      we cover the original Xtend files, using xtendAsPrimaryDebugSource -->
+      we cover the original Xtend files, using xtendAsPrimaryDebugSource.
+      Exclude also our test DSLs generated sources -->
     <sonar.coverage.exclusions>
       **/JbaseIssueCodes.java,
       **/xtend-gen/**/*.java,
+      **/generated-sources/**/*.java,
     </sonar.coverage.exclusions>
 
     <!-- By default we exclude all projects from Sonarqube analysis,
