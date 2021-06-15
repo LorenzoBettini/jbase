@@ -362,6 +362,7 @@
             <jgit.ignore>
               pom.xml
               .polyglot.build.properties
+              ui-tests.txt
             </jgit.ignore>
             <format>'v'yyyyMMdd'-'HHmm</format>
           </configuration>
