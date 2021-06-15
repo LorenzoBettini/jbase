@@ -10,6 +10,8 @@ on:
 
 jobs:
   build:
+    env:
+       COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +32,10 @@ jobs:
           ~/.sonar/cache
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml', '**/*.target') }}
         restore-keys: ${{ runner.os }}-m2-
+    - name: Set Maven Additional Goals
+      run: |
+        echo "ADDITIONAL_GOALS=coveralls:report" >> $GITHUB_ENV
+      if: ${{ env.COVERALLS_REPO_TOKEN }}
     - name: Build with Maven
       run: >
         xvfb-run
@@ -37,7 +43,5 @@ jobs:
         clean verify -Pjacoco-report
         -DrepoToken=$COVERALLS_REPO_TOKEN
         -DpullRequest=${{ github.event.pull_request.number }}
-        coveralls:report
-      env: 
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        $ADDITIONAL_GOALS
 
