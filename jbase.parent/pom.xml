@@ -7,6 +7,15 @@
   <artifactId>jbase.parent</artifactId>
   <version>0.10.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+    <!-- IMPORTANT: the parent's version (unrelated to this artifact's version) 
+    must come after this artifact's version to make the increment_version.ant behave 
+    correctly. -->
+  <parent>
+    <groupId>io.github.lorenzobettini.xtextutils</groupId>
+    <artifactId>xtext-tycho-parent</artifactId>
+    <version>0.6.1</version>
+    <relativePath></relativePath>
+  </parent>
 
   <name>Jbase</name>
   <url>http://xtext-jbase.sf.net</url>
@@ -44,20 +53,11 @@
   </issueManagement>
 
   <properties>
-    <tycho-version>2.2.0</tycho-version>
-    <tycho-extras-version>${tycho-version}</tycho-extras-version>
-    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
-    <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
     <junit-version>4.13.1</junit-version>
-    <jacoco-version>0.8.6</jacoco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
-    <xtext.version>2.25.0</xtext.version>
-    <xtext-version>${xtext.version}</xtext-version>
-    <xtextVersion>${xtext.version}</xtextVersion>
-    <mwe2Version>2.12.1</mwe2Version>
-    <fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
+    <xtext-version>${xtextVersion}</xtext-version>
 
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
@@ -384,7 +384,7 @@
         <plugin>
           <groupId>org.eclipse.xtend</groupId>
           <artifactId>xtend-maven-plugin</artifactId>
-          <version>${xtext.version}</version>
+          <version>${xtext-version}</version>
           <executions>
             <execution>
               <goals>
@@ -430,7 +430,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-version}</version>
+          <version>${jacoco-maven-plugin-version}</version>
           <executions>
             <execution>
               <goals>
@@ -498,7 +498,7 @@
             <dependency>
               <groupId>org.eclipse.tycho.extras</groupId>
               <artifactId>tycho-buildtimestamp-jgit</artifactId>
-              <version>${tycho-extras-version}</version>
+              <version>${tycho-version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -624,81 +624,4 @@
     </repository>
   </distributionManagement>
 
-  <!-- This can be removed when
-    https://github.com/LorenzoBettini/jbase/issues/108
-    is closed -->
-  <repositories>
-    <repository>
-      <id>codehaus-snapshots</id>
-      <name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
-      <url>http://nexus.codehaus.org/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- This must be disabled explicitly, otherwise it is enabled by https://github.com/mojohaus/mojo-parent 
-      which is taken from exec-maven-plugin from at least version 1.6.0 -->
-    <repository>
-      <id>ossrh-snapshots</id>
-      <name>ossrh-snapshots</name>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-    <!-- This is enabled by /org/sonatype/oss/oss-parent/7 used as parent by 
-      org/xtext/antlr-generator/3.2.1 -->
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>codehaus-snapshots</id>
-      <name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
-      <url>http://nexus.codehaus.org/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>ossrh-snapshots</id>
-      <name>ossrh-snapshots</name>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 </project>
