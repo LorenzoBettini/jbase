@@ -12,6 +12,8 @@ jobs:
   build:
     env:
        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +36,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
     - name: Set Maven Additional Goals
       run: |
-        echo "ADDITIONAL_GOALS=coveralls:report" >> $GITHUB_ENV
+        echo "ADDITIONAL_GOALS=coveralls:report sonar:sonar" >> $GITHUB_ENV
       if: ${{ env.COVERALLS_REPO_TOKEN }}
     - name: Build with Maven
       run: >
@@ -43,5 +45,7 @@ jobs:
         clean verify -Pjacoco-report
         -DrepoToken=$COVERALLS_REPO_TOKEN
         -DpullRequest=${{ github.event.pull_request.number }}
+        -Dsonar.organization=lorenzobettini-github
+        -Dsonar.host.url=https://sonarcloud.io
         $ADDITIONAL_GOALS
 
