@@ -144,11 +144,11 @@
     <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
 
     <!-- Unused parameters are needed in these files for polymorphic dispatching -->
-    <sonar.issue.ignore.multicriteria.e3.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e3.ruleKey>
+    <sonar.issue.ignore.multicriteria.e3.ruleKey>java:S1172</sonar.issue.ignore.multicriteria.e3.ruleKey>
     <sonar.issue.ignore.multicriteria.e3.resourceKey>**/*XbaseCompiler.java</sonar.issue.ignore.multicriteria.e3.resourceKey>
 
     <!-- Unused parameters are needed in these files for polymorphic dispatching -->
-    <sonar.issue.ignore.multicriteria.e4.ruleKey>squid:S1172</sonar.issue.ignore.multicriteria.e4.ruleKey>
+    <sonar.issue.ignore.multicriteria.e4.ruleKey>java:S1172</sonar.issue.ignore.multicriteria.e4.ruleKey>
     <sonar.issue.ignore.multicriteria.e4.resourceKey>**/*AbstractXbaseProposalProvider.java</sonar.issue.ignore.multicriteria.e4.resourceKey>
 
     <!-- Useless parenthesis; these files use code automatically generated -->
