@@ -23,7 +23,7 @@
 
   <profiles>
     <profile>
-      <id>jacoco-report</id>
+      <id>jacoco</id>
       <properties>
         <additionalTestArgLine>${tycho.testArgLine} ${moduleProperties}</additionalTestArgLine>
       </properties>

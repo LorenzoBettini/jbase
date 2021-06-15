@@ -42,7 +42,7 @@ jobs:
       run: >
         xvfb-run
         mvn -f jbase.releng/pom.xml
-        clean verify -Pjacoco-report
+        clean verify -Pjacoco
         -DrepoToken=$COVERALLS_REPO_TOKEN
         -DpullRequest=${{ github.event.pull_request.number }}
         -Dsonar.organization=lorenzobettini-github

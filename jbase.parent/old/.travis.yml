@@ -8,7 +8,7 @@ matrix:
     # always build this environment
     - os: linux
       jdk: oraclejdk8
-      env: DISPLAY=:99.0 ECLIPSE_TARGET=2018-09 ADDITIONAL="-Pjacoco-report coveralls:report sonar:sonar"
+      env: DISPLAY=:99.0 ECLIPSE_TARGET=2018-09 ADDITIONAL="-Pjacoco coveralls:report sonar:sonar"
     # only on PR
     #- os: linux
     #  jdk: oraclejdk8
