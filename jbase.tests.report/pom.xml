@@ -25,6 +25,14 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes combine.children="append">
+                <exclude>**/org/eclipse/**/*.class</exclude>
+                <exclude>**/jbase/jbase/util/*</exclude>
+                <exclude>**/jbase/jbase/impl/*</exclude>
+                <exclude>**/*XbasePatchedFormatter*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <phase>verify</phase>

@@ -322,113 +322,6 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.tycho.extras</groupId>
-          <artifactId>tycho-eclipserun-plugin</artifactId>
-          <version>${tycho-version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-        </plugin>
-        <!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
-          so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
-          we can list it after. -->
-        <plugin>
-          <groupId>org.eclipse.xtend</groupId>
-          <artifactId>xtend-maven-plugin</artifactId>
-          <version>${xtext-version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-                <goal>xtend-install-debug-info</goal>
-                <goal>testCompile</goal>
-                <goal>xtend-test-install-debug-info</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <outputDirectory>xtend-gen</outputDirectory>
-            <xtendAsPrimaryDebugSource>true</xtendAsPrimaryDebugSource>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>2.5</version>
-          <configuration>
-            <filesets>
-              <fileset>
-                <directory>${basedir}/xtend-gen</directory>
-              </fileset>
-            </filesets>
-          </configuration>
-        </plugin>
-        <!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
-          To skip tests, but still compile them, use: -DskipTests
-          To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
-          at end) -->
-        <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-            <!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
-            <argLine>${moduleProperties}</argLine>
-            <failIfNoTests>false</failIfNoTests>
-            <useUIHarness>false</useUIHarness>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-maven-plugin-version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <!-- binds by default to the phase "initialize" -->
-                <goal>prepare-agent</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <excludes>
-              <exclude>**/org/eclipse/**/*.class</exclude>
-              <exclude>**/antlr/**/*.class</exclude>
-              <exclude>**Abstract*RuntimeModule.class</exclude>
-              <exclude>**/*SetupGenerated*.class</exclude>
-              <exclude>**/Abstract*Validator.class</exclude>
-              <exclude>**/*GrammarAccess*.class</exclude>
-              <exclude>**/*UiModule.class</exclude>
-              <exclude>**/Abstract*ProposalProvider.class</exclude>
-              <exclude>**/*Test.class</exclude>
-              <exclude>**/*Internal*</exclude>
-              <exclude>**/*Sequencer*</exclude>
-              <exclude>**/internal/*</exclude>
-              <exclude>**/jbase/jbase/util/*</exclude>
-              <exclude>**/jbase/jbase/impl/*</exclude>
-              <exclude>**/*ExtensionFactory*</exclude>
-              <exclude>**/*LabelProvider*</exclude>
-              <exclude>**/*TreeProvider*</exclude>
-              <exclude>**/*RuntimeModule*</exclude>
-              <exclude>**/*StandaloneSetup*</exclude>
-              <exclude>**/*XbasePatchedFormatter*</exclude>
-              <exclude>**/ui/editor/*</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
-        <plugin>
           <groupId>org.eluder.coveralls</groupId>
           <artifactId>coveralls-maven-plugin</artifactId>
           <version>4.3.0</version>
@@ -475,61 +368,10 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>plugin-source</id>
-            <goals>
-              <goal>plugin-source</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>feature-source</id>
-            <goals>
-              <goal>feature-source</goal>
-            </goals>
-            <configuration>
-              <excludes>
-                <plugin id="jbase.ui.examples" />
-                <feature id="org.eclipse.xtext.sdk" />
-                <feature id="org.eclipse.xtend.sdk" />
-                <feature id="org.eclipse.pde" />
-                <feature id="org.eclipse.emf.mwe2.language.sdk" />
-                <feature id="org.eclipse.emf.mwe2.runtime.sdk" />
-              </excludes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-p2-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>attach-p2-metadata</id>
-            <phase>package</phase>
-            <goals>
-              <goal>p2-metadata</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
         <configuration>
           <target>
             <artifact>
@@ -539,35 +381,12 @@
               <classifier>${target-file-name}</classifier>
             </artifact>
           </target>
-          <environments>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-          <includePackedArtifacts>true</includePackedArtifacts>
           <dependency-resolution>
-            <extraRequirements>
+            <extraRequirements combine.children="append">
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.xtext.ui.codemining</id>
                 <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>org.eclipse.xtext.logging</id>
-                <versionRange>1.2.15</versionRange>
               </requirement>
             </extraRequirements>
           </dependency-resolution>
