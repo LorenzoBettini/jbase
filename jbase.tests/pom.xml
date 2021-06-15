@@ -1,73 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<relativePath>../jbase.tests.parent/pom.xml</relativePath>
-		<groupId>net.sf.xtext-jbase</groupId>
-		<artifactId>jbase.tests.parent</artifactId>
-		<version>0.10.0-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <relativePath>../jbase.tests.parent/pom.xml</relativePath>
+    <groupId>net.sf.xtext-jbase</groupId>
+    <artifactId>jbase.tests.parent</artifactId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
 
-	<artifactId>jbase.tests</artifactId>
-	<packaging>eclipse-test-plugin</packaging>
+  <artifactId>jbase.tests</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
 
-	<properties>
-		<!-- Workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=397015 -->
-		<sonar.sources></sonar.sources>
-		<sonar.tests>src,xtend-gen</sonar.tests>
-	</properties>
+  <properties>
+    <!-- Workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=397015 -->
+    <sonar.sources></sonar.sources>
+    <sonar.tests>src,xtend-gen</sonar.tests>
+  </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.xtend</groupId>
-				<artifactId>xtend-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<!-- compiler tests need an OSGI environment, but no UI -->
-						<id>default-test</id>
-						<phase>integration-test</phase>
-						<configuration>
-							<skip>${swtbot.tests.only}</skip>
-							<useUIHarness>false</useUIHarness>
-							<useUIThread>false</useUIThread>
-							<argLine>${additionalTestArgLine} ${moduleProperties}</argLine>
-							<includes>
-								<include>**/jbase/tests/*Test.java</include>
-							</includes>
-						</configuration>
-						<goals>
-							<goal>test</goal>
-						</goals>
-					</execution>
-					<execution>
-						<!-- smoke tests need an OSGI environment, but no UI -->
-						<id>smoke-test</id>
-						<phase>integration-test</phase>
-						<configuration>
-							<skip>${smoke.tests.skip}</skip>
-							<useUIHarness>false</useUIHarness>
-							<useUIThread>false</useUIThread>
-							<includes>
-								<include>**/jbase/smoke/tests/*Test.java</include>
-							</includes>
-						</configuration>
-						<goals>
-							<goal>test</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.xtend</groupId>
+        <artifactId>xtend-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
