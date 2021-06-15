@@ -28,68 +28,49 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>mwe2-launcher</id>
-      <!-- This profile will be activated when the system property "skipMWE2" 
-        is not defined, or is defined with a value which is not "true"; most of the 
-        configuration is done in the default pluginManagement section above -->
-      <activation>
-        <property>
-          <name>skipMWE2</name>
-          <value>!true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>generateEMFModel</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-                <configuration>
-                  <mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
-                  <arguments>
-                    <argument>/${project.basedir}/src/jbase/GenerateJbaseModelClasses.mwe2</argument>
-                    <argument>-p</argument>
-                    <argument>rootPath=/${project.basedir}/..</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-              <execution>
-                <id>generateLanguage</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-                <configuration>
-                  <mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
-                  <arguments>
-                    <argument>/${project.basedir}/src/jbase/GenerateJbase.mwe2</argument>
-                    <argument>-p</argument>
-                    <argument>rootPath=/${project.basedir}/..</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
-            <configuration>
-              <classpathScope>compile</classpathScope>
-              <includePluginDependencies>true</includePluginDependencies>
-              <cleanupDaemonThreads>false</cleanupDaemonThreads>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generateEMFModel</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
+              <arguments>
+                <argument>/${project.basedir}/src/jbase/GenerateJbaseModelClasses.mwe2</argument>
+                <argument>-p</argument>
+                <argument>rootPath=/${project.basedir}/..</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generateLanguage</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
+              <arguments>
+                <argument>/${project.basedir}/src/jbase/GenerateJbase.mwe2</argument>
+                <argument>-p</argument>
+                <argument>rootPath=/${project.basedir}/..</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <classpathScope>compile</classpathScope>
+          <includePluginDependencies>true</includePluginDependencies>
+          <cleanupDaemonThreads>false</cleanupDaemonThreads>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
