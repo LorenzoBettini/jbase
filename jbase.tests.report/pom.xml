@@ -33,6 +33,9 @@
                 <exclude>**/*RuntimeModule*</exclude>
                 <exclude>**/*XbasePatchedFormatter*</exclude>
                 <exclude>**/ui/editor/*</exclude>
+                <exclude>**/*UiModule.class</exclude>
+                <exclude>**/*LabelProvider*</exclude>
+                <exclude>**/*TreeProvider*</exclude>
               </excludes>
             </configuration>
             <executions>
