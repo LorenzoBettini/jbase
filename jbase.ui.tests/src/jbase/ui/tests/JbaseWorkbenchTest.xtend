@@ -39,23 +39,23 @@ class JbaseWorkbenchTest extends AbstractWorkbenchTest {
 	@Test
 	def void testErrorInGeneratedJavaCode() {
 		createTestFile(
-'''
-int a = 2;
-int b = 2;
-int c = 2;
-if (a==b==c==2) {
-	System.out.println("TRUE");
-}
-'''
+			'''
+			int a = 2;
+			int b = 2;
+			int c = 2;
+			if (a==b==c==2) {
+				System.out.println("TRUE");
+			}
+			'''
 		)
-		
+
 		cleanBuild
 		waitForBuild
 		// one error in the generated Java file, and one in the original file
 		assertErrors(
-		'''
-		Java problem: Incompatible operand types Boolean and Integer
-		Incompatible operand types Boolean and Integer'''
+			'''
+			Java problem: Incompatible operand types Boolean and Integer
+			Incompatible operand types Boolean and Integer'''
 		)
 	}
 
