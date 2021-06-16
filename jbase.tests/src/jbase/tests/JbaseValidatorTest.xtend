@@ -43,9 +43,6 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 
 	new() {
 		// just to coverage
-		new JbaseIssueCodes() {
-			
-		}
 		new JbaseJavaValidator();
 	}
 
