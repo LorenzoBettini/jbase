@@ -30,7 +30,9 @@
                 <exclude>**/org/eclipse/**/*.class</exclude>
                 <exclude>**/jbase/jbase/util/*</exclude>
                 <exclude>**/jbase/jbase/impl/*</exclude>
+                <exclude>**/*RuntimeModule*</exclude>
                 <exclude>**/*XbasePatchedFormatter*</exclude>
+                <exclude>**/ui/editor/*</exclude>
               </excludes>
             </configuration>
             <executions>
