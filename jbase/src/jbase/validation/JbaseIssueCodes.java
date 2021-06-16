@@ -42,6 +42,6 @@ public class JbaseIssueCodes {
 
 	public static final String MISSING_RESOURCES = PREFIX + "MissingResources";
 
-	public static final String NOT_AUTO_CLOSEABLE = (PREFIX + "NotAutoCloseable");
+	public static final String NOT_AUTO_CLOSEABLE = PREFIX + "NotAutoCloseable";
 
 }
