@@ -100,11 +100,11 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 
 	def protected assertAfterExtract(CharSequence input, CharSequence expected, boolean isFinal) {
 		val inputString = input.toString
-		val model = inputString.replace('$','')
+		val model = inputString.replace('$', '')
 		val file = createTestFile(model)
 		val editor = openEditor(file)
 		try {
-			editor.document.readOnly[
+			editor.document.readOnly [
 				val int offset = inputString.indexOf('$')
 				val length = inputString.lastIndexOf('$') - 1 - offset
 				val textSelection = new TextSelection(offset, length)
@@ -120,5 +120,5 @@ class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		} finally {
 			editor.close(false)
 		}
-	}		
+	}
 }
