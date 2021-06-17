@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="jbase.sdk" version="0.0.0">
+      <category name="main"/>
+   </feature>
+   <feature id="jbase.sdk.source" version="0.0.0">
+      <category name="main.source"/>
+   </feature>
+   <feature id="jbase.ui.feature" version="0.0.0">
+      <category name="main"/>
+   </feature>
+   <feature id="jbase.ui.feature.source" version="0.0.0">
+      <category name="main.source"/>
+   </feature>
+   <feature id="jbase.lib.feature" version="0.0.0">
+      <category name="main"/>
+   </feature>
+   <feature id="jbase.lib.feature.source" version="0.0.0">
+      <category name="main.source"/>
+   </feature>
+   <category-def name="main" label="Jbase 0.10.x (for Xtext ${xtextVersion})">
+      <description>
+         Jbase
+      </description>
+   </category-def>
+   <category-def name="main.source" label="Jbase 0.10.x Sources (for Xtext ${xtextVersion})">
+      <description>
+         Jbase Sources
+      </description>
+   </category-def>
+</site>
