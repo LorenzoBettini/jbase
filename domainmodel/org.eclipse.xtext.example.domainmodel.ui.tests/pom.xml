@@ -17,64 +17,35 @@
 
   <profiles>
     <profile>
-      <id>macosx-jvm-flags</id>
+      <id>macos</id>
       <activation>
         <os>
           <family>mac</family>
         </os>
       </activation>
-      <properties>
-        <os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
-      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <configuration>
+              <dependency-resolution>
+                <extraRequirements combine.children="append">
+                  <!-- This allows us to take the fragment org.eclipse.jdt.launching.macosx
+                    See https://github.com/LorenzoBettini/jbase/issues/3 
+                    https://www.eclipse.org/forums/index.php/t/1073366/ -->
+                  <requirement>
+                    <type>eclipse-feature</type>
+                    <id>org.eclipse.jdt</id>
+                    <versionRange>0.0.0</versionRange>
+                  </requirement>
+                </extraRequirements>
+              </dependency-resolution>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.xtend</groupId>
-        <artifactId>xtend-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>default-test</id>
-            <phase>integration-test</phase>
-            <configuration>
-              <skip>${swtbot.tests.only}</skip>
-              <useUIHarness>true</useUIHarness>
-              <useUIThread>true</useUIThread>
-              <argLine>${moduleProperties} ${memoryArgs} ${os-jvm-flags}</argLine>
-            </configuration>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-          <dependency-resolution>
-            <extraRequirements
-              combine.children="append">
-              <!-- See https://github.com/LorenzoBettini/jbase/issues/3
-                https://www.eclipse.org/forums/index.php/t/1073366/ -->
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.jdt</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-            </extraRequirements>
-          </dependency-resolution>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

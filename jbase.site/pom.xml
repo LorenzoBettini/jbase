@@ -17,12 +17,8 @@
 
   <profiles>
     <profile>
-      <!-- Activate this profile to perform the release to Bintray -->
+      <!-- Activate this profile to perform the release -->
       <id>release-composite</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-
       <build>
         <plugins>
           <plugin>
@@ -30,7 +26,6 @@
             <artifactId>tycho-p2-repository-plugin</artifactId>
             <version>${tycho-version}</version>
             <configuration>
-              <includeAllDependencies>${includeAllDependencies}</includeAllDependencies>
               <finalName>${project.artifactId}-${qualifiedVersion}</finalName>
             </configuration>
           </plugin>
@@ -128,6 +123,25 @@
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
               <execution>
+                <id>replace-references-in-category</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${basedir}</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${basedir}/templates/</directory>
+                      <includes>
+                        <include>category.xml</include>
+                      </includes>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+              <execution>
                 <id>copy-repository</id>
                 <phase>package</phase>
                 <goals>
@@ -163,9 +177,9 @@
               </applicationsArgs>
               <repositories>
                 <repository>
-                  <id>oxygen</id>
+                  <id>${eclipse-version}</id>
                   <layout>p2</layout>
-                  <url>http://download.eclipse.org/releases/oxygen</url>
+                  <url>https://download.eclipse.org/releases/${eclipse-version}</url>
                 </repository>
               </repositories>
               <dependencies>
@@ -190,7 +204,15 @@
                   <type>eclipse-feature</type>
                 </dependency>
                 <dependency>
+                  <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+                  <type>eclipse-plugin</type>
+                </dependency>
+                <dependency>
                   <artifactId>org.eclipse.equinox.ds</artifactId>
+                  <type>eclipse-plugin</type>
+                </dependency>
+                <dependency>
+                  <artifactId>org.eclipse.core.net</artifactId>
                   <type>eclipse-plugin</type>
                 </dependency>
               </dependencies>

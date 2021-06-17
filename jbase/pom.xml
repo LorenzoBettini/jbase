@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -16,6 +16,8 @@
 
   <properties>
     <sonar.skip>false</sonar.skip>
+    <!-- Otherwise Sonar will scan xtend-gen both as source and as test -->
+    <sonar.tests></sonar.tests>
   </properties>
 
   <dependencies>
@@ -30,21 +32,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <filesets combine.children="append">
-            <!-- clean site target as well, to avoid warnings, since that 
-              contain installed artifacts -->
-            <fileset>
-              <directory>${basedir}/../${project.artifactId}.site/target</directory>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -62,14 +49,10 @@
                 <argument>-p</argument>
                 <argument>rootPath=/${project.basedir}/..</argument>
               </arguments>
-              <classpathScope>compile</classpathScope>
-              <includePluginDependencies>true</includePluginDependencies>
-              <cleanupDaemonThreads>false</cleanupDaemonThreads><!-- see 
-                https://bugs.eclipse.org/bugs/show_bug.cgi?id=475098#c3 -->
             </configuration>
           </execution>
           <execution>
-            <id>mwe2Launcher</id>
+            <id>generateLanguage</id>
             <phase>generate-sources</phase>
             <goals>
               <goal>java</goal>
@@ -81,42 +64,16 @@
                 <argument>-p</argument>
                 <argument>rootPath=/${project.basedir}/..</argument>
               </arguments>
-              <classpathScope>compile</classpathScope>
-              <includePluginDependencies>true</includePluginDependencies>
-              <cleanupDaemonThreads>false</cleanupDaemonThreads><!-- see 
-                https://bugs.eclipse.org/bugs/show_bug.cgi?id=475098#c3 -->
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.eclipse.emf</groupId>
-            <artifactId>org.eclipse.emf.mwe2.launch</artifactId>
-            <version>${mwe2Version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.eclipse.xtext</groupId>
-            <artifactId>org.eclipse.xtext.common.types</artifactId>
-            <version>${xtextVersion}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.eclipse.xtext</groupId>
-            <artifactId>org.eclipse.xtext.xtext.generator</artifactId>
-            <version>${xtextVersion}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.eclipse.xtext</groupId>
-            <artifactId>org.eclipse.xtext.xbase</artifactId>
-            <version>${xtextVersion}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.eclipse.xtext</groupId>
-            <artifactId>xtext-antlr-generator</artifactId>
-            <version>2.1.1</version>
-          </dependency>
-        </dependencies>
+        <configuration>
+          <classpathScope>compile</classpathScope>
+          <includePluginDependencies>true</includePluginDependencies>
+          <cleanupDaemonThreads>false</cleanupDaemonThreads>
+        </configuration>
       </plugin>
-
+      <!-- Explicitly call xtend-maven-plugin after mwe2 -->
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>

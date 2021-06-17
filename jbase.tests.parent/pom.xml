@@ -23,14 +23,11 @@
 
   <profiles>
     <profile>
-      <id>jacoco-report</id>
-      <properties>
-        <additionalTestArgLine>${tycho.testArgLine} ${moduleProperties}</additionalTestArgLine>
-      </properties>
+      <!-- We enable jacoco-maven-plugin, already configured in the xtext-build-utils parent -->
+      <id>jacoco</id>
       <build>
         <plugins>
           <plugin>
-            <!-- configured in <pluginManagement> -->
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
           </plugin>

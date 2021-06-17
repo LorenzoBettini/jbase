@@ -7,6 +7,15 @@
   <artifactId>jbase.parent</artifactId>
   <version>0.10.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+    <!-- IMPORTANT: the parent's version (unrelated to this artifact's version) 
+    must come after this artifact's version to make the increment_version.ant behave 
+    correctly. -->
+  <parent>
+    <groupId>io.github.lorenzobettini.xtextutils</groupId>
+    <artifactId>xtext-tycho-parent</artifactId>
+    <version>0.6.1</version>
+    <relativePath></relativePath>
+  </parent>
 
   <name>Jbase</name>
   <url>http://xtext-jbase.sf.net</url>
@@ -44,25 +53,16 @@
   </issueManagement>
 
   <properties>
-    <tycho-version>2.2.0</tycho-version>
-    <tycho-extras-version>${tycho-version}</tycho-extras-version>
-    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
-    <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
     <junit-version>4.13.1</junit-version>
-    <jacoco-version>0.8.6</jacoco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
-    <xtext.version>2.25.0</xtext.version>
-    <xtext-version>${xtext.version}</xtext-version>
-    <xtextVersion>${xtext.version}</xtextVersion>
-    <mwe2Version>2.12.1</mwe2Version>
-    <fornax-oaw-m2-plugin-version>3.5.1</fornax-oaw-m2-plugin-version>
+    <xtext-version>${xtextVersion}</xtext-version>
 
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
 
-    <eclipse-target>2021-03</eclipse-target>
+    <eclipse-version>2021-03</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
@@ -196,9 +196,6 @@
     <current-release-directory>${releases-directory}/${qualifiedVersion}</current-release-directory>
     <!-- The label for the Composite sites -->
     <site.label>Jbase Site</site.label>
-
-    <!-- set it to true to have a self contained p2 repository https://wiki.eclipse.org/Tycho/eclipse-repository#Creating_a_self-contained_p2_repository -->
-    <includeAllDependencies>false</includeAllDependencies>
   </properties>
 
   <dependencyManagement>
@@ -227,10 +224,6 @@
 
     <profile>
       <id>sonatype-oss-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-
       <build>
         <plugins>
           <plugin>
@@ -261,7 +254,19 @@
               </execution>
             </executions>
           </plugin>
-
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-p2-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-p2-metadata</id>
+              </execution>
+            </executions>
+            <configuration>
+              <defaultP2Metadata>false</defaultP2Metadata>
+              <attachP2Metadata>false</attachP2Metadata>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -282,9 +287,6 @@
 
     <profile>
       <id>release-composite</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
       <properties>
         <xtext.maven.skip>true</xtext.maven.skip>
         <skipTests>true</skipTests>
@@ -309,162 +311,13 @@
             </plugin>
           </plugins>
         </pluginManagement>
-        <plugins>
-          <plugin>
-            <groupId>org.eclipse.tycho.extras</groupId>
-            <artifactId>tycho-pack200b-plugin</artifactId>
-            <version>${tycho-version}</version>
-            <executions>
-              <execution>
-                <id>pack200-pack</id>
-                <goals>
-                  <goal>pack</goal>
-                </goals>
-                <phase>package</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-p2-plugin</artifactId>
-            <version>${tycho-version}</version>
-            <executions>
-              <execution>
-                <id>p2-metadata</id>
-                <goals>
-                  <goal>p2-metadata</goal>
-                </goals>
-                <phase>package</phase>
-              </execution>
-            </executions>
-            <configuration>
-              <defaultP2Metadata>false</defaultP2Metadata>
-            </configuration>
-          </plugin>
-        </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>jdk9-or-newer</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <properties>
-        <moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
-      </properties>
     </profile>
   </profiles>
 
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.tycho.extras</groupId>
-          <artifactId>tycho-eclipserun-plugin</artifactId>
-          <version>${tycho-version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-        </plugin>
-        <!-- xtend-maven-plugin is in pluginManagement instead of in plugins 
-          so that it doesn't run before the exec-maven-plugin's *.mwe2 gen; this way 
-          we can list it after. -->
-        <plugin>
-          <groupId>org.eclipse.xtend</groupId>
-          <artifactId>xtend-maven-plugin</artifactId>
-          <version>${xtext.version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-                <goal>xtend-install-debug-info</goal>
-                <goal>testCompile</goal>
-                <goal>xtend-test-install-debug-info</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <outputDirectory>xtend-gen</outputDirectory>
-            <xtendAsPrimaryDebugSource>true</xtendAsPrimaryDebugSource>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>2.5</version>
-          <configuration>
-            <filesets>
-              <fileset>
-                <directory>${basedir}/xtend-gen</directory>
-              </fileset>
-            </filesets>
-          </configuration>
-        </plugin>
-        <!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
-          To skip tests, but still compile them, use: -DskipTests
-          To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
-          at end) -->
-        <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-            <!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
-            <argLine>${moduleProperties}</argLine>
-            <failIfNoTests>false</failIfNoTests>
-            <useUIHarness>false</useUIHarness>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <!-- binds by default to the phase "initialize" -->
-                <goal>prepare-agent</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <excludes>
-              <exclude>**/org/eclipse/**/*.class</exclude>
-              <exclude>**/antlr/**/*.class</exclude>
-              <exclude>**Abstract*RuntimeModule.class</exclude>
-              <exclude>**/*SetupGenerated*.class</exclude>
-              <exclude>**/Abstract*Validator.class</exclude>
-              <exclude>**/*GrammarAccess*.class</exclude>
-              <exclude>**/*UiModule.class</exclude>
-              <exclude>**/Abstract*ProposalProvider.class</exclude>
-              <exclude>**/*Test.class</exclude>
-              <exclude>**/*Internal*</exclude>
-              <exclude>**/*Sequencer*</exclude>
-              <exclude>**/internal/*</exclude>
-              <exclude>**/jbase/jbase/util/*</exclude>
-              <exclude>**/jbase/jbase/impl/*</exclude>
-              <exclude>**/*ExtensionFactory*</exclude>
-              <exclude>**/*LabelProvider*</exclude>
-              <exclude>**/*TreeProvider*</exclude>
-              <exclude>**/*RuntimeModule*</exclude>
-              <exclude>**/*StandaloneSetup*</exclude>
-              <exclude>**/*XbasePatchedFormatter*</exclude>
-              <exclude>**/ui/editor/*</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.eluder.coveralls</groupId>
           <artifactId>coveralls-maven-plugin</artifactId>
@@ -498,7 +351,7 @@
             <dependency>
               <groupId>org.eclipse.tycho.extras</groupId>
               <artifactId>tycho-buildtimestamp-jgit</artifactId>
-              <version>${tycho-extras-version}</version>
+              <version>${tycho-version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -506,67 +359,17 @@
             <jgit.ignore>
               pom.xml
               .polyglot.build.properties
+              ui-tests.txt
             </jgit.ignore>
             <format>'v'yyyyMMdd'-'HHmm</format>
           </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>plugin-source</id>
-            <goals>
-              <goal>plugin-source</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>feature-source</id>
-            <goals>
-              <goal>feature-source</goal>
-            </goals>
-            <configuration>
-              <excludes>
-                <plugin id="jbase.ui.examples" />
-                <feature id="org.eclipse.xtext.sdk" />
-                <feature id="org.eclipse.xtend.sdk" />
-                <feature id="org.eclipse.pde" />
-                <feature id="org.eclipse.emf.mwe2.language.sdk" />
-                <feature id="org.eclipse.emf.mwe2.runtime.sdk" />
-              </excludes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-p2-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>attach-p2-metadata</id>
-            <phase>package</phase>
-            <goals>
-              <goal>p2-metadata</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
         <configuration>
           <target>
             <artifact>
@@ -576,35 +379,12 @@
               <classifier>${target-file-name}</classifier>
             </artifact>
           </target>
-          <environments>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-          <includePackedArtifacts>true</includePackedArtifacts>
           <dependency-resolution>
-            <extraRequirements>
+            <extraRequirements combine.children="append">
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.xtext.ui.codemining</id>
                 <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>org.eclipse.xtext.logging</id>
-                <versionRange>1.2.15</versionRange>
               </requirement>
             </extraRequirements>
           </dependency-resolution>
@@ -624,81 +404,4 @@
     </repository>
   </distributionManagement>
 
-  <!-- This can be removed when
-    https://github.com/LorenzoBettini/jbase/issues/108
-    is closed -->
-  <repositories>
-    <repository>
-      <id>codehaus-snapshots</id>
-      <name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
-      <url>http://nexus.codehaus.org/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- This must be disabled explicitly, otherwise it is enabled by https://github.com/mojohaus/mojo-parent 
-      which is taken from exec-maven-plugin from at least version 1.6.0 -->
-    <repository>
-      <id>ossrh-snapshots</id>
-      <name>ossrh-snapshots</name>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-    <!-- This is enabled by /org/sonatype/oss/oss-parent/7 used as parent by 
-      org/xtext/antlr-generator/3.2.1 -->
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>codehaus-snapshots</id>
-      <name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
-      <url>http://nexus.codehaus.org/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>ossrh-snapshots</id>
-      <name>ossrh-snapshots</name>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 </project>

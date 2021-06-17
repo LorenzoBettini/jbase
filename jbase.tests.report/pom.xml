@@ -16,7 +16,7 @@
 
   <profiles>
     <profile>
-      <id>jacoco-report</id>
+      <id>jacoco</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -25,6 +25,19 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes combine.children="append">
+                <exclude>**/org/eclipse/**/*.class</exclude>
+                <exclude>**/jbase/jbase/util/*</exclude>
+                <exclude>**/jbase/jbase/impl/*</exclude>
+                <exclude>**/*RuntimeModule*</exclude>
+                <exclude>**/*XbasePatchedFormatter*</exclude>
+                <exclude>**/ui/editor/*</exclude>
+                <exclude>**/*UiModule.class</exclude>
+                <exclude>**/*LabelProvider*</exclude>
+                <exclude>**/*TreeProvider*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <phase>verify</phase>
