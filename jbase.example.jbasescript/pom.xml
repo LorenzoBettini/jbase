@@ -32,6 +32,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- Explicitly call xtend-maven-plugin after mwe2 -->
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>

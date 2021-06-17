@@ -9,8 +9,7 @@ logs.zip
 
 # we handle separately in the projects
 # src-gen/
-
-xtend-gen/
+# xtend-gen/
 emf-gen/
 
 buildroot
