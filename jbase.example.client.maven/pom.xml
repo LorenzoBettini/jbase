@@ -132,6 +132,10 @@
           </languages>
         </configuration>
         <dependencies>
+          <!-- This explicit dependency and its exclusions is required
+            when this project is built as part of the Maven/Tycho reactor
+            to avoid the jdt.core from the TP interferes with the Maven JARS
+            used by the org.eclipse.xtext:org.eclipse.xtext.builder.standalone:jar -->
           <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.core</artifactId>
