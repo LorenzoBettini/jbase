@@ -32,8 +32,8 @@ jobs:
         path: |
           ~/.m2
           ~/.sonar/cache
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml', '**/*.target') }}
-        restore-keys: ${{ runner.os }}-m2-
+        key: ${{ runner.os }}-java11-m2-${{ hashFiles('**/pom.xml', '**/*.yml', '**/*.target') }}
+        restore-keys: ${{ runner.os }}-java11-m2-
     - name: Set Maven Additional Goals
       run: |
         echo "ADDITIONAL_GOALS=coveralls:report sonar:sonar" >> $GITHUB_ENV
