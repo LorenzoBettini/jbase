@@ -62,7 +62,7 @@
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
 
-    <eclipse-version>2021-03</eclipse-version>
+    <eclipse-version>2021-06</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
