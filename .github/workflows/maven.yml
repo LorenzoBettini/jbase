@@ -48,4 +48,10 @@ jobs:
         -Dsonar.organization=lorenzobettini-github
         -Dsonar.host.url=https://sonarcloud.io
         $ADDITIONAL_GOALS
+    - name: Archive Test Results
+      uses: actions/upload-artifact@v2
+      if: ${{ failure() || cancelled() }}
+      with:
+        name: test-results-${{ runner.os }}
+        path: '**/*.tests/target'
 
