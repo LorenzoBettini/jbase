@@ -178,8 +178,6 @@
       not in the git repository (since Sonarqube 5) -->
     <!-- <sonar.scm.disabled>true</sonar.scm.disabled> -->
 
-    <swtbot.tests.only>false</swtbot.tests.only>
-    <swtbot.tests.skip>false</swtbot.tests.skip>
     <smoke.tests.skip>false</smoke.tests.skip>
 
     <!-- since this is used in the pluginManagement section, we need to make 
