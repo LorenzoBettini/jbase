@@ -4,5 +4,6 @@ Bundle-Name: Lorenzo Bettini
 Bundle-SymbolicName: jbase.example.jbasescript.example.project
 Bundle-Version: 0.11.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.xtext.xbase.lib;bundle-version="2.13.0"
+Require-Bundle: org.eclipse.xtext.xbase.lib;bundle-version="2.13.0",
+ org.eclipse.jdt.compiler.apt;resolution:=optional
 Automatic-Module-Name: jbase.example.jbasescript.example.project
