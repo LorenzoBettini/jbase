@@ -18,8 +18,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.xbase,
  org.eclipse.emf.mwe2.launch;resolution:=optional,
  org.eclipse.xtend.lib;bundle-version="2.13.0",
- org.objectweb.asm;bundle-version="9.1.0";resolution:=optional,
- org.eclipse.jdt.compiler.apt;resolution:=optional
+ org.objectweb.asm;bundle-version="9.1.0";resolution:=optional
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: jbase.example.jbasescript,
