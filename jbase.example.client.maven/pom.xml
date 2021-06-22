@@ -132,25 +132,6 @@
           </languages>
         </configuration>
         <dependencies>
-          <!-- This explicit dependency and its exclusions is required
-            when this project is built as part of the Maven/Tycho reactor
-            to avoid the jdt.core from the TP interferes with the Maven JARS
-            used by the org.eclipse.xtext:org.eclipse.xtext.builder.standalone:jar -->
-          <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>org.eclipse.jdt.core</artifactId>
-            <version>3.23.0</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.eclipse.platform</groupId>
-                <artifactId>org.eclipse.equinox.common</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.eclipse.platform</groupId>
-                <artifactId>org.eclipse.core.runtime</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
           <dependency>
             <groupId>net.sf.xtext-jbase</groupId>
             <artifactId>jbase.example.jbasescript</artifactId>
