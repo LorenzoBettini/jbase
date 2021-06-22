@@ -27,7 +27,6 @@
     <module>../jbase</module>
     <module>../jbase.ide</module>
     <module>../jbase.ui</module>
-    <module>../jbase.example.client.maven</module>
     <module>../jbase.testlanguage</module>
     <module>../jbase.testlanguage.ide</module>
     <module>../jbase.testlanguage.ui</module>
@@ -48,6 +47,7 @@
     <module>../jbase.example.jbasescript.ui</module>
     <module>../jbase.example.jbasescript.tests</module>
     <module>../jbase.example.jbasescript.ui.tests</module>
+    <module>../jbase.example.client.maven</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ide</module>
     <module>../domainmodel/org.eclipse.xtext.example.domainmodel.ui</module>
