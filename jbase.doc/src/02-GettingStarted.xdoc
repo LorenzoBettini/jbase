@@ -45,7 +45,7 @@ Greeting:
 Tweak the MWE2 workflow as detailed in the next sections, making sure you read the
 one related to the version of Xtext's generator you are using.
 
-section2:NewGenerator[Using the new Xtext generator (version 2.9 on)]
+section2:NewGenerator[Tweaking the Xtext generator]
 
 Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
 
@@ -71,11 +71,7 @@ ui project.
 
 section2:OldGenerator[Using the old Xtext generator (before version 2.9)]
 
-e[IMPORTANT]: Please keep in mind that the old generator has been deprecated
-for a long time now.
-
-SKIP THIS SECTION IF YOU ARE USING THE NEW XTEXT GENERATOR
-(i.e., the one described in ref:NewGenerator[]).
+THIS IS NO LONGER SUPPORTED SINCE VERSION 0.12.0 OF JBASE.
 
 Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
 
