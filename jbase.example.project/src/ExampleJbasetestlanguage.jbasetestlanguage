@@ -1,0 +1,8 @@
+import jbase.example.ExampleHelper;
+
+op print(String s) : void {
+	ExampleHelper helper = new ExampleHelper();
+	System.out.println(helper.toUpper(s));
+}
+
+print("Hello World!");
