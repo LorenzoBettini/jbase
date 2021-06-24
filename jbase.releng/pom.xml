@@ -42,7 +42,7 @@
     <module>../jbase.example.purejbase.tests</module>
     <module>../jbase.example.purejbase.ui.tests</module>
     <module>../jbase.example.jbasescript</module>
-    <module>../jbase.example.jbasescript.example.project</module>
+    <module>../jbase.example.project</module>
     <module>../jbase.example.jbasescript.ide</module>
     <module>../jbase.example.jbasescript.ui</module>
     <module>../jbase.example.jbasescript.tests</module>
