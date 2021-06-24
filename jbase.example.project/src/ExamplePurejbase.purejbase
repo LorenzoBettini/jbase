@@ -1,0 +1,6 @@
+import jbase.example.ExampleHelper;
+import jbasetestlanguage.ExampleJbasetestlanguage;
+
+ExampleHelper helper = new ExampleHelper();
+System.out.println(helper.toLower("Hello World!"));
+ExampleJbasetestlanguage.print("Hello World!");
