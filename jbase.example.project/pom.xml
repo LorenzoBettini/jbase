@@ -42,12 +42,38 @@
                 </outputConfiguration>
               </outputConfigurations>
             </language>
+            <language>
+              <setup>jbase.example.purejbase.PureJbaseStandaloneSetup</setup>
+              <outputConfigurations>
+                <outputConfiguration>
+                  <outputDirectory>src-gen</outputDirectory>
+                </outputConfiguration>
+              </outputConfigurations>
+            </language>
+            <language>
+              <setup>jbase.testlanguage.JbaseTestlanguageStandaloneSetup</setup>
+              <outputConfigurations>
+                <outputConfiguration>
+                  <outputDirectory>src-gen</outputDirectory>
+                </outputConfiguration>
+              </outputConfigurations>
+            </language>
           </languages>
         </configuration>
         <dependencies>
           <dependency>
             <groupId>net.sf.xtext-jbase</groupId>
             <artifactId>jbase.example.jbasescript</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>net.sf.xtext-jbase</groupId>
+            <artifactId>jbase.example.purejbase</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>net.sf.xtext-jbase</groupId>
+            <artifactId>jbase.testlanguage</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
