@@ -26,8 +26,13 @@
         <artifactId>maven-clean-plugin</artifactId>
         <executions>
           <execution>
+            <!-- To avoid the error:
+              "tycho-packaging-plugin:build-qualifier (default-build-qualifier)
+              on project jbase.example.project: Working tree is dirty."
+              We clean src-gen in generate-sources phase, before running
+              xtext-maven-plugin -->
             <id>clean-src-gen</id>
-            <phase>clean</phase>
+            <phase>generate-sources</phase>
             <goals>
               <goal>clean</goal>
             </goals>
