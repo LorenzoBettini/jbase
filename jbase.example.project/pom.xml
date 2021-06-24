@@ -11,7 +11,7 @@
     <version>0.11.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>jbase.example.jbasescript.example.project</artifactId>
+  <artifactId>jbase.example.project</artifactId>
   <packaging>eclipse-plugin</packaging>
 
   <properties>
