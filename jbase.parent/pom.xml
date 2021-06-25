@@ -62,7 +62,7 @@
     <!-- For tests for Java 9 and above -->
     <moduleProperties></moduleProperties>
 
-    <eclipse-version>2021-03</eclipse-version>
+    <eclipse-version>2021-06</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
@@ -178,8 +178,6 @@
       not in the git repository (since Sonarqube 5) -->
     <!-- <sonar.scm.disabled>true</sonar.scm.disabled> -->
 
-    <swtbot.tests.only>false</swtbot.tests.only>
-    <swtbot.tests.skip>false</swtbot.tests.skip>
     <smoke.tests.skip>false</smoke.tests.skip>
 
     <!-- since this is used in the pluginManagement section, we need to make 
@@ -384,6 +382,13 @@
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.xtext.ui.codemining</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <!-- to force the same version of jdt.compiler.apt and jdt.core
+                (for xtext-maven-plugin) -->
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.jdt.compiler.apt</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
             </extraRequirements>

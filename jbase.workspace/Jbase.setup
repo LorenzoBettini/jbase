@@ -97,7 +97,7 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="eclipse.target.platform"
-      defaultValue="2021-03"
+      defaultValue="2021-06"
       storageURI="scope://Workspace"/>
   <setupTask
       xsi:type="setup:ResourceCreationTask"
@@ -144,7 +144,7 @@
       <requirement
           name="org.eclipse.egit.feature.group"/>
       <repository
-          url="http://download.eclipse.org/egit/updates"/>
+          url="https://download.eclipse.org/egit/updates"/>
       <description>Git connector</description>
     </setupTask>
     <setupTask
@@ -311,9 +311,9 @@
           rootFolder="${git.clone.location}"
           locateNestedProjects="true"/>
       <repositoryList
-          name="2021-03">
+          name="2021-06">
         <repository
-            url="https://download.eclipse.org/releases/2021-03"/>
+            url="https://download.eclipse.org/releases/2021-06"/>
         <repository
             url="https://download.itemis.com/updates/releases/2.1.1/"/>
         <repository
@@ -447,8 +447,8 @@
       launcher="Generate Language Infrastructure (jbase.testlanguage)"/>
   <setupTask
       xsi:type="launching:LaunchTask"
-      id="GenerateDomainmodelLanguage"
-      launcher="GenerateDomainmodelLanguage.mwe2"/>
+      id="GenerateDomainmodel"
+      launcher="GenerateDomainmodel.mwe2"/>
   <setupTask
       xsi:type="projects:ProjectsBuildTask"
       id="Clean"

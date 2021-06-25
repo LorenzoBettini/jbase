@@ -48,4 +48,16 @@ jobs:
         -Dsonar.organization=lorenzobettini-github
         -Dsonar.host.url=https://sonarcloud.io
         $ADDITIONAL_GOALS
+    - name: Archive Test Results
+      uses: actions/upload-artifact@v2
+      if: ${{ failure() || cancelled() }}
+      with:
+        name: test-results-${{ runner.os }}
+        path: '**/*.tests/target'
+    - name: Archive Client Maven
+      uses: actions/upload-artifact@v2
+      if: ${{ failure() || cancelled() }}
+      with:
+        name: client-maven-${{ runner.os }}
+        path: '**/jbase.example.client.maven'
 
