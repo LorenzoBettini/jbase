@@ -32,27 +32,54 @@ Create an Xtext project, you can leave the defaults for names, e.g.,
 </p>
 <p>
 Open the <em>MANIFEST.MF</em> of the main project and
+add a dependency to the bundle <em>jbase</em> and re-export that dependency.
 </p>
 <p>
-<ul>
-	<li>
-		add a dependency to the bundle <em>jbase</em> and re-export that dependency;
-	</li>
-	<li>
-		add a dependency to the bundle <em>jbase.mwe2</em> and make it optional;
-	</li>
-</ul>
+For example (see the last line),
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">Require</span>-<span class="keyword">Bundle</span>:&nbsp;org.eclipse.xtext,<br/>
+&nbsp;org.eclipse.xtext.xbase,<br/>
+&nbsp;org.eclipse.equinox.common;bundle-version=<span class="string">"3.5.0"</span>,<br/>
+&nbsp;jbase;<span class="keyword">visibility</span>:=reexport<br/>
+</p>
+</div>
+</div>
 </p>
 <p>
 Save the file.
 </p>
 <p>
-<div class="image" >
-<img src="images/jbase-tutorial-manifest.png" class=" " 
-/>
-<div class="caption">
+Open the <em>build.properties</em> of the main project and
+add <em>jbase.mwe2</em> to the <em>additional.bundles</em>.
+</p>
+<p>
+For example (see the last line),
+</p>
+<p>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+<span class="keyword">additional</span>.<span class="keyword">bundles</span>&nbsp;=&nbsp;org.eclipse.xtext.xbase,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.xtext.common.types,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.xtext.xtext.generator,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.emf.codegen.ecore,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.emf.mwe.utils,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.emf.mwe2.launch,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.eclipse.emf.mwe2.lib,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.objectweb.asm,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.apache.commons.logging,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;org.apache.log4j,\<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jbase.mwe2<br/>
+</p>
 </div>
 </div>
+</p>
+<p>
+Save the file.
 </p>
 <p>
 Change the Xtext grammar, <em>MyDsl.xtext</em>, making the grammar inherit from
@@ -76,91 +103,33 @@ Greeting:<br/>
 </div>
 </p>
 <p>
-Tweak the MWE2 workflow as detailed in the next sections, making sure you read the
-one related to the version of Xtext&apos;s generator you are using.
-</p>
-<a name="NewGenerator"></a>
-<h3>Tweaking the Xtext generator</h3>
-<p>
 Open the <em>MWE2</em> workflow, <em>GenerateMyDsl.mwe2</em> and
+in the <em>StandardLanguage</em> part, add the references to the
+<em>Jbase.gnemodel</em>, and use <em>JbaseGeneratorFragment2</em> as a replacement for Xbase support.
+The modified part should look like this
 </p>
 <p>
-<ul>
-	<li>
-		in the <em>StandardLanguage</em> part, add the references to the
-		<em>Jbase.gnemodel</em>, and use <em>JbaseGeneratorFragment2</em> as a replacement for Xbase support.
-		The modified part should look like this
-		<div class="literallayout">
-		<div class="incode">
-		<p class="code">
-		language&nbsp;=&nbsp;StandardLanguage&nbsp;{<br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;<span class="string">"org.xtext.example.mydsl.MyDsl"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;fileExtensions&nbsp;=&nbsp;<span class="string">"mydsl"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;new&nbsp;added&nbsp;lines&nbsp;to&nbsp;enable&nbsp;Jbase<br/>
-		</span>&nbsp;&nbsp;&nbsp;&nbsp;referencedResource&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;xbaseSupport&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment2&nbsp;{}<br/>
-		</p>
-		</div>
-		</div>
-		
-	</li>
-</ul>
+<div class="literallayout">
+<div class="incode">
+<p class="code">
+language&nbsp;=&nbsp;StandardLanguage&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;=&nbsp;<span class="string">"org.xtext.example.mydsl.MyDsl"</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;fileExtensions&nbsp;=&nbsp;<span class="string">"mydsl"</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;new&nbsp;added&nbsp;lines&nbsp;to&nbsp;enable&nbsp;Jbase<br/>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;referencedResource&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;xbaseSupport&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment2&nbsp;{}<br/>
+</p>
+</div>
+</div>
 </p>
 <p>
 Run the <em>GenerateMyDsl.mwe2</em> just to make sure that the Xtext artifacts
 are correctly generated and that Jbase dependencies are added to the
 ui project.
 </p>
-<a name="OldGenerator"></a>
-<h3>Using the old Xtext generator (before version 2.9)</h3>
 <p>
-THIS IS NO LONGER SUPPORTED SINCE VERSION 0.12.0 OF JBASE.
-</p>
-<p>
-Open the <em>MWE2</em> workflow, <em>GenerateMyDsl.mwe2</em> and
-</p>
-<p>
-<ul>
-	<li>
-		in the <em>StandaloneSetup</em> part, add the references to the <em>JbasePackage</em> and to
-		<em>Jbase.gnemodel</em>, the modified part should look like this
-		<div class="literallayout">
-		<div class="incode">
-		<p class="code">
-		bean&nbsp;=&nbsp;StandaloneSetup&nbsp;{<br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;scanClassPath&nbsp;=&nbsp;<span class="keyword">true</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;platformUri&nbsp;=&nbsp;<span class="string">"${runtimeProject}/.."</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"org.eclipse.xtext.xbase.XbasePackage"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;In&nbsp;order&nbsp;to&nbsp;inherit&nbsp;from&nbsp;Jbase,&nbsp;add&nbsp;these&nbsp;two&nbsp;lines:<br/>
-		</span>&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"jbase.jbase.JbasePackage"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
-		}<br/>
-		</p>
-		</div>
-		</div>
-		
-	</li>
-	<li>
-		search for the <em>XbaseGeneratorFragment</em> reference, and replace it with
-		<em>JbaseGeneratorFragment</em>:
-		<div class="literallayout">
-		<div class="incode">
-		<p class="code">
-		<span class="comment">//&nbsp;generates&nbsp;the&nbsp;required&nbsp;bindings&nbsp;only&nbsp;if&nbsp;the&nbsp;grammar&nbsp;inherits&nbsp;from&nbsp;Xbase<br/>
-		</span><span class="comment">//&nbsp;fragment&nbsp;=&nbsp;xbase.XbaseGeneratorFragment&nbsp;auto-inject&nbsp;{}<br/>
-		</span>fragment&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment&nbsp;<span class="keyword">auto</span>-<span class="keyword">inject</span>&nbsp;{}<br/>
-		</p>
-		</div>
-		</div>
-		
-	</li>
-</ul>
-</p>
-<p>
-Run the <em>GenerateMyDsl.mwe2</em> just to make sure that the Xtext artifacts
-are correctly generated and that Jbase dependencies are added to the
-ui project.
+<em>IMPORTANT</em>: Since version 0.12.0 of Jbase, the old Xtext generator (before 2.9)
+is NO LONGER SUPPORTED, and has been removed from Jbase.
 </p>
 <a name="UseJbaseGrammar"></a>
 <h3>Use Jbase rules in your grammar</h3>
@@ -318,65 +287,12 @@ We will use the well-known Xtext/Xbase <em>Domainmodel</em> example.
 First of all, import this example into the workspace:
 File =&gt; New =&gt; Example... then navigate to the "Xtext Examples" category and
 choose "Xtext Domain-Model Example", this will materialize into your
-workspace the standard Xtext Domainmodel example&apos;s three projects.
+workspace the standard Xtext Domainmodel example&apos;s projects.
 </p>
 <p>
-First of all, open <em>org.eclipse.xtext.example.domainmodel</em>&apos;s MANIFEST.MF file
-and
-</p>
-<p>
-<ul>
-	<li>
-		add a dependency to the bundle <em>jbase</em> and re-export that dependency;
-	</li>
-	<li>
-		add a dependency to the bundle <em>jbase.mwe2</em> and make it optional;
-	</li>
-</ul>
-</p>
-<p>
-Save the file.
-</p>
-<p>
-Modify the <em>GenerateDomainmodelLanguage.mwe2</em> as shown in <a href="02-GettingStarted.html#FirstTutorial" title="Go to &quot;First Tutorial&quot;">First Tutorial</a>:
-</p>
-<p>
-<ul>
-	<li>
-		in the <em>StandaloneSetup</em> part, add the references to the <em>JbasePackage</em> and to
-		<em>Jbase.gnemodel</em>, the modified part should look like this
-		<div class="literallayout">
-		<div class="incode">
-		<p class="code">
-		bean&nbsp;=&nbsp;StandaloneSetup&nbsp;{<br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;scanClassPath&nbsp;&nbsp;=&nbsp;<span class="keyword">true</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"org.eclipse.xtext.xbase.XbasePackage"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;In&nbsp;order&nbsp;to&nbsp;inherit&nbsp;from&nbsp;Jbase,&nbsp;add&nbsp;these&nbsp;two&nbsp;lines:<br/>
-		</span>&nbsp;&nbsp;&nbsp;&nbsp;registerGeneratedEPackage&nbsp;=&nbsp;<span class="string">"jbase.jbase.JbasePackage"</span><br/>
-		&nbsp;&nbsp;&nbsp;&nbsp;registerGenModelFile&nbsp;=&nbsp;<span class="string">"platform:/resource/jbase/model/custom/Jbase.genmodel"</span><br/>
-		}<br/>
-		</p>
-		</div>
-		</div>
-		
-	</li>
-	<li>
-		search for the <em>XbaseGeneratorFragment</em> reference, and replace it with
-		<em>JbaseGeneratorFragment</em>:
-		<div class="literallayout">
-		<div class="incode">
-		<p class="code">
-		<span class="comment">//&nbsp;generates&nbsp;the&nbsp;required&nbsp;bindings&nbsp;only&nbsp;if&nbsp;the&nbsp;grammar&nbsp;inherits&nbsp;from&nbsp;Xbase<br/>
-		</span><span class="comment">//&nbsp;fragment&nbsp;=&nbsp;xbase.XbaseGeneratorFragment&nbsp;auto-inject&nbsp;{}<br/>
-		</span>fragment&nbsp;=&nbsp;jbase.mwe2.generator.JbaseGeneratorFragment&nbsp;<span class="keyword">auto</span>-<span class="keyword">inject</span>&nbsp;{}<br/>
-		</p>
-		</div>
-		</div>
-		
-	</li>
-</ul>
+In the main project, <em>org.eclipse.xtext.example.domainmodel</em>,
+modify the <em>MANIFEST.MF</em>, the <em>build.properties</em> and the
+<em>GenerateDomainmodelLanguage.mwe2</em> as shown in <a href="02-GettingStarted.html#FirstTutorial" title="Go to &quot;First Tutorial&quot;">First Tutorial</a>.
 </p>
 <p>
 Make the <em>Domainmodel.xtext</em> grammar inherit from
