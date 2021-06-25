@@ -10,7 +10,7 @@ public class SimpleJvmModelTestInjectorProvider extends JbaseInjectorProvider {
 	@Override
 	protected JbaseRuntimeModule createRuntimeModule() {
 		return new JbaseRuntimeModule() {
-			@Override
+			@SuppressWarnings("unused")
 			public Class<? extends IJvmModelInferrer> bindIJvmModelInferrer() {
 				return SimpleJvmModelInferrer.class;
 			}

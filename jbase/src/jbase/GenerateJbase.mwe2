@@ -36,6 +36,13 @@ Workflow {
 
 			fragment = ecore2xtext.Ecore2XtextValueConverterServiceFragment2 auto-inject {}
 
+			xbaseSupport = {
+				// we don't use the inferrer in Jbase itself:
+				// users of Jbase will have to implement an inferrer
+				generateXtendInferrer = false
+				useInferredJvmModel = false
+			}
+
 			serializer = {
 				generateXtendStub = false
 			}

@@ -2,6 +2,17 @@ document[Jbase User's Guide]
 
 authors[""]
 
+
+codelanguage-def[MANIFEST]
+[
+	Require,Bundle,visibility
+]
+
+codelanguage-def[buildproperties]
+[
+	additional,bundles
+]
+
 codelanguage-def[Java]
 [
 	abstract,continue,for,new,switch,

@@ -5,20 +5,18 @@ Bundle-Vendor: Eclipse Modeling Project
 Bundle-Version: 0.11.0.qualifier
 Bundle-SymbolicName: org.eclipse.xtext.example.domainmodel; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.xtext;visibility:=reexport,
- org.eclipse.xtext.util,
- org.eclipse.emf.mwe2.launch;resolution:=optional,
- org.eclipse.emf.ecore;bundle-version="2.10.2",
- org.eclipse.emf.common;bundle-version="2.10.1",
- org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
- org.eclipse.xtext.xbase,
+Require-Bundle: org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.eclipse.equinox.common;bundle-version="3.9.0",
+ org.eclipse.xtend.lib;bundle-version="2.14.0",
+ org.eclipse.xtext,
  org.eclipse.xtext.common.types,
- org.eclipse.xtext.xbase.lib;bundle-version="2.14.0";visibility:=reexport,
- org.eclipse.xtext.ui.codetemplates,
- org.eclipse.equinox.common,
- jbase;visibility:=reexport,
- jbase.mwe2;resolution:=optional,
- org.objectweb.asm;bundle-version="9.1.0";resolution:=optional
+ org.eclipse.xtext.util,
+ org.eclipse.xtext.xbase,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.objectweb.asm;bundle-version="9.1.0";resolution:=optional,
+ jbase;visibility:=reexport
 Export-Package: org.eclipse.xtext.example.domainmodel,
  org.eclipse.xtext.example.domainmodel.domainmodel,
  org.eclipse.xtext.example.domainmodel.domainmodel.impl,
