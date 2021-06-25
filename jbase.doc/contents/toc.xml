@@ -6,10 +6,6 @@
 		<topic href="contents/02-GettingStarted.html#JbaseLib" label="Jbase Runtime Library" >
 		</topic>
 		<topic href="contents/02-GettingStarted.html#FirstTutorial" label="First Tutorial" >
-			<topic href="contents/02-GettingStarted.html#NewGenerator" label="Using the new Xtext generator (version 2.9 on)" >
-			</topic>
-			<topic href="contents/02-GettingStarted.html#OldGenerator" label="Using the old Xtext generator (before version 2.9)" >
-			</topic>
 			<topic href="contents/02-GettingStarted.html#UseJbaseGrammar" label="Use Jbase rules in your grammar" >
 			</topic>
 		</topic>

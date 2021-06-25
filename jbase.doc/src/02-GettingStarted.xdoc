@@ -17,15 +17,44 @@ Create an Xtext project, you can leave the defaults for names, e.g.,
 e[org.xtext.example.mydsl].
 
 Open the e[MANIFEST.MF] of the main project and
+add a dependency to the bundle e[jbase] and re-export that dependency.
 
-ul[
-item[add a dependency to the bundle e[jbase] and re-export that dependency;]
-item[add a dependency to the bundle e[jbase.mwe2] and make it optional;]
+For example (see the last line),
+
+code[MANIFEST][
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ jbase;visibility:=reexport
 ]
 
 Save the file.
 
-img[images/jbase-tutorial-manifest.png][][ ][]
+Open the e[build.properties] of the main project and
+add e[jbase.mwe2] to the e[additional.bundles].
+
+For example (see the last line),
+
+code[buildproperties][
+additional.bundles = org.eclipse.xtext.xbase,\
+                     org.eclipse.xtext.common.types,\
+                     org.eclipse.xtext.xtext.generator,\
+                     org.eclipse.emf.codegen.ecore,\
+                     org.eclipse.emf.mwe.utils,\
+                     org.eclipse.emf.mwe2.launch,\
+                     org.eclipse.emf.mwe2.lib,\
+                     org.objectweb.asm,\
+                     org.apache.commons.logging,\
+                     org.apache.log4j,\
+                     jbase.mwe2
+]
+
+Save the file.
+
+NOTE: Alternatively, you could add e[jbase.mwe2] as an optional required
+bundle in the e[MANIFEST.MF], but since e[jbase.mwe2] is used only during
+the generation of the Xtext DSL artifacts, adding it to the additional bundles
+in the e[build.properties] is a cleaner solution.
 
 Change the Xtext grammar, e[MyDsl.xtext], making the grammar inherit from
 e[jbase.Jbase]:
@@ -42,15 +71,8 @@ Greeting:
 	'Hello' name=ID '!';
 ]
 
-Tweak the MWE2 workflow as detailed in the next sections, making sure you read the
-one related to the version of Xtext's generator you are using.
-
-section2:NewGenerator[Using the new Xtext generator (version 2.9 on)]
-
 Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
-
-ul[
-item[in the e[StandardLanguage] part, add the references to the
+in the e[StandardLanguage] part, add the references to the
 e[Jbase.gnemodel], and use e[JbaseGeneratorFragment2] as a replacement for Xbase support.
 The modified part should look like this
 
@@ -62,53 +84,13 @@ language = StandardLanguage {
 	referencedResource = "platform:/resource/jbase/model/custom/Jbase.genmodel"
 	xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {}
 ]
-]
-]
 
 Run the e[GenerateMyDsl.mwe2] just to make sure that the Xtext artifacts
 are correctly generated and that Jbase dependencies are added to the
 ui project.
 
-section2:OldGenerator[Using the old Xtext generator (before version 2.9)]
-
-e[IMPORTANT]: Please keep in mind that the old generator has been deprecated
-for a long time now.
-
-SKIP THIS SECTION IF YOU ARE USING THE NEW XTEXT GENERATOR
-(i.e., the one described in ref:NewGenerator[]).
-
-Open the e[MWE2] workflow, e[GenerateMyDsl.mwe2] and
-
-ul[
-item[in the e[StandaloneSetup] part, add the references to the e[JbasePackage] and to
-e[Jbase.gnemodel], the modified part should look like this
-
-code[MWE2][
-bean = StandaloneSetup {
-	scanClassPath = true
-	platformUri = "${runtimeProject}/.."
-	registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
-	registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
-	// In order to inherit from Jbase, add these two lines:
-	registerGeneratedEPackage = "jbase.jbase.JbasePackage"
-	registerGenModelFile = "platform:/resource/jbase/model/custom/Jbase.genmodel"
-}
-]
-]
-item[search for the e[XbaseGeneratorFragment] reference, and replace it with
-e[JbaseGeneratorFragment]:
-
-code[MWE2][
-// generates the required bindings only if the grammar inherits from Xbase
-// fragment = xbase.XbaseGeneratorFragment auto-inject {}
-fragment = jbase.mwe2.generator.JbaseGeneratorFragment auto-inject {}
-]
-]
-]
-
-Run the e[GenerateMyDsl.mwe2] just to make sure that the Xtext artifacts
-are correctly generated and that Jbase dependencies are added to the
-ui project.
+e[IMPORTANT]: Since version 0.12.0 of Jbase, the old Xtext generator (before 2.9)
+is NO LONGER SUPPORTED, and has been removed from Jbase.
 
 section2:UseJbaseGrammar[Use Jbase rules in your grammar]
 
@@ -227,46 +209,11 @@ We will use the well-known Xtext/Xbase e[Domainmodel] example.
 First of all, import this example into the workspace:
 File => New => Example... then navigate to the "Xtext Examples" category and
 choose "Xtext Domain-Model Example", this will materialize into your
-workspace the standard Xtext Domainmodel example's three projects.
+workspace the standard Xtext Domainmodel example's projects.
 
-First of all, open e[org.eclipse.xtext.example.domainmodel]'s MANIFEST.MF file
-and
-
-ul[
-item[add a dependency to the bundle e[jbase] and re-export that dependency;]
-item[add a dependency to the bundle e[jbase.mwe2] and make it optional;]
-]
-
-Save the file.
-
-Modify the e[GenerateDomainmodelLanguage.mwe2] as shown in ref:FirstTutorial[First Tutorial]:
-
-ul[
-item[in the e[StandaloneSetup] part, add the references to the e[JbasePackage] and to
-e[Jbase.gnemodel], the modified part should look like this
-
-code[MWE2][
-bean = StandaloneSetup {
-	scanClassPath  = true
-	registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
-	registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
-	registerGenModelFile = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
-	// In order to inherit from Jbase, add these two lines:
-	registerGeneratedEPackage = "jbase.jbase.JbasePackage"
-	registerGenModelFile = "platform:/resource/jbase/model/custom/Jbase.genmodel"
-}
-]
-]
-item[search for the e[XbaseGeneratorFragment] reference, and replace it with
-e[JbaseGeneratorFragment]:
-
-code[MWE2][
-// generates the required bindings only if the grammar inherits from Xbase
-// fragment = xbase.XbaseGeneratorFragment auto-inject {}
-fragment = jbase.mwe2.generator.JbaseGeneratorFragment auto-inject {}
-]
-]
-]
+In the main project, e[org.eclipse.xtext.example.domainmodel],
+modify the e[MANIFEST.MF], the e[build.properties] and the
+e[GenerateDomainmodelLanguage.mwe2] as shown in ref:FirstTutorial[First Tutorial].
 
 Make the e[Domainmodel.xtext] grammar inherit from
 e[jbase.Jbase]:
