@@ -5,7 +5,6 @@ import jbase.jbase.JbasePackage
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider
 import jbase.tests.inputs.JbaseTestlanguageInputs
 import jbase.validation.JbaseIssueCodes
-import jbase.validation.JbaseJavaValidator
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.diagnostics.Diagnostic
@@ -40,11 +39,6 @@ class JbaseValidatorTest extends JbaseAbstractTest {
 	@Inject extension JbaseTestlanguageInputs
 
 	val jbasePackage = JbasePackage.eINSTANCE
-
-	new() {
-		// just to coverage
-		new JbaseJavaValidator();
-	}
 
 	@Test def void testArrayIndexNotIntegerLeft() {
 		'''
