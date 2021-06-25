@@ -51,6 +51,11 @@ additional.bundles = org.eclipse.xtext.xbase,\
 
 Save the file.
 
+NOTE: Alternatively, you could add e[jbase.mwe2] as an optional required
+bundle in the e[MANIFEST.MF], but since e[jbase.mwe2] is used only during
+the generation of the Xtext DSL artifacts, adding it to the additional bundles
+in the e[build.properties] is a cleaner solution.
+
 Change the Xtext grammar, e[MyDsl.xtext], making the grammar inherit from
 e[jbase.Jbase]:
 

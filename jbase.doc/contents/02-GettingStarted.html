@@ -82,6 +82,12 @@ For example (see the last line),
 Save the file.
 </p>
 <p>
+NOTE: Alternatively, you could add <em>jbase.mwe2</em> as an optional required
+bundle in the <em>MANIFEST.MF</em>, but since <em>jbase.mwe2</em> is used only during
+the generation of the Xtext DSL artifacts, adding it to the additional bundles
+in the <em>build.properties</em> is a cleaner solution.
+</p>
+<p>
 Change the Xtext grammar, <em>MyDsl.xtext</em>, making the grammar inherit from
 <em>jbase.Jbase</em>:
 </p>
