@@ -55,7 +55,6 @@
   <properties>
     <junit-version>4.13.1</junit-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <os-jvm-flags />
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
     <xtext-version>${xtextVersion}</xtext-version>
 
