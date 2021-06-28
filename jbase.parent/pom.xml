@@ -58,9 +58,6 @@
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
     <xtext-version>${xtextVersion}</xtext-version>
 
-    <!-- For tests for Java 9 and above -->
-    <moduleProperties></moduleProperties>
-
     <eclipse-version>2021-06</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
