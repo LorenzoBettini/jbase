@@ -16,8 +16,6 @@
 
   <properties>
     <sonar.skip>false</sonar.skip>
-    <!-- Otherwise Sonar will scan xtend-gen both as source and as test -->
-    <sonar.tests></sonar.tests>
   </properties>
 
   <dependencies>
