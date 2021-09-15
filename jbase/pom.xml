@@ -67,7 +67,6 @@
         </executions>
         <configuration>
           <classpathScope>compile</classpathScope>
-          <includePluginDependencies>true</includePluginDependencies>
           <cleanupDaemonThreads>false</cleanupDaemonThreads>
           <skip>${skipMWE2}</skip>
         </configuration>
