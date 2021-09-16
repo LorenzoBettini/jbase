@@ -2,3 +2,7 @@ To remove the SNAPSHOT/qualifiers before deploying a release to Maven Central,
 first run the following from the root folder of the project
 
 ant -f jbase.parent/ant/increment_versions.ant set-version-release
+
+Then
+
+cd jbase.maven.releng && mvn clean deploy -Psonatype-oss-release
