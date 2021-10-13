@@ -31,7 +31,7 @@ class CompilerTest {
 				}
 			}
 		'''.compile [
-			val obj = it.compiledClass.newInstance
+			val obj = it.compiledClass.getConstructor().newInstance
 			obj.invoke('setName', 'Foo')
 			assertEquals("Hello Foo", obj.invoke('doStuff','Hello'))
 		]
@@ -54,9 +54,9 @@ class CompilerTest {
 			}
 		'''
 		].compile [
-			val barObj = it.getCompiledClass("Bar").newInstance
+			val barObj = it.getCompiledClass("Bar").getConstructor().newInstance
 			barObj.invoke('setName', 'Bar')
-			val fooObj = it.getCompiledClass("Foo").newInstance
+			val fooObj = it.getCompiledClass("Foo").getConstructor().newInstance
 			fooObj.invoke('setBar', barObj)
 			assertEquals("Hello Bar", fooObj.invoke('doStuff','Hello'))
 		]
