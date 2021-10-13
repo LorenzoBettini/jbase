@@ -19,4 +19,6 @@
       name="jbase.tests.parent.plain.project"/>
   <requirement
       name="jbase.tests.report.plain.project"/>
+  <requirement
+      name="jbase.example.client.maven.plain.project"/>
 </targlets:ComponentExtension>
