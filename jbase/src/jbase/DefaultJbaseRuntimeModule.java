@@ -5,6 +5,7 @@ package jbase;
 
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.nodemodel.impl.NodeModelBuilder;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
 import org.eclipse.xtext.xbase.annotations.DefaultXbaseWithAnnotationsRuntimeModule;
 import org.eclipse.xtext.xbase.annotations.validation.AnnotationValueValidator;
@@ -23,6 +24,7 @@ import jbase.controlflow.JbaseEarlyExitComputer;
 import jbase.conversion.JbaseValueConverterService;
 import jbase.formatting2.JbaseFormatter;
 import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory;
+import jbase.internal.parser.PatchedLookAheadPreservingNodeModelBuilder;
 import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
@@ -90,5 +92,10 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntim
 
 	public void configureFormatterPreferences(com.google.inject.Binder binder) {
 		binder.bind(org.eclipse.xtext.preferences.IPreferenceValuesProvider.class).annotatedWith(org.eclipse.xtext.formatting2.FormatterPreferences.class).to(org.eclipse.xtext.formatting2.FormatterPreferenceValuesProvider.class);
+	}
+
+	@Override
+	public Class<? extends NodeModelBuilder> bindNodeModelBuilder() {
+		return PatchedLookAheadPreservingNodeModelBuilder.class;
 	}
 }
