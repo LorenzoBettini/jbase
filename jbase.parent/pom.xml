@@ -13,7 +13,7 @@
   <parent>
     <groupId>io.github.lorenzobettini.xtextutils</groupId>
     <artifactId>xtext-tycho-parent</artifactId>
-    <version>0.6.5</version>
+    <version>0.6.7</version>
     <relativePath></relativePath>
   </parent>
 
@@ -211,30 +211,10 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.3</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <!-- Use the following configuration with Java 8 -->
-                <configuration>
-                  <additionalparam>-Xdoclint:none</additionalparam>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
           <plugin>
             <groupId>org.eclipse.tycho</groupId>
@@ -248,20 +228,6 @@
               <defaultP2Metadata>false</defaultP2Metadata>
               <attachP2Metadata>false</attachP2Metadata>
             </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
@@ -300,6 +266,20 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+            <detectOfflineLinks>false</detectOfflineLinks>
+            <!-- https://issues.apache.org/jira/browse/MJAVADOC-620
+             [ERROR] RuntimeException: Error while generating Javadoc:
+             Unable to derive module descriptor for
+             .m2/repository/p2/osgi/bundle/org.eclipse.equinox.launcher.cocoa.macosx.x86_64/1.2.400.v20211117-0650/org.eclipse.equinox.launcher.cocoa.macosx.x86_64-1.2.400.v20211117-0650.jar
+             Caused by: java.lang.IllegalArgumentException: org.eclipse.equinox.launcher.cocoa.macosx.x86.64: Invalid module name: '64' is not a Java identifier
+             -->
+            <source>8</source>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.eluder.coveralls</groupId>
           <artifactId>coveralls-maven-plugin</artifactId>
@@ -363,6 +343,7 @@
           </target>
           <dependency-resolution>
             <extraRequirements combine.children="append">
+              <!-- required by the domainmodel example -->
               <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.xtext.ui.codemining</id>
@@ -378,11 +359,11 @@
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
     <repository>
       <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 
