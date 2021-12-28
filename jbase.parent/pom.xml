@@ -58,7 +58,7 @@
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
     <xtext-version>${xtextVersion}</xtext-version>
 
-    <eclipse-version>2021-09</eclipse-version>
+    <eclipse-version>2021-12</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
