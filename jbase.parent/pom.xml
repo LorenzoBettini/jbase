@@ -192,18 +192,6 @@
     <site.label>Jbase Site</site.label>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.eclipse.xtext</groupId>
-        <artifactId>xtext-dev-bom</artifactId>
-        <version>${xtextVersion}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <profiles>
     <profile>
       <id>local</id>
