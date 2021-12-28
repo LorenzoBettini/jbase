@@ -2,7 +2,7 @@
 <feature
       id="jbase.lib.feature"
       label="Jbase Library Feature"
-      version="0.12.2.qualifier"
+      version="1.0.0.qualifier"
       provider-name="Lorenzo Bettini">
 
    <description>

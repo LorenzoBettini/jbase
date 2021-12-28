@@ -21,9 +21,9 @@
 	-->
 
 	<!--Set these properties manually when increasing versions -->
-	<property name="version.major" value="0" />
-	<property name="version.minor" value="12" />
-	<property name="version.patch" value="2" />
+	<property name="version.major" value="1" />
+	<property name="version.minor" value="0" />
+	<property name="version.patch" value="0" />
 
 	<!-- Compute the version properties -->
 	<property name="version.main" value="${version.major}.${version.minor}.${version.patch}" />
