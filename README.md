@@ -35,6 +35,16 @@ The groupId and artifactId are as follows
 
 ```
 <dependency>
+	<groupId>io.github.lorenzobettini.jbase</groupId>
+	<artifactId>jbase</artifactId>
+	<version>...</version>
+</dependency>
+```
+
+For versions earlier than version 1.x the groupId and artifactId are as follows
+
+```
+<dependency>
 	<groupId>net.sf.xtext-jbase</groupId>
 	<artifactId>jbase</artifactId>
 	<version>...</version>
