@@ -6,7 +6,7 @@
 
   <parent>
     <relativePath>../jbase.parent/pom.xml</relativePath>
-    <groupId>net.sf.xtext-jbase</groupId>
+    <groupId>io.github.lorenzobettini.jbase</groupId>
     <artifactId>jbase.parent</artifactId>
     <version>0.12.2-SNAPSHOT</version>
   </parent>
@@ -87,22 +87,22 @@
         </configuration>
         <dependencies>
           <dependency>
-            <groupId>net.sf.xtext-jbase</groupId>
+            <groupId>io.github.lorenzobettini.jbase</groupId>
             <artifactId>jbase.example.jbasescript</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>net.sf.xtext-jbase</groupId>
+            <groupId>io.github.lorenzobettini.jbase</groupId>
             <artifactId>jbase.example.purejbase</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>net.sf.xtext-jbase</groupId>
+            <groupId>io.github.lorenzobettini.jbase</groupId>
             <artifactId>jbase.testlanguage</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>net.sf.xtext-jbase</groupId>
+            <groupId>io.github.lorenzobettini.jbase</groupId>
             <artifactId>jbase</artifactId>
             <version>${project.version}</version>
           </dependency>

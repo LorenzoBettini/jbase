@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>net.sf.xtext-jbase</groupId>
+  <groupId>io.github.lorenzobettini.jbase</groupId>
   <artifactId>jbase.parent</artifactId>
   <version>0.12.2-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -355,7 +355,7 @@
         <configuration>
           <target>
             <artifact>
-              <groupId>net.sf.xtext-jbase</groupId>
+              <groupId>io.github.lorenzobettini.jbase</groupId>
               <artifactId>jbase.targetplatform</artifactId>
               <version>${project.version}</version>
               <classifier>${target-file-name}</classifier>
