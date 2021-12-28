@@ -2,6 +2,7 @@
 Jbase is a reusable Xtext Expression language: it is a customization of Xtext Xbase to deal with pure Java expressions and statements.
 
 [![Java CI with Maven](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml/badge.svg)](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml) [![Coverage Status](https://coveralls.io/repos/LorenzoBettini/jbase/badge.svg?branch=master&service=github)](https://coveralls.io/github/LorenzoBettini/jbase?branch=master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=io.github.lorenzobettini.jbase%3Ajbase.releng&metric=alert_status)](https://sonarcloud.io/dashboard?id=io.github.lorenzobettini.jbase%3Ajbase.releng)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.lorenzobettini.jbase/jbase.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.lorenzobettini.jbase%22%20AND%20a:%22jbase%22)
 
 ## Eclipse Update Site (new URL)
 
