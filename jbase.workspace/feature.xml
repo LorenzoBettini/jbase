@@ -2,7 +2,7 @@
 <feature
       id="jbase.workspace"
       label="Jbase Oomph Workspace Feature"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="Lorenzo Bettini">
 
    <description url="http://www.example.com/description">
