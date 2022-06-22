@@ -308,24 +308,11 @@
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-packaging-plugin</artifactId>
-          <dependencies>
-            <dependency>
-              <groupId>org.eclipse.tycho.extras</groupId>
-              <artifactId>tycho-buildtimestamp-jgit</artifactId>
-              <version>${tycho-version}</version>
-            </dependency>
-          </dependencies>
           <configuration>
             <!-- required to have valid consumable Maven artifacts
               https://github.com/LorenzoBettini/edelta/issues/408
               https://github.com/eclipse/tycho/issues/781 -->
             <skipPomGeneration>true</skipPomGeneration>
-            <timestampProvider>jgit</timestampProvider>
-            <jgit.ignore>
-              pom.xml
-              .polyglot.build.properties
-              ui-tests.txt
-            </jgit.ignore>
             <format>'v'yyyyMMdd'-'HHmm</format>
           </configuration>
         </plugin>
