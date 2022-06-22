@@ -28,7 +28,7 @@ public class ExampleJbasescript {
       }
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int _length = args.length;
     boolean _greaterThan = (_length > 0);

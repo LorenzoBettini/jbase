@@ -10,7 +10,7 @@ public class FooTest {
   public void testNull() {
     Assert.assertEquals("passed: null", JbasescriptExample.testMe(null));
   }
-
+  
   @Test
   public void testNotNull() {
     Assert.assertEquals("passed: foo", JbasescriptExample.testMe("foo"));

@@ -8,7 +8,7 @@ public class ExampleJbasetestlanguage {
     ExampleHelper helper = new ExampleHelper();
     System.out.println(helper.toUpper(s));
   }
-  
+
   public static void main(String[] args) throws Throwable {
     ExampleJbasetestlanguage.print("Hello World!");
   }
