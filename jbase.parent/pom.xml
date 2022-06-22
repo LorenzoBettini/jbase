@@ -13,7 +13,7 @@
   <parent>
     <groupId>io.github.lorenzobettini.xtextutils</groupId>
     <artifactId>xtext-tycho-parent</artifactId>
-    <version>0.6.7</version>
+    <version>0.8.0</version>
     <relativePath></relativePath>
   </parent>
 
@@ -58,7 +58,7 @@
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
     <xtext-version>${xtextVersion}</xtext-version>
 
-    <eclipse-version>2021-12</eclipse-version>
+    <eclipse-version>2022-06</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
@@ -308,7 +308,6 @@
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-packaging-plugin</artifactId>
-          <version>${tycho-version}</version>
           <dependencies>
             <dependency>
               <groupId>org.eclipse.tycho.extras</groupId>
@@ -317,6 +316,10 @@
             </dependency>
           </dependencies>
           <configuration>
+            <!-- required to have valid consumable Maven artifacts
+              https://github.com/LorenzoBettini/edelta/issues/408
+              https://github.com/eclipse/tycho/issues/781 -->
+            <skipPomGeneration>true</skipPomGeneration>
             <timestampProvider>jgit</timestampProvider>
             <jgit.ignore>
               pom.xml

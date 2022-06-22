@@ -311,9 +311,9 @@
           rootFolder="${git.clone.location}"
           locateNestedProjects="true"/>
       <repositoryList
-          name="2021-12">
+          name="2022-06">
         <repository
-            url="https://download.eclipse.org/releases/2021-12"/>
+            url="https://download.eclipse.org/releases/2022-06"/>
         <repository
             url="https://download.itemis.com/updates/releases/2.1.1/"/>
         <repository
@@ -492,11 +492,11 @@
     <setupTask
         xsi:type="setup:VariableTask"
         name="mwe2.site"
-        value="https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.12.1"/>
+        value="https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.13.0"/>
     <setupTask
         xsi:type="setup:VariableTask"
         name="xtext.site"
-        value="https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.25.0/"/>
+        value="https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.27.0/"/>
     <setupTask
         xsi:type="setup.p2:P2Task"
         id="p2.org.eclipse.xtext.3"
@@ -504,7 +504,7 @@
         licenseConfirmationDisabled="true">
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.25.0,2.26.0)"
+          versionRange="[2.27.0,2.28.0)"
           filter=""/>
       <requirement
           name="de.itemis.xtext.antlr.feature.feature.group"/>
