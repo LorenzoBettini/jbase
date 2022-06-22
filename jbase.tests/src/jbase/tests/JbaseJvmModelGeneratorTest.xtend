@@ -46,7 +46,7 @@ public class MyFile {
   public static void m(int[] a) {
     a[0] = 1;
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -64,7 +64,7 @@ public class MyFile {
   public static void m(int a) {
     a = 1;
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -82,7 +82,7 @@ public class MyFile {
   public static int m(int a) {
     return a = 1;
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -104,7 +104,7 @@ public class MyFile {
   public static int m(final int i) {
     return i;
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -129,7 +129,7 @@ public class MyFile {
       System.out.println(a[i]);
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -154,7 +154,7 @@ public class MyFile {
       System.out.println(a[i]);
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -192,7 +192,7 @@ package jbasetestlanguage;
 public class MyFile {
   public static void m(int l, /* Internal Error: Parameter was vararg but not an array type. */... a) {
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
