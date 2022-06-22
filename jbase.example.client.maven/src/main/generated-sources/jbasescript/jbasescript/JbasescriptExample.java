@@ -7,7 +7,7 @@ public class JbasescriptExample {
   public static String testMe(String s) {
     return JbasescriptExample.process(s);
   }
-  
+
   public static String process(String s) {
     String _xjconditionalexpression = null;
     if ((s == null)) {
@@ -17,7 +17,7 @@ public class JbasescriptExample {
     }
     return ("passed: " + _xjconditionalexpression);
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
