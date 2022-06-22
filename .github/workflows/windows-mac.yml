@@ -39,7 +39,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml', '**/*.target') }}
         restore-keys: ${{ runner.os }}-m2-
     - name: Build with Maven
-      run: mvn -f jbase.releng/pom.xml '-Dtycho.disableP2Mirrors=true' clean verify
+      run: ./mvnw -f jbase.releng/pom.xml clean verify
     - name: Archive Test Results
       uses: actions/upload-artifact@v2
       if: ${{ failure() || cancelled() }}
