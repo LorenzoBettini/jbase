@@ -92,7 +92,7 @@ public class MyFile {
   public static void sayHelloWorld(String m) {
     System.out.println(m);
   }
-  
+
   public static void main(String[] args) throws Throwable {
     MyFile.sayHelloWorld("Hello world!");
   }
@@ -114,7 +114,7 @@ public class MyFile {
     j = 1;
     return (i > 0);
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int i = 0;
     boolean b = false;
@@ -170,7 +170,7 @@ public class MyFile {
   public static int getIndex() {
     return 0;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     String[] a = null;
     int i = 0;
@@ -227,7 +227,7 @@ public class MyFile {
   public static int[] getArray() {
     return null;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int i = 0;
     i = MyFile.getArray()[0];
@@ -321,7 +321,7 @@ public class MyFile {
   public static int getArg(int i) {
     return i;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int[] j = null;
     MyFile.getArg(j[0]);
@@ -733,7 +733,7 @@ public class MyFile {
   public static void m() {
     return;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int i = 0;;;
     while ((i < 10)) {
@@ -1615,7 +1615,7 @@ public class MyFile {
         return -1;
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -1645,7 +1645,7 @@ public class MyFile {
         return -1;
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -1670,7 +1670,7 @@ public class MyFile {
     }
     return numOfDigits;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int _numOfDigits = MyFile.numOfDigits(3456);
     String _plus = ("numOfDigits(3456): " + Integer.valueOf(_numOfDigits));
@@ -2092,7 +2092,7 @@ public class MyFile {
   public static int m(char c) {
     return 0;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     int i = 0;
     char c = 'c';
@@ -2468,7 +2468,7 @@ public class MyFile {
   public static String m(String s) {
     return null;
   }
-  
+
   public static void main(String[] args) throws Throwable {
     MyFile.m("a");
   }
@@ -2490,11 +2490,11 @@ package jbasetestlanguage;
 @SuppressWarnings("all")
 public class MyFile {
   private String aString;
-  
+
   public void m(String s) {
     this.aString = s;
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -2566,12 +2566,12 @@ package jbasetestlanguage;
 @SuppressWarnings("all")
 public class MyFile {
   private String aString;
-  
+
   public void m(String s) {
     this.m(this.aString = s);
     this.m(this.aString = s);
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -2625,7 +2625,7 @@ public class MyFile {
       throw Exceptions.sneakyThrow(_e);
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -3097,7 +3097,7 @@ public class MyFile {
 		public class MyFile {
 		  @Inject
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3123,7 +3123,7 @@ public class MyFile {
 		public class MyFile {
 		  @ExampleAnnotation(value = TypeSystemSmokeTester.class)
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3147,7 +3147,7 @@ public class MyFile {
 		public class MyFile {
 		  @ExampleAnnotation3(value = String.class)
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3171,7 +3171,7 @@ public class MyFile {
 		public class MyFile {
 		  @ExampleAnnotation3(value = { String.class, Integer.class })
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3195,7 +3195,7 @@ public class MyFile {
 		public class MyFile {
 		  @ExampleAnnotation3(String.class)
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3219,7 +3219,7 @@ public class MyFile {
 		public class MyFile {
 		  @ExampleAnnotation3({ String.class, Integer.class })
 		  private Object o;
-		  
+		
 		  public static void main(String[] args) throws Throwable {
 		  }
 		}
@@ -3317,17 +3317,17 @@ public class MyFile {
 			    System.out.println("mTrue called");
 			    return true;
 			  }
-			  
+			
 			  public static boolean mFalse() {
 			    System.out.println("mFalse called");
 			    return false;
 			  }
-			  
+			
 			  public static void testMe() {
 			    String _plus = ("mFalse() && mTrue() = " + Boolean.valueOf((MyFile.mFalse() && MyFile.mTrue())));
 			    System.out.println(_plus);
 			  }
-			  
+			
 			  public static void main(String[] args) throws Throwable {
 			  }
 			}
@@ -3370,12 +3370,12 @@ public class MyFile {
 			    System.out.println("mTrue called");
 			    return true;
 			  }
-			  
+			
 			  public static boolean mFalse() {
 			    System.out.println("mFalse called");
 			    return false;
 			  }
-			  
+			
 			  public static void testMe() {
 			    boolean _mFalse = MyFile.mFalse();
 			    boolean _mTrue = MyFile.mTrue();
@@ -3393,7 +3393,7 @@ public class MyFile {
 			    String _plus_2 = ("mTrue() | mFalse() = " + Boolean.valueOf(_bitwiseOr));
 			    System.out.println(_plus_2);
 			  }
-			  
+			
 			  public static void main(String[] args) throws Throwable {
 			  }
 			}
@@ -3442,7 +3442,7 @@ public class MyFile {
       }
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }

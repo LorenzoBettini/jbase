@@ -7,6 +7,8 @@ logs.zip
 *.smap
 *.xtendbin
 
+.DS_Store
+
 # we handle separately in the projects
 # src-gen/
 # xtend-gen/
