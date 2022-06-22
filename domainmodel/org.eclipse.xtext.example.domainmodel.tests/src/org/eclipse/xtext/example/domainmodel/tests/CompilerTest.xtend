@@ -76,21 +76,21 @@ class CompilerTest {
 			public class Foo {
 			  public Foo() {
 			  }
-			  
+			
 			  public Foo(Procedure1<Foo> initializer) {
 			    initializer.apply(this);
 			  }
-			  
+			
 			  private String name;
-			  
+			
 			  public String getName() {
 			    return this.name;
 			  }
-			  
+			
 			  public void setName(String name) {
 			    this.name = name;
 			  }
-			  
+			
 			  @Override
 			  public String toString() {
 			    String result = new ToStringBuilder(this).addAllFields().toString();
@@ -125,26 +125,26 @@ class CompilerTest {
 			public class Foo {
 			  public Foo() {
 			  }
-			  
+			
 			  public Foo(Procedure1<Foo> initializer) {
 			    initializer.apply(this);
 			  }
-			  
+			
 			  private String bar;
-			  
+			
 			  public String getBar() {
 			    return this.bar;
 			  }
-			  
+			
 			  public void setBar(String bar) {
 			    this.bar = bar;
 			  }
-			  
+			
 			  @Test
 			  public String doStuff(String x) {
 			    return ((x + " ") + this.bar);
 			  }
-			  
+			
 			  @Override
 			  public String toString() {
 			    String result = new ToStringBuilder(this).addAllFields().toString();
