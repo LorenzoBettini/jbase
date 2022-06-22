@@ -99,11 +99,11 @@ public class MyFile {
   public void doPrint(String s) {
     System.out.println(s);
   }
-  
+
   public void print(String s) {
     this.doPrint(s);
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -128,15 +128,15 @@ package jbasetestlanguage;
 @SuppressWarnings("all")
 public class MyFile {
   private String aString;
-  
+
   public void print() {
     System.out.println(this.aString);
   }
-  
+
   public String change() {
     return this.aString = "a";
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -158,9 +158,9 @@ import java.util.List;
 @SuppressWarnings("all")
 public class MyFile {
   private String aString;
-  
+
   private List<String> aList;
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
@@ -188,11 +188,11 @@ public class MyFile {
   public static void doPrint(String s) {
     System.out.println(s);
   }
-  
+
   public static void print(String s) {
     MyFile.doPrint(s);
   }
-  
+
   public static void main(String[] args) throws Throwable {
     String s = "Hello World";
     MyFile.print(s);
@@ -219,7 +219,7 @@ public class MyFile {
     String _s = s;
     s = (_s + "");
   }
-  
+
   public static void main(String[] args) throws Throwable {
     String s = "Hello World";
     MyFile.doAppend(s);
@@ -248,7 +248,7 @@ public class MyFile {
       throw Exceptions.sneakyThrow(_e);
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }

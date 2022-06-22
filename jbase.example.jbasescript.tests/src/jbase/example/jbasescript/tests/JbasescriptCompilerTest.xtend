@@ -102,11 +102,11 @@ public class MyFile {
   public static void doPrint(String s) {
     System.out.println(s);
   }
-  
+
   public static void print(String s) {
     MyFile.doPrint(s);
   }
-  
+
   public static void main(String[] args) throws Throwable {
     String s = "Hello World";
     MyFile.print(s);
@@ -133,7 +133,7 @@ public class MyFile {
     String _s = s;
     s = (_s + "");
   }
-  
+
   public static void main(String[] args) throws Throwable {
     String s = "Hello World";
     MyFile.doAppend(s);
@@ -162,7 +162,7 @@ public class MyFile {
       throw Exceptions.sneakyThrow(_e);
     }
   }
-  
+
   public static void main(String[] args) throws Throwable {
   }
 }
