@@ -1,0 +1,348 @@
+package jbase.validation;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XAssignment;
+import org.eclipse.xtext.xbase.XBasicForLoopExpression;
+import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XDoWhileExpression;
+import org.eclipse.xtext.xbase.XExpression;
+import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XIfExpression;
+import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.XSynchronizedExpression;
+import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
+import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.XWhileExpression;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+
+import com.google.inject.Inject;
+
+import jbase.controlflow.JbaseBranchingStatementDetector;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
+import jbase.jbase.XJArrayAccess;
+import jbase.jbase.XJTryWithResourcesStatement;
+import jbase.jbase.XJVariableDeclaration;
+
+/**
+ * Detects references to variables which might not be initialized, according
+ * to Java semantics.
+ *
+ * @author Lorenzo Bettini
+ */
+public class JbaseInitializedVariableFinder {
+
+	@Inject
+	private JbaseBranchingStatementDetector branchingStatementDetector;
+
+	@FunctionalInterface
+	public interface NotInitializedAcceptor {
+		void accept(XAbstractFeatureCall call);
+	}
+
+	public static class InitializedVariables extends HashSet<XVariableDeclaration> {
+		private static final long serialVersionUID = 1L;
+	}
+
+	/**
+	 * Calls the acceptor's accept method with all the references to
+	 * variables which are not considered initialized.
+	 *
+	 * Method to be called from clients.
+	 */
+	public void detectNotInitialized(final XBlockExpression e,
+			final NotInitializedAcceptor acceptor) {
+		detectNotInitializedDispatch(e, new InitializedVariables(), acceptor);
+	}
+
+	/**
+	 * We handle null case gracefully
+	 */
+	public void detectNotInitializedDispatch(final XExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		if (e != null) {
+			detectNotInitialized(e, initialized, acceptor);
+		}
+	}
+
+	public void detectNotInitialized(final XExpression e, final InitializedVariables initialized,
+			final NotInitializedAcceptor acceptor) {
+		switch (e) {
+			case null -> throw new IllegalArgumentException("Unhandled parameter types: "
+				+ Arrays.asList(e, initialized, acceptor));
+			case XAssignment assignment -> _detectNotInitialized(assignment, initialized, acceptor);
+			case XJAdditionalXVariableDeclaration declaration ->
+				_detectNotInitialized(declaration, initialized, acceptor);
+			case XJVariableDeclaration declaration ->
+				_detectNotInitialized(declaration, initialized, acceptor);
+			case XBasicForLoopExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
+			case XForLoopExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
+			case XWhileExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
+			case XDoWhileExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
+			case XSwitchExpression statement ->
+				_detectNotInitialized(statement, initialized, acceptor);
+			case XBlockExpression block -> _detectNotInitialized(block, initialized, acceptor);
+			case XAbstractFeatureCall call -> _detectNotInitialized(call, initialized, acceptor);
+			case XIfExpression conditional ->
+				_detectNotInitialized(conditional, initialized, acceptor);
+			case XJTryWithResourcesStatement statement ->
+				_detectNotInitialized(statement, initialized, acceptor);
+			case XTryCatchFinallyExpression statement ->
+				_detectNotInitialized(statement, initialized, acceptor);
+			case XSynchronizedExpression statement ->
+				_detectNotInitialized(statement, initialized, acceptor);
+			default -> _detectNotInitialized(e, initialized, acceptor);
+		}
+	}
+
+	protected void _detectNotInitialized(final XExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		inspectContents(e, initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XAssignment e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		checkArrayAccess(e, initialized, acceptor);
+		if (e.getFeature() instanceof XVariableDeclaration variable) {
+			detectNotInitializedDispatch(e.getValue(), initialized, acceptor);
+			initialized.add(variable);
+		} else {
+			inspectContents(e, initialized, acceptor);
+		}
+	}
+
+	protected void _detectNotInitialized(final XJVariableDeclaration e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		inspectVariableDeclaration(e, initialized, acceptor);
+		loopOverExpressions(e.getAdditionalVariables(), initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XJAdditionalXVariableDeclaration e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		inspectVariableDeclaration(e, initialized, acceptor);
+	}
+
+	protected void inspectVariableDeclaration(final XVariableDeclaration e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		if (e.getRight() != null) {
+			detectNotInitializedDispatch(e.getRight(), initialized, acceptor);
+			initialized.add(e);
+		}
+	}
+
+	protected void _detectNotInitialized(final XBasicForLoopExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		loopOverExpressions(e.getInitExpressions(), initialized, acceptor);
+
+		// discard information collected
+		var expressions = new ArrayList<XExpression>();
+		expressions.add(e.getExpression());
+		expressions.addAll(e.getUpdateExpressions());
+		expressions.add(e.getEachExpression());
+		loopOverExpressions(expressions, createCopy(initialized), acceptor);
+	}
+
+	protected void _detectNotInitialized(final XForLoopExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		// discard information collected
+		detectNotInitializedDispatch(e.getEachExpression(), createCopy(initialized), acceptor);
+	}
+
+	protected void _detectNotInitialized(final XWhileExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedDispatch(e.getPredicate(), initialized, acceptor);
+
+		// discard information collected
+		detectNotInitializedDispatch(e.getBody(), createCopy(initialized), acceptor);
+	}
+
+	protected void _detectNotInitialized(final XDoWhileExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		// use information collected, since the body is surely executed
+		detectNotInitializedDispatch(e.getBody(), initialized, acceptor);
+		detectNotInitializedDispatch(e.getPredicate(), initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XSwitchExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedDispatch(e.getSwitch(), initialized, acceptor);
+
+		// we consider effective branches the cases that end with a break;
+		// cases without a break will not be considered as branches, as in Java
+		var effectiveBranches = new ArrayList<XExpression>();
+		var otherBranches = new ArrayList<XExpression>();
+		for (var casePart : e.getCases()) {
+			var then = casePart.getThen();
+			if (branchingStatementDetector.isSureBranchStatement(then)) {
+				effectiveBranches.add(then);
+			} else {
+				otherBranches.add(then);
+			}
+		}
+
+		// adding the default case even if not specified, i.e., null
+		// ensures that the intersection will be empty in case there is
+		// a single branch (as expected).
+		effectiveBranches.add(e.getDefault());
+
+		// the cases not considered as effective branches are simply inspected
+		loopOverExpressions(otherBranches, createCopy(initialized), acceptor);
+		inspectBranchesAndIntersect(effectiveBranches, initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XBlockExpression b,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		loopOverExpressions(b.getExpressions(), initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XAbstractFeatureCall o,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		var actualArguments = o.getActualArguments();
+		if (actualArguments.isEmpty()) {
+			if (o.getFeature() instanceof XVariableDeclaration variable
+					&& !initialized.contains(variable)) {
+				acceptor.accept(o);
+			}
+		} else {
+			loopOverExpressions(actualArguments, initialized, acceptor);
+		}
+	}
+
+	protected void _detectNotInitialized(final XIfExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedDispatch(e.getIf(), initialized, acceptor);
+		inspectBranchesAndIntersect(Arrays.asList(e.getThen(), e.getElse()), initialized, acceptor);
+	}
+
+	protected void _detectNotInitialized(final XTryCatchFinallyExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedTryCatchCommon(e, initialized, acceptor,
+			variables -> inspectTryCatchFinallyBranchesAndIntersect(e, variables, acceptor));
+	}
+
+	protected void _detectNotInitialized(final XJTryWithResourcesStatement e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedTryCatchCommon(e, initialized, acceptor, variables -> {
+			loopOverExpressions(e.getResources(), variables, acceptor);
+			inspectTryCatchFinallyBranchesAndIntersect(e, variables, acceptor);
+		});
+	}
+
+	protected void inspectTryCatchFinallyBranchesAndIntersect(final XTryCatchFinallyExpression e,
+			final InitializedVariables initializedVariables, final NotInitializedAcceptor acceptor) {
+		var branches = new ArrayList<XExpression>();
+		branches.add(e.getExpression());
+		for (var catchClause : e.getCatchClauses()) {
+			branches.add(catchClause.getExpression());
+		}
+		inspectBranchesAndIntersect(branches, initializedVariables, acceptor);
+	}
+
+	protected void detectNotInitializedTryCatchCommon(final XTryCatchFinallyExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor,
+			final Procedure1<? super InitializedVariables> branchInspector) {
+		var finallyExpression = e.getFinallyExpression();
+		if (finallyExpression != null) {
+			// when inspecting the finally block we can't assume anything about
+			// what's initialized in try and catch blocks
+			/*
+			 * Example:
+			 *
+			 * int i;
+			 * int j;
+			 * try {
+			 * 	j = 0;
+			 * } catch (NullPointerException e) {
+			 * 	j = 0;
+			 * } finally {
+			 * 	i = 0;
+			 * 	i = j; // ERROR
+			 * }
+			 * System.out.println(i); // OK
+			 * System.out.println(j); // OK
+			 */
+			var temporaryCopy = createCopy(initialized);
+			branchInspector.apply(temporaryCopy);
+			// if present, the final block is always executed so we treat it as a block expression
+			// without any information about try and catch
+			detectNotInitializedDispatch(finallyExpression, initialized, acceptor);
+			// now we can update the information for the following expressions
+			// with what we had collected in try and catch
+			initialized.addAll(temporaryCopy);
+		} else {
+			branchInspector.apply(initialized);
+		}
+	}
+
+	/**
+	 * This is just the same as the generic case for XExpression, but we put it here
+	 * all the same for documentation.
+	 *
+	 * A synchronized block is always considered executed from the variable initialization point
+	 * of view.
+	 */
+	protected void _detectNotInitialized(final XSynchronizedExpression e,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		inspectContents(e, initialized, acceptor);
+	}
+
+	protected void inspectContents(final XExpression e, final InitializedVariables initialized,
+			final NotInitializedAcceptor acceptor) {
+		var contents = e.eContents().stream()
+			.filter(XExpression.class::isInstance).map(XExpression.class::cast).toList();
+		loopOverExpressions(contents, initialized, acceptor);
+	}
+
+	protected void checkArrayAccess(final XExpression e, final InitializedVariables initialized,
+			final NotInitializedAcceptor acceptor) {
+		if (e instanceof XJArrayAccess arrayAccess) {
+			loopOverExpressions(arrayAccess.getIndexes(), initialized, acceptor);
+		}
+	}
+
+	/**
+	 * Inspects all the branches and computes the initialized variables
+	 * as the intersection of the results for all inspected branches.
+	 *
+	 * IMPORTANT: the intersection assumes that branches contains at least two branches;
+	 * callers must ensure this.  If there's only one branch, then the intersection
+	 * will simply be the result for the single branch.  This works when
+	 * the single branch is the 'default' branch of a switch.
+	 */
+	protected void inspectBranchesAndIntersect(final Iterable<? extends XExpression> branches,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		InitializedVariables intersection = null;
+		for (var branch : branches) {
+			var branchVariables = inspectBranch(branch, initialized, acceptor);
+			if (intersection == null) {
+				intersection = branchVariables;
+			} else {
+				intersection.retainAll(branchVariables);
+			}
+		}
+		initialized.addAll(intersection);
+	}
+
+	protected InitializedVariables inspectBranch(final XExpression b,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		var copy = createCopy(initialized);
+		detectNotInitializedDispatch(b, copy, acceptor);
+		return copy;
+	}
+
+	protected void loopOverExpressions(final Iterable<? extends XExpression> expressions,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		for (var e : expressions) {
+			detectNotInitializedDispatch(e, initialized, acceptor);
+		}
+	}
+
+	private InitializedVariables createCopy(final InitializedVariables initialized) {
+		var copy = new InitializedVariables();
+		copy.addAll(initialized);
+		return copy;
+	}
+}
