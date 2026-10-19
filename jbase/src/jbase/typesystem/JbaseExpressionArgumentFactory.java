@@ -26,16 +26,15 @@ public class JbaseExpressionArgumentFactory extends ExpressionArgumentFactory {
 	public IFeatureCallArguments createExpressionArguments(
 			XExpression expression, AbstractLinkingCandidate<?> candidate) {
 		IFeatureCallArguments createExpressionArguments = super.createExpressionArguments(expression, candidate);
-		if (expression instanceof XJAssignment && createExpressionArguments instanceof AssignmentFeatureCallArguments) {
-			AssignmentFeatureCallArguments assignmentFeatureCallArguments = (AssignmentFeatureCallArguments) createExpressionArguments;
-			XJAssignment assignment = (XJAssignment) expression;
-			LightweightTypeReference featureType = assignmentFeatureCallArguments.getDeclaredType();
+		if (expression instanceof XJAssignment assignment
+				&& createExpressionArguments instanceof AssignmentFeatureCallArguments arguments) {
+			LightweightTypeReference featureType = arguments.getDeclaredType();
 			// if it's an array access we must take the array component type
 			if (featureType instanceof ArrayTypeReference) {
 				return new AssignmentFeatureCallArguments(assignment.getValue(), 
 						getComponentType(featureType, assignment));
 			} else {
-				return assignmentFeatureCallArguments;
+				return arguments;
 			}
 		}
 		

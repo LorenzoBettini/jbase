@@ -29,8 +29,9 @@ public class PatchedLookAheadPreservingNodeModelBuilder extends NodeModelBuilder
 		while(oldNodes.hasNext()) {
 			AbstractNode nextOld = oldNodes.next();
 			AbstractNode nextNew = newNodes.next();
-			if (nextOld instanceof CompositeNode && nextNew instanceof CompositeNode) {
-				setLookAhead((CompositeNode) nextNew, ((CompositeNode) nextOld).getLookAhead());
+			if (nextOld instanceof CompositeNode oldComposite
+					&& nextNew instanceof CompositeNode newComposite) {
+				setLookAhead(newComposite, oldComposite.getLookAhead());
 			}
 		}
 		super.replaceAndTransferLookAhead(oldNode, newRootNode);

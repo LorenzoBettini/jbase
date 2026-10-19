@@ -39,8 +39,8 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 
 	@Override
 	public void computeTypes(XExpression expression, ITypeComputationState state) {
-		if (expression instanceof XUnaryOperation) {
-			_computeTypes((XUnaryOperation) expression, state);
+		if (expression instanceof XUnaryOperation operation) {
+			_computeTypes(operation, state);
 		} else {
 			super.computeTypes(expression, state);
 		}
@@ -113,8 +113,9 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		List<? extends ITypeExpectation> expectations = state.getExpectations();
 		for (ITypeExpectation typeExpectation : expectations) {
 			LightweightTypeReference expectedType = typeExpectation.getExpectedType();
-			if (expectedType != null && expectedType.getType() instanceof JvmPrimitiveType) {
-				Primitive kind = primitives.primitiveKind((JvmPrimitiveType) expectedType.getType());
+			if (expectedType != null
+					&& expectedType.getType() instanceof JvmPrimitiveType primitiveType) {
+				Primitive kind = primitives.primitiveKind(primitiveType);
 				if (checkConversionToPrimitive(object, kind)) {
 					state.acceptActualType(expectedType);
 					return;
@@ -127,9 +128,9 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 
 	private boolean checkConversionToPrimitive(XNumberLiteral lit, XUnaryOperation op,
 			LightweightTypeReference expectedType) {
-		return expectedType != null && expectedType.getType() instanceof JvmPrimitiveType
+		return expectedType != null && expectedType.getType() instanceof JvmPrimitiveType primitiveType
 			&& checkConversionToPrimitive(op.getConcreteSyntaxFeatureName() + lit.getValue(),
-					primitives.primitiveKind((JvmPrimitiveType) expectedType.getType()));
+					primitives.primitiveKind(primitiveType));
 	}
 
 	private boolean checkConversionToPrimitive(XNumberLiteral object, Primitive kind) {

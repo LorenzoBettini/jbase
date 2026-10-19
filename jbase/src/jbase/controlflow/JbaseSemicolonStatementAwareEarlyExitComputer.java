@@ -21,8 +21,8 @@ public class JbaseSemicolonStatementAwareEarlyExitComputer extends DefaultEarlyE
 	 */
 	@Override
 	protected Collection<ExitPoint> exitPoints(final XExpression e) {
-		if (e instanceof XJSemicolonStatement) {
-			return this.getExitPoints(((XJSemicolonStatement) e).getExpression());
+		if (e instanceof XJSemicolonStatement statement) {
+			return this.getExitPoints(statement.getExpression());
 		}
 		return super.exitPoints(e);
 	}
