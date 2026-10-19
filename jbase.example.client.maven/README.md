@@ -1,19 +1,13 @@
-If you want to try this example, which uses the _xtext-maven-plugin_ and the Jbase Maven artifacts, you need:
+This example uses Java 21, the _xtext-maven-plugin_, and the Jbase Maven artifacts.
 
-First of all, make sure to increase memory
-
-```
-export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=256m"
-```
-
-Then cd to jbase.releng directory and run (this will install in your local Maven repository the DSL Jbasescript, which is used in this example):
+From the repository root, install Jbase and the Jbasescript DSL into your local Maven repository:
 
 ```
-mvn clean install -DskipTests -Pjbasescript
+./mvnw -f jbase.maven.releng/pom.xml clean install -Pjbasescript
 ```
 
-Then come back to this directory and run
+Then build and test the standalone client:
 
 ```
-mvn clean verify
+./mvnw -f jbase.example.client.maven/pom.xml clean verify
 ```

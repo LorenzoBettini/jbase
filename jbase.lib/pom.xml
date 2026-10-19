@@ -14,4 +14,12 @@
 	<artifactId>jbase.lib</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.xtext</groupId>
+			<artifactId>org.eclipse.xtext.xbase.lib</artifactId>
+			<version>${xtext-version}</version>
+		</dependency>
+	</dependencies>
+
 </project>

@@ -21,7 +21,7 @@ Require-Bundle: jbase.example.purejbase;visibility:=reexport,
  jbase.ui,
  jbase.example.purejbase.ide
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.example.purejbase.ui.quickfix,
  jbase.example.purejbase.ui.contentassist,
  jbase.example.purejbase.ui.internal,

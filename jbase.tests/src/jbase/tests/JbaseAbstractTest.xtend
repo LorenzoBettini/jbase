@@ -76,7 +76,7 @@ abstract class JbaseAbstractTest {
 
 	def protected void applyTester(XExpression e, (XExpression)=>void tester) {
 		if (e instanceof XBlockExpression) {
-			e.expressions.last.applyTester(tester)
+			e.expressions.lastOrNull.applyTester(tester)
 		} else if (e instanceof XJSemicolonStatement) {
 			e.expression.applyTester(tester)
 		} else {

@@ -20,6 +20,14 @@
     <mwe2-file>src/jbase/testlanguage/GenerateJbaseTestlanguage.mwe2</mwe2-file>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jbase</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -34,7 +42,7 @@
       </plugin>
       <!-- Explicitly call xtend-maven-plugin after mwe2 -->
       <plugin>
-        <groupId>org.eclipse.xtend</groupId>
+        <groupId>org.eclipse.xtext</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
       </plugin>
     </plugins>

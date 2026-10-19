@@ -13,7 +13,7 @@
   <parent>
     <groupId>io.github.lorenzobettini.xtextutils</groupId>
     <artifactId>xtext-tycho-parent</artifactId>
-    <version>0.8.0</version>
+    <version>0.24.0</version>
     <relativePath></relativePath>
   </parent>
 
@@ -53,12 +53,14 @@
   </issueManagement>
 
   <properties>
-    <junit-version>4.13.1</junit-version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <skipMWE2>false</skipMWE2>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <memoryArgs>-Xms256M -Xmx1024M -XX:+HeapDumpOnOutOfMemoryError</memoryArgs>
     <xtext-version>${xtextVersion}</xtext-version>
 
-    <eclipse-version>2022-06</eclipse-version>
+    <eclipse-version>2026-03</eclipse-version>
     <target-file-name>jbase.target</target-file-name>
 
     <!-- <jacoco.reportPath>../target/jacoco.exec</jacoco.reportPath> -->
@@ -267,6 +269,20 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <configuration>
+            <includePluginDependencies>true</includePluginDependencies>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.xtext</groupId>
+              <artifactId>org.eclipse.xtext.xtext.generator.dependencies</artifactId>
+              <version>${xtext-version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <configuration>
@@ -277,7 +293,7 @@
              .m2/repository/p2/osgi/bundle/org.eclipse.equinox.launcher.cocoa.macosx.x86_64/1.2.400.v20211117-0650/org.eclipse.equinox.launcher.cocoa.macosx.x86_64-1.2.400.v20211117-0650.jar
              Caused by: java.lang.IllegalArgumentException: org.eclipse.equinox.launcher.cocoa.macosx.x86.64: Invalid module name: '64' is not a Java identifier
              -->
-            <source>8</source>
+            <source>21</source>
           </configuration>
         </plugin>
         <plugin>
@@ -308,25 +324,11 @@
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-packaging-plugin</artifactId>
-          <dependencies>
-            <dependency>
-              <groupId>org.eclipse.tycho.extras</groupId>
-              <artifactId>tycho-buildtimestamp-jgit</artifactId>
-              <version>${tycho-version}</version>
-            </dependency>
-          </dependencies>
           <configuration>
             <!-- required to have valid consumable Maven artifacts
               https://github.com/LorenzoBettini/edelta/issues/408
               https://github.com/eclipse/tycho/issues/781 -->
             <skipPomGeneration>true</skipPomGeneration>
-            <timestampProvider>jgit</timestampProvider>
-            <jgit.ignore>
-              pom.xml
-              .polyglot.build.properties
-              ui-tests.txt
-            </jgit.ignore>
-            <format>'v'yyyyMMdd'-'HHmm</format>
           </configuration>
         </plugin>
       </plugins>

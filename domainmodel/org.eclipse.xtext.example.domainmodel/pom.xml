@@ -34,7 +34,7 @@
       </plugin>
       <!-- Explicitly call xtend-maven-plugin after mwe2 -->
       <plugin>
-        <groupId>org.eclipse.xtend</groupId>
+        <groupId>org.eclipse.xtext</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
       </plugin>
     </plugins>

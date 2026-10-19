@@ -93,7 +93,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		multiArrayAccessInRightHandsideExpression.assertLastExpression [
 			val indexes = getArrayAccess(assignment.value).indexes
 			assertTrue(indexes.head instanceof XNumberLiteral)
-			assertTrue(indexes.last instanceof XBinaryOperation)
+			assertTrue(indexes.lastOrNull instanceof XBinaryOperation)
 		]
 	}
 
@@ -104,7 +104,7 @@ class JbaseParsingTest extends JbaseAbstractTest {
 		'''.assertLastExpression [
 			val indexes = JAssignment.indexes
 			assertTrue(indexes.head instanceof XNumberLiteral)
-			assertTrue(indexes.last instanceof XBinaryOperation)
+			assertTrue(indexes.lastOrNull instanceof XBinaryOperation)
 		]
 	}
 

@@ -64,10 +64,10 @@ We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which i
 
 ## Compiling From Sources
 
-If you want to build Jbase update site locally, you need Maven: cd to `jbase.releng` directory and run
+To build Jbase locally, use Java 21 and the Maven wrapper (Maven 3.9.9). The build targets Xtext 2.42.0 and Eclipse 2026-03. From the repository root, run
 
 ```
-mvn clean verify
+./mvnw -f jbase.releng/pom.xml clean verify
 ```
 
 You will find the p2 update site in the _target_ directory of the _jbase.site_ project.
@@ -77,6 +77,6 @@ The above command will also execute all the tests, including UI tests that will 
 If you want to skip tests, you should run the following command instead of the previous one:
 
 ```
-mvn clean verify -DskipTests
+./mvnw -f jbase.releng/pom.xml clean verify -DskipTests
 ```
 

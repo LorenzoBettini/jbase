@@ -101,7 +101,7 @@ class JbaseNodeModelUtilTest extends JbaseAbstractTest {
 	 */
 	override protected void applyTester(XExpression e, (XExpression)=>void tester) {
 		if (e instanceof XBlockExpression) {
-			e.expressions.last.applyTester(tester)
+			e.expressions.lastOrNull.applyTester(tester)
 		} else {
 			tester.apply(e)
 		}
