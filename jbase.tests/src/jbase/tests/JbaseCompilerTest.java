@@ -764,6 +764,34 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testForLoopComparisonOperators() throws Exception {
+		// Regression for https://github.com/LorenzoBettini/jbase/issues/122.
+		for (final var operator : new String[] { "<", "<=", ">", ">=" }) {
+			checkCompilation("""
+				int x = 0;
+				int y = 10;
+				for (int i = 0; i %s y; i++) {
+					x += i;
+				}
+				""".formatted(operator), """
+				package jbasetestlanguage;
+
+				@SuppressWarnings("all")
+				public class MyFile {
+				  public static void main(String[] args) throws Throwable {
+				    int x = 0;
+				    int y = 10;
+				    for (int i = 0; (i %s y); i++) {
+				      int _x = x;
+				      x = (_x + i);
+				    }
+				  }
+				}
+				""".formatted(operator));
+		}
+	}
+
+	@Test
 	public void testForLoopTranslatedToJavaWhileSingleStatement() throws Exception {
 		checkCompilation(jbaseInputs.forLoopTranslatedToJavaWhileSingleStatement(), """
 			package jbasetestlanguage;
