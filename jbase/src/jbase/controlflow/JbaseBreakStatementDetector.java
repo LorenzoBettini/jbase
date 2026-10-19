@@ -26,12 +26,8 @@ public class JbaseBreakStatementDetector {
 			case XJSemicolonStatement statement -> _containsPossibleBreak(statement);
 			case XAbstractWhileExpression loop -> _containsPossibleBreak(loop);
 			case XBasicForLoopExpression loop -> _containsPossibleBreak(loop);
-			default -> _containsPossibleBreak(e);
+			default -> false;
 		};
-	}
-
-	protected boolean _containsPossibleBreak(final XExpression e) {
-		return false;
 	}
 
 	protected boolean _containsPossibleBreak(final XJSemicolonStatement e) {
@@ -53,20 +49,12 @@ public class JbaseBreakStatementDetector {
 	protected boolean possibleBreak(final XExpression e) {
 		return switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: [null]");
-			case XJBreakStatement statement -> _possibleBreak(statement);
+			case XJBreakStatement statement -> true;
 			case XJSemicolonStatement statement -> _possibleBreak(statement);
 			case XBlockExpression block -> _possibleBreak(block);
 			case XIfExpression conditional -> _possibleBreak(conditional);
-			default -> _possibleBreak(e);
+			default -> false;
 		};
-	}
-
-	protected boolean _possibleBreak(final XExpression e) {
-		return false;
-	}
-
-	protected boolean _possibleBreak(final XJBreakStatement e) {
-		return true;
 	}
 
 	protected boolean _possibleBreak(final XIfExpression e) {
