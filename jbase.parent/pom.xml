@@ -339,12 +339,8 @@
         <artifactId>target-platform-configuration</artifactId>
         <configuration>
           <target>
-            <artifact>
-              <groupId>io.github.lorenzobettini.jbase</groupId>
-              <artifactId>jbase.targetplatform</artifactId>
-              <version>${project.version}</version>
-              <classifier>${target-file-name}</classifier>
-            </artifact>
+            <!-- Use the workspace target also in partial reactors selected with -pl/-am. -->
+            <file>${maven.multiModuleProjectDirectory}/jbase.targetplatform/${target-file-name}.target</file>
           </target>
           <dependency-resolution>
             <extraRequirements combine.children="append">

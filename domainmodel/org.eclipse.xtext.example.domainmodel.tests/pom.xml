@@ -15,4 +15,17 @@
   <artifactId>org.eclipse.xtext.example.domainmodel.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>org.eclipse.xtext.example.domainmodel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>org.eclipse.xtext.example.domainmodel.ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
 </project>

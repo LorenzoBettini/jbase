@@ -15,4 +15,12 @@
   <artifactId>jbase.example.jbasescript.ui.tests</artifactId>
   <packaging>eclipse-plugin</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jbase.example.jbasescript.ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
 </project>
