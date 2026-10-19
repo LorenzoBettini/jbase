@@ -138,9 +138,8 @@
     <sonar.issue.ignore.multicriteria.e15.ruleKey>java:S100</sonar.issue.ignore.multicriteria.e15.ruleKey>
     <sonar.issue.ignore.multicriteria.e15.resourceKey>**/*TypeComputer.java</sonar.issue.ignore.multicriteria.e15.resourceKey>
 
-    <!-- "Tabulation characters should not be used" sorry... I don't agree 
-      :) -->
-    <sonar.issue.ignore.multicriteria.e2.ruleKey>squid:S00105</sonar.issue.ignore.multicriteria.e2.ruleKey>
+    <!-- We need commented-out code to keep track of the reasons why we do something -->
+    <sonar.issue.ignore.multicriteria.e2.ruleKey>java:S125</sonar.issue.ignore.multicriteria.e2.ruleKey>
     <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
 
     <!-- Unused parameters are needed in these files for polymorphic dispatching -->
