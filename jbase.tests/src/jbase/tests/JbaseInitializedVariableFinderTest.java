@@ -20,14 +20,14 @@ public class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 	private JbaseNodeModelUtil jbaseNodeModelUtil;
 
 	@Test
-	public void testNotInitializedNull() throws Exception {
+	public void testNotInitializedNull() { // NOSONAR
 		// test it does not throw
 		jbaseInitializedVariableFinder.detectNotInitialized(null, expression -> {
 		});
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNotInitializedInternalNull() throws Exception {
+	public void testNotInitializedInternalNull() {
 		jbaseInitializedVariableFinder.detectNotInitialized(null,
 				new JbaseInitializedVariableFinder.InitializedVariables(), expression -> {
 				});
