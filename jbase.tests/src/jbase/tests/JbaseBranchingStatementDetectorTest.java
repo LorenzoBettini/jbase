@@ -25,12 +25,12 @@ public class JbaseBranchingStatementDetectorTest extends JbaseAbstractTest {
 	private final JavammBranchingStatementDetectorCustom detector = new JavammBranchingStatementDetectorCustom();
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNullInDispatchMethod() throws Exception {
+	public void testNullInDispatchMethod() {
 		detector.sureBranch(null);
 	}
 
 	@Test
-	public void testNull() throws Exception {
+	public void testNull() {
 		assertFalse(detector.isSureBranchStatement(null));
 	}
 

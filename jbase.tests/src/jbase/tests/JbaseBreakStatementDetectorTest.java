@@ -29,22 +29,22 @@ public class JbaseBreakStatementDetectorTest extends JbaseAbstractTest {
 	private final JbaseBreakStatementDetectorCustom detector = new JbaseBreakStatementDetectorCustom();
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNullInDispatchMethod() throws Exception {
+	public void testNullInDispatchMethod() {
 		detector.containsPossibleBreak(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNullInDispatchMethod2() throws Exception {
+	public void testNullInDispatchMethod2() {
 		detector.possibleBreak(null);
 	}
 
 	@Test
-	public void testNull() throws Exception {
+	public void testNull() {
 		assertFalse(detector.containsPossibleBreakStatement(null));
 	}
 
 	@Test
-	public void testNull2() throws Exception {
+	public void testNull2() {
 		assertFalse(detector.isPossibleBreakStatement(null));
 	}
 
