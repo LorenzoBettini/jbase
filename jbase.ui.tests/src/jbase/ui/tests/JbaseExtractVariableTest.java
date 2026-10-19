@@ -1,10 +1,5 @@
 package jbase.ui.tests;
 
-import static org.junit.Assert.*;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider;
-import jbase.tests.util.ui.PluginProjectHelper;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.xtext.testing.InjectWith;
@@ -15,6 +10,12 @@ import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
+import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider;
+import jbase.tests.util.ui.PluginProjectHelper;
 
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseTestlanguageUiInjectorProvider.class)
