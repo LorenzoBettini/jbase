@@ -48,7 +48,7 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 		}
 		for (m : model.operations) {
 			format(m, document);
-			if (m != model.methods.last)
+			if (m != model.methods.lastOrNull)
 				m.append[setNewLines(2, 2, 2)]
 			else
 				m.append[setNewLines(1, 1, 2)]

@@ -325,7 +325,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 	def void checkVarArgComesLast(XJJvmFormalParameter param) {
 		if (param.isVarArgs()) {
 			val params = param.eContainer().eGet(param.eContainingFeature()) as List<XJJvmFormalParameter>
-			if (param != params.last) {
+			if (param != params.lastOrNull) {
 				error(
 					"A vararg must be the last parameter.",
 					param,
@@ -347,7 +347,7 @@ class JbaseValidator extends AbstractJbaseValidator {
 		val types = batchTypeResolver.resolveTypes(body);
 		if (types.getActualType(jvmOperation).isPrimitiveVoid()) 
 			return;
-		val lastExpression = body.expressions.last
+		val lastExpression = body.expressions.lastOrNull
 		if (lastExpression === null) {
 			errorMissingReturnStatement(body)
 			return

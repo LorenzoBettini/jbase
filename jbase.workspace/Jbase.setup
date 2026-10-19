@@ -19,8 +19,8 @@
     label="Jbase">
   <setupTask
       xsi:type="jdt:JRETask"
-      version="JavaSE-11"
-      location="${jre.location-11}">
+      version="JavaSE-21"
+      location="${jre.location-21}">
     <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
   </setupTask>
   <setupTask
@@ -97,7 +97,7 @@
   <setupTask
       xsi:type="setup:VariableTask"
       name="eclipse.target.platform"
-      defaultValue="2022-06"
+      defaultValue="2026-03"
       storageURI="scope://Workspace"/>
   <setupTask
       xsi:type="setup:ResourceCreationTask"
@@ -311,11 +311,11 @@
           rootFolder="${git.clone.location}"
           locateNestedProjects="true"/>
       <repositoryList
-          name="2022-06">
+          name="2026-03">
         <repository
-            url="https://download.eclipse.org/releases/2022-06"/>
+            url="https://download.eclipse.org/releases/2026-03"/>
         <repository
-            url="https://download.itemis.com/updates/releases/2.1.1/"/>
+            url="https://artifacts.itemis.cloud/repository/p2/xtext-updates/releases/2.1.1"/>
         <repository
             url="${xtext.site}"/>
         <repository
@@ -492,11 +492,11 @@
     <setupTask
         xsi:type="setup:VariableTask"
         name="mwe2.site"
-        value="https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.13.0"/>
+        value="https://download.eclipse.org/modeling/emft/mwe/updates/releases/2.25.0"/>
     <setupTask
         xsi:type="setup:VariableTask"
         name="xtext.site"
-        value="https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.27.0/"/>
+        value="https://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.42.0/"/>
     <setupTask
         xsi:type="setup.p2:P2Task"
         id="p2.org.eclipse.xtext.3"
@@ -504,7 +504,7 @@
         licenseConfirmationDisabled="true">
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.27.0,2.28.0)"
+          versionRange="[2.42.0,2.43.0)"
           filter=""/>
       <requirement
           name="de.itemis.xtext.antlr.feature.feature.group"/>
@@ -513,7 +513,7 @@
       <repository
           url="${mwe2.site}"/>
       <repository
-          url="https://download.itemis.com/updates/releases/2.1.1/"/>
+          url="https://artifacts.itemis.cloud/repository/p2/xtext-updates/releases/2.1.1"/>
       <description>Xtext &amp; Xtend</description>
     </setupTask>
   </stream>

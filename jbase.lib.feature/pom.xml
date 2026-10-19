@@ -13,4 +13,13 @@
 
 	<artifactId>jbase.lib.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>jbase.lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
 </project>

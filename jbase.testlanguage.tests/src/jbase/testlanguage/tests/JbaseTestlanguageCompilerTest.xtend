@@ -4,10 +4,10 @@ import com.google.common.base.Joiner
 import com.google.inject.Inject
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.TemporaryFolder
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 import org.eclipse.xtext.xbase.testing.CompilationTestHelper.Result
-import org.eclipse.xtext.xbase.testing.TemporaryFolder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

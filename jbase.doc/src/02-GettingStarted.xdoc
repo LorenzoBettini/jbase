@@ -36,16 +36,7 @@ add e[jbase.mwe2] to the e[additional.bundles].
 For example (see the last line),
 
 code[buildproperties][
-additional.bundles = org.eclipse.xtext.xbase,\
-                     org.eclipse.xtext.common.types,\
-                     org.eclipse.xtext.xtext.generator,\
-                     org.eclipse.emf.codegen.ecore,\
-                     org.eclipse.emf.mwe.utils,\
-                     org.eclipse.emf.mwe2.launch,\
-                     org.eclipse.emf.mwe2.lib,\
-                     org.objectweb.asm,\
-                     org.apache.commons.logging,\
-                     org.apache.log4j,\
+additional.bundles = org.eclipse.xtext.xtext.generator.dependencies,\
                      jbase.mwe2
 ]
 

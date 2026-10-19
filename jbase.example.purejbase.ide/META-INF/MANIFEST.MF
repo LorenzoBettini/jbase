@@ -11,6 +11,6 @@ Require-Bundle: jbase.example.purejbase,
  org.eclipse.xtext.xbase.ide,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  jbase
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.example.purejbase.ide.contentassist.antlr,
  jbase.example.purejbase.ide.contentassist.antlr.internal

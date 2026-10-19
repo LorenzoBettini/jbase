@@ -205,7 +205,7 @@ class JbaseFormatter extends XbasePatchedFormatter {
 
 	protected def formatExpressions(EList<XExpression> expressions, extension IFormattableDocument document,
 			boolean noLineAfterLastExpression) {
-		val last = expressions.last
+		val last = expressions.lastOrNull
 		for (child : expressions) {
 			child.format(document)
 

@@ -2,7 +2,7 @@ package jbase.tests
 
 import com.google.inject.Inject
 import jbase.testlanguage.validation.JbaseTestlanguageValidator
-import jbase.tests.util.Java7JbaseTestlanguageInjectorProvider
+import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.junit.Before
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
  * parameters.
  */
 @RunWith(typeof(XtextRunner))
-@InjectWith(typeof(Java7JbaseTestlanguageInjectorProvider))
+@InjectWith(typeof(Java21JbaseTestlanguageInjectorProvider))
 class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 
 	@Inject

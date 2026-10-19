@@ -9,13 +9,13 @@ import com.google.inject.Singleton;
 import jbase.testlanguage.JbaseTestlanguageRuntimeModule;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 
-public class Java7JbaseTestlanguageInjectorProvider extends JbaseTestlanguageInjectorProvider {
+public class Java21JbaseTestlanguageInjectorProvider extends JbaseTestlanguageInjectorProvider {
 
 	@Singleton
-	private static class Java7OnTheFlyJavaCompiler2 extends OnTheFlyJavaCompiler2 {
+	private static class Java21OnTheFlyJavaCompiler2 extends OnTheFlyJavaCompiler2 {
 		@Inject
-		public Java7OnTheFlyJavaCompiler2(ClassLoader scope) {
-			super(scope, JavaVersion.JAVA7);
+		public Java21OnTheFlyJavaCompiler2(ClassLoader scope) {
+			super(scope, JavaVersion.JAVA21);
 		}
 	}
 
@@ -30,7 +30,7 @@ public class Java7JbaseTestlanguageInjectorProvider extends JbaseTestlanguageInj
 
 			@SuppressWarnings("unused")
 			public Class<? extends OnTheFlyJavaCompiler2> bindOnTheFlyJavaCompiler2() {
-				return Java7OnTheFlyJavaCompiler2.class;
+				return Java21OnTheFlyJavaCompiler2.class;
 			}
 		};
 	}
