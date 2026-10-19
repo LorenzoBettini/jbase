@@ -420,6 +420,84 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testCastPrecedenceOverDivision() throws Exception {
+		assertLastExpression("""
+			int somma = 15;
+			int numero = 6;
+			double media = (double) somma / numero;
+			""", expression -> {
+			final var division = getXBinaryOperation(getVariableDeclarationRight(expression));
+			final var cast = getCasted(division.getLeftOperand());
+			assertEquals("double", cast.getType().getSimpleName());
+			assertEquals("somma", getFeatureCall(cast.getTarget()).getFeature().getSimpleName());
+			assertEquals("numero",
+				getFeatureCall(division.getRightOperand()).getFeature().getSimpleName());
+		});
+	}
+
+	@Test
+	public void testCastPrecedenceOverBinaryOperations() throws Exception {
+		for (final var operator : new String[] {
+				"*", "/", "%", "+", "-", "<<", ">>", ">>>", "<", "<=", ">", ">=",
+				"==", "!=", "&", "^", "|" }) {
+			final var parsed = parseHelper.parse("(int) 1 " + operator + " 2;");
+			assertTrue(parsed.eResource().getErrors().toString(),
+				parsed.eResource().getErrors().isEmpty());
+			applyTester(parsed, expression -> {
+				final var binary = getXBinaryOperation(expression);
+				assertEquals("1", ((XNumberLiteral) getCasted(binary.getLeftOperand())
+					.getTarget()).getValue());
+				assertEquals("2", ((XNumberLiteral) binary.getRightOperand()).getValue());
+			});
+		}
+		for (final var operator : new String[] { "&&", "||" }) {
+			final var parsed = parseHelper.parse("(boolean) true " + operator + " false;");
+			assertTrue(parsed.eResource().getErrors().toString(),
+				parsed.eResource().getErrors().isEmpty());
+			applyTester(parsed, expression -> {
+				final var binary = getXBinaryOperation(expression);
+				assertTrue(((XBooleanLiteral) getCasted(binary.getLeftOperand())
+					.getTarget()).isIsTrue());
+				assertFalse(((XBooleanLiteral) binary.getRightOperand()).isIsTrue());
+			});
+		}
+	}
+
+	@Test
+	public void testCastOfUnaryOperation() throws Exception {
+		for (final var operator : new String[] { "+", "-", "~" }) {
+			assertLastExpression("(int) " + operator + "1;", expression -> {
+				final var unary = getXUnaryOperation(getCasted(expression).getTarget());
+				assertEquals("1", ((XNumberLiteral) unary.getOperand()).getValue());
+			});
+		}
+		assertLastExpression("(boolean) !true;", expression -> {
+			final var unary = getXUnaryOperation(getCasted(expression).getTarget());
+			assertTrue(((XBooleanLiteral) unary.getOperand()).isIsTrue());
+		});
+	}
+
+	@Test
+	public void testCastOfParenthesizedBinaryOperation() throws Exception {
+		assertLastExpression("(double) (15 / 6);", expression -> {
+			final var division = getXBinaryOperation(getCasted(expression).getTarget());
+			assertEquals("15", ((XNumberLiteral) division.getLeftOperand()).getValue());
+			assertEquals("6", ((XNumberLiteral) division.getRightOperand()).getValue());
+		});
+	}
+
+	@Test
+	public void testCastOfPostfixOperation() throws Exception {
+		assertLastExpression("""
+			int i = 1;
+			(double) i++;
+			""", expression -> {
+			final var postfix = (XPostfixOperation) getCasted(expression).getTarget();
+			assertEquals("i", getFeatureCall(postfix.getOperand()).getFeature().getSimpleName());
+		});
+	}
+
+	@Test
 	public void testIncompleteCastedExpressionParsedAsParenthesizedExpression() throws Exception {
 		assertLastExpression("""
 			(int) ;

@@ -191,7 +191,8 @@ XJArrayDimension:
 
 @Override 
 XCastedExpression returns XExpression:
-	=>({XCastedExpression} '(' type=JvmTypeReference ')' target=XExpression)
+	// Java casts bind to a unary operand; parentheses can still enclose a full expression.
+	=>({XCastedExpression} '(' type=JvmTypeReference ')' target=XUnaryOperation)
 	|
 	XPostfixOperation
 ;
