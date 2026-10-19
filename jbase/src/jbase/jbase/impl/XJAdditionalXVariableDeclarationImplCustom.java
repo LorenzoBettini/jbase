@@ -33,7 +33,7 @@ public class XJAdditionalXVariableDeclarationImplCustom extends XJAdditionalXVar
 		return getContainingVariableDeclaration().getType() ;
 	}
 
-	protected XJVariableDeclaration getContainingVariableDeclaration() {
+	private XJVariableDeclaration getContainingVariableDeclaration() {
 		return (XJVariableDeclaration)eContainer();
 	}
 }

@@ -52,14 +52,14 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	@Override
 	public void computeTypes(final XExpression expression, final ITypeComputationState state) {
 		switch (expression) {
-			case XJAssignment assignment -> _computeTypes(assignment, state);
-			case XJArrayConstructorCall call -> _computeTypes(call, state);
-			case XJArrayAccessExpression access -> _computeTypes(access, state);
-			case XJBranchingStatement statement -> _computeTypes(statement, state);
-			case XJCharLiteral literal -> _computeTypes(literal, state);
-			case XJVariableDeclaration declaration -> _computeTypes(declaration, state);
-			case XJClassObject classObject -> _computeTypes(classObject, state);
-			case XJSemicolonStatement statement -> _computeTypes(statement, state);
+			case XJAssignment assignment -> computeJbaseTypes(assignment, state);
+			case XJArrayConstructorCall call -> computeJbaseTypes(call, state);
+			case XJArrayAccessExpression access -> computeJbaseTypes(access, state);
+			case XJBranchingStatement statement -> state.acceptActualType(getPrimitiveVoid(state));
+			case XJCharLiteral literal -> computeCharLiteralTypes(state);
+			case XJVariableDeclaration declaration -> computeJbaseTypes(declaration, state);
+			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
+			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
 			case null, default -> super.computeTypes(expression, state);
 		}
 	}
@@ -202,7 +202,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		return super.reassignCheckedType(condition, guardedExpression, state);
 	}
 
-	protected void _computeTypes(final XJVariableDeclaration object,
+	private void computeJbaseTypes(final XJVariableDeclaration object,
 			final ITypeComputationState state) {
 		super._computeTypes(object, state);
 		// and also compute types for possible additional declarations
@@ -215,7 +215,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	 * We must consider possible type expectations since a char literal can be
 	 * assigned also to a primitive numeric type.
 	 */
-	protected void _computeTypes(final XJCharLiteral object, final ITypeComputationState state) {
+	private void computeCharLiteralTypes(final ITypeComputationState state) {
 		for (var expectation : state.getExpectations()) {
 			var typeExpectation = expectation.getExpectedType();
 			if (typeExpectation == null) {
@@ -232,7 +232,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		state.acceptActualType(result);
 	}
 
-	protected LightweightTypeReference _computeTypes(final XJAssignment assignment,
+	private LightweightTypeReference computeJbaseTypes(final XJAssignment assignment,
 			final ITypeComputationState state) {
 		var candidates = state.getLinkingCandidates(assignment);
 		var best = getBestCandidate(candidates);
@@ -241,7 +241,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			XbasePackage.Literals.XASSIGNMENT__ASSIGNABLE);
 	}
 
-	protected void _computeTypes(final XJArrayAccessExpression arrayAccess,
+	private void computeJbaseTypes(final XJArrayAccessExpression arrayAccess,
 			final ITypeComputationState state) {
 		var actualType = state.withNonVoidExpectation().computeTypes(arrayAccess.getArray())
 			.getActualExpressionType();
@@ -257,7 +257,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		checkArrayIndexHasTypeInt(arrayAccess, state);
 	}
 
-	protected void _computeTypes(final XJArrayConstructorCall call,
+	private void computeJbaseTypes(final XJArrayConstructorCall call,
 			final ITypeComputationState state) {
 		checkArrayIndexHasTypeInt(call, state);
 		var typeReference = services.getTypeReferences().createTypeRef(call.getType());
@@ -272,7 +272,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		state.acceptActualType(arrayTypeRef);
 	}
 
-	protected void _computeTypes(final XJClassObject e, final ITypeComputationState state) {
+	private void computeJbaseTypes(final XJClassObject e, final ITypeComputationState state) {
 		var typeExpression = e.getTypeExpression();
 		var typeExpressionType = state
 			.withExpectation(state.getReferenceOwner().newReferenceTo(Class.class))
@@ -308,11 +308,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		return state.getReferenceOwner();
 	}
 
-	protected void _computeTypes(final XJBranchingStatement st, final ITypeComputationState state) {
-		state.acceptActualType(getPrimitiveVoid(state));
-	}
-
-	protected ITypeComputationResult _computeTypes(final XJSemicolonStatement st,
+	private ITypeComputationResult computeJbaseTypes(final XJSemicolonStatement st,
 			final ITypeComputationState state) {
 		var expression = st.getExpression();
 		if (expression != null) {

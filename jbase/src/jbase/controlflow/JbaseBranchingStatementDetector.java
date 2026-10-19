@@ -23,23 +23,14 @@ public class JbaseBranchingStatementDetector {
 		return switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: [null]");
 			case XJBranchingStatement statement -> true;
-			case XJSemicolonStatement statement -> _sureBranch(statement);
-			case XBlockExpression block -> _sureBranch(block);
-			case XIfExpression conditional -> _sureBranch(conditional);
+			case XJSemicolonStatement statement ->
+				isSureBranchStatement(statement.getExpression());
+			case XBlockExpression block ->
+				block.getExpressions().stream().anyMatch(this::isSureBranchStatement);
+			case XIfExpression conditional -> isSureBranchStatement(conditional.getThen())
+				&& (conditional.getElse() == null
+					|| isSureBranchStatement(conditional.getElse()));
 			default -> false;
 		};
-	}
-
-	protected boolean _sureBranch(final XIfExpression e) {
-		return isSureBranchStatement(e.getThen())
-			&& (e.getElse() == null || isSureBranchStatement(e.getElse()));
-	}
-
-	protected boolean _sureBranch(final XBlockExpression e) {
-		return e.getExpressions().stream().anyMatch(this::isSureBranchStatement);
-	}
-
-	protected boolean _sureBranch(final XJSemicolonStatement e) {
-		return isSureBranchStatement(e.getExpression());
 	}
 }

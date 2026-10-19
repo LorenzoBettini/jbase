@@ -73,37 +73,37 @@ public class JbaseInitializedVariableFinder {
 		switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: "
 				+ Arrays.asList(e, initialized, acceptor));
-			case XAssignment assignment -> _detectNotInitialized(assignment, initialized, acceptor);
+			case XAssignment assignment -> inspectNotInitialized(assignment, initialized, acceptor);
 			case XJAdditionalXVariableDeclaration declaration ->
-				_detectNotInitialized(declaration, initialized, acceptor);
+				inspectNotInitialized(declaration, initialized, acceptor);
 			case XJVariableDeclaration declaration ->
-				_detectNotInitialized(declaration, initialized, acceptor);
-			case XBasicForLoopExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
-			case XForLoopExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
-			case XWhileExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
-			case XDoWhileExpression loop -> _detectNotInitialized(loop, initialized, acceptor);
+				inspectNotInitialized(declaration, initialized, acceptor);
+			case XBasicForLoopExpression loop -> inspectNotInitialized(loop, initialized, acceptor);
+			case XForLoopExpression loop -> inspectNotInitialized(loop, initialized, acceptor);
+			case XWhileExpression loop -> inspectNotInitialized(loop, initialized, acceptor);
+			case XDoWhileExpression loop -> inspectNotInitialized(loop, initialized, acceptor);
 			case XSwitchExpression statement ->
-				_detectNotInitialized(statement, initialized, acceptor);
-			case XBlockExpression block -> _detectNotInitialized(block, initialized, acceptor);
-			case XAbstractFeatureCall call -> _detectNotInitialized(call, initialized, acceptor);
+				inspectNotInitialized(statement, initialized, acceptor);
+			case XBlockExpression block -> inspectNotInitialized(block, initialized, acceptor);
+			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);
 			case XIfExpression conditional ->
-				_detectNotInitialized(conditional, initialized, acceptor);
+				inspectNotInitialized(conditional, initialized, acceptor);
 			case XJTryWithResourcesStatement statement ->
-				_detectNotInitialized(statement, initialized, acceptor);
+				inspectNotInitialized(statement, initialized, acceptor);
 			case XTryCatchFinallyExpression statement ->
-				_detectNotInitialized(statement, initialized, acceptor);
+				inspectNotInitialized(statement, initialized, acceptor);
 			case XSynchronizedExpression statement ->
-				_detectNotInitialized(statement, initialized, acceptor);
-			default -> _detectNotInitialized(e, initialized, acceptor);
+				inspectNotInitialized(statement, initialized, acceptor);
+			default -> inspectNotInitialized(e, initialized, acceptor);
 		}
 	}
 
-	protected void _detectNotInitialized(final XExpression e,
+	private void inspectNotInitialized(final XExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		inspectContents(e, initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XAssignment e,
+	private void inspectNotInitialized(final XAssignment e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		checkArrayAccess(e, initialized, acceptor);
 		if (e.getFeature() instanceof XVariableDeclaration variable) {
@@ -114,18 +114,18 @@ public class JbaseInitializedVariableFinder {
 		}
 	}
 
-	protected void _detectNotInitialized(final XJVariableDeclaration e,
+	private void inspectNotInitialized(final XJVariableDeclaration e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		inspectVariableDeclaration(e, initialized, acceptor);
 		loopOverExpressions(e.getAdditionalVariables(), initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XJAdditionalXVariableDeclaration e,
+	private void inspectNotInitialized(final XJAdditionalXVariableDeclaration e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		inspectVariableDeclaration(e, initialized, acceptor);
 	}
 
-	protected void inspectVariableDeclaration(final XVariableDeclaration e,
+	private void inspectVariableDeclaration(final XVariableDeclaration e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		if (e.getRight() != null) {
 			detectNotInitializedDispatch(e.getRight(), initialized, acceptor);
@@ -133,7 +133,7 @@ public class JbaseInitializedVariableFinder {
 		}
 	}
 
-	protected void _detectNotInitialized(final XBasicForLoopExpression e,
+	private void inspectNotInitialized(final XBasicForLoopExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		loopOverExpressions(e.getInitExpressions(), initialized, acceptor);
 
@@ -145,13 +145,13 @@ public class JbaseInitializedVariableFinder {
 		loopOverExpressions(expressions, createCopy(initialized), acceptor);
 	}
 
-	protected void _detectNotInitialized(final XForLoopExpression e,
+	private void inspectNotInitialized(final XForLoopExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		// discard information collected
 		detectNotInitializedDispatch(e.getEachExpression(), createCopy(initialized), acceptor);
 	}
 
-	protected void _detectNotInitialized(final XWhileExpression e,
+	private void inspectNotInitialized(final XWhileExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		detectNotInitializedDispatch(e.getPredicate(), initialized, acceptor);
 
@@ -159,14 +159,14 @@ public class JbaseInitializedVariableFinder {
 		detectNotInitializedDispatch(e.getBody(), createCopy(initialized), acceptor);
 	}
 
-	protected void _detectNotInitialized(final XDoWhileExpression e,
+	private void inspectNotInitialized(final XDoWhileExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		// use information collected, since the body is surely executed
 		detectNotInitializedDispatch(e.getBody(), initialized, acceptor);
 		detectNotInitializedDispatch(e.getPredicate(), initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XSwitchExpression e,
+	private void inspectNotInitialized(final XSwitchExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		detectNotInitializedDispatch(e.getSwitch(), initialized, acceptor);
 
@@ -193,12 +193,12 @@ public class JbaseInitializedVariableFinder {
 		inspectBranchesAndIntersect(effectiveBranches, initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XBlockExpression b,
+	private void inspectNotInitialized(final XBlockExpression b,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		loopOverExpressions(b.getExpressions(), initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XAbstractFeatureCall o,
+	private void inspectNotInitialized(final XAbstractFeatureCall o,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		var actualArguments = o.getActualArguments();
 		if (actualArguments.isEmpty()) {
@@ -211,19 +211,19 @@ public class JbaseInitializedVariableFinder {
 		}
 	}
 
-	protected void _detectNotInitialized(final XIfExpression e,
+	private void inspectNotInitialized(final XIfExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		detectNotInitializedDispatch(e.getIf(), initialized, acceptor);
 		inspectBranchesAndIntersect(Arrays.asList(e.getThen(), e.getElse()), initialized, acceptor);
 	}
 
-	protected void _detectNotInitialized(final XTryCatchFinallyExpression e,
+	private void inspectNotInitialized(final XTryCatchFinallyExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		detectNotInitializedTryCatchCommon(e, initialized, acceptor,
 			variables -> inspectTryCatchFinallyBranchesAndIntersect(e, variables, acceptor));
 	}
 
-	protected void _detectNotInitialized(final XJTryWithResourcesStatement e,
+	private void inspectNotInitialized(final XJTryWithResourcesStatement e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		detectNotInitializedTryCatchCommon(e, initialized, acceptor, variables -> {
 			loopOverExpressions(e.getResources(), variables, acceptor);
@@ -231,7 +231,7 @@ public class JbaseInitializedVariableFinder {
 		});
 	}
 
-	protected void inspectTryCatchFinallyBranchesAndIntersect(final XTryCatchFinallyExpression e,
+	private void inspectTryCatchFinallyBranchesAndIntersect(final XTryCatchFinallyExpression e,
 			final InitializedVariables initializedVariables, final NotInitializedAcceptor acceptor) {
 		var branches = new ArrayList<XExpression>();
 		branches.add(e.getExpression());
@@ -241,7 +241,7 @@ public class JbaseInitializedVariableFinder {
 		inspectBranchesAndIntersect(branches, initializedVariables, acceptor);
 	}
 
-	protected void detectNotInitializedTryCatchCommon(final XTryCatchFinallyExpression e,
+	private void detectNotInitializedTryCatchCommon(final XTryCatchFinallyExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor,
 			final Procedure1<? super InitializedVariables> branchInspector) {
 		var finallyExpression = e.getFinallyExpression();
@@ -284,19 +284,19 @@ public class JbaseInitializedVariableFinder {
 	 * A synchronized block is always considered executed from the variable initialization point
 	 * of view.
 	 */
-	protected void _detectNotInitialized(final XSynchronizedExpression e,
+	private void inspectNotInitialized(final XSynchronizedExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		inspectContents(e, initialized, acceptor);
 	}
 
-	protected void inspectContents(final XExpression e, final InitializedVariables initialized,
+	private void inspectContents(final XExpression e, final InitializedVariables initialized,
 			final NotInitializedAcceptor acceptor) {
 		var contents = e.eContents().stream()
 			.filter(XExpression.class::isInstance).map(XExpression.class::cast).toList();
 		loopOverExpressions(contents, initialized, acceptor);
 	}
 
-	protected void checkArrayAccess(final XExpression e, final InitializedVariables initialized,
+	private void checkArrayAccess(final XExpression e, final InitializedVariables initialized,
 			final NotInitializedAcceptor acceptor) {
 		if (e instanceof XJArrayAccess arrayAccess) {
 			loopOverExpressions(arrayAccess.getIndexes(), initialized, acceptor);
@@ -312,7 +312,7 @@ public class JbaseInitializedVariableFinder {
 	 * will simply be the result for the single branch.  This works when
 	 * the single branch is the 'default' branch of a switch.
 	 */
-	protected void inspectBranchesAndIntersect(final Iterable<? extends XExpression> branches,
+	private void inspectBranchesAndIntersect(final Iterable<? extends XExpression> branches,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		InitializedVariables intersection = null;
 		for (var branch : branches) {
@@ -326,14 +326,14 @@ public class JbaseInitializedVariableFinder {
 		initialized.addAll(intersection);
 	}
 
-	protected InitializedVariables inspectBranch(final XExpression b,
+	private InitializedVariables inspectBranch(final XExpression b,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		var copy = createCopy(initialized);
 		detectNotInitializedDispatch(b, copy, acceptor);
 		return copy;
 	}
 
-	protected void loopOverExpressions(final Iterable<? extends XExpression> expressions,
+	private void loopOverExpressions(final Iterable<? extends XExpression> expressions,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
 		for (var e : expressions) {
 			detectNotInitializedDispatch(e, initialized, acceptor);

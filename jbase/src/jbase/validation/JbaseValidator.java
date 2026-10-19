@@ -328,7 +328,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NOT_INITIALIZED_VARIABLE));
 	}
 
-	protected void errorMissingReturnStatement(final XExpression e) {
+	private void errorMissingReturnStatement(final XExpression e) {
 		var source = e instanceof XJSemicolonStatement statement ? statement.getExpression() : e;
 		error("Missing return", source, null, MISSING_RETURN);
 	}

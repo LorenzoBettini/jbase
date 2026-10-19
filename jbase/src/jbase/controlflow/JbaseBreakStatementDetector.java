@@ -23,23 +23,12 @@ public class JbaseBreakStatementDetector {
 	protected boolean containsPossibleBreak(final XExpression e) {
 		return switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: [null]");
-			case XJSemicolonStatement statement -> _containsPossibleBreak(statement);
-			case XAbstractWhileExpression loop -> _containsPossibleBreak(loop);
-			case XBasicForLoopExpression loop -> _containsPossibleBreak(loop);
+			case XJSemicolonStatement statement ->
+				containsPossibleBreakStatement(statement.getExpression());
+			case XAbstractWhileExpression loop -> isPossibleBreakStatement(loop.getBody());
+			case XBasicForLoopExpression loop -> isPossibleBreakStatement(loop.getEachExpression());
 			default -> false;
 		};
-	}
-
-	protected boolean _containsPossibleBreak(final XJSemicolonStatement e) {
-		return containsPossibleBreakStatement(e.getExpression());
-	}
-
-	protected boolean _containsPossibleBreak(final XAbstractWhileExpression e) {
-		return isPossibleBreakStatement(e.getBody());
-	}
-
-	protected boolean _containsPossibleBreak(final XBasicForLoopExpression e) {
-		return isPossibleBreakStatement(e.getEachExpression());
 	}
 
 	public boolean isPossibleBreakStatement(final XExpression e) {
@@ -50,23 +39,14 @@ public class JbaseBreakStatementDetector {
 		return switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: [null]");
 			case XJBreakStatement statement -> true;
-			case XJSemicolonStatement statement -> _possibleBreak(statement);
-			case XBlockExpression block -> _possibleBreak(block);
-			case XIfExpression conditional -> _possibleBreak(conditional);
+			case XJSemicolonStatement statement ->
+				isPossibleBreakStatement(statement.getExpression());
+			case XBlockExpression block ->
+				block.getExpressions().stream().anyMatch(this::isPossibleBreakStatement);
+			case XIfExpression conditional -> isPossibleBreakStatement(conditional.getThen())
+				|| (conditional.getElse() != null
+					&& isPossibleBreakStatement(conditional.getElse()));
 			default -> false;
 		};
-	}
-
-	protected boolean _possibleBreak(final XIfExpression e) {
-		return isPossibleBreakStatement(e.getThen())
-			|| (e.getElse() != null && isPossibleBreakStatement(e.getElse()));
-	}
-
-	protected boolean _possibleBreak(final XBlockExpression e) {
-		return e.getExpressions().stream().anyMatch(this::isPossibleBreakStatement);
-	}
-
-	protected boolean _possibleBreak(final XJSemicolonStatement e) {
-		return isPossibleBreakStatement(e.getExpression());
 	}
 }
