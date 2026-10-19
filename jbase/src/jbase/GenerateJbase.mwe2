@@ -43,6 +43,10 @@ Workflow {
 				useInferredJvmModel = false
 			}
 
+			junitSupport = {
+				generateXtendStub = false
+			}
+
 			serializer = {
 				generateXtendStub = false
 			}

@@ -1,3 +1,0 @@
-# we need the xtend-gen folder for our Maven profile 'xtend-gen'
-*
-!.gitignore
