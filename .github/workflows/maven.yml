@@ -44,9 +44,9 @@ jobs:
         ./mvnw -f jbase.releng/pom.xml
         clean verify -Pjacoco
         -DrepoToken=$COVERALLS_REPO_TOKEN
-        -DpullRequest=${{ github.event.pull_request.number }}
         -Dsonar.organization=lorenzobettini-github
         -Dsonar.host.url=https://sonarcloud.io
+        -Dsonar.projectKey=LorenzoBettini_jbase
         $ADDITIONAL_GOALS
     - name: Archive Test Results
       uses: actions/upload-artifact@v7
