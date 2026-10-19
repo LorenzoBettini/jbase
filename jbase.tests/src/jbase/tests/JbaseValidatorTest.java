@@ -977,6 +977,22 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testVarArgsAsOnlyParameter() throws Exception {
+		parseAndAssertNoIssues("""
+			op m(int... i) : void {
+			}
+			""");
+	}
+
+	@Test
+	public void testVarArgsAsLastParameter() throws Exception {
+		parseAndAssertNoIssues("""
+			op m(int i, String... a) : void {
+			}
+			""");
+	}
+
+	@Test
 	public void testInvalidUseOfVarArgs() throws Exception {
 		final var input = """
 			op m(int... i, String... a) : void {

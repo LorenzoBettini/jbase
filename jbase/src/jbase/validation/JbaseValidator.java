@@ -285,7 +285,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	public void checkVarArgComesLast(final XJJvmFormalParameter param) {
 		if (param.isVarArgs()) {
 			var params = (List<?>) param.eContainer().eGet(param.eContainingFeature());
-			if (params.isEmpty() || param != params.getLast()) {
+			if (param != params.getLast()) {
 				error("A vararg must be the last parameter.", param,
 					JBASE_PACKAGE.getXJJvmFormalParameter_VarArgs(), INVALID_USE_OF_VAR_ARGS);
 			}
