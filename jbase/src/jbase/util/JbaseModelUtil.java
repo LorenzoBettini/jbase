@@ -2,6 +2,7 @@ package jbase.util;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.EObject;
@@ -43,7 +44,7 @@ public class JbaseModelUtil {
 	 *
 	 * will correspond to the list [null, XNumberLiteral, null, XNumberLiteral]
 	 */
-	public ArrayList<XExpression> arrayDimensionIndexAssociations(final XJArrayConstructorCall c) {
+	public List<XExpression> arrayDimensionIndexAssociations(final XJArrayConstructorCall c) {
 		var sortedByOffset = Stream.concat(c.getDimensions().stream(), c.getIndexes().stream())
 			.sorted(Comparator.comparingInt(nodeModelUtil::getElementOffsetInProgram)).toList();
 
