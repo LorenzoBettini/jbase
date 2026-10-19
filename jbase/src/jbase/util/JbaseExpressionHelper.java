@@ -13,11 +13,11 @@ import org.eclipse.xtext.xbase.lib.Functions.Function2;
  */
 public class JbaseExpressionHelper {
 
-	public static abstract class BaseCase
+	public abstract static class BaseCase
 			implements Function2<XUnaryOperation, XNumberLiteral, Boolean> {
 	}
 
-	public static abstract class StepCase implements IAcceptor<XUnaryOperation> {
+	public abstract static class StepCase implements IAcceptor<XUnaryOperation> {
 	}
 
 	/**
@@ -79,12 +79,9 @@ public class JbaseExpressionHelper {
 		}
 		if (operand instanceof XNumberLiteral literal) {
 			return baseCase.apply(unaryOperation, literal);
-		} else if (operand instanceof XUnaryOperation operation) {
-			// recursion
-			if (specialHandling(operation, baseCase, stepCase)) {
-				stepCase.accept(unaryOperation);
-				return true;
-			}
+		} else if (operand instanceof XUnaryOperation operation && specialHandling(operation, baseCase, stepCase)) {
+			stepCase.accept(unaryOperation);
+			return true;
 		}
 		return false;
 	}
