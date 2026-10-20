@@ -338,10 +338,15 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final LightweightTypeReference type, final ITypeComputationState state,
 			final EStructuralFeature featureForError) {
 		var currentType = type;
-		for (var index : arrayAccess.getIndexes()) {
+		// Each index removes one array dimension: for int[][] a, a[0] has type int[],
+		// while a[0][1] has type int. Only the number of indexes matters here;
+		// their expressions are checked separately by checkArrayIndexHasTypeInt.
+		var size = arrayAccess.getIndexes().size();
+		for (var i = 0; i < size; i++) {
 			if (currentType instanceof ArrayTypeReference arrayType) {
 				currentType = arrayType.getComponentType();
 			} else {
+				// An index applied after all array dimensions are consumed is invalid.
 				var diagnostic = new EObjectDiagnosticImpl(Severity.ERROR,
 					JbaseIssueCodes.NOT_ARRAY_TYPE,
 					"The type of the expression must be an array type but it resolved to "
