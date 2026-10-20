@@ -59,7 +59,7 @@ public abstract class JbaseAbstractTest {
 	}
 
 	protected void assertEqualsStrings(final CharSequence expected, final CharSequence actual) {
-		assertEquals(expected.toString().replaceAll("\r", ""), actual.toString());
+		assertEquals(expected.toString().replace("\r", ""), actual.toString().replace("\r", ""));
 	}
 
 	protected void assertLastExpression(final CharSequence input,

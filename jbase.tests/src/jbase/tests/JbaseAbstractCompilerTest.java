@@ -1,6 +1,5 @@
 package jbase.tests;
 
-import static org.junit.Assert.*;
 import com.google.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -67,7 +66,7 @@ public abstract class JbaseAbstractCompilerTest extends JbaseAbstractTest {
 
 	protected void assertGeneratedJavaCode(final CompilationTestHelper.Result r,
 			final CharSequence expected) {
-		assertEquals(expected.toString(), r.getSingleGeneratedCode());
+		assertEqualsStrings(expected, r.getSingleGeneratedCode());
 	}
 
 	protected void assertGeneratedJavaCodeCompiles(final CompilationTestHelper.Result result) {
@@ -98,6 +97,6 @@ public abstract class JbaseAbstractCompilerTest extends JbaseAbstractTest {
 		} finally {
 			System.setOut(backup);
 		}
-		assertEquals(expectedOutput.toString(), out.toString());
+		assertEqualsStrings(expectedOutput, out.toString());
 	}
 }

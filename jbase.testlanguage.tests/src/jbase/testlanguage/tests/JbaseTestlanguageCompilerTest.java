@@ -286,7 +286,8 @@ public class JbaseTestlanguageCompilerTest {
 
 	private void assertGeneratedJavaCode(final CompilationTestHelper.Result result,
 			final CharSequence expected) {
-		Assert.assertEquals(expected.toString(), result.getSingleGeneratedCode());
+		Assert.assertEquals(expected.toString().replace("\r", ""),
+				result.getSingleGeneratedCode().replace("\r", ""));
 	}
 
 	private void assertGeneratedJavaCodeCompiles(final CompilationTestHelper.Result result) {
