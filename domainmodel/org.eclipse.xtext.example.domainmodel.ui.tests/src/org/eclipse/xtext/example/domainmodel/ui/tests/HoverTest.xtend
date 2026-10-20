@@ -8,6 +8,9 @@
  *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel.ui.tests
 
+import com.google.inject.Inject
+import org.eclipse.jface.text.Region
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.ui.testing.AbstractHoverTest
@@ -23,6 +26,8 @@ import static extension org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.c
 @RunWith(XtextRunner)
 @InjectWith(DomainmodelUiInjectorProvider)
 class HoverTest extends AbstractHoverTest {
+
+	@Inject ValidationTestHelper validationTestHelper
 
 	@Before def void setup() throws Exception {
 		/*
@@ -93,10 +98,33 @@ class HoverTest extends AbstractHoverTest {
 		'''
 			entity Foo {
 				b : String
-				op : getB() {
-					b
+				op getB() {
+					return b;
 				}
 			}
-		'''.hasHoverOver("getB", '''getB() : String''')
+		'''.hasValidHoverOver("getB", '''getB() : String''')
 	}
+
+	@Test def hover_over_operation_with_explicit_return_type() {
+		'''
+			entity Foo {
+				b : String
+				op setB(String b) : void {
+					this.b = b;
+				}
+			}
+		'''.hasValidHoverOver("setB", '''setB(String b) : void''')
+	}
+
+	private def void hasValidHoverOver(CharSequence source, String hoverText, String expected) {
+		val file = dslFile(projectName, fileName, fileExtension, source)
+		val editor = openInEditor(file)
+		editor.document.readOnly [ resource |
+			validationTestHelper.assertNoErrors(resource.contents.head)
+			null
+		]
+		val region = new Region(source.toString.indexOf(hoverText), hoverText.length)
+		hoverPopupHasContent(hoveringOver(file, region), expected)
+	}
+
 }
