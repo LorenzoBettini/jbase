@@ -3,12 +3,27 @@
  */
 package jbase.validation;
 
-import static jbase.validation.JbaseIssueCodes.*;
+import static jbase.validation.JbaseIssueCodes.ARRAY_CONSTRUCTOR_BOTH_DIMENSION_EXPRESSION_AND_INITIALIZER;
+import static jbase.validation.JbaseIssueCodes.ARRAY_CONSTRUCTOR_DIMENSION_EXPRESSION_AFTER_EMPTY_DIMENSION;
+import static jbase.validation.JbaseIssueCodes.ARRAY_CONSTRUCTOR_EITHER_DIMENSION_EXPRESSION_OR_INITIALIZER;
+import static jbase.validation.JbaseIssueCodes.INVALID_BRANCHING_STATEMENT;
+import static jbase.validation.JbaseIssueCodes.INVALID_CHARACTER_CONSTANT;
+import static jbase.validation.JbaseIssueCodes.INVALID_LAMBDA;
+import static jbase.validation.JbaseIssueCodes.INVALID_USE_OF_VAR_ARGS;
+import static jbase.validation.JbaseIssueCodes.INVALID_VAR_DECLARATION;
+import static jbase.validation.JbaseIssueCodes.MISSING_PARENTHESES;
+import static jbase.validation.JbaseIssueCodes.MISSING_RESOURCES;
+import static jbase.validation.JbaseIssueCodes.MISSING_RETURN;
+import static jbase.validation.JbaseIssueCodes.MISSING_SEMICOLON;
+import static jbase.validation.JbaseIssueCodes.NON_EFFECTIVELY_FINAL_CAPTURE;
+import static jbase.validation.JbaseIssueCodes.NOT_AUTO_CLOSEABLE;
+import static jbase.validation.JbaseIssueCodes.NOT_INITIALIZED_VARIABLE;
 
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
@@ -19,10 +34,10 @@ import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
-import org.eclipse.xtext.xbase.XBasicForLoopExpression;
-import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XAssignment;
+import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBinaryOperation;
+import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
@@ -51,7 +66,6 @@ import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
-import jbase.jbase.XJVariableDeclaration;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -62,6 +76,7 @@ import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
+import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseNodeModelUtil;
@@ -157,7 +172,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			return;
 		}
 		var writes = XbaseUsageCrossReferencer.find(feature, EcoreUtil.getRootContainer(closure))
-			.stream().map(reference -> reference.getEObject())
+			.stream().map(Setting::getEObject)
 			.filter(this::isLocalWrite).toList();
 		if (!writes.isEmpty() && !isEffectivelyFinal(feature, writes)) {
 			error("Local variable " + feature.getSimpleName()
