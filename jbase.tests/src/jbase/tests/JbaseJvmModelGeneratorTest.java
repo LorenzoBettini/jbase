@@ -183,27 +183,29 @@ public class JbaseJvmModelGeneratorTest extends JbaseAbstractCompilerTest {
 			inferrerInjector.injectMembers(inferrer);
 			return inferrer;
 		});
-		compilationTestHelper.assertCompilesTo("""
-			op m(int l, String... a) : void {
-			\t
-			}
-			""", """
-			package jbasetestlanguage;
+		try {
+			checkCompilation("""
+				op m(int l, String... a) : void {
+				\t
+				}
+				""", """
+				package jbasetestlanguage;
 
-			@SuppressWarnings("all")
-			public class MyFile {
-			  public static void m(int l, /* Internal Error: Parameter was vararg but not an array type. */... a) {
-			  }
+				@SuppressWarnings("all")
+				public class MyFile {
+				  public static void m(int l, /* Internal Error: Parameter was vararg but not an array type. */... a) {
+				  }
 
-			  public static void main(String[] args) throws Throwable {
-			  }
-			}
-			""");
-		// reset the original inferrer
-		associator.setInferrerProvider(() -> {
-			final var inferrer = new JbaseTestlanguageJvmModelInferrer();
-			inferrerInjector.injectMembers(inferrer);
-			return inferrer;
-		});
+				  public static void main(String[] args) throws Throwable {
+				  }
+				}
+				""", false);
+		} finally {
+			associator.setInferrerProvider(() -> {
+				final var inferrer = new JbaseTestlanguageJvmModelInferrer();
+				inferrerInjector.injectMembers(inferrer);
+				return inferrer;
+			});
+		}
 	}
 }

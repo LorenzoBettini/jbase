@@ -50,7 +50,7 @@ public class JbaseOrganizeImportsTest extends JbaseAbstractTest {
 			builder.replace(change.getOffset(), change.getOffset() + change.getLength(),
 					change.getText());
 		}
-		assertEquals(expected.toString(), builder.toString());
+		assertEqualsStrings(expected, builder);
 	}
 
 	@Test

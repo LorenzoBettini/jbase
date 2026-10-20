@@ -5,6 +5,8 @@ import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.formatter.FormatterTestHelper;
+import org.eclipse.xtext.testing.formatter.FormatterTestRequest;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,9 +17,22 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Inject
 	private FormatterTestHelper formatterTestHelper;
 
+	/**
+	 * Java text blocks use LF, while the formatter uses the platform line separator.
+	 */
+	private void assertFormatted(final Procedure1<FormatterTestRequest> initializer) {
+		formatterTestHelper.assertFormatted(request -> {
+			initializer.apply(request);
+			request.setExpectation(request.getExpectationOrToBeFormatted().toString()
+					.replace("\n", System.lineSeparator()));
+			request.setToBeFormatted(request.getToBeFormatted().toString()
+					.replace("\n", System.lineSeparator()));
+		});
+	}
+
 	@Test
 	public void testProgramSpaces()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				import java.util.List;
 				import static java.util.Arrays.*;
@@ -58,7 +73,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testProgramSpacesWithOnlyMain()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				import java.util.List;
 				import static java.util.Arrays.*;
@@ -84,7 +99,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testProgramSpacesWithOnlyImports()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				import java.util.List;
 				import static java.util.Arrays.*;
@@ -102,7 +117,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testFormatImportSection()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				import java.util.List;
 				import static java.util.Arrays.*;
@@ -117,7 +132,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testSemicolonInSingleStatements()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				if (s)
 					continue;
@@ -153,7 +168,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testSemicolonInSingleStatements2()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				if (s)
 					a[0].println();
@@ -173,7 +188,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testEmptyStatements() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				;
 				;
@@ -186,7 +201,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testFormatBlock() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				{
 					System.out.println("1");
@@ -201,7 +216,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testMain() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				System.out.println("1");
 				System.out.println("2");
@@ -214,7 +229,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testMainAsBlock() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				{
 					System.out.println("1");
@@ -229,14 +244,14 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testFormatSystemOut() {
-		formatterTestHelper.assertFormatted(expression -> expression.setToBeFormatted("""
+		assertFormatted(expression -> expression.setToBeFormatted("""
 			System.out.println("Hello");
 			"""));
 	}
 
 	@Test
 	public void testFormatSystemOut2() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				System.out.println("Hello");
 				""");
@@ -248,7 +263,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testVariableDeclaration() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int i;
 				""");
@@ -260,7 +275,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testVariableDeclarationWithInitialization() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int i = 0;
 				""");
@@ -272,7 +287,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testVariableDeclarations() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int i, j, k;
 				""");
@@ -284,7 +299,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testVariableDeclarationsWithInitialization() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int i = 0, j = 1, k = 2;
 				""");
@@ -296,7 +311,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testAssignment() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				i = 0;
 				""");
@@ -308,7 +323,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testAssignmentWithArrayAccess() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				i[0] = 0;
 				""");
@@ -320,7 +335,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testAssignmentWithArrayAccesses() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				i[0][1] = 0;
 				""");
@@ -332,7 +347,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testArrayAccesses() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				j = i[0][1];
 				""");
@@ -344,7 +359,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testMemberFeatureCallArrayAccesses() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				args[0].length;
 				args[0][1].length;
@@ -358,7 +373,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testMethod() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				method m(int i, final String s) : int {
 					return 0;
@@ -373,7 +388,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testMethodWithComment() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				/**
 				 * This is a comment
@@ -394,7 +409,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testOperation() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				op m(int i, final String s) : int {
 					return 0;
@@ -409,7 +424,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testOperationWithComment() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				/**
 				 * This is a comment
@@ -430,7 +445,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testBinaryOperator() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int j = i + 0 * 1;
 				""");
@@ -442,7 +457,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testFeatureCall() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				m(1 + 3, 2);
 				""");
@@ -454,7 +469,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testPrefixOperator() {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				++i;
 				""");
@@ -466,7 +481,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testPostfixOperator()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				i++;
 				""");
@@ -478,7 +493,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testCasted()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				(String) s;
 				""");
@@ -490,7 +505,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testConstructorCall()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new List<Integer, String>(1 + 3, 2);
 				""");
@@ -502,7 +517,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testArrayConstructorCall()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new List<Integer, String>[0][1];
 				""");
@@ -514,7 +529,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testArrayConstructorCallWithArrayLiteral()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new List[1][] {0, 1, 1 + 2};
 				new List[1][2] {0, 1, 1 + 2};
@@ -534,7 +549,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testArrayLiteral()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int[] a = {0, 1, 1 + 2};
 				int[][] b = {{0, 1}, 1 + 2};
@@ -548,7 +563,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testBasicForLoop()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				for (int i = 0; i < argsNum; i += 1) {
 					System.out.println("args[" + i + "] = " + args[i]);
@@ -564,7 +579,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testForEachLoop()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				for (String s : strings)
 					continue;
@@ -594,7 +609,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testBranchingStatements()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				continue;
 				break;
@@ -607,7 +622,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testIfStatements()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				if (args.length() == 0)
 					System.out.println("No args");
@@ -651,7 +666,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testWhileStatements()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				while (args.length() == 0)
 					System.out.println("No args");
@@ -670,7 +685,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testDoWhileStatements()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				do
 					System.out.println("No args");
@@ -692,7 +707,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testConditionalExpression()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				int i = j > 0 ? 1 : '2';
 				int j = ( j > 0 ? 1 : '2' );
@@ -706,7 +721,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testSwitch()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				switch (argsNum) {
 					case 0: System.out.println("0");
@@ -724,7 +739,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testSwitchWithCascadeCases()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				switch (argsNum) {
 					case 0:
@@ -747,7 +762,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testWildcard()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				List<? extends List> l;
 				""");
@@ -759,7 +774,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testInstanceOf()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				boolean b = d instanceof String;
 				""");
@@ -771,7 +786,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testThrow()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				throw new Exception("test");
 				""");
@@ -783,7 +798,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testTryFinally()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				try {
 					int i = 0;
@@ -804,7 +819,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Test
 	public void testTryCatch()  {
 		// formatting in the presence of catch does not seem to work
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				try {
 					int i = 0;
@@ -828,7 +843,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testTryWithResources()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				try (String s = ""; String s = "") {
 					int i = 0;
@@ -853,7 +868,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Test
 	public void testSynchronized()  {
 		// formatting in the presence of catch does not seem to work
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				Object o;
 				synchronized (o) {
@@ -871,7 +886,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testConstructor()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new java.util.List<String>();
 				""");
@@ -883,7 +898,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testDiamond()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new java.util.List<>();
 				""");
@@ -895,7 +910,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Test
 	public void testConstructorWithoutTypeArguments()  {
-		formatterTestHelper.assertFormatted(expression -> {
+		assertFormatted(expression -> {
 			expression.setExpectation("""
 				new java.util.List();
 				""");
