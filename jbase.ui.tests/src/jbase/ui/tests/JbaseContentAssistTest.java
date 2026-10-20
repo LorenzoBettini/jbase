@@ -183,6 +183,6 @@ public class JbaseContentAssistTest extends AbstractContentAssistTest {
 			import java.util.LinkedList;
 
 			final LinkedList\
-			""");
+			""".replace("\n", System.lineSeparator()));
 	}
 }
