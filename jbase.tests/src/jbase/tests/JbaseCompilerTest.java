@@ -2047,6 +2047,56 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testCastPrecedenceOverDivision() throws Exception {
+		// https://github.com/LorenzoBettini/jbase/issues/145
+		checkCompilation("""
+			int somma = 15;
+			int numero = 6;
+			double media = (double) somma / numero;
+			""", """
+			package jbasetestlanguage;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    int somma = 15;
+			    int numero = 6;
+			    double media = (((double) somma) / numero);
+			  }
+			}
+			""");
+	}
+
+	@Test
+	public void testCastPrecedenceExecution() throws Exception {
+		assertExecuteMain("""
+			op testMe() : void {
+				int somma = 15;
+				int numero = 6;
+				System.out.println((double) somma / numero);
+				System.out.println((double) (somma / numero));
+				System.out.println((double) -somma / numero);
+				System.out.println((double) +15 / numero);
+				System.out.println((double) (int) 15.9 / numero);
+				System.out.println(2 * (int) 2.9 + 1);
+				System.out.println((int) ~somma + numero);
+				System.out.println((boolean) !false && false);
+				System.out.println((double) somma++ / numero);
+			}
+			""", """
+			2.5
+			2.0
+			-2.5
+			2.5
+			2.5
+			5
+			-10
+			false
+			2.5
+			""");
+	}
+
+	@Test
 	public void testConditionalExpression() throws Exception {
 		checkCompilation("""
 			int i = 0;
@@ -2672,7 +2722,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			@SuppressWarnings("all")
 			public class MyFile {
 			  public static void main(String[] args) throws Throwable {
-			    try (FileReader fr1 = new Function0<FileReader>() {
+			    try (final FileReader fr1 = new Function0<FileReader>() {
 			      @Override
 			      public FileReader apply() {
 			        try {
@@ -2681,7 +2731,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			          throw Exceptions.sneakyThrow(_e);
 			        }
 			      }
-			    }.apply(); FileReader fr2 = new Function0<FileReader>() {
+			    }.apply(); final FileReader fr2 = new Function0<FileReader>() {
 			      @Override
 			      public FileReader apply() {
 			        try {

@@ -278,6 +278,35 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testVarDeclarations() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				var  value=1;final   var  text= "hello";
+				for(final  var  item:new String[]{text}){System.out.println(item);}
+				try(final  var  input=new java.io.StringReader(text)){input.read();}
+				""");
+			request.setExpectation("""
+				var value = 1;
+				final var text = "hello";
+				for (final var item : new String[] {text}) {
+					System.out.println(item);
+				}
+				try (final var input = new java.io.StringReader(text)) {
+					input.read();
+				}
+				""");
+		});
+	}
+
+	@Test
+	public void testVarIdentifier() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("int  var ; var  value=1; final   var var=2;");
+			request.setExpectation("int var;\nvar value = 1;\nfinal var var = 2;\n");
+		});
+	}
+
+	@Test
 	public void testVariableDeclaration() {
 		assertFormatted(expression -> {
 			expression.setExpectation("""

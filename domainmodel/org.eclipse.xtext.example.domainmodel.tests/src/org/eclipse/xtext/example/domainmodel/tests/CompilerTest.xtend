@@ -1,8 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2012, 2019 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
-import org.eclipse.xtext.testing.TemporaryFolder
 import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.TemporaryFolder
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.xbase.lib.util.ReflectExtensions
 import org.eclipse.xtext.xbase.testing.CompilationTestHelper
@@ -15,14 +23,32 @@ import static org.junit.Assert.*
 @RunWith(XtextRunner)
 @InjectWith(DomainmodelInjectorProvider)
 class CompilerTest {
-	
+
 	@Rule
-	@Inject public TemporaryFolder temporaryFolder 
+	@Inject public TemporaryFolder temporaryFolder
 	@Inject extension CompilationTestHelper
 	@Inject extension ReflectExtensions
-	
-	@Test
-	def void testGeneratedJava() {
+
+	@Test def void testJavaLambdaWithInferredLocals() throws Exception {
+		'''
+			import java.util.function.IntUnaryOperator;
+			entity Foo {
+				op calculate(int input):int {
+					final var offset = 2;
+					var add = (IntUnaryOperator) n -> {
+						var result = n + offset;
+						return result;
+					};
+					return add.applyAsInt(input);
+				}
+			}
+		'''.compile [
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(5, obj.invoke('calculate', 3))
+		]
+	}
+
+	@Test def void testGeneratedJava() throws Exception {
 		'''
 			entity Foo {
 				name : String
@@ -31,14 +57,13 @@ class CompilerTest {
 				}
 			}
 		'''.compile [
-			val obj = it.compiledClass.getConstructor().newInstance
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
 			obj.invoke('setName', 'Foo')
 			assertEquals("Hello Foo", obj.invoke('doStuff','Hello'))
 		]
 	}
 
-	@Test
-	def void testGeneratedJavaFromSeveralInputs() {
+	@Test def void testGeneratedJavaFromSeveralInputs() throws Exception {
 		#[
 		'''
 			entity Foo {
@@ -54,16 +79,38 @@ class CompilerTest {
 			}
 		'''
 		].compile [
-			val barObj = it.getCompiledClass("Bar").getConstructor().newInstance
+			val barObj = it.getCompiledClass("Bar").getDeclaredConstructor().newInstance
 			barObj.invoke('setName', 'Bar')
-			val fooObj = it.getCompiledClass("Foo").getConstructor().newInstance
+			val fooObj = it.getCompiledClass("Foo").getDeclaredConstructor().newInstance
 			fooObj.invoke('setBar', barObj)
 			assertEquals("Hello Bar", fooObj.invoke('doStuff','Hello'))
 		]
 	}
-	
-	@Test
-	def void compareGeneratedJava() {
+
+	@Test def void testGeneratedJavaInheritedMethod() throws Exception {
+		#[
+		'''
+			entity Foo extends Bar {
+				// getName and setName inherited from Bar
+				op doStuff(String x) : String {
+					return x + " " + getName();
+				}
+			}
+		''',
+		'''
+			entity Bar {
+				name : String
+			}
+		'''
+		].compile [
+			val fooObj = it.getCompiledClass("Foo").getDeclaredConstructor().newInstance
+			fooObj.invoke('setName', 'World')
+			assertEquals("Hello World", fooObj.invoke('doStuff','Hello'))
+		]
+	}
+
+
+	@Test def void compareGeneratedJava() throws Exception {
 		'''
 			entity Foo {
 				name : String
@@ -71,26 +118,26 @@ class CompilerTest {
 		'''.compile[assertEquals('''
 			import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 			import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
-			
+
 			@SuppressWarnings("all")
 			public class Foo {
 			  public Foo() {
 			  }
-			
+
 			  public Foo(Procedure1<Foo> initializer) {
 			    initializer.apply(this);
 			  }
-			
+
 			  private String name;
-			
+
 			  public String getName() {
 			    return this.name;
 			  }
-			
+
 			  public void setName(String name) {
 			    this.name = name;
 			  }
-			
+
 			  @Override
 			  public String toString() {
 			    String result = new ToStringBuilder(this).addAllFields().toString();
@@ -101,14 +148,195 @@ class CompilerTest {
 		]
 	}
 
+	@Test def void testGeneratedJavaWithOverloadedMethods() throws Exception {
+		'''
+			entity Foo {
+				op doStuff(String x) : String {
+					return x;
+				}
+				op doStuff(int i) : String {
+					return "int "+i;
+				}
+			}
+		'''.compile [
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			assertEquals("Hello", obj.invoke('doStuff','Hello'))
+			assertEquals("int 10", obj.invoke('doStuff',10))
+		]
+	}
+
+	@Test def void testExplicitGetterReplacesGeneratedOne() throws Exception {
+		'''
+			entity Foo {
+				name : String
+				/** explicit getter will replace the generated one */
+				op getName() {
+					return name.toUpperCase();
+				}
+			}
+		'''.compile[
+			assertEquals('''
+				import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+				import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+
+				@SuppressWarnings("all")
+				public class Foo {
+				  public Foo() {
+				  }
+
+				  public Foo(Procedure1<Foo> initializer) {
+				    initializer.apply(this);
+				  }
+
+				  private String name;
+
+				  public void setName(String name) {
+				    this.name = name;
+				  }
+
+				  /**
+				   * explicit getter will replace the generated one
+				   */
+				  public String getName() {
+				    return this.name.toUpperCase();
+				  }
+
+				  @Override
+				  public String toString() {
+				    String result = new ToStringBuilder(this).addAllFields().toString();
+				    return result;
+				  }
+				}
+			'''.toString, getSingleGeneratedCode
+			)
+			// make sure it compiles in Java
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			obj.invoke('setName', "hello")
+			assertEquals("HELLO", obj.invoke('getName'))
+		]
+	}
+
+	@Test def void testExplicitSetterReplacesGeneratedOne() throws Exception {
+		'''
+			entity Foo {
+				name : String
+				/** explicit setter will replace the generated one,
+					even if it's not void */
+				op setName(String name) : String {
+					return this.name = name.toUpperCase();
+				}
+			}
+		'''.compile[
+			assertEquals('''
+				import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+				import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+
+				@SuppressWarnings("all")
+				public class Foo {
+				  public Foo() {
+				  }
+
+				  public Foo(Procedure1<Foo> initializer) {
+				    initializer.apply(this);
+				  }
+
+				  private String name;
+
+				  public String getName() {
+				    return this.name;
+				  }
+
+				  /**
+				   * explicit setter will replace the generated one,
+				   * even if it's not void
+				   */
+				  public String setName(String name) {
+				    return this.name = name.toUpperCase();
+				  }
+
+				  @Override
+				  public String toString() {
+				    String result = new ToStringBuilder(this).addAllFields().toString();
+				    return result;
+				  }
+				}
+			'''.toString, getSingleGeneratedCode
+			)
+			// make sure it compiles in Java
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			assertEquals("HELLO", obj.invoke('setName', "hello"))
+			assertEquals("HELLO", obj.invoke('getName'))
+		]
+	}
+
+	@Test def void testExplicitGetterSetterReplaceGeneratedOnes() throws Exception {
+		'''
+			entity Foo {
+				name : String
+				/** explicit getter will replace the generated one */
+				op getName() {
+					return name.toUpperCase();
+				}
+				/** explicit setter will replace the generated one,
+					even if it's not void */
+				op setName(String name) : String {
+					return this.name = name.toUpperCase();
+				}
+			}
+		'''.compile[
+			assertEquals('''
+				import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+				import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+
+				@SuppressWarnings("all")
+				public class Foo {
+				  public Foo() {
+				  }
+
+				  public Foo(Procedure1<Foo> initializer) {
+				    initializer.apply(this);
+				  }
+
+				  private String name;
+
+				  /**
+				   * explicit getter will replace the generated one
+				   */
+				  public String getName() {
+				    return this.name.toUpperCase();
+				  }
+
+				  /**
+				   * explicit setter will replace the generated one,
+				   * even if it's not void
+				   */
+				  public String setName(String name) {
+				    return this.name = name.toUpperCase();
+				  }
+
+				  @Override
+				  public String toString() {
+				    String result = new ToStringBuilder(this).addAllFields().toString();
+				    return result;
+				  }
+				}
+			'''.toString, getSingleGeneratedCode
+			)
+			// make sure it compiles in Java
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			assertEquals("HELLO", obj.invoke('setName', "hello"))
+			assertEquals("HELLO", obj.invoke('getName'))
+		]
+	}
+
 	@Test
 	def void testAnnotations() {
 		'''
 			import org.junit.Test;
-			
+
 			entity Foo {
 				bar : String
-				
+
 				@Test
 				op doStuff(String x) : String {
 					return x + " " + bar;
@@ -120,31 +348,31 @@ class CompilerTest {
 			import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 			import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 			import org.junit.Test;
-			
+
 			@SuppressWarnings("all")
 			public class Foo {
 			  public Foo() {
 			  }
-			
+
 			  public Foo(Procedure1<Foo> initializer) {
 			    initializer.apply(this);
 			  }
-			
+
 			  private String bar;
-			
+
 			  public String getBar() {
 			    return this.bar;
 			  }
-			
+
 			  public void setBar(String bar) {
 			    this.bar = bar;
 			  }
-			
+
 			  @Test
 			  public String doStuff(String x) {
 			    return ((x + " ") + this.bar);
 			  }
-			
+
 			  @Override
 			  public String toString() {
 			    String result = new ToStringBuilder(this).addAllFields().toString();

@@ -1,7 +1,8 @@
 # Jbase
 Jbase is a reusable Xtext Expression language: it is a customization of Xtext Xbase to deal with pure Java expressions and statements.
 
-[![Java CI with Maven](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml/badge.svg)](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml) [![Coverage Status](https://coveralls.io/repos/LorenzoBettini/jbase/badge.svg?branch=master&service=github)](https://coveralls.io/github/LorenzoBettini/jbase?branch=master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=io.github.lorenzobettini.jbase%3Ajbase.releng&metric=alert_status)](https://sonarcloud.io/dashboard?id=io.github.lorenzobettini.jbase%3Ajbase.releng)
+[![Java CI with Maven](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml/badge.svg)](https://github.com/LorenzoBettini/jbase/actions/workflows/maven.yml) [![Coverage Status](https://coveralls.io/repos/LorenzoBettini/jbase/badge.svg?branch=master&service=github)](https://coveralls.io/github/LorenzoBettini/jbase?branch=master)
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=LorenzoBettini_jbase&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=LorenzoBettini_jbase)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.lorenzobettini.jbase/jbase.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.lorenzobettini.jbase%22%20AND%20a:%22jbase%22)
 
 ## Eclipse Update Site (new URL)
@@ -58,7 +59,7 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
-### Java lambda expressions
+## Java lambda expressions
 
 Lambda expressions use Java syntax and a functional interface as their target type:
 
@@ -76,6 +77,33 @@ Parameter types can be inferred or declared explicitly. Block bodies use explici
 `return` statements for results. Captured local variables must be final or
 effectively final. Lambdas are represented by Xbase's `XClosure`, reusing its
 functional interface typing and Java generation. Method references are not supported.
+
+## Local variable type inference
+
+Jbase supports Java's `var` and `final var` for local variables, basic and enhanced
+`for` loops, and `try`-with-resources declarations:
+
+```java
+var count = 0;
+final var names = new java.util.ArrayList<String>();
+for (var i = 0; i < 3; i++) {
+    count += i;
+}
+for (final var name : names) {
+    System.out.println(name);
+}
+try (var input = new java.io.StringReader("hello")) {
+    System.out.println(input.read());
+}
+```
+
+The inferred type stays fixed after initialization. Local `var` declarations need
+one variable and an initializer; `null` and bare array initializers such as `{1, 2}`
+cannot supply the type. Use `new int[] {1, 2}` for an inferred array type.
+Lambdas also need an explicit target type, for example
+`var task = (Runnable) () -> System.out.println("hello");`.
+`var` is not supported for method or catch parameters. Resource variables are
+implicitly final, and `var` remains valid as a variable or method name.
 
 ## Contribute to Jbase
 

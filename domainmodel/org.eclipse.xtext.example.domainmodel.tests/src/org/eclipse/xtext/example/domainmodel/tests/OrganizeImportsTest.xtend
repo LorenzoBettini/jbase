@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2013, 2019 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
@@ -16,14 +24,14 @@ import static org.junit.Assert.*
 /**
  * @author Jan Koehnlein - copied and adapted from Xtend
  */
-@RunWith(typeof(XtextRunner))
-@InjectWith(typeof(DomainmodelInjectorProvider))
+@RunWith(XtextRunner)
+@InjectWith(DomainmodelInjectorProvider)
 class OrganizeImportsTest {
-	
-	@Inject extension ParseHelper<DomainModel> 
+
+	@Inject extension ParseHelper<DomainModel>
 	@Inject ImportOrganizer importOrganizer
 
-	def protected assertIsOrganizedTo(CharSequence model, CharSequence expected) {
+	def protected assertIsOrganizedTo(CharSequence model, CharSequence expected) throws Exception {
 		val domainModel = parse(model.toString)
 		val changes = importOrganizer.getOrganizedImportChanges(domainModel.eResource as XtextResource)
 		val builder = new StringBuilder(model)
@@ -39,21 +47,21 @@ class OrganizeImportsTest {
 		assertEquals(expected.toString, builder.toString)
 	}
 
-	@Test def testSimple() {
+	@Test def testSimple() throws Exception {
 		'''
 			package foo {
 				entity Foo extends java.io.Serializable {}
 			}
 		'''.assertIsOrganizedTo('''
 			import java.io.Serializable;
-			
+
 			package foo {
 				entity Foo extends Serializable {}
 			}
 		''')
 	}
 
-	@Test def testDefaultPackage() {
+	@Test def testDefaultPackage() throws Exception {
 		'''
 			entity Foo extends java.io.Serializable {}
 		'''.assertIsOrganizedTo('''
@@ -63,10 +71,10 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testDefaultPackageLeadingWhitespace() {
+	@Test def testDefaultPackageLeadingWhitespace() throws Exception {
 		'''
 			«»
-			   	
+
 			entity Foo extends java.io.Serializable {}
 		'''.assertIsOrganizedTo('''
 			import java.io.Serializable;
@@ -75,7 +83,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testDefaultPackageWithJavaDoc() {
+	@Test def testDefaultPackageWithJavaDoc() throws Exception {
 		'''
 			/**
 			 * some doc
@@ -91,7 +99,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testGetOrganizedImportSection_01() {
+	@Test def testGetOrganizedImportSection_01() throws Exception {
 		'''
 			import java.lang.String;
 			import java.util.List;
@@ -108,7 +116,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testGetOrganizedImportSection_02() {
+	@Test def testGetOrganizedImportSection_02() throws Exception {
 		'''
 			import java.lang.String;
 			import java.util.List;
@@ -128,7 +136,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testGetOrganizedImportSection_03() {
+	@Test def testGetOrganizedImportSection_03() throws Exception {
 		'''
 			import java.util.*;
 
@@ -151,7 +159,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testGetOrganizedImportSection_04() {
+	@Test def testGetOrganizedImportSection_04() throws Exception {
 		'''
 			import java.util.*;
 			import java.io.*;
@@ -175,7 +183,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testInnerClasses_01() {
+	@Test def testInnerClasses_01() throws Exception {
 		'''
 			entity Foo {
 			  op test(org.eclipse.emf.ecore.resource.Resource$Factory a, org.eclipse.emf.ecore.resource.Resource$Factory$Registry b) : void {}
@@ -189,7 +197,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testInnerClasses_02() {
+	@Test def testInnerClasses_02() throws Exception {
 		'''
 			import org.eclipse.emf.ecore.resource.Resource;
 			import org.eclipse.emf.ecore.EPackage;
@@ -213,7 +221,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testInnerClasses_03() {
+	@Test def testInnerClasses_03() throws Exception {
 		'''
 			entity Foo {
 			  op test() : boolean {
@@ -231,7 +239,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testInnerClasses_04() {
+	@Test def testInnerClasses_04() throws Exception {
 		'''
 			import org.eclipse.emf.ecore.resource.Resource;
 			import org.eclipse.emf.ecore.EPackage;
@@ -253,7 +261,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testInnerClasses_05() {
+	@Test def testInnerClasses_05() throws Exception {
 		'''
 			import org.eclipse.emf.ecore.resource.Resource$Factory$Registry;
 
@@ -273,7 +281,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashSameFileWins_1() {
+	@Test def testNameClashSameFileWins_1() throws Exception {
 		'''
 			package foo {
 				entity Foo {
@@ -293,7 +301,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashSameFileWins() {
+	@Test def testNameClashSameFileWins() throws Exception {
 		'''
 			package foo {
 				entity Foo extends java.io.Serializable{}
@@ -309,7 +317,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashOrder_01() {
+	@Test def testNameClashOrder_01() throws Exception {
 		'''
 			entity Foo {
 			  op test(java.util.List<String> s) : java.awt.List {
@@ -327,7 +335,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashOrder_02() {
+	@Test def testNameClashOrder_02() throws Exception {
 		'''
 			entity Foo {
 			  op test(java.awt.List<String> s) : java.util.List  {
@@ -345,7 +353,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashMoreCommon() {
+	@Test def testNameClashMoreCommon() throws Exception {
 		'''
 			entity Foo {
 			  op test(java.awt.List s) : java.util.List<String> {
@@ -365,7 +373,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testNameClashInnerClasses() {
+	@Test def testNameClashInnerClasses() throws Exception {
 		'''
 			import org.eclipse.xtext.xbase.XbasePackage;
 			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
@@ -385,8 +393,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-
-	@Test def testNameClashInnerClassesWithPreference() {
+	@Test def testNameClashInnerClassesWithPreference() throws Exception {
 		'''
 			import org.eclipse.xtext.xbase.XbasePackage$Literals;
 			import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
@@ -406,7 +413,204 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testArrayType() {
+	@Test def testStaticImport_01() throws Exception {
+		'''
+			import static java.util.Collections.*;
+			entity Foo {
+			  op test(java.util.List<String> s) : void {
+			    shuffle(s);
+			  }
+			}
+		'''.assertIsOrganizedTo('''
+			import java.util.List;
+
+			import static java.util.Collections.*;
+
+			entity Foo {
+			  op test(List<String> s) : void {
+			    shuffle(s);
+			  }
+			}
+		''')
+	}
+
+
+
+
+
+
+
+	@Test def testInnerClassImport_01() throws Exception {
+		'''
+			import java.util.Map$Entry;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Entry {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import java.util.Map.Entry;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Entry {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testInnerClassImport_02() throws Exception {
+		'''
+			import java.util.Map;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Map$Entry {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import java.util.Map;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Map.Entry {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testInnerClassImport_03() throws Exception {
+		'''
+			import java.util.Map$Entry;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Map$Entry {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import java.util.Map;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Map.Entry {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testInnerClassImport_04() throws Exception {
+		'''
+			import org.eclipse.emf.ecore.resource.Resource;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Resource$Factory$Descriptor {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import org.eclipse.emf.ecore.resource.Resource;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Resource.Factory.Descriptor {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testInnerClassImport_05() throws Exception {
+		'''
+			import org.eclipse.emf.ecore.resource.Resource$Factory$Descriptor;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Resource$Factory$Descriptor {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import org.eclipse.emf.ecore.resource.Resource;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Resource.Factory.Descriptor {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testInnerClassImport_06() throws Exception {
+		'''
+			import org.eclipse.emf.ecore.resource.Resource$Factory$Descriptor;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Descriptor {
+				    return null;
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import org.eclipse.emf.ecore.resource.Resource.Factory.Descriptor;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Descriptor {
+				    return null;
+				  }
+				}
+			}
+		''')
+	}
+
+
+
+	@Test def testImport_PairOf() throws Exception {
+		'''
+			import static org.eclipse.xtext.xbase.lib.Pair.*;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Object {
+				    return of("", "");
+				  }
+				}
+			}
+		'''.assertIsOrganizedTo('''
+			import static org.eclipse.xtext.xbase.lib.Pair.*;
+
+			package foo.bar {
+				entity Foo {
+				  op test() : Object {
+				    return of("", "");
+				  }
+				}
+			}
+		''')
+	}
+
+	@Test def testArrayType() throws Exception {
 		'''
 			import java.io.Serializable;
 
@@ -430,7 +634,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testClassWithSameName() {
+	@Test def testClassWithSameName() throws Exception {
 		'''
 			package foo.bar {
 				entity Serializable {
@@ -446,7 +650,7 @@ class OrganizeImportsTest {
 		''')
 	}
 
-	@Test def testJavaDoc() {
+	@Test def testJavaDoc() throws Exception {
 		'''
 			/**
 			 * {@link java.util.List}
@@ -454,15 +658,15 @@ class OrganizeImportsTest {
 			entity Foo {}
 		'''.assertIsOrganizedTo('''
 			import java.util.List;
-			
+
 			/**
 			 * {@link List}
 			 */
 			entity Foo {}
 		''')
 	}
-	
-	@Test def testLocalNameClash() {
+
+	@Test def testLocalNameClash() throws Exception {
 		'''
 			package foo {
 				entity Referrer {
@@ -499,8 +703,8 @@ class OrganizeImportsTest {
 			}
 		''')
 	}
-	
-	@Test def testSamePackage() {
+
+	@Test def testSamePackage() throws Exception {
 		'''
 			package bar {
 				entity Foo {}
@@ -517,8 +721,8 @@ class OrganizeImportsTest {
 			}
 		''')
 	}
-	
-	@Test def testSuperPackage() {
+
+	@Test def testSuperPackage() throws Exception {
 		'''
 			package bar {
 				entity Foo {}
@@ -530,7 +734,7 @@ class OrganizeImportsTest {
 			}
 		'''.assertIsOrganizedTo('''
 			import bar.Foo;
-			
+
 			package bar {
 				entity Foo {}
 				package baz {
@@ -541,11 +745,11 @@ class OrganizeImportsTest {
 			}
 		''')
 	}
-	
-	@Test def testSubPackage() {
+
+	@Test def testSubPackage() throws Exception {
 		'''
 			import bar.Foo;
-			
+
 			package bar {
 				entity Foo {
 					bar : bar.baz.Bar
@@ -556,7 +760,7 @@ class OrganizeImportsTest {
 			}
 		'''.assertIsOrganizedTo('''
 			import bar.baz.Bar;
-			
+
 			package bar {
 				entity Foo {
 					bar : Bar
@@ -567,5 +771,4 @@ class OrganizeImportsTest {
 			}
 		''')
 	}
-	
 }

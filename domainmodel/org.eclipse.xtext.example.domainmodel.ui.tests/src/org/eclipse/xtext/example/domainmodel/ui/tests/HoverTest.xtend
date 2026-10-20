@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2018, 2026 itemis AG (http://www.itemis.eu) and others.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
@@ -8,6 +8,9 @@
  *******************************************************************************/
 package org.eclipse.xtext.example.domainmodel.ui.tests
 
+import com.google.inject.Inject
+import org.eclipse.jface.text.Region
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner
 import org.eclipse.xtext.ui.testing.AbstractHoverTest
@@ -24,6 +27,8 @@ import static extension org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.c
 @InjectWith(DomainmodelUiInjectorProvider)
 class HoverTest extends AbstractHoverTest {
 
+	@Inject ValidationTestHelper validationTestHelper
+
 	@Before def void setup() throws Exception {
 		/*
 		 * Xbase-based languages require java project
@@ -34,7 +39,7 @@ class HoverTest extends AbstractHoverTest {
 	@Test def hover_over_import_statement() {
 		'''
 			import java.util.List
-			
+
 			entity Foo {
 				bar : List<String>
 			}
@@ -63,7 +68,7 @@ class HoverTest extends AbstractHoverTest {
 			entity Foo {
 				name : Object
 			}
-		'''.hasHoverOver("Object", '''is the root of the class hierarchy.''')
+		'''.hasHoverOver("Object", '''</code> is the root of the class hierarchy.''')
 	}
 
 	@Test def hover_over_entity_typed_property() {
@@ -71,7 +76,7 @@ class HoverTest extends AbstractHoverTest {
 			entity Foo {
 				b : Bar
 			}
-			
+
 			entity Bar {}
 		'''.hasHoverOver("b", '''Property b : Bar''')
 	}
@@ -81,7 +86,7 @@ class HoverTest extends AbstractHoverTest {
 			entity Foo {
 				b : Bar
 			}
-			
+
 			/**
 			 * Documentation of the entity Bar.
 			 */
@@ -93,10 +98,33 @@ class HoverTest extends AbstractHoverTest {
 		'''
 			entity Foo {
 				b : String
-				op : getB() {
-					b
+				op getB() {
+					return b;
 				}
 			}
-		'''.hasHoverOver("getB", '''getB() : String''')
+		'''.hasValidHoverOver("getB", '''getB() : String''')
 	}
+
+	@Test def hover_over_operation_with_explicit_return_type() {
+		'''
+			entity Foo {
+				b : String
+				op setB(String b) : void {
+					this.b = b;
+				}
+			}
+		'''.hasValidHoverOver("setB", '''setB(String b) : void''')
+	}
+
+	private def void hasValidHoverOver(CharSequence source, String hoverText, String expected) {
+		val file = dslFile(projectName, fileName, fileExtension, source)
+		val editor = openInEditor(file)
+		editor.document.readOnly [ resource |
+			validationTestHelper.assertNoErrors(resource.contents.head)
+			null
+		]
+		val region = new Region(source.toString.indexOf(hoverText), hoverText.length)
+		hoverPopupHasContent(hoveringOver(file, region), expected)
+	}
+
 }

@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
+import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XInstanceOfExpression;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
@@ -26,7 +27,9 @@ import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationStat
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference;
 import org.eclipse.xtext.xbase.typesystem.references.ITypeReferenceOwner;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+import org.eclipse.xtext.xbase.typesystem.references.UnboundTypeReference;
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
+import org.eclipse.xtext.xbase.validation.IssueCodes;
 
 import com.google.inject.Inject;
 
@@ -39,6 +42,7 @@ import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
+import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.validation.JbaseIssueCodes;
@@ -243,12 +247,67 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		return super.reassignCheckedType(condition, guardedExpression, state);
 	}
 
+	@Override
+	protected LightweightTypeReference computeForLoopParameterType(final XForLoopExpression loop,
+			final ITypeComputationState state) {
+		if (loop.getDeclaredParam().getParameterType() != null) {
+			return super.computeForLoopParameterType(loop, state);
+		}
+		// The iterable has no target type in Java. In particular, a raw Iterable must
+		// not acquire an unconstrained element type from an Iterable<?> expectation.
+		final var type = inferLocalType(loop.getForExpression(), state);
+		if (type == null) {
+			return null;
+		}
+		if (!type.isArray() && !type.isSubtypeOf(Iterable.class)) {
+			state.addDiagnostic(new EObjectDiagnosticImpl(Severity.ERROR,
+				IssueCodes.INCOMPATIBLE_TYPES, "Can only iterate over an array or an Iterable",
+				loop, XbasePackage.Literals.XFOR_LOOP_EXPRESSION__FOR_EXPRESSION, -1, null));
+		}
+		if (type.isRawType()) {
+			return state.getReferenceOwner().newReferenceToObject();
+		}
+		return getElementOrComponentType(type, state.getReferenceOwner());
+	}
+
 	private void computeJbaseTypes(final XJVariableDeclaration object,
 			final ITypeComputationState state) {
-		super._computeTypes(object, state);
+		if (object.getType() == null) {
+			// Java var initializers have no target type, even in a resource declaration.
+			state.withinScope(object);
+			final var type = inferLocalType(object.getRight(), state);
+			state.assignType(object, type, false);
+			state.acceptActualType(getPrimitiveVoid(state));
+		} else {
+			super._computeTypes(object, state);
+		}
 		// and also compute types for possible additional declarations
 		for (var additional : object.getAdditionalVariables()) {
 			state.withoutExpectation().computeTypes(additional);
+		}
+	}
+
+	private LightweightTypeReference inferLocalType(final XExpression initializer,
+			final ITypeComputationState state) {
+		final var type = state.withNonVoidExpectation().computeTypes(initializer)
+			.getActualExpressionType();
+		// Xbase treats omitted type arguments like a diamond. Java keeps them raw.
+		if (initializer instanceof XJConstructorCall call && !call.isExplicitTypeArguments()) {
+			return type.getRawTypeReference();
+		}
+		// Complete inference here so later uses cannot supply a target type for var.
+		if (type != null) {
+			resolveTypeArguments(type);
+		}
+		return type;
+	}
+
+	private void resolveTypeArguments(final LightweightTypeReference type) {
+		if (type instanceof UnboundTypeReference unbound) {
+			unbound.resolve();
+		}
+		for (final var argument : type.getTypeArguments()) {
+			resolveTypeArguments(argument);
 		}
 	}
 
@@ -379,10 +438,15 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final LightweightTypeReference type, final ITypeComputationState state,
 			final EStructuralFeature featureForError) {
 		var currentType = type;
-		for (var index : arrayAccess.getIndexes()) {
+		// Each index removes one array dimension: for int[][] a, a[0] has type int[],
+		// while a[0][1] has type int. Only the number of indexes matters here;
+		// their expressions are checked separately by checkArrayIndexHasTypeInt.
+		var size = arrayAccess.getIndexes().size();
+		for (var i = 0; i < size; i++) {
 			if (currentType instanceof ArrayTypeReference arrayType) {
 				currentType = arrayType.getComponentType();
 			} else {
+				// An index applied after all array dimensions are consumed is invalid.
 				var diagnostic = new EObjectDiagnosticImpl(Severity.ERROR,
 					JbaseIssueCodes.NOT_ARRAY_TYPE,
 					"The type of the expression must be an array type but it resolved to "

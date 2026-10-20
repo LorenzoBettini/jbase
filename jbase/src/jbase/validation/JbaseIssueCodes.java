@@ -6,6 +6,8 @@ public class JbaseIssueCodes {
 
 	public static final String PREFIX = "jbase.";
 
+	public static final String INVALID_VAR_DECLARATION = PREFIX + "InvalidVarDeclaration";
+
 	public static final String NOT_ARRAY_TYPE = PREFIX + "NotArrayType";
 
 	public static final String INVALID_BRANCHING_STATEMENT = PREFIX + "InvalidBranchingStatement";

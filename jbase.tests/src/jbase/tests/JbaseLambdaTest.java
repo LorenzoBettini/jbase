@@ -30,6 +30,38 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 	private IBatchTypeResolver typeResolver;
 
 	@Test
+	public void lambdasWithInferredLocals() throws Exception {
+		assertExecuteMain("""
+			method testMe() {
+				final var offset = 2;
+				var add = (java.util.function.IntUnaryOperator) n -> {
+					var result = n + offset;
+					return result;
+				};
+				for (var value : new int[] {1, 2}) {
+					java.util.function.IntSupplier read = () -> add.applyAsInt(value);
+					System.out.println(read.getAsInt());
+				}
+			}
+			""", "3\n4\n");
+	}
+
+	@Test
+	public void inferredLocalLambdaNeedsTargetType() throws Exception {
+		assertLambdaError("var task = () -> {};", JbaseIssueCodes.INVALID_LAMBDA);
+		assertLambdaError("final var value = n -> n;", JbaseIssueCodes.INVALID_LAMBDA);
+	}
+
+	@Test
+	public void inferredCapturesMustBeEffectivelyFinal() throws Exception {
+		assertLambdaError("""
+			var n = 1;
+			java.util.function.IntSupplier read = () -> n;
+			n++;
+			""", JbaseIssueCodes.NON_EFFECTIVELY_FINAL_CAPTURE);
+	}
+
+	@Test
 	public void inferredParameterType() throws Exception {
 		final var model = modelParser.parse("""
 			java.util.function.Function<String, Integer> length = s -> s.length();

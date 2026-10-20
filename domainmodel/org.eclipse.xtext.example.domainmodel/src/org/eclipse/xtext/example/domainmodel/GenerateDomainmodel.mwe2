@@ -63,7 +63,7 @@ Workflow {
 			}
 			formatter = {
 				generateStub = true
-				generateXtendStub = true
+				generateXtendStub = false
 			}
 			generator = {
 				generateStub = false
