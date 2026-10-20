@@ -84,13 +84,13 @@ public class JbaseModelUtilTest extends JbaseAbstractTest {
 	}
 
 	@Test
-	public void testOriginalParamWithJbaseParam() throws Exception {
+	public void testOriginalParamWithJbaseParam() {
 		final var p = JbaseFactory.eINSTANCE.createXJJvmFormalParameter();
 		assertSame(p, jbaseModelUtil.getOriginalParam(p));
 	}
 
 	@Test
-	public void testOriginalParamWithoutJvmModelAssociations() throws Exception {
+	public void testOriginalParamWithoutJvmModelAssociations() {
 		final var p = TypesFactory.eINSTANCE.createJvmFormalParameter();
 		assertNull(jbaseModelUtil.getOriginalParam(p));
 	}

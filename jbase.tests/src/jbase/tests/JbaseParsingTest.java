@@ -234,7 +234,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	public void testArrayConstructorCallWithDimensionsAndIncompleteArrayLiteral() throws Exception {
 		assertLastExpression("""
 			int[] a = new int[][][] {
-			""", expression -> getVariableDeclarationRightAsArrayConstructorCall(expression));
+			""", this::getVariableDeclarationRightAsArrayConstructorCall);
 	}
 
 	@Test
@@ -405,7 +405,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 		assertLastExpression("""
 			int[][] arr;
 			arr[0].length;
-			""", expression -> getMemberCallTargetArrayAccess(expression));
+			""", this::getMemberCallTargetArrayAccess);
 	}
 
 	@Test
@@ -423,7 +423,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	public void testIncompleteCastedExpressionParsedAsParenthesizedExpression() throws Exception {
 		assertLastExpression("""
 			(int) ;
-			""", expression -> getFeatureCall(expression));
+			""", this::getFeatureCall);
 	}
 
 	@Test

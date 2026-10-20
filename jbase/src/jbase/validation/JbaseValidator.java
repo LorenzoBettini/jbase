@@ -114,12 +114,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		if (target instanceof XVariableDeclaration variable
 				&& variable.getType() instanceof JvmGenericArrayTypeReference
-				&& !super.isLocallyUsed(target, containerToFindUsage)) {
-			// assigning to one of its elements should mark it as used
-			if (XbaseUsageCrossReferencer.find(target, containerToFindUsage).stream()
-					.anyMatch(reference -> reference.getEObject() instanceof XJAssignment)) {
-				return true;
-			}
+				&& !super.isLocallyUsed(target, containerToFindUsage)
+				// assigning to one of its elements should mark it as used
+				&& XbaseUsageCrossReferencer.find(target, containerToFindUsage).stream()
+						.anyMatch(reference -> reference.getEObject() instanceof XJAssignment)) {
+			return true;
 		}
 		return super.isLocallyUsed(target, containerToFindUsage);
 	}

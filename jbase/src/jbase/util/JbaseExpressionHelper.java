@@ -32,6 +32,7 @@ public class JbaseExpressionHelper {
 		}, new StepCase() {
 			@Override
 			public void accept(final XUnaryOperation operation) {
+				// Only checking whether special handling is needed; no step action is required.
 			}
 		});
 	}

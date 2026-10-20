@@ -120,6 +120,7 @@ public class JbaseExpressionHelperTest extends JbaseAbstractTest {
 
 							@Override
 							public void accept(final XUnaryOperation operation) {
+								// No step action is needed when testing a failing base case.
 							}
 						})));
 	}
