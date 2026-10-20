@@ -106,7 +106,7 @@ XBlockExpression returns XExpression:
 XVariableDeclaration returns XVariableDeclaration:
 	=>({XJVariableDeclaration}
 	final?='final'?
-	type=JvmTypeReference name=ValidID) ('=' right=XExpression)?
+	(=>'var' | type=JvmTypeReference) name=ValidID) ('=' right=XExpression)?
 	(=>',' additionalVariables+=XJAdditionalXVariableDeclaration)*;
 	// the second predicate is to avoid ambiguities with for loops
 	// that already consider several variable declarations
@@ -234,12 +234,17 @@ XMemberFeatureCall returns XExpression:
 				')')?
 	)*;
 
-// in Java the type must be specified so we must use FullJvmFormalParameter instead of JvmFormalParameter
+// Enhanced-for parameters require an explicit type or the contextual keyword var.
 @Override 
 XForLoopExpression returns XExpression:
 	=>({XForLoopExpression}
-	'for' '(' declaredParam=FullJvmFormalParameter ':') forExpression=XExpression ')'
+	'for' '(' declaredParam=XJForLoopParameter ':') forExpression=XExpression ')'
 		eachExpression=XJStatementOrBlock;
+
+// Only enhanced-for parameters may infer their type from the iterable.
+XJForLoopParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'?
+	(=>'var' | parameterType=JvmTypeReference) name=ValidID;
 
 @Override 
 XBasicForLoopExpression returns XExpression:
@@ -310,7 +315,7 @@ XJTryWithResourcesStatement returns XExpression:
 XJTryWithResourcesVariableDeclaration:
 	{XJTryWithResourcesVariableDeclaration}
 	final?='final'?
-	type=JvmTypeReference name=ValidID '=' right=XExpression
+	(=>'var' | type=JvmTypeReference) name=ValidID '=' right=XExpression
 	semicolon=';'?
 ;
 
@@ -455,3 +460,7 @@ XAnnotationElementValue returns XExpression :
 	| XAnnotationOrExpression
 ;
 
+// Java's contextual keyword remains usable as a variable or member name.
+@Override
+ValidID:
+	ID | 'var';

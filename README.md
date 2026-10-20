@@ -59,6 +59,31 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
+## Local variable type inference
+
+Jbase supports Java's `var` and `final var` for local variables, basic and enhanced
+`for` loops, and `try`-with-resources declarations:
+
+```java
+var count = 0;
+final var names = new java.util.ArrayList<String>();
+for (var i = 0; i < 3; i++) {
+    count += i;
+}
+for (final var name : names) {
+    System.out.println(name);
+}
+try (var input = new java.io.StringReader("hello")) {
+    System.out.println(input.read());
+}
+```
+
+The inferred type stays fixed after initialization. Local `var` declarations need
+one variable and an initializer; `null` and bare array initializers such as `{1, 2}`
+cannot supply the type. Use `new int[] {1, 2}` for an inferred array type.
+`var` is not supported for method or catch parameters. Resource variables are
+implicitly final, and `var` remains valid as a variable or method name.
+
 ## Contribute to Jbase
 
 We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which is available from the official Oomph catalog.

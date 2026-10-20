@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
+import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmOperation;
 import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.validation.Check;
@@ -40,6 +41,8 @@ import jbase.jbase.JbasePackage;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayConstructorCall;
+import jbase.jbase.XJArrayLiteral;
+import jbase.jbase.XJVariableDeclaration;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -185,13 +188,35 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkAutoCloseableResource(final XJTryWithResourcesVariableDeclaration e) {
-		var declaredType = getActualType(e.getType().getType());
+		var declaredType = getActualType((JvmIdentifiableElement) e);
 		var autoCloseable = new StandardTypeReferenceOwner(getServices(), e)
 			.toLightweightTypeReference(getServices().getTypeReferences()
 				.getTypeForName(AutoCloseable.class, e));
 		if (!autoCloseable.isAssignableFrom(declaredType)) {
 			error("The resource type " + declaredType + " does not implement java.lang.AutoCloseable",
 				e, XBASE_PACKAGE.getXVariableDeclaration_Type(), NOT_AUTO_CLOSEABLE);
+		}
+	}
+
+	@Check
+	public void checkVarDeclaration(final XJVariableDeclaration declaration) {
+		if (declaration.getType() != null) {
+			return;
+		}
+		if (!declaration.getAdditionalVariables().isEmpty()) {
+			error("'var' is not allowed in a compound declaration", declaration,
+				XBASE_PACKAGE.getXVariableDeclaration_Name(), INVALID_VAR_DECLARATION);
+		}
+		final var initializer = declaration.getRight();
+		if (initializer == null) {
+			error("Cannot infer type for local variable without an initializer", declaration,
+				XBASE_PACKAGE.getXVariableDeclaration_Name(), INVALID_VAR_DECLARATION);
+		} else if (getActualType(initializer).isAny()) {
+			error("Cannot infer type for local variable initialized to 'null'", declaration,
+				XBASE_PACKAGE.getXVariableDeclaration_Right(), INVALID_VAR_DECLARATION);
+		} else if (initializer instanceof XJArrayLiteral) {
+			error("Array initializer needs an explicit target type", declaration,
+				XBASE_PACKAGE.getXVariableDeclaration_Right(), INVALID_VAR_DECLARATION);
 		}
 	}
 

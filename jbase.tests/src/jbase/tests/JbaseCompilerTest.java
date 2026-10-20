@@ -2722,7 +2722,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			@SuppressWarnings("all")
 			public class MyFile {
 			  public static void main(String[] args) throws Throwable {
-			    try (FileReader fr1 = new Function0<FileReader>() {
+			    try (final FileReader fr1 = new Function0<FileReader>() {
 			      @Override
 			      public FileReader apply() {
 			        try {
@@ -2731,7 +2731,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			          throw Exceptions.sneakyThrow(_e);
 			        }
 			      }
-			    }.apply(); FileReader fr2 = new Function0<FileReader>() {
+			    }.apply(); final FileReader fr2 = new Function0<FileReader>() {
 			      @Override
 			      public FileReader apply() {
 			        try {

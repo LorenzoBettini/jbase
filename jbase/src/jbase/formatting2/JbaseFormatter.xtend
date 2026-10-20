@@ -39,12 +39,15 @@ class JbaseFormatter extends XbasePatchedFormatter {
 
 	def dispatch void format(XJJvmFormalParameter param, extension IFormattableDocument document) {
 		super._format(param, document);
+		param.regionFor.keyword("var").append[oneSpace]
 		param.
 			regionFor.feature(JbasePackage.eINSTANCE.XJJvmFormalParameter_Final).
 			append[oneSpace]
 	}
 
 	def dispatch void format(XJVariableDeclaration expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("final").append[oneSpace]
+		expr.regionFor.keyword("var").append[oneSpace]
 		expr.type.append[oneSpace]
 		expr.regionFor.keyword("=").surround[oneSpace]
 		expr.type.format(document)

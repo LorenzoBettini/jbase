@@ -1,23 +1,18 @@
-/**
- * 
- */
 package jbase.jbase.impl;
 
+import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 
 /**
- * Custom implementation so that isWritable is always true.
- * 
- * @author Lorenzo Bettini
+ * Local variables are writable by default; resources are implicitly final.
  *
+ * @author Lorenzo Bettini
  */
-public class XJVariableDeclarationImplCustom extends XJVariableDeclarationImpl implements XJVariableDeclaration  {
+public class XJVariableDeclarationImplCustom extends XJVariableDeclarationImpl
+		implements XJVariableDeclaration {
 
 	@Override
 	public boolean isWriteable() {
-		// in our language all variable declarations are considered writable
-		// by default.
-		return !isFinal();
+		return !isFinal() && !(this instanceof XJTryWithResourcesVariableDeclaration);
 	}
-
 }
