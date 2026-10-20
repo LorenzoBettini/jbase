@@ -152,11 +152,13 @@ XClosure returns XExpression:
 		expression=XJLambdaBody
 ;
 
+// A declared parameter with no written type; XClosure.explicitSyntax still stays true.
 XJInferredLambdaParameter returns types::JvmFormalParameter:
 	{types::JvmFormalParameter} name=ValidID
 ;
 
 // Leave var's parameterType unset so Xbase infers it from the target interface.
+// Unlike an ordinary local var declaration, this does not infer a standalone initializer type.
 XJLambdaParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'?
 	(=>'var' | parameterType=XJLambdaParameterType) name=ValidID
@@ -282,6 +284,8 @@ XMemberFeatureCall returns XExpression:
 					)? 
 				')')?
 	)*
+	// Use Java reference semantics here, rather than Xbase's static-member access syntax.
+	// The subtype retains deferred XClosure argument typing without a synthetic lambda body.
 	(=>({XJMethodReference.receiver=current} '::')
 		('<' typeArguments+=JvmTypeReference (',' typeArguments+=JvmTypeReference)* '>')?
 		member=XJReferenceMember)?;
@@ -298,6 +302,8 @@ XJTypedMethodReference returns XExpression:
 	member=XJReferenceMember
 ;
 
+// The alternatives distinguish parameterized qualifiers from mandatory array suffixes.
+// Type arguments after :: belong to the executable and are parsed by the enclosing rule.
 XJReferenceType returns types::JvmTypeReference:
 	=>XJParameterizedReferenceType
 	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)*

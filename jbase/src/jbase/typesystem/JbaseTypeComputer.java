@@ -49,6 +49,10 @@ import jbase.jbase.XJVariableDeclaration;
 import jbase.validation.JbaseIssueCodes;
 
 /**
+ * Adapts Xbase computation to Java expressions and Jbase statement wrappers.
+ * Ordinary lambdas retain Xbase's closure inference; method references are dispatched
+ * to {@link JbaseMethodReferences} before that inference attempts to visit a lambda body.
+ *
  * @author Lorenzo Bettini
  */
 public class JbaseTypeComputer extends PatchedTypeComputer {
@@ -108,6 +112,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		state.acceptActualType(result);
 	}
 
+	/**
+	 * Supplies a functional interface expectation for a cast lambda or method reference.
+	 * For example, {@code (IntUnaryOperator) n -> n} must infer n as int before computing
+	 * the operand. An ordinary cast's operand computation does not supply this expectation.
+	 * The type guard is needed while the editor is recovering an incomplete cast.
+	 */
 	@Override
 	protected void _computeTypes(final XCastedExpression expression,
 			final ITypeComputationState state) {
@@ -123,6 +133,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 	}
 
+	/**
+	 * Keeps closure inference tied to each enclosing expectation, including overload candidates.
+	 * A raw functional interface uses erased bounds (raw Consumer's parameter is Object);
+	 * other lambdas delegate to Xbase's ClosureTypeComputer with their original expectations.
+	 * The reference subtype must be intercepted before Xbase looks for a lambda body.
+	 */
 	@Override
 	protected void _computeTypes(final XClosure closure, final ITypeComputationState state) {
 		if (closure instanceof XJMethodReference reference) {
@@ -415,6 +431,11 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		return state.getReferenceOwner();
 	}
 
+	/**
+	 * Exposes the statement wrapper to Xbase's scope tracker before typing its expression.
+	 * Lambda parameter and local completion depend on these tracked scopes, even though
+	 * the semicolon wrapper has no independent expression semantics.
+	 */
 	private ITypeComputationResult computeJbaseTypes(final XJSemicolonStatement st,
 			final ITypeComputationState state) {
 		var expression = st.getExpression();

@@ -44,11 +44,21 @@ import jbase.jbase.JbasePackage;
 import jbase.jbase.XJMethodReference;
 
 /**
- * Target typing for Java references. ClosureWithExpectationHelper supplies Xbase's
- * deferred functional interface constraints; resolved features supply inherited
- * signatures with the receiver's type arguments substituted.
+ * Computes Java method and constructor references within Xbase's closure inference protocol.
+ * {@link XJMethodReference} extends {@code XClosure} so references remain deferred arguments
+ * of generic and overloaded calls. {@link ClosureWithExpectationHelper} prepares the functional
+ * interface constraints; this class matches members instead of computing a synthetic lambda body.
+ *
+ * <p>Resolved features substitute the receiver's type arguments into inherited signatures.
+ * The selected executable is applied to the model only after candidate computation, while the
+ * compiler emits native reference syntax to preserve receiver evaluation and {@code super}.
+ *
+ * @see JbaseTypeComputer
+ * @see jbase.compiler.JbaseXbaseCompiler
  */
 public class JbaseMethodReferences {
+	// Both modes allow primitive widening and disable Xbase synonym conversions.
+	// Only LOOSE allows boxing/unboxing; the invocation phases choose between them.
 	private static final TypeConformanceComputationArgument STRICT =
 		new TypeConformanceComputationArgument(false, false, false, true, false, false);
 	private static final TypeConformanceComputationArgument LOOSE =
@@ -62,6 +72,12 @@ public class JbaseMethodReferences {
 	@Inject
 	private ILogicalContainerProvider logicalContainers;
 
+	/**
+	 * Computes a separate closure candidate for each functional interface expectation.
+	 * For example, {@code Stream.of("a").map(String::length)} must contribute constraints
+	 * to the enclosing generic call rather than receive a standalone type during parsing.
+	 * Even a missing target still triggers receiver computation for linking diagnostics.
+	 */
 	public void computeTypes(final XJMethodReference reference,
 			final ITypeComputationState state) {
 		for (final var expectation : state.getExpectations()) {
@@ -81,6 +97,11 @@ public class JbaseMethodReferences {
 		}
 	}
 
+	/**
+	 * Computes the qualifier without imposing the reference's functional interface type on it.
+	 * An expression denoting a type still has Xbase's {@code Class<T>} type here; the caller
+	 * unwraps {@code T} after distinguishing that expression from an instance receiver.
+	 */
 	private LightweightTypeReference receiverType(final XJMethodReference reference,
 			final ITypeComputationState state) {
 		if (reference.getType() != null) {
@@ -90,12 +111,22 @@ public class JbaseMethodReferences {
 			.getActualExpressionType();
 	}
 
+	/**
+	 * Shares contextual member visibility between inference and Eclipse completion.
+	 * The context is the generated JVM declaring type, obtained through the logical container;
+	 * public visibility alone would incorrectly hide accessible private or protected methods.
+	 */
 	public IVisibilityHelper visibilityHelper(final XJMethodReference reference) {
 		final var container = logicalContainers.getLogicalContainer(reference);
 		final var context = EcoreUtil2.getContainerOfType(container, JvmDeclaredType.class);
 		return new ContextualVisibilityHelper(new PublicVisibilityHelper(), context);
 	}
 
+	/**
+	 * Uses the linking candidate to distinguish {@code String::length} from {@code text::trim}.
+	 * Testing only whether the linked feature is a {@code JvmType} would also classify
+	 * {@code this} and {@code super} as type literals and lose their bound-receiver semantics.
+	 */
 	private boolean isTypeReceiver(final XJMethodReference reference,
 			final ITypeComputationState state) {
 		return reference.getType() != null
@@ -110,6 +141,11 @@ public class JbaseMethodReferences {
 			message, reference, JbasePackage.Literals.XJ_METHOD_REFERENCE__MEMBER, -1, null));
 	}
 
+	/**
+	 * Checks array constructor element types recursively: {@code List<?>[]::new} is valid,
+	 * but {@code List<String>[]::new} and {@code List<? super String>[]::new} are not.
+	 * Raw and non-parameterized element types have no arguments to reject.
+	 */
 	private boolean isReifiable(final LightweightTypeReference type) {
 		if (type.isArray()) {
 			return isReifiable(type.getComponentType());
@@ -119,6 +155,12 @@ public class JbaseMethodReferences {
 			&& wildcard.getUpperBoundSubstitute().isType(Object.class));
 	}
 
+	/**
+	 * Tests Java invocation conversion for parameters and reference results.
+	 * In particular, {@code int -> Integer -> Number} is allowed in a boxing phase,
+	 * whereas {@code int -> long -> Long} is not. Unboxing followed by primitive widening
+	 * is handled by the loose conformance mode. Receiver checks use STRICT directly.
+	 */
 	private boolean invocationCompatible(final LightweightTypeReference expected,
 			final LightweightTypeReference actual, final boolean boxing) {
 		if (boxing && actual.isPrimitive() && !expected.isPrimitive()) {
@@ -129,10 +171,20 @@ public class JbaseMethodReferences {
 		return expected.isAssignableFrom(actual, boxing ? LOOSE : STRICT);
 	}
 
+	/**
+	 * An applicable invocation with substituted types and effective comparison parameters.
+	 * Phases 0, 1 and 2 mean strict fixed arity, loose fixed arity and expanded varargs.
+	 * Array creation and array clone have synthetic signatures, so their executable is null.
+	 */
 	private record Match(JvmExecutable executable, LightweightTypeReference result,
 			List<LightweightTypeReference> parameters,
 			List<LightweightTypeReference> exceptions, int phase) { }
 
+	/**
+	 * Reuses Xbase's functional descriptor and deferred bindings for one target expectation.
+	 * It replaces the inherited lambda-body computation and model update: a reference has
+	 * neither a synthesized body nor implicit lambda parameters to install.
+	 */
 	private class ReferenceTypeHelper extends ClosureWithExpectationHelper {
 		private final XJMethodReference reference;
 		private JvmExecutable executable;
@@ -144,6 +196,13 @@ public class JbaseMethodReferences {
 			this.reference = reference;
 		}
 
+		/**
+		 * Adapts the qualifier to the descriptor, selects an invocation, then contributes
+		 * return constraints and checks exceptions. Raw constructor qualifiers receive fresh
+		 * class arguments, allowing {@code Supplier<List<String>> f = ArrayList::new} to infer
+		 * the element type. Invalid candidates must also report incompatibility to Xbase's
+		 * enclosing overload selection, rather than merely attaching an error message.
+		 */
 		@Override
 		protected void computeTypes() {
 			final var state = getState();
@@ -186,6 +245,9 @@ public class JbaseMethodReferences {
 				executable = match.executable();
 				final var expectedReturn = function.getReturnType();
 				if (!expectedReturn.isPrimitiveVoid()) {
+					// Reverse result constraints infer, for example, emptyList's T from List<String>.
+					// Resolve only available hints: forcing an unconstrained invocation variable
+					// to its bound here would damage inference for comparing(String::length).
 					if (!match.result().isPrimitive()) {
 						if (expectedReturn instanceof UnboundTypeReference unbound) {
 							unbound.tryResolve(false);
@@ -197,6 +259,8 @@ public class JbaseMethodReferences {
 					}
 					deferredBindTypeArgument(expectedReturn, match.result(),
 						BoundTypeArgumentSource.INFERRED);
+					// Check the original descriptor as well as the helper's synthetic return variable.
+					// Otherwise competing hints can conceal int-to-Long in Function<String, Long>.
 					final var targetReturn = getExpectation().getExpectedType()
 						.tryConvertToFunctionTypeReference(false).getReturnType();
 					deferredBindTypeArgument(targetReturn, match.result(),
@@ -219,12 +283,20 @@ public class JbaseMethodReferences {
 					| ConformanceFlags.LAMBDA_WITH_EXPECTATION);
 		}
 
+		/** Marks this expectation incompatible as well as locating the diagnostic on the member. */
 		private void error(final XJMethodReference expression,
 				final ITypeComputationState state, final String message) {
 			valid = false;
 			JbaseMethodReferences.this.error(expression, state, message);
 		}
 
+		/**
+		 * Builds invocation shapes from inherited, generically resolved features.
+		 * Bound references consume no descriptor parameter for their receiver; unbound ones
+		 * consume the first. Static references require an unparameterized type qualifier,
+		 * and class constructors require a type qualifier without wildcard arguments.
+		 * Arrays use Object for ordinary member lookup; creation and clone are handled earlier.
+		 */
 		private void collectMatches(final LightweightTypeReference receiver,
 				final boolean typeReceiver, final List<LightweightTypeReference> arguments,
 				final List<Match> matches) {
@@ -273,6 +345,12 @@ public class JbaseMethodReferences {
 			}
 		}
 
+		/**
+		 * Preserves Java's specialized getClass result instead of reflection's {@code Class<?>}.
+		 * {@code String::getClass} returns {@code Class<? extends String>}; changing the
+		 * functional receiver parameter to String does not give {@code Object::getClass}
+		 * that same result type. The qualifying type, erased to its raw form, is decisive.
+		 */
 		private LightweightTypeReference referenceReturnType(final IResolvedOperation method,
 				final LightweightTypeReference receiver) {
 			if ("getClass".equals(method.getDeclaration().getSimpleName())
@@ -290,6 +368,13 @@ public class JbaseMethodReferences {
 			return method.getResolvedReturnType();
 		}
 
+		/**
+		 * Checks visibility and explicit type bounds, substitutes executable variables, and
+		 * tries Java's three invocation phases. Explicit arguments constrain a generic
+		 * declaration, but may be ignored by a non-generic one ({@code String::<Integer>length}).
+		 * Unspecified variables retain deferred hints so argument and target result constraints
+		 * can cooperate; they must not all be eagerly replaced by their upper bounds.
+		 */
 		private void addMatch(final IResolvedExecutable resolved,
 				final LightweightTypeReference result,
 				final List<LightweightTypeReference> arguments, final List<Match> matches) {
@@ -366,6 +451,12 @@ public class JbaseMethodReferences {
 			}
 		}
 
+		/**
+		 * Orders applicable invocations within the static or instance search, first by phase
+		 * and then by effective parameter specificity. Repeating the final comparison type
+		 * accounts for varargs lists with different declared arities. A non-generic declaration
+		 * wins an otherwise equal parameter comparison against a generic declaration.
+		 */
 		private boolean moreSpecific(final Match first, final Match second) {
 			// Java performs separate searches for static and unbound instance methods.
 			// A result from each search is ambiguous even if their invocation phases differ.
@@ -389,6 +480,11 @@ public class JbaseMethodReferences {
 				&& !second.executable().getTypeParameters().isEmpty();
 		}
 
+		/**
+		 * Checks against the functional operation's throws clause, not the enclosing method's.
+		 * Here the inherited getOperation() denotes the functional descriptor; the referenced
+		 * executable is in Match. RuntimeException and Error subtypes need no declared allowance.
+		 */
 		private void checkExceptions(final Match match) {
 			final var target = overrideHelper.getResolvedFeatures(getExpectation().getExpectedType())
 				.getResolvedOperation(getOperation()).getResolvedExceptions();
@@ -401,6 +497,11 @@ public class JbaseMethodReferences {
 			}
 		}
 
+		/**
+		 * Commits only the executable link after inference. The inherited implementation would
+		 * install implicit lambda parameters, which have no source or execution role in a reference.
+		 * Synthetic array signatures intentionally leave this transient link null.
+		 */
 		@Override
 		public void applyToModel(final IResolvedTypes resolvedTypes) {
 			reference.setExecutable(executable);

@@ -17,8 +17,11 @@ import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJAssignment;
 
 /**
- * @author Lorenzo Bettini
+ * Adds array-assignment argument typing while retaining Xbase's expression argument protocol.
+ * In particular, the superclass handles deferred XClosure arguments and argument reordering
+ * for both Java lambdas and the XJMethodReference subtype; this class does not replace it.
  *
+ * @author Lorenzo Bettini
  */
 public class JbaseExpressionArgumentFactory extends ExpressionArgumentFactory {
 	

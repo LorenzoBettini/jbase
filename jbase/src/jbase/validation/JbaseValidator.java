@@ -83,6 +83,11 @@ import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseNodeModelUtil;
 
 /**
+ * Adds Java rules to Xbase validation after type inference and linking.
+ * Closure checks distinguish Java lambdas from the XJMethodReference subtype: references
+ * share deferred functional typing, but have neither lambda parameters nor a lambda body.
+ * Capture checks operate on linked writes so effectively final locals need no final keyword.
+ *
  * @author Lorenzo Bettini
  */
 public class JbaseValidator extends AbstractJbaseValidator {
@@ -107,11 +112,27 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Inject
 	private ProxyAwareUIStrings proxyAwareUIStrings;
 
+	/**
+	 * Removes only Xbase's six-parameter closure limit. A Java functional interface can have
+	 * more parameters; its actual descriptor arity is still enforced by type computation.
+	 */
 	@Override
 	public void checkClosureParams(final XClosure closure) {
 		// Java functional interfaces do not impose Xbase's limit of six parameters.
 	}
 
+	/**
+	 * Supplements Xbase inference with Java target, parameter and body restrictions.
+	 * A generic interface such as Function<String, Integer> is valid, but a functional
+	 * operation declaring its own type parameters cannot be implemented by a lambda.
+	 * Explicit parameter types must match the descriptor; wildcard targets retain Xbase's
+	 * ground-target inference instead of undergoing a literal identifier comparison.
+	 *
+	 * <p>A value block must return or throw on every path. A void expression body must be a
+	 * statement expression: {@code () -> list.add("x")} can discard a result, while
+	 * {@code () -> 1 + 2} cannot implement Runnable. References have their own helper and
+	 * must be skipped even though their model extends XClosure.
+	 */
 	@Check
 	public void checkJavaLambda(final XClosure closure) {
 		if (closure instanceof XJMethodReference) {
@@ -157,6 +178,10 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 	}
 
+	/**
+	 * Recognizes the Java expression forms whose result may be discarded by a void lambda.
+	 * A feature call must denote an operation: reading a field is not a statement expression.
+	 */
 	private boolean isStatementExpression(final XExpression body) {
 		return body instanceof XAssignment || body instanceof XConstructorCall
 			|| body instanceof XPostfixOperation
@@ -165,6 +190,12 @@ public class JbaseValidator extends AbstractJbaseValidator {
 				&& ((XAbstractFeatureCall) body).getFeature() instanceof JvmOperation;
 	}
 
+	/**
+	 * Checks external locals and formal parameters after all of their uses have been linked.
+	 * A reference receiver is read immediately, so {@code text::trim} does not require text
+	 * to remain effectively final. Skipping its model node still finds a real outer lambda
+	 * in {@code () -> text::trim}, where the external local is captured.
+	 */
 	@Check
 	public void checkCapturedLocal(final XAbstractFeatureCall call) {
 		var feature = call.getFeature();
@@ -188,6 +219,13 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 	}
 
+	/**
+	 * Recognizes first assignments to a blank local, including opposite if/else branches.
+	 * An initialized local or parameter cannot be written again, and even a blank local
+	 * cannot acquire repeated or potentially repeating writes. Definite assignment is
+	 * checked separately, so recognizing an exclusive first assignment is not sufficient
+	 * by itself to make every subsequent read valid.
+	 */
 	private boolean isEffectivelyFinal(final EObject feature, final List<EObject> writes) {
 		if (!(feature instanceof XVariableDeclaration variable) || variable.getRight() != null) {
 			return false;
@@ -206,6 +244,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		return true;
 	}
 
+	/**
+	 * Detects assignments that may run repeatedly inside a closure or loop.
+	 * A basic for initializer runs once and is exempt; its body and update are not.
+	 * Likewise, an enhanced-for iterable expression is outside the repeated body.
+	 */
 	private boolean canRepeatWrite(final EObject write, final EObject scope) {
 		var child = write;
 		for (var parent = child.eContainer(); parent != scope; parent = child.eContainer()) {
@@ -220,6 +263,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		return false;
 	}
 
+	/** Tests whether the writes are in opposite branches of an enclosing if/else. */
 	private boolean areExclusiveWrites(final EObject first, final EObject second,
 			final EObject scope) {
 		for (var parent = first.eContainer(); parent != scope; parent = parent.eContainer()) {
@@ -234,6 +278,10 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		return false;
 	}
 
+	/**
+	 * Counts rebinding, increment/decrement and compound assignment as writes to a local.
+	 * {@code values[0] = 1} writes an array element, not the captured values variable.
+	 */
 	private boolean isLocalWrite(final EObject reference) {
 		return reference instanceof XAssignment && !(reference instanceof XJAssignment)
 			|| reference.eContainer() instanceof XPostfixOperation
@@ -299,6 +347,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			XAbstractWhileExpression.class, XBasicForLoopExpression.class, XSwitchExpression.class);
 	}
 
+	/**
+	 * Searches for a legal loop/switch target without crossing a closure boundary.
+	 * For example, a lambda inside an outer for cannot continue that outer loop; it must
+	 * contain its own applicable loop. Semicolon wrappers do not introduce a boundary.
+	 */
 	@SafeVarargs
 	private final void checkBranchingStatementInternal(final XJBranchingStatement st,
 			final String errorDetails, final String instruction,

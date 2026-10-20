@@ -58,8 +58,12 @@ import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseModelUtil;
 
 /**
- * @author Lorenzo Bettini
+ * Generates Java expressions and statements while retaining Xbase's ordinary lambda compiler.
+ * Method references are intercepted before inherited XClosure dispatch and emitted with
+ * native Java reference syntax. Lambda-related customizations preserve blank local
+ * declarations and the control-flow boundaries of loops inside closures.
  *
+ * @author Lorenzo Bettini
  */
 public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	
@@ -74,6 +78,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Inject
 	private JbaseExpressionHelper expressionHelper;
 
+	/**
+	 * Prepares reference receivers as ordinary expressions instead of compiling a closure body.
+	 * Typed qualifiers have no receiver expression to prepare. The corresponding expression
+	 * hook emits the reference itself, including its creation-time receiver evaluation.
+	 */
 	@Override
 	protected void doInternalToJavaStatement(final XExpression obj,
 			final ITreeAppendable appendable, final boolean isReferenced) {
@@ -94,6 +103,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	/**
+	 * Emits updates needed when a basic for has been transformed to a while loop.
+	 * A continue in a lambda's own loop must not update an enclosing basic for: the nearest
+	 * while/enhanced-for containment checks discard that unrelated outer loop first.
+	 */
 	private void compileContinueStatement(XJContinueStatement st, ITreeAppendable b) {
 		XBasicForLoopExpression basicForLoop = EcoreUtil2.getContainerOfType(st, XBasicForLoopExpression.class);
 		if (basicForLoop != null
@@ -166,6 +180,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	/**
+	 * Emits native Java reference syntax without lowering it to a lambda invocation.
+	 * Lowering {@code receiver()::method} could defer evaluation or a null check, and
+	 * lowering {@code super::method} could change dispatch. Type literal qualifiers are
+	 * appended as JvmType values (not as Class<T> expressions) to retain import management;
+	 * parameterized/array qualifiers and explicit executable arguments use the type serializer.
+	 */
 	private void compileReference(final XJMethodReference reference,
 			final ITreeAppendable appendable) {
 		if (reference.getType() != null) {
@@ -468,6 +489,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		b.decreaseIndentation().newLine().append("}");
 	}
 
+	/**
+	 * Preserves blank locals used under closure nodes before delegating normal generation.
+	 * For {@code int n; n = 2; IntSupplier f = () -> n;}, a synthesized {@code n = 0}
+	 * initializer would make the real assignment a reassignment and invalidate the capture
+	 * in generated Java. The validator independently checks initialization and capture legality.
+	 */
 	@Override
 	protected void _toJavaStatement(XVariableDeclaration varDeclaration,
 			ITreeAppendable b, boolean isReferenced) {
@@ -488,6 +515,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	/**
+	 * Conservatively detects an external local used below any XClosure node, including the
+	 * reference subtype. This syntactic query controls preservation of a blank declaration;
+	 * JbaseValidator decides whether a use is an actual capture and is effectively final.
+	 */
 	private boolean isCapturedLocal(final XVariableDeclaration variable) {
 		return XbaseUsageCrossReferencer.find(variable, EcoreUtil.getRootContainer(variable))
 			.stream().anyMatch(reference -> {

@@ -25,7 +25,10 @@ import com.google.inject.Inject;
 import jbase.jbase.XJMethodReference;
 
 /**
- * We redefine a few methods from the XbaseProposalProvider.
+ * Adapts Xbase completion to Jbase statement wrappers and Java reference syntax.
+ * Ordinary lambda parameters use the inferred types and scopes supplied by Xbase.
+ * References receive member-name proposals without invocation parentheses, using the
+ * same contextual visibility helper as reference type computation.
  * 
  * @author Lorenzo Bettini
  */
@@ -42,6 +45,14 @@ public class JbaseProposalProvider extends AbstractJbaseProposalProvider {
 	@Inject
 	private JbaseMethodReferences methodReferences;
 
+	/**
+	 * Completes the member assignment in the reference suffix of XMemberFeatureCall.
+	 * Despite the grammar rule name, its action has already created an XJMethodReference.
+	 * Expression qualifiers denoting types have Class<T> expression types and must be
+	 * unwrapped before lookup; bound receivers exclude static members. Overloads share a
+	 * single name proposal, since reference syntax has no argument list to insert.
+	 * Applicability against the functional target remains the type computer's responsibility.
+	 */
 	@Override
 	public void completeXMemberFeatureCall_Member(final EObject model, final Assignment assignment,
 			final ContentAssistContext context, final ICompletionProposalAcceptor acceptor) {
@@ -75,6 +86,10 @@ public class JbaseProposalProvider extends AbstractJbaseProposalProvider {
 		}
 	}
 
+	/**
+	 * Shares completion with the expression-qualifier rule for forms such as
+	 * {@code ArrayList<String>::new} and {@code int[]::new}.
+	 */
 	@Override
 	public void completeXJTypedMethodReference_Member(final EObject model,
 			final Assignment assignment, final ContentAssistContext context,
@@ -82,6 +97,11 @@ public class JbaseProposalProvider extends AbstractJbaseProposalProvider {
 		completeXMemberFeatureCall_Member(model, assignment, context, acceptor);
 	}
 
+	/**
+	 * Restores the local/implicit scope when an incomplete initializer leaves the containing
+	 * block as the current completion model. Lambda parameter member completion itself
+	 * continues to use Xbase's inferred expression types and scopes.
+	 */
 	@Override
 	public void completeXVariableDeclaration_Right(final EObject model, final Assignment assignment,
 			final ContentAssistContext context, final ICompletionProposalAcceptor acceptor) {

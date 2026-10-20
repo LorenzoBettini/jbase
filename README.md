@@ -57,6 +57,10 @@ For versions earlier than version 1.x the groupId and artifactId are as follows
 
 Jbase assumes that you are already familiar with Xtext and in particular with Xbase concepts.
 
+Contributor guides explain the Xbase integration for
+[lambda expressions](docs/LAMBDA_EXPRESSIONS.md) and
+[method and constructor references](docs/METHOD_REFERENCES.md).
+
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
 ## Java lambda expressions

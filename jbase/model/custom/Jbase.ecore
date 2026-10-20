@@ -2,6 +2,9 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="jbase" nsURI="http://www.Jbase.jbase" nsPrefix="jbase">
   <eClassifiers xsi:type="ecore:EClass" name="XJJvmFormalParameter" eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmFormalParameter">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="A Java formal parameter with optional final and variable-arity syntax flags. Grammar rules assign the flags where applicable. For lambda parameters written with var, parameterType remains unset so Xbase infers it from the functional interface; final is retained independently of inference."/>
+    </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="final" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="varArgs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
   </eClassifiers>
@@ -61,10 +64,33 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJMethodReference" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XClosure">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="receiver" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmTypeReference" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="member" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="typeArguments" upperBound="-1" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmTypeReference" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="executable" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmExecutable" transient="true"/>
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="A Java method or constructor reference. Extending XClosure lets Xbase defer functional interface typing in generic and overloaded calls. The inherited lambda body and parameter lists are not used: JbaseMethodReferences matches executable signatures, and the compiler emits native Java reference syntax to preserve receiver evaluation and super dispatch."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="receiver" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression" containment="true">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The expression qualifier, such as text in text::trim or the syntactic name String in String::length. Linking distinguishes type literals from bound receivers. This feature is unset for qualifiers represented by type."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmTypeReference" containment="true">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="An unambiguous parameterized or array type qualifier, including parameterized outer types with inner types. Simple type names use receiver and are recognized as type literals during linking."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="member" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The referenced method name or the keyword new. It remains syntactic text because executable selection depends on the functional interface target, overloads, and generic inference."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typeArguments" upperBound="-1" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmTypeReference" containment="true">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="Explicit executable type arguments written after the double colon. Type arguments before the double colon belong to the qualifying type instead."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="executable" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmExecutable" transient="true">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The selected executable, applied after type inference and omitted from serialization. Synthetic array constructor and array clone signatures have no executable and leave this link null."/>
+      </eAnnotations>
+    </eStructuralFeatures>
   </eClassifiers>
 </ecore:EPackage>
