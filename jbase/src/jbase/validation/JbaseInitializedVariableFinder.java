@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJVariableDeclaration;
 
@@ -86,6 +87,8 @@ public class JbaseInitializedVariableFinder {
 			case XSwitchExpression statement ->
 				inspectNotInitialized(statement, initialized, acceptor);
 			case XBlockExpression block -> inspectNotInitialized(block, initialized, acceptor);
+			case XJMethodReference reference -> detectNotInitializedDispatch(reference.getReceiver(),
+				initialized, acceptor);
 			case XClosure closure -> detectNotInitializedDispatch(closure.getExpression(),
 				createCopy(initialized), acceptor);
 			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);

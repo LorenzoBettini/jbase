@@ -27,8 +27,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.IOException;
 			import java.util.ArrayList;
 			import java.util.List;
+			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
+			import java.util.function.Supplier;
 			import static java.lang.Math.abs;
 
 			@SuppressWarnings({"unused", "deprecation"})
@@ -158,6 +160,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			task.run();
 			IntUnaryOperator identity = (final var n) -> n;
 
+			// Static, bound, unbound, constructor and array constructor references.
+			IntUnaryOperator absolute = Math::abs;
+			IntSupplier textLength = text::length;
+			java.util.function.ToIntFunction<String> unboundLength = String::length;
+			Supplier<ArrayList<String>> listFactory = ArrayList<String>::new;
+			IntFunction<int[]> arrayFactory = int[]::new;
+
 			// Exceptions, resource management and synchronization.
 			try {
 				if (absent == null) throw new IllegalArgumentException(text);
@@ -182,8 +191,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.IOException;
 			import java.util.ArrayList;
 			import java.util.List;
+			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
+			import java.util.function.Supplier;
+			import java.util.function.ToIntFunction;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -354,6 +366,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      return n;
 			    };
 			    IntUnaryOperator identity = _function_4;
+			    IntUnaryOperator absolute = Math::abs;
+			    IntSupplier textLength = text::length;
+			    ToIntFunction<String> unboundLength = String::length;
+			    Supplier<ArrayList<String>> listFactory = ArrayList<String>::new;
+			    IntFunction<int[]> arrayFactory = int[]::new;
 			    try {
 			      if ((absent == null)) {
 			        throw new IllegalArgumentException(text);

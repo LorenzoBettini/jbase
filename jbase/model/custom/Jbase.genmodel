@@ -54,5 +54,12 @@
     <genClasses ecoreClass="Jbase.ecore#//XJConstructorCall">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJConstructorCall/explicitTypeArguments"/>
     </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJMethodReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/receiver"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJMethodReference/member"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/typeArguments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/executable"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

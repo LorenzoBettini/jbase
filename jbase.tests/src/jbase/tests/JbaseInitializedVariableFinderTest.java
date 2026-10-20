@@ -20,6 +20,19 @@ public class JbaseInitializedVariableFinderTest extends JbaseAbstractTest {
 	private JbaseNodeModelUtil jbaseNodeModelUtil;
 
 	@Test
+	public void testMethodReferenceReceivers() throws Exception {
+		assertNotInitializedReferences("""
+			String text;
+			java.util.function.Supplier<String> f = text::trim;
+			""", "text in text::trim");
+		assertNotInitializedReferences("""
+			String text;
+			java.util.function.Supplier<String> f = (text = "hello")::trim;
+			System.out.println(text);
+			""", "");
+	}
+
+	@Test
 	public void testNotInitializedNull() { // NOSONAR
 		// test it does not throw
 		jbaseInitializedVariableFinder.detectNotInitialized(null, expression -> {

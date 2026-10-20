@@ -78,7 +78,23 @@ Parameter types can be inferred, written with `var` (optionally `final var`), or
 declared explicitly. All parameters in a `var` parameter list must use `var`.
 Block bodies use explicit `return` statements for results. Captured local variables must be final or
 effectively final. Lambdas are represented by Xbase's `XClosure`, reusing its
-functional interface typing and Java generation. Method references are not supported.
+functional interface typing and Java generation.
+
+Method and constructor references use Java syntax and functional interface target typing:
+
+```java
+java.util.function.ToIntFunction<String> length = String::length;
+java.util.function.Consumer<String> print = System.out::println;
+java.util.function.Function<String, Integer> parse = Integer::parseInt;
+java.util.function.Supplier<java.util.ArrayList<String>> list =
+    java.util.ArrayList<String>::new;
+java.util.function.IntFunction<int[]> array = int[]::new;
+```
+
+References are emitted as Java references. Bound receivers are evaluated when the
+reference is created. References also work as method arguments, return values,
+assignments, conditional branches, and cast operands. Content assist after `::`
+proposes method names without invocation parentheses.
 
 ## Local variable type inference
 

@@ -26,6 +26,17 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testMethodReferences() throws Exception {
+		assertSerialize("""
+			java.util.function.ToIntFunction<String> length = String::length;
+			java.util.function.Consumer<String> print = System.out::println;
+			java.util.function.Supplier<java.util.ArrayList<String>> list =
+				java.util.ArrayList<String>::new;
+			java.util.function.IntFunction<int[][]> arrays = int[][]::new;
+			""");
+	}
+
+	@Test
 	public void testLambdas() throws Exception {
 		assertSerialize("""
 			java.util.function.Function<String, Integer> f = s -> s.length();

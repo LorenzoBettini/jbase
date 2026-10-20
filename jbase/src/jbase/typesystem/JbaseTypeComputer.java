@@ -1,8 +1,8 @@
 package jbase.typesystem;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmGenericType;
+import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
@@ -17,8 +17,8 @@ import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
-import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
+import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
@@ -43,6 +43,7 @@ import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.validation.JbaseIssueCodes;
@@ -54,6 +55,8 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	@Inject
 	private CommonTypeComputationServices services;
+	@Inject
+	private JbaseMethodReferences methodReferences;
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
 
@@ -122,6 +125,10 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	@Override
 	protected void _computeTypes(final XClosure closure, final ITypeComputationState state) {
+		if (closure instanceof XJMethodReference reference) {
+			methodReferences.computeTypes(reference, state);
+			return;
+		}
 		for (var expectation : state.getExpectations()) {
 			var expectedType = expectation.getExpectedType();
 			if (expectedType != null && expectedType.isRawType()) {

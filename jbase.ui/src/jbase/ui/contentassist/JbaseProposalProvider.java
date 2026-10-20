@@ -5,11 +5,24 @@ package jbase.ui.contentassist;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.EcoreUtil2;
+import jbase.typesystem.JbaseMethodReferences;
+import org.eclipse.xtext.common.types.JvmGenericType;
+import java.util.TreeSet;
 import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
+import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XFeatureCall;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.typesystem.IExpressionScope;
+import org.eclipse.xtext.xbase.typesystem.override.OverrideHelper;
+import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner;
+import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
+
+import com.google.inject.Inject;
+
+import jbase.jbase.XJMethodReference;
 
 /**
  * We redefine a few methods from the XbaseProposalProvider.
@@ -17,6 +30,58 @@ import org.eclipse.xtext.xbase.typesystem.IExpressionScope;
  * @author Lorenzo Bettini
  */
 public class JbaseProposalProvider extends AbstractJbaseProposalProvider {
+	@Inject
+	private IBatchTypeResolver typeResolver;
+
+	@Inject
+	private CommonTypeComputationServices services;
+
+	@Inject
+	private OverrideHelper overrideHelper;
+
+	@Inject
+	private JbaseMethodReferences methodReferences;
+
+	@Override
+	public void completeXMemberFeatureCall_Member(final EObject model, final Assignment assignment,
+			final ContentAssistContext context, final ICompletionProposalAcceptor acceptor) {
+		final var reference = (XJMethodReference) model;
+		final var types = typeResolver.resolveTypes(reference);
+		var receiver = reference.getType() == null ? types.getActualType(reference.getReceiver())
+			: new StandardTypeReferenceOwner(
+			services, reference).toLightweightTypeReference(reference.getType());
+		final var typeReceiver = reference.getType() != null
+			|| reference.getReceiver() instanceof XAbstractFeatureCall call
+				&& types.getLinkingCandidate(call).isTypeLiteral();
+		if (typeReceiver && reference.getType() == null) {
+			receiver = receiver.getTypeArguments().getFirst();
+		}
+		final var names = new TreeSet<String>();
+		if (typeReceiver && (receiver.isArray()
+				|| receiver.getType() instanceof JvmGenericType type
+					&& !type.isAbstract())) {
+			names.add("new");
+		}
+		final var visibility = methodReferences.visibilityHelper(reference);
+		for (final var operation : overrideHelper.getResolvedFeatures(receiver).getAllOperations()) {
+			final var method = operation.getDeclaration();
+			if (visibility.isVisible(method)
+					&& (typeReceiver || !method.isStatic())) {
+				names.add(method.getSimpleName());
+			}
+		}
+		for (final var name : names) {
+			acceptor.accept(createCompletionProposal(name, context));
+		}
+	}
+
+	@Override
+	public void completeXJTypedMethodReference_Member(final EObject model,
+			final Assignment assignment, final ContentAssistContext context,
+			final ICompletionProposalAcceptor acceptor) {
+		completeXMemberFeatureCall_Member(model, assignment, context, acceptor);
+	}
+
 	@Override
 	public void completeXVariableDeclaration_Right(final EObject model, final Assignment assignment,
 			final ContentAssistContext context, final ICompletionProposalAcceptor acceptor) {

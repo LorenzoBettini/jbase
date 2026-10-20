@@ -22,8 +22,8 @@ import static jbase.validation.JbaseIssueCodes.NOT_INITIALIZED_VARIABLE;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
@@ -73,6 +73,7 @@ import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
@@ -113,6 +114,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkJavaLambda(final XClosure closure) {
+		if (closure instanceof XJMethodReference) {
+			return;
+		}
 		var expectedType = getExpectedType(closure);
 		var operation = expectedType == null ? null
 			: getServices().getFunctionTypes().findImplementingOperation(expectedType);
@@ -168,6 +172,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			return;
 		}
 		var closure = EcoreUtil2.getContainerOfType(call, XClosure.class);
+		while (closure instanceof XJMethodReference) {
+			closure = EcoreUtil2.getContainerOfType(closure.eContainer(), XClosure.class);
+		}
 		if (closure == null || EcoreUtil.isAncestor(closure, feature)) {
 			return;
 		}

@@ -12,6 +12,36 @@ import org.junit.runner.RunWith;
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
+	public void testMethodReferenceMembers() throws Exception {
+		newBuilder().append("java.util.function.ToIntFunction<String> f = String::len")
+			.assertProposal("length");
+		newBuilder().append("java.util.function.Consumer<String> f = System.out::print")
+			.assertProposal("println");
+		newBuilder().append("java.util.function.Supplier<String> f = String::")
+			.assertProposal("new");
+		newBuilder().append("java.util.function.Supplier<java.util.ArrayList<String>> f = "
+			+ "java.util.ArrayList<String>::ne").assertProposal("new");
+		newBuilder().append("java.util.function.IntFunction<int[]> f = int[]::ne")
+			.assertProposal("new");
+		newBuilder().append("method mine(): int { return 1; } "
+			+ "method f() { java.util.function.IntSupplier f = this::mi")
+			.assertProposal("mine");
+		newBuilder().append("java.util.function.Supplier<String> f = \"a\"::tr")
+			.assertProposal("trim");
+		newBuilder().append("java.util.function.ToIntFunction<java.util.List<String>> f = "
+			+ "java.util.List<String>::si").assertProposal("size");
+		newBuilder().append("java.util.function.Function<Deprecated, Class<?>> f = "
+			+ "Deprecated::annotationT").assertProposal("annotationType");
+	}
+
+	@Test
+	public void testMethodReferenceProposalInsertsOnlyName() throws Exception {
+		newBuilder().append("java.util.function.ToIntFunction<String> f = String::len")
+			.applyProposal("length").expectContent(
+				"java.util.function.ToIntFunction<String> f = String::length");
+	}
+
+	@Test
 	public void testInferredLambdaParameterMembers() throws Exception {
 		newBuilder().append("java.util.function.Function<String, Integer> f = s -> s.len")
 			.assertProposal("length");

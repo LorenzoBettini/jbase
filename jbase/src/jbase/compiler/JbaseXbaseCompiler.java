@@ -47,13 +47,14 @@ import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJJvmFormalParameter;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
-import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseExpressionHelper.BaseCase;
 import jbase.util.JbaseExpressionHelper.StepCase;
+import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseModelUtil;
 
 /**
@@ -80,6 +81,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayConstructorCall call -> { /* compile only as expression */ }
 			case XJArrayAccessExpression access -> { /* compile only as expression */ }
 			case XJClassObject classObject -> { /* compile only as expression */ }
+			case XJMethodReference reference -> {
+				if (reference.getReceiver() != null) {
+					internalToJavaStatement(reference.getReceiver(), appendable, true);
+				}
+			}
 			case XJContinueStatement statement -> compileContinueStatement(statement, appendable);
 			case XJBreakStatement statement -> compileBranchingStatement(appendable, "break");
 			case XJSemicolonStatement statement ->
@@ -155,8 +161,34 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayAccessExpression access -> compileJavaExpression(access, appendable);
 			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
 			case XJClassObject classObject -> compileClassObject(classObject, appendable);
+			case XJMethodReference reference -> compileReference(reference, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
+	}
+
+	private void compileReference(final XJMethodReference reference,
+			final ITreeAppendable appendable) {
+		if (reference.getType() != null) {
+			getTypeReferenceSerializer().serialize(reference.getType(), reference, appendable);
+		} else if (reference.getReceiver() instanceof XAbstractFeatureCall call
+				&& call.isTypeLiteral()) {
+			appendable.append((JvmType) call.getFeature());
+		} else {
+			internalToJavaExpression(reference.getReceiver(), appendable);
+		}
+		appendable.append("::");
+		if (!reference.getTypeArguments().isEmpty()) {
+			appendable.append("<");
+			for (var i = 0; i < reference.getTypeArguments().size(); i++) {
+				if (i != 0) {
+					appendable.append(", ");
+				}
+				getTypeReferenceSerializer().serialize(
+					reference.getTypeArguments().get(i), reference, appendable);
+			}
+			appendable.append(">");
+		}
+		appendable.append(reference.getMember());
 	}
 
 	private void compileJavaExpression(XJArrayConstructorCall call, ITreeAppendable b) {
