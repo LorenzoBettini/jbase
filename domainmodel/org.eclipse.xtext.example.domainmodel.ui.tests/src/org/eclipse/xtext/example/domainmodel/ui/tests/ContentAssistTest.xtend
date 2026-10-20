@@ -14,6 +14,8 @@ import org.eclipse.xtext.ui.testing.AbstractContentAssistTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
+import static extension org.eclipse.xtext.ui.testing.util.LineDelimiters.toPlatform
+
 /**
  * @author Jan Koehnlein - copied and adapted from Xtend
  */
@@ -34,11 +36,13 @@ class ContentAssistTest extends AbstractContentAssistTest {
 	}
 
 	@Test def void testEntityTemplateProposal() throws Exception {
-		newBuilder.applyProposal("Entity - template for an Entity").expectContent("entity name {\n\t\n}")
+		newBuilder.applyProposal("Entity - template for an Entity")
+			.expectContent("entity name {\n\t\n}".toPlatform)
 	}
 
 	@Test def void testPackageTemplateProposal() throws Exception {
-		newBuilder.applyProposal("Package - template for a Package").expectContent("package name {\n\t\n}")
+		newBuilder.applyProposal("Package - template for a Package")
+			.expectContent("package name {\n\t\n}".toPlatform)
 	}
 
 	@Test def testPropertyTemplateProposal() throws Exception {
@@ -67,6 +71,6 @@ class ContentAssistTest extends AbstractContentAssistTest {
 			'Property - template for a Property',
 			'op'
 		], 'Operation - template for an Operation',
-			"entity E {\n\top name (paramType1 paramName1) : returnType {\n\t\t\n\t}\n}\n")
+			"entity E {\n\top name (paramType1 paramName1) : returnType {\n\t\t\n\t}\n}\n".toPlatform)
 	}
 }
