@@ -13,11 +13,13 @@ import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
 
+import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 import jbase.validation.JbaseIssueCodes;
 
@@ -30,6 +32,15 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 
 	@Inject
 	private IBatchTypeResolver typeResolver;
+
+	@Inject
+	private JbaseTestlanguageValidator validator;
+
+	// the validator is shared and other tests may leave the check disabled
+	@Before
+	public void initValidator() {
+		validator.setSkipVariableInitializationCheck(false);
+	}
 
 	@Test
 	public void varParameterTypesAreInferredFromTarget() throws Exception {
