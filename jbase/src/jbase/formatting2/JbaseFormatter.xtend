@@ -23,7 +23,6 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.XCastedExpression
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XForLoopExpression
-import org.eclipse.xtext.xbase.XPostfixOperation
 import org.eclipse.xtext.xbase.XSwitchExpression
 import org.eclipse.xtext.xbase.XVariableDeclaration
 
@@ -38,56 +37,19 @@ class JbaseFormatter extends XbasePatchedFormatter {
 
 	@Inject extension JbaseModelUtil
 
-	override void format(Object expr, extension IFormattableDocument document) {
-		// you could use dispatch methods, but that will generate many other
-		// if cases for inherited dispatch methods that will never be executed during the
-		// tests and I prefer to have full control on code coverage.
-		if (expr instanceof XJAssignment) {
-			_format(expr, document);
-		} else if (expr instanceof XJJvmFormalParameter) {
-			_format(expr, document);
-		} else if (expr instanceof XJPrefixOperation) {
-			_format(expr, document);
-		} else if (expr instanceof XJConditionalExpression) {
-			_format(expr, document);
-		} else if (expr instanceof XJSwitchStatements) {
-			_format(expr, document);
-		} else if (expr instanceof XJVariableDeclaration) {
-			_format(expr, document);
-		} else if (expr instanceof XCastedExpression) {
-			_format(expr, document);
-		} else if (expr instanceof XPostfixOperation) {
-			_format(expr, document);
-		} else if (expr instanceof XJArrayAccessExpression) {
-			_format(expr, document);
-		} else if (expr instanceof XJArrayConstructorCall) {
-			_format(expr, document);
-		} else if (expr instanceof XJBreakStatement) {
-			_format(expr, document);
-		} else if (expr instanceof XJContinueStatement) {
-			_format(expr, document);
-		} else if (expr instanceof XJTryWithResourcesStatement) {
-			_format(expr, document);
-		} else if (expr instanceof XJSemicolonStatement) {
-			_format(expr, document);
-		} else {
-			super.format(expr, document)
-		}
-	}
-
-	def void _format(XJJvmFormalParameter param, extension IFormattableDocument document) {
+	def dispatch void format(XJJvmFormalParameter param, extension IFormattableDocument document) {
 		super._format(param, document);
 		param.
 			regionFor.feature(JbasePackage.eINSTANCE.XJJvmFormalParameter_Final).
 			append[oneSpace]
 	}
 
-	def void _format(XJVariableDeclaration expr, extension IFormattableDocument document) {
+	def dispatch void format(XJVariableDeclaration expr, extension IFormattableDocument document) {
 		expr.type.append[oneSpace]
 		expr.regionFor.keyword("=").surround[oneSpace]
 		expr.type.format(document)
 		expr.right.format(document)
-		
+
 		for (XVariableDeclaration additionalVariable : expr.getAdditionalVariables()) {
 			format(additionalVariable, document);
 			additionalVariable.immediatelyPreceding.keyword(",").prepend[noSpace].append[oneSpace]
@@ -95,12 +57,12 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		}
 	}
 
-	def void _format(XJAssignment expr, extension IFormattableDocument document) {
-		super._format(expr, document) 
+	def dispatch void format(XJAssignment expr, extension IFormattableDocument document) {
+		super._format(expr, document)
 		formatArrayIndexes(expr.getIndexes(), document)
 	}
 
-	def void _format(XJConditionalExpression expr, extension IFormattableDocument document) {
+	def dispatch void format(XJConditionalExpression expr, extension IFormattableDocument document) {
 		format(expr.getThen(), document);
 		format(expr.getElse(), document);
 		format(expr.getIf(), document);
@@ -109,11 +71,11 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		expr.regionFor.keyword(":").surround[oneSpace]
 	}
 
-	def void _format(XJArrayConstructorCall expr, extension IFormattableDocument document) {
+	def dispatch void format(XJArrayConstructorCall expr, extension IFormattableDocument document) {
 		expr.
 			regionFor.feature(JbasePackage.eINSTANCE.XJArrayConstructorCall_Type).
 			prepend[oneSpace]
-		
+
 		// we must consider the case of a dimension with index expression
 		// and without index expression
 		for (XExpression index : expr.arrayDimensionIndexAssociations) {
@@ -126,7 +88,7 @@ class JbaseFormatter extends XbasePatchedFormatter {
 				prepend[noSpace].append[noSpace]
 			d.immediatelyFollowing.keyword("]").prepend[noSpace]
 		}
-		
+
 		val arrayLiteral = expr.getArrayLiteral()
 		if (arrayLiteral !== null) {
 			format(arrayLiteral, document);
@@ -134,43 +96,43 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		}
 	}
 
-	override void _format(XCastedExpression expr, extension IFormattableDocument document) {
+	override dispatch void format(XCastedExpression expr, extension IFormattableDocument document) {
 		format(expr.getType(), document);
 		format(expr.getTarget(), document);
 		expr.handleOpenCloseParenthesis("(", ")", document)
 		expr.regionFor.keyword(")").append[oneSpace]
 	}
 
-	def void _format(XJPrefixOperation expr, extension IFormattableDocument document) {
+	def dispatch void format(XJPrefixOperation expr, extension IFormattableDocument document) {
 		format(expr.getOperand(), document);
 		expr.regionFor.feature(XABSTRACT_FEATURE_CALL__FEATURE).append[noSpace]
 	}
 
-	def void _format(XJArrayAccessExpression expr, extension IFormattableDocument document) {
+	def dispatch void format(XJArrayAccessExpression expr, extension IFormattableDocument document) {
 		format(expr.getArray(), document);
 		formatArrayIndexes(expr.indexes, document)
 	}
 
-	def void _format(XJBreakStatement expr, extension IFormattableDocument document) {
+	def dispatch void format(XJBreakStatement expr, extension IFormattableDocument document) {
 		expr.regionFor.keyword("break").surround[noSpace]
 	}
 
-	def void _format(XJContinueStatement expr, extension IFormattableDocument document) {
+	def dispatch void format(XJContinueStatement expr, extension IFormattableDocument document) {
 		expr.regionFor.keyword("continue").surround[noSpace]
 	}
 
-	override void _format(XForLoopExpression expr, extension IFormattableDocument format) {
+	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {
 		super._format(expr, format)
 		format(expr.declaredParam, format)
 	}
 
-	override void _format(XSwitchExpression expr, extension IFormattableDocument document) {
+	override dispatch void format(XSwitchExpression expr, extension IFormattableDocument document) {
 		super._format(expr, document)
 		expr.regionFor.keyword("(").append[noSpace]
 		expr.regionFor.keyword(")").prepend[noSpace]
 	}
 
-	def void _format(XJTryWithResourcesStatement expr, extension IFormattableDocument document) {
+	def dispatch void format(XJTryWithResourcesStatement expr, extension IFormattableDocument document) {
 		expr.regionFor.keyword("try").append[oneSpace]
 		expr.regionFor.keyword("(").append[noSpace]
 		expr.regionFor.keyword(")").prepend[noSpace]
@@ -181,17 +143,17 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		super._format(expr, document)
 	}
 
-	def void _format(XJSwitchStatements expr, extension IFormattableDocument document) {
+	def dispatch void format(XJSwitchStatements expr, extension IFormattableDocument document) {
 		formatExpressions(expr.expressions, document, true)
 	}
 
-	def void _format(XJSemicolonStatement e, extension IFormattableDocument document) {
+	def dispatch void format(XJSemicolonStatement e, extension IFormattableDocument document) {
 		if (e.expression !== null)
 			format(e.expression, document)
 		formatSemicolon(e, document)
 	}
 
-	override void _format(XConstructorCall expr, extension IFormattableDocument document) {
+	override dispatch void format(XConstructorCall expr, extension IFormattableDocument document) {
 		// case for diamond
 		if (expr.typeArguments.empty) {
 			expr.handleOpenCloseParenthesis("<", ">", document)
