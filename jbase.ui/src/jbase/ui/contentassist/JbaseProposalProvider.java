@@ -3,12 +3,11 @@
  */
 package jbase.ui.contentassist;
 
+import java.util.TreeSet;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
-import org.eclipse.xtext.EcoreUtil2;
-import jbase.typesystem.JbaseMethodReferences;
 import org.eclipse.xtext.common.types.JvmGenericType;
-import java.util.TreeSet;
 import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
@@ -23,6 +22,7 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
 import com.google.inject.Inject;
 
 import jbase.jbase.XJMethodReference;
+import jbase.typesystem.JbaseMethodReferences;
 
 /**
  * Adapts Xbase completion to Jbase statement wrappers and Java reference syntax.
