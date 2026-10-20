@@ -43,12 +43,16 @@ Workflow {
 				useInferredJvmModel = false
 			}
 
+			junitSupport = {
+				generateXtendStub = false
+			}
+
 			serializer = {
 				generateXtendStub = false
 			}
 			validator = {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
-				generateXtendStub = true
+				generateXtendStub = false
 			}
 		}
 	}

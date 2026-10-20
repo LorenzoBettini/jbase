@@ -38,7 +38,6 @@ import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
-import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
@@ -71,37 +70,21 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	private JbaseExpressionHelper expressionHelper;
 
 	@Override
-	protected void doInternalToJavaStatement(XExpression obj,
-			ITreeAppendable appendable, boolean isReferenced) {
-		if (obj instanceof XJArrayConstructorCall) {
-			_toJavaStatement((XJArrayConstructorCall) obj, appendable, isReferenced);
-		} else if (obj instanceof XJArrayAccessExpression) {
-			_toJavaStatement((XJArrayAccessExpression) obj, appendable, isReferenced);
-		} else if (obj instanceof XJContinueStatement) {
-			_toJavaStatement((XJContinueStatement) obj, appendable, isReferenced);
-		} else if (obj instanceof XJBreakStatement) {
-			_toJavaStatement((XJBreakStatement) obj, appendable, isReferenced);
-		} else if (obj instanceof XJClassObject) {
-			_toJavaStatement((XJClassObject) obj, appendable, isReferenced);
-		} else if (obj instanceof XJSemicolonStatement) {
-			_toJavaStatement((XJSemicolonStatement) obj, appendable, isReferenced);
-		} else {
-			super.doInternalToJavaStatement(obj, appendable, isReferenced);
+	protected void doInternalToJavaStatement(final XExpression obj,
+			final ITreeAppendable appendable, final boolean isReferenced) {
+		switch (obj) {
+			case XJArrayConstructorCall call -> { /* compile only as expression */ }
+			case XJArrayAccessExpression access -> { /* compile only as expression */ }
+			case XJClassObject classObject -> { /* compile only as expression */ }
+			case XJContinueStatement statement -> compileContinueStatement(statement, appendable);
+			case XJBreakStatement statement -> compileBranchingStatement(appendable, "break");
+			case XJSemicolonStatement statement ->
+				compileSemicolonStatement(statement, appendable, isReferenced);
+			case null, default -> super.doInternalToJavaStatement(obj, appendable, isReferenced);
 		}
 	}
-	
-	public void _toJavaStatement(XJArrayConstructorCall call, ITreeAppendable b,
-			boolean isReferenced) {
-		// compile it only as expression
-	}
 
-	public void _toJavaStatement(XJArrayAccessExpression access, ITreeAppendable b,
-			boolean isReferenced) {
-		// compile it only as expression
-	}
-
-	public void _toJavaStatement(XJContinueStatement st, ITreeAppendable b,
-			boolean isReferenced) {
+	private void compileContinueStatement(XJContinueStatement st, ITreeAppendable b) {
 		XBasicForLoopExpression basicForLoop = EcoreUtil2.getContainerOfType(st, XBasicForLoopExpression.class);
 		
 		if (basicForLoop != null && !canCompileToJavaBasicForStatement(basicForLoop, b)) {
@@ -126,17 +109,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				b.newLine().append(varName).append(ASSIGNED_TRUE);
 			}
 		}
-		compileBranchingStatement(st, b, "continue");
-	}
-
-	public void _toJavaStatement(XJBreakStatement st, ITreeAppendable b,
-			boolean isReferenced) {
-		compileBranchingStatement(st, b, "break");
-	}
-
-	public void _toJavaStatement(XJClassObject e, ITreeAppendable b,
-			boolean isReferenced) {
-		// compile it only as expression
+		compileBranchingStatement(b, "continue");
 	}
 
 	private void compileClassObject(XJClassObject e, ITreeAppendable b) {
@@ -147,12 +120,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			append(Joiner.on("").join(e.getArrayDimensions())).append(".class");
 	}
 
-	private void compileBranchingStatement(XJBranchingStatement st,
-			ITreeAppendable b, String instruction) {
+	private void compileBranchingStatement(ITreeAppendable b, String instruction) {
 		b.newLine().append(instruction).append(";");
 	}
 
-	public void _toJavaStatement(XJSemicolonStatement st, ITreeAppendable b,
+	private void compileSemicolonStatement(XJSemicolonStatement st, ITreeAppendable b,
 			boolean isReferenced) {
 		XExpression expression = st.getExpression();
 		if (expression != null) {
@@ -163,21 +135,18 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	@Override
-	protected void internalToConvertedExpression(XExpression obj, ITreeAppendable appendable) {
-		if (obj instanceof XJArrayConstructorCall) {
-			_toJavaExpression((XJArrayConstructorCall) obj, appendable);
-		} else if (obj instanceof XJArrayAccessExpression) {
-			_toJavaExpression((XJArrayAccessExpression) obj, appendable);
-		} else if (obj instanceof XJCharLiteral) {
-			_toJavaExpression((XJCharLiteral) obj, appendable);
-		} else if (obj instanceof XJClassObject) {
-			_toJavaExpression((XJClassObject) obj, appendable);
-		} else {
-			super.internalToConvertedExpression(obj, appendable);
+	protected void internalToConvertedExpression(final XExpression obj,
+			final ITreeAppendable appendable) {
+		switch (obj) {
+			case XJArrayConstructorCall call -> compileJavaExpression(call, appendable);
+			case XJArrayAccessExpression access -> compileJavaExpression(access, appendable);
+			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
+			case XJClassObject classObject -> compileClassObject(classObject, appendable);
+			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
 	}
 
-	public void _toJavaExpression(XJArrayConstructorCall call, ITreeAppendable b) {
+	private void compileJavaExpression(XJArrayConstructorCall call, ITreeAppendable b) {
 		if (call.getArrayLiteral() == null) {
 			// otherwise we simply compile the array literal
 			// assuming that no dimension expression has been specified
@@ -188,13 +157,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		compileArrayAccess(call, b);
 	}
 
-	public void _toJavaExpression(XJArrayAccessExpression arrayAccess, ITreeAppendable b) {
+	private void compileJavaExpression(XJArrayAccessExpression arrayAccess, ITreeAppendable b) {
 		internalToConvertedExpression(arrayAccess.getArray(), b);
 		compileArrayAccess(arrayAccess, b);
-	}
-
-	public void _toJavaExpression(XJClassObject e, ITreeAppendable b) {
-		compileClassObject(e, b);
 	}
 
 	/**
@@ -204,7 +169,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * @param literal
 	 * @param appendable
 	 */
-	public void _toJavaExpression(XJCharLiteral literal, ITreeAppendable appendable) {
+	private void compileJavaExpression(XJCharLiteral literal, ITreeAppendable appendable) {
 		String javaString = Strings.convertToJavaString(literal.getValue(), true);
 		appendable.append("'").append(javaString).append("'");
 	}
@@ -262,8 +227,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		
 		EList<XExpression> initExpressions = expr.getInitExpressions();
 		XExpression firstInitExpression = IterableExtensions.head(initExpressions);
-		if (firstInitExpression instanceof XJVariableDeclaration) {
-			XJVariableDeclaration variableDeclaration = (XJVariableDeclaration) firstInitExpression;
+		if (firstInitExpression instanceof XJVariableDeclaration variableDeclaration) {
 			LightweightTypeReference type = appendVariableTypeAndName(variableDeclaration, loopAppendable);
 			loopAppendable.append(" = ");
 			if (variableDeclaration.getRight() != null) {
@@ -311,7 +275,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		loopAppendable.closeScope();
 	}
 
-	protected void handleForStatementAdditionalVariables(XJVariableDeclaration variableDeclaration,
+	private void handleForStatementAdditionalVariables(XJVariableDeclaration variableDeclaration,
 			LightweightTypeReference type, ITreeAppendable loopAppendable) {
 		// custom implementation since possible additional declarations are contained (i.e., parsed)
 		// in JavamXVariableDeclaration
@@ -464,8 +428,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			ITreeAppendable b, boolean isReferenced) {
 		super._toJavaStatement(varDeclaration, b, isReferenced);
 		
-		if (varDeclaration instanceof XJVariableDeclaration) {
-			XJVariableDeclaration customVar = (XJVariableDeclaration) varDeclaration;
+		if (varDeclaration instanceof XJVariableDeclaration customVar) {
 			for (XVariableDeclaration additional : customVar.getAdditionalVariables()) {
 				_toJavaStatement(additional, b, isReferenced);
 			}
@@ -480,7 +443,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void featureCalltoJavaExpression(XAbstractFeatureCall call,
 			ITreeAppendable b, boolean isExpressionContext) {
-		if (call instanceof XJPrefixOperation) {
+		if (call instanceof XJPrefixOperation prefixOperation) {
 			// we can't simply retrieve the inline annotations as it is done
 			// for postfix operations, since postfix operations are already mapped to
 			// postfix methods operator_plusPlus and operator_minusMinus
@@ -491,10 +454,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				// the only other possibility is minus minus
 				b.append("--");
 			}
-			appendArgument(((XJPrefixOperation) call).getOperand(), b);
+			appendArgument(prefixOperation.getOperand(), b);
 			return;
-		} else if (call instanceof XUnaryOperation) {
-			XUnaryOperation unaryOperation = (XUnaryOperation) call;
+		} else if (call instanceof XUnaryOperation unaryOperation) {
 			final StringBuilder builder = new StringBuilder();
 			boolean specialHandling = expressionHelper.specialHandling(unaryOperation,
 				new BaseCase() {
@@ -530,8 +492,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 */
 	@Override
 	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b, boolean recursive) {
-		if (expr instanceof XUnaryOperation) {
-			return !expressionHelper.specialHandling((XUnaryOperation) expr);
+		if (expr instanceof XUnaryOperation unaryOperation) {
+			return !expressionHelper.specialHandling(unaryOperation);
 		} else if (expr instanceof XJClassObject ||
 			EcoreUtil2.getContainerOfType(expr, XJTryWithResourcesVariableDeclaration.class) != null) {
 			// there must be no intermediate expressions in the context of the
@@ -542,8 +504,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	private void compileArrayAccess(XExpression expr, ITreeAppendable b) {
-		if (expr instanceof XJArrayAccess) {
-			XJArrayAccess access = (XJArrayAccess) expr;
+		if (expr instanceof XJArrayAccess access) {
 			for (XExpression index : access.getIndexes()) {
 				b.append("[");
 				internalToJavaExpression(index, b);
@@ -594,6 +555,5 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		String varName = appendable.declareVariable(declaredParam, name);
 		appendable.trace(declaredParam, TypesPackage.Literals.JVM_FORMAL_PARAMETER__NAME, 0).append(varName);
 	}
-
 
 }

@@ -38,12 +38,16 @@ Workflow {
 			xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {
 			}
 
+			junitSupport = {
+				generateXtendStub = false
+			}
+
 			serializer = {
 				generateStub = false
 			}
 			validator = {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
-				generateXtendStub = true
+				generateXtendStub = false
 			}
 			formatter = {
 				generateStub = true
