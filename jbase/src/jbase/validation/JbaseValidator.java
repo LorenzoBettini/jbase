@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
 import org.eclipse.xtext.common.types.JvmOperation;
@@ -18,13 +20,20 @@ import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XAssignment;
+import org.eclipse.xtext.xbase.XBinaryOperation;
+import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
+import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XMemberFeatureCall;
+import org.eclipse.xtext.xbase.XPostfixOperation;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
+import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.jvmmodel.ILogicalContainerProvider;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner;
@@ -73,9 +82,134 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Inject
 	private JbaseSureReturnComputer sureReturnComputer;
 	@Inject
+	private IEarlyExitComputer earlyExitComputer;
+	@Inject
 	private JbaseInitializedVariableFinder initializedVariableFinder;
 	@Inject
 	private ProxyAwareUIStrings proxyAwareUIStrings;
+
+	@Override
+	public void checkClosureParams(final XClosure closure) {
+		// Java functional interfaces do not impose Xbase's limit of six parameters.
+	}
+
+	@Check
+	public void checkJavaLambda(final XClosure closure) {
+		var expectedType = getExpectedType(closure);
+		var operation = expectedType == null ? null
+			: getServices().getFunctionTypes().findImplementingOperation(expectedType);
+		if (operation == null || !expectedType.isInterfaceType()
+				|| !operation.getTypeParameters().isEmpty()) {
+			error("A lambda expression requires a functional interface target type",
+				closure, null, INVALID_LAMBDA);
+			return;
+		}
+		var functionType = expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
+		var parameters = closure.getDeclaredFormalParameters();
+		var parameterTypes = functionType.getParameterTypes();
+		for (var i = 0; i < Math.min(parameters.size(), parameterTypes.size()); i++) {
+			var declaredType = parameters.get(i).getParameterType();
+			if (declaredType != null
+					&& expectedType.getTypeArguments().stream().noneMatch(type -> type.isWildcard())
+					&& !toLightweightTypeReference(declaredType).getIdentifier()
+						.equals(parameterTypes.get(i).getIdentifier())) {
+				error("Lambda parameter type must match the functional interface parameter type",
+					parameters.get(i), null, INVALID_LAMBDA);
+			}
+		}
+		var body = closure.getExpression();
+		if (body instanceof XBlockExpression
+				&& !functionType.getReturnType().isPrimitiveVoid()
+				&& !earlyExitComputer.isEarlyExit(body)) {
+			errorMissingReturnStatement(body);
+		}
+		if (!(body instanceof XBlockExpression)
+				&& functionType.getReturnType().isPrimitiveVoid()
+				&& !isStatementExpression(body)) {
+			error("A void lambda body must be a statement expression", closure, null, INVALID_LAMBDA);
+		}
+	}
+
+	private boolean isStatementExpression(final XExpression body) {
+		return body instanceof XAssignment || body instanceof XConstructorCall
+			|| body instanceof XPostfixOperation
+			|| body instanceof XBinaryOperation binary && binary.isReassignFirstArgument()
+			|| (body instanceof XFeatureCall || body instanceof XMemberFeatureCall)
+				&& ((XAbstractFeatureCall) body).getFeature() instanceof JvmOperation;
+	}
+
+	@Check
+	public void checkCapturedLocal(final XAbstractFeatureCall call) {
+		var feature = call.getFeature();
+		if (!(feature instanceof XVariableDeclaration || feature instanceof JvmFormalParameter)) {
+			return;
+		}
+		var closure = EcoreUtil2.getContainerOfType(call, XClosure.class);
+		if (closure == null || EcoreUtil.isAncestor(closure, feature)) {
+			return;
+		}
+		var writes = XbaseUsageCrossReferencer.find(feature, EcoreUtil.getRootContainer(closure))
+			.stream().map(reference -> reference.getEObject())
+			.filter(this::isLocalWrite).toList();
+		if (!writes.isEmpty() && !isEffectivelyFinal(feature, writes)) {
+			error("Local variable " + feature.getSimpleName()
+				+ " must be final or effectively final when captured by a lambda",
+				call, XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NON_EFFECTIVELY_FINAL_CAPTURE);
+		}
+	}
+
+	private boolean isEffectivelyFinal(final EObject feature, final List<EObject> writes) {
+		if (!(feature instanceof XVariableDeclaration variable) || variable.getRight() != null) {
+			return false;
+		}
+		var scope = EcoreUtil2.getContainerOfType(variable, XBlockExpression.class);
+		for (var write : writes) {
+			if (!(write instanceof XAssignment) || canRepeatWrite(write, scope)) {
+				return false;
+			}
+			for (var other : writes) {
+				if (write != other && !areExclusiveWrites(write, other, scope)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean canRepeatWrite(final EObject write, final EObject scope) {
+		var child = write;
+		for (var parent = child.eContainer(); parent != scope; parent = child.eContainer()) {
+			if (parent instanceof XClosure || parent instanceof XAbstractWhileExpression
+					|| parent instanceof XBasicForLoopExpression loop
+						&& !loop.getInitExpressions().contains(child)
+					|| parent instanceof XForLoopExpression loop && loop.getEachExpression() == child) {
+				return true;
+			}
+			child = parent;
+		}
+		return false;
+	}
+
+	private boolean areExclusiveWrites(final EObject first, final EObject second,
+			final EObject scope) {
+		for (var parent = first.eContainer(); parent != scope; parent = parent.eContainer()) {
+			if (parent instanceof XIfExpression conditional
+					&& (EcoreUtil.isAncestor(conditional.getThen(), first)
+						&& EcoreUtil.isAncestor(conditional.getElse(), second)
+					|| EcoreUtil.isAncestor(conditional.getElse(), first)
+						&& EcoreUtil.isAncestor(conditional.getThen(), second))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isLocalWrite(final EObject reference) {
+		return reference instanceof XAssignment && !(reference instanceof XJAssignment)
+			|| reference.eContainer() instanceof XPostfixOperation
+			|| reference.eContainer() instanceof XBinaryOperation binary
+				&& binary.isReassignFirstArgument() && binary.getLeftOperand() == reference;
+	}
 
 	@Override
 	protected void checkAssignment(final XExpression expression, final EStructuralFeature feature,
@@ -141,6 +275,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			final Class<? extends EObject>... validContainers) {
 		var container = st.eContainer();
 		while (container != null) {
+			if (container instanceof XClosure) {
+				break;
+			}
 			for (var validContainer : validContainers) {
 				if (validContainer.isInstance(container)) {
 					return;
@@ -282,7 +419,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkVarArgComesLast(final XJJvmFormalParameter param) {
-		if (param.isVarArgs()) {
+		if (param.isVarArgs() || param.eContainer() instanceof XClosure
+				&& nodeModelUtil.getProgramText(param.getParameterType()).endsWith("...")) {
 			var params = (List<?>) param.eContainer().eGet(param.eContainingFeature());
 			if (param != params.getLast()) {
 				error("A vararg must be the last parameter.", param,

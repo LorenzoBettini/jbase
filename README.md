@@ -58,6 +58,25 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
+### Java lambda expressions
+
+Lambda expressions use Java syntax and a functional interface as their target type:
+
+```java
+java.util.function.Function<String, Integer> length = s -> s.length();
+java.util.function.IntBinaryOperator sum = (int x, int y) -> x + y;
+Runnable task = () -> { System.out.println("hello"); };
+java.util.function.IntUnaryOperator abs = n -> {
+	if (n < 0) return -n;
+	return n;
+};
+```
+
+Parameter types can be inferred or declared explicitly. Block bodies use explicit
+`return` statements for results. Captured local variables must be final or
+effectively final. Lambdas are represented by Xbase's `XClosure`, reusing its
+functional interface typing and Java generation. Method references are not supported.
+
 ## Contribute to Jbase
 
 We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which is available from the official Oomph catalog.

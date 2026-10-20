@@ -5,6 +5,7 @@ package jbase.compiler;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
@@ -16,9 +17,11 @@ import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.generator.trace.ILocationData;
 import org.eclipse.xtext.util.Strings;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XCasePart;
+import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
@@ -29,6 +32,7 @@ import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+import org.eclipse.xtext.xbase.util.XbaseUsageCrossReferencer;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -86,6 +90,15 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 
 	private void compileContinueStatement(XJContinueStatement st, ITreeAppendable b) {
 		XBasicForLoopExpression basicForLoop = EcoreUtil2.getContainerOfType(st, XBasicForLoopExpression.class);
+		if (basicForLoop != null
+				&& (EcoreUtil.isAncestor(basicForLoop,
+					EcoreUtil2.getContainerOfType(st, XAbstractWhileExpression.class))
+				|| EcoreUtil.isAncestor(basicForLoop,
+					EcoreUtil2.getContainerOfType(st, XForLoopExpression.class)))) {
+			// Only the loop targeted by continue may contribute update expressions.
+			// In particular, a lambda's own loop must not update an enclosing for.
+			basicForLoop = null;
+		}
 		
 		if (basicForLoop != null && !canCompileToJavaBasicForStatement(basicForLoop, b)) {
 			// the for loop is translated into a while statement, so, before
@@ -426,13 +439,29 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void _toJavaStatement(XVariableDeclaration varDeclaration,
 			ITreeAppendable b, boolean isReferenced) {
-		super._toJavaStatement(varDeclaration, b, isReferenced);
+		if (varDeclaration.getRight() == null && isCapturedLocal(varDeclaration)) {
+			// A synthetic initializer would make the subsequent Java assignment
+			// a reassignment, preventing capture of an effectively final local.
+			b.newLine();
+			appendVariableTypeAndName(varDeclaration, b);
+			b.append(";");
+		} else {
+			super._toJavaStatement(varDeclaration, b, isReferenced);
+		}
 		
 		if (varDeclaration instanceof XJVariableDeclaration customVar) {
 			for (XVariableDeclaration additional : customVar.getAdditionalVariables()) {
 				_toJavaStatement(additional, b, isReferenced);
 			}
 		}
+	}
+
+	private boolean isCapturedLocal(final XVariableDeclaration variable) {
+		return XbaseUsageCrossReferencer.find(variable, EcoreUtil.getRootContainer(variable))
+			.stream().anyMatch(reference -> {
+				var closure = EcoreUtil2.getContainerOfType(reference.getEObject(), XClosure.class);
+				return closure != null && !EcoreUtil.isAncestor(closure, variable);
+			});
 	}
 
 	/**

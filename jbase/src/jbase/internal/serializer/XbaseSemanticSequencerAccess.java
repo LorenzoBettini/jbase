@@ -128,10 +128,10 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 			acceptor.accept(opOr.getFeatureJvmIdentifiableElementOpOrParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
 			acceptor.accept(opOr.getRightOperandXAndExpressionParserRuleCall_1_1_0(), operation.getRightOperand());
 		} // difference with respect to Xbase
-		else if((featureToken = getValidOperator(operation, opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_2_1_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
-			acceptor.accept(opMultiAssign.getXBinaryOperationLeftOperandAction_2_1_1_0_0_0(), operation.getLeftOperand());
-			acceptor.accept(opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_2_1_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
-			acceptor.accept(opMultiAssign.getRightOperandXAssignmentParserRuleCall_2_1_1_1_0(), operation.getRightOperand());
+		else if((featureToken = getValidOperator(operation, opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_3_1_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
+			acceptor.accept(opMultiAssign.getXBinaryOperationLeftOperandAction_3_1_1_0_0_0(), operation.getLeftOperand());
+			acceptor.accept(opMultiAssign.getFeatureJvmIdentifiableElementOpMultiAssignParserRuleCall_3_1_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
+			acceptor.accept(opMultiAssign.getRightOperandXAssignmentParserRuleCall_3_1_1_1_0(), operation.getRightOperand());
 		} else if((featureToken = getValidOperator(operation, opBitwiseIncOr.getFeatureJvmIdentifiableElementOpInclusiveOrParserRuleCall_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
 			acceptor.accept(opOr.getXBinaryOperationLeftOperandAction_1_0_0_0(), operation.getLeftOperand());
 			acceptor.accept(opOr.getFeatureJvmIdentifiableElementOpOrParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);

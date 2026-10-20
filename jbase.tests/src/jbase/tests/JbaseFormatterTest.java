@@ -17,6 +17,22 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Inject
 	private FormatterTestHelper formatterTestHelper;
 
+	@Test
+	public void testLambdaExpressions() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				java.util.function.BiFunction<String, String, String> join=( String a ,String b )->a+b;
+				Runnable r=()->{System.out.println("hello");};
+				""");
+			request.setExpectation("""
+				java.util.function.BiFunction<String, String, String> join = (String a, String b) -> a + b;
+				Runnable r = () -> {
+					System.out.println("hello");
+				};
+				""");
+		});
+	}
+
 	/**
 	 * Java text blocks use LF, while the formatter uses the platform line separator.
 	 */

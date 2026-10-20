@@ -26,6 +26,16 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testLambdas() throws Exception {
+		assertSerialize("""
+			java.util.function.Function<String, Integer> f = s -> s.length();
+			java.util.function.BiFunction<Integer, Integer, Integer> sum = (x, y) -> x + y;
+			java.util.function.IntUnaryOperator g = (final int x) -> { return x + 1; };
+			Runnable r = () -> {};
+			""");
+	}
+
+	@Test
 	public void testAssignmentLeft() throws Exception {
 		assertSerialize("""
 			i = 1;
