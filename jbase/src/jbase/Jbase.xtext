@@ -495,7 +495,7 @@ terminal CHARACTER:
 XRelationalExpression returns XExpression:
 	XOtherOperatorExpression
 	(=>({XJInstanceOfExpression.expression=current} 'instanceof')
-		final?='final'? type=JvmTypeReference patternVariable=XJPatternVariable? |
+		final?='final'? type=JvmTypeReference (=>patternVariable=XJPatternVariable)? |
 	 =>({XBinaryOperation.leftOperand=current}
 		feature=[types::JvmIdentifiableElement|OpCompare]) rightOperand=XOtherOperatorExpression)*
 ;
