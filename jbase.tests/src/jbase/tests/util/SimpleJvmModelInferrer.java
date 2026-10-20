@@ -19,7 +19,7 @@ public class SimpleJvmModelInferrer implements IJvmModelInferrer {
 	@Override
 	public void infer(final EObject object, final IJvmDeclaredTypeAcceptor acceptor,
 			final boolean prelinkingPhase) {
-		acceptor.accept(jvmTypesBuilder.toClass((XExpression) object, "Test"), type -> {
+		acceptor.accept(jvmTypesBuilder.toClass(object, "Test"), type -> {
 			final var method = jvmTypesBuilder.toMethod(object, "doStuff",
 					references.getTypeForName(String.class, object), operation -> {
 						operation.getParameters().add(jvmTypesBuilder.toParameter(object, "s",
