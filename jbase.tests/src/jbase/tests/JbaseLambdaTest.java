@@ -2,6 +2,8 @@ package jbase.tests;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.testing.InjectWith;
@@ -28,6 +30,110 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 
 	@Inject
 	private IBatchTypeResolver typeResolver;
+
+	@Test
+	public void varParameterTypesAreInferredFromTarget() throws Exception {
+		final var model = modelParser.parse("""
+			java.util.function.IntUnaryOperator identity = (var n) -> n;
+			java.util.function.Function<String, Integer> length = (final var s) -> s.length();
+			java.util.function.ToIntFunction<int[]> first = (var values) -> values[0];
+			""");
+		validationTestHelper.assertNoErrors(model);
+		final var closures = EcoreUtil2.getAllContentsOfType(model, XClosure.class);
+		final var types = typeResolver.resolveTypes(model);
+		assertEquals(3, closures.size());
+		for (final var closure : closures) {
+			assertNull(closure.getDeclaredFormalParameters().getFirst().getParameterType());
+		}
+		assertEquals(List.of("int", "java.lang.String", "int[]"), closures.stream()
+			.map(closure -> types.getActualType(closure.getDeclaredFormalParameters().getFirst())
+				.getIdentifier()).toList());
+	}
+
+	@Test
+	public void varParametersCompileInTargetTypingContexts() throws Exception {
+		checkCompilation("""
+			import java.util.function.*;
+			import java.util.stream.Stream;
+			method identity(): IntUnaryOperator { return (var n) -> n; }
+			IntUnaryOperator mutable = (var n) -> { n++; return n; };
+			IntBinaryOperator sum = (final var x, var y) -> x + y;
+			Function<Integer, Function<Integer, Integer>> add = (var x) -> (var y) -> x + y;
+			Stream.of("a", "bb").map((var s) -> s.length()).forEach((var n) ->
+				System.out.println(n));
+			IntUnaryOperator assigned;
+			assigned = (var n) -> n;
+			var cast = (IntUnaryOperator) (var n) -> n;
+			IntUnaryOperator conditional = true ? (var n) -> n : (var n) -> -n;
+			Consumer raw = (var x) -> System.out.println(x);
+			Consumer<? super String> wildcard = (var x) -> System.out.println(x.length());
+			IntUnaryOperator namedVar = (var var) -> var;
+			""", null);
+	}
+
+	@Test
+	public void generatedJavaUsesInferredVarParameterType() throws Exception {
+		checkCompilation("""
+			java.util.function.IntUnaryOperator identity = (var n) -> n;
+			""", """
+			package jbasetestlanguage;
+
+			import java.util.function.IntUnaryOperator;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    final IntUnaryOperator _function = (int n) -> {
+			      return n;
+			    };
+			    IntUnaryOperator identity = _function;
+			  }
+			}
+			""");
+	}
+
+	@Test
+	public void executeVarParameterLambdas() throws Exception {
+		assertExecuteMain("""
+			method testMe() {
+				final int offset = 2;
+				java.util.function.IntBinaryOperator add = (final var x, var y) -> {
+					y++;
+					return x + y + offset;
+				};
+				java.util.function.Function<String, Integer> length = (var s) -> s.length();
+				System.out.println(add.applyAsInt(3, 4));
+				System.out.println(length.apply("hello"));
+			}
+			""", "10\n5\n");
+	}
+
+	@Test
+	public void varParametersCannotMixWithExplicitTypes() throws Exception {
+		for (final var parameters : new String[] { "var x, int y", "int x, var y" }) {
+			assertLambdaError("java.util.function.IntBinaryOperator sum = ("
+				+ parameters + ") -> x + y;", JbaseIssueCodes.INVALID_LAMBDA);
+		}
+	}
+
+	@Test
+	public void varParameterRestrictions() throws Exception {
+		assertLambdaError("var identity = (var n) -> n;", JbaseIssueCodes.INVALID_LAMBDA);
+		assertHasErrors("java.util.function.IntUnaryOperator f = (final var n) -> ++n;");
+		assertHasErrors("java.util.function.Function<String, Integer> f = (var s) -> s;");
+		for (final var parameters : new String[] { "(var x, y)", "(x, var y)" }) {
+			final var model = modelParser.parse("java.util.function.IntBinaryOperator f = "
+				+ parameters + " -> 1;");
+			assertTrue(validationTestHelper.validate(model).stream()
+				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+		}
+		for (final var parameters : new String[] { "var x", "(var[] x)", "(var... x)" }) {
+			final var model = modelParser.parse("java.util.function.IntUnaryOperator f = "
+				+ parameters + " -> 1;");
+			assertTrue(validationTestHelper.validate(model).stream()
+				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+		}
+	}
 
 	@Test
 	public void lambdasWithInferredLocals() throws Exception {

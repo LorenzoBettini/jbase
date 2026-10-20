@@ -18,6 +18,18 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	private FormatterTestHelper formatterTestHelper;
 
 	@Test
+	public void testVarLambdaParameters() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				java.util.function.IntBinaryOperator sum=(final  var  x , var  y)->x+y;
+				""");
+			request.setExpectation("""
+				java.util.function.IntBinaryOperator sum = (final var x, var y) -> x + y;
+				""");
+		});
+	}
+
+	@Test
 	public void testLambdaExpressions() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

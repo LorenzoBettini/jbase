@@ -31,6 +31,8 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			java.util.function.Function<String, Integer> f = s -> s.length();
 			java.util.function.BiFunction<Integer, Integer, Integer> sum = (x, y) -> x + y;
 			java.util.function.IntUnaryOperator g = (final int x) -> { return x + 1; };
+			java.util.function.IntUnaryOperator identity = (var n) -> n;
+			java.util.function.IntBinaryOperator add = (final var x, var y) -> x + y;
 			Runnable r = () -> {};
 			""");
 	}

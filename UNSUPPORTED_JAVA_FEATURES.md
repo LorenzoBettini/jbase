@@ -4,7 +4,7 @@ Last verified: 2026-10-20.
 
 This is an implementation backlog for valid Java expressions and statements that
 Jbase currently rejects, crashes on, or translates incorrectly. It records the
-gaps found while building `AllJavaFeaturesTest`, plus two related lambda gaps.
+gaps found while building `AllJavaFeaturesTest`, plus a related method reference gap.
 It is not an exhaustive comparison with every Java language feature.
 
 Each example below was checked independently with JbaseTestlanguage's compilation
@@ -176,25 +176,14 @@ and constructor references should be considered in the implementation scope.
 
 **Investigate:** Expression grammar and functional interface type inference.
 
-### [ ] `var` in lambda parameter declarations
+## Forms checked that should not be tracked as unsupported
+
+Lambda parameters support `var` and `final var`, with types inferred from the
+functional interface. Covered by `JbaseLambdaTest` and `AllJavaFeaturesTest`:
 
 ```java
 java.util.function.IntUnaryOperator identity = (var n) -> n;
 ```
-
-**Current behavior:** Validation reports `var cannot be resolved to a type` and a
-lambda parameter type mismatch.
-
-**Expected:** Infer the lambda parameter type from the functional interface when
-Java's `var` parameter syntax is used.
-
-**Workaround:** `n -> n` or `(int n) -> n`.
-Local `var` declarations and enhanced-for/resource inference already work.
-
-**Investigate:** `XJLambdaParameter` and `XJLambdaParameterType` in
-[Jbase.xtext](jbase/src/jbase/Jbase.xtext), and lambda parameter type inference.
-
-## Forms checked that should not be tracked as unsupported
 
 Numeric separators independently validate, preserve the literal in generated Java,
 and compile:

@@ -66,6 +66,7 @@ Lambda expressions use Java syntax and a functional interface as their target ty
 ```java
 java.util.function.Function<String, Integer> length = s -> s.length();
 java.util.function.IntBinaryOperator sum = (int x, int y) -> x + y;
+java.util.function.IntUnaryOperator identity = (var n) -> n;
 Runnable task = () -> { System.out.println("hello"); };
 java.util.function.IntUnaryOperator abs = n -> {
 	if (n < 0) return -n;
@@ -73,8 +74,9 @@ java.util.function.IntUnaryOperator abs = n -> {
 };
 ```
 
-Parameter types can be inferred or declared explicitly. Block bodies use explicit
-`return` statements for results. Captured local variables must be final or
+Parameter types can be inferred, written with `var` (optionally `final var`), or
+declared explicitly. All parameters in a `var` parameter list must use `var`.
+Block bodies use explicit `return` statements for results. Captured local variables must be final or
 effectively final. Lambdas are represented by Xbase's `XClosure`, reusing its
 functional interface typing and Java generation. Method references are not supported.
 

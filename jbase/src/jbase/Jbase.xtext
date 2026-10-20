@@ -156,9 +156,10 @@ XJInferredLambdaParameter returns types::JvmFormalParameter:
 	{types::JvmFormalParameter} name=ValidID
 ;
 
+// Leave var's parameterType unset so Xbase infers it from the target interface.
 XJLambdaParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'?
-	parameterType=XJLambdaParameterType name=ValidID
+	(=>'var' | parameterType=XJLambdaParameterType) name=ValidID
 ;
 
 // A variable arity lambda parameter has the same type as an array parameter.

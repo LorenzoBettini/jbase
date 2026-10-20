@@ -156,6 +156,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				System.out.println(supplier.getAsInt());
 			};
 			task.run();
+			IntUnaryOperator identity = (final var n) -> n;
 
 			// Exceptions, resource management and synchronization.
 			try {
@@ -349,6 +350,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    };
 			    Runnable task = ((Runnable) _function_3);
 			    task.run();
+			    final IntUnaryOperator _function_4 = (int n) -> {
+			      return n;
+			    };
+			    IntUnaryOperator identity = _function_4;
 			    try {
 			      if ((absent == null)) {
 			        throw new IllegalArgumentException(text);

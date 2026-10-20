@@ -109,6 +109,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		var functionType = expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
 		var parameters = closure.getDeclaredFormalParameters();
+		if (parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
+				&& parameters.stream().anyMatch(parameter -> parameter.getParameterType() != null)) {
+			error("Cannot mix 'var' and explicitly typed lambda parameters",
+				closure, null, INVALID_LAMBDA);
+		}
 		var parameterTypes = functionType.getParameterTypes();
 		for (var i = 0; i < Math.min(parameters.size(), parameterTypes.size()); i++) {
 			var declaredType = parameters.get(i).getParameterType();
@@ -445,6 +450,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Check
 	public void checkVarArgComesLast(final XJJvmFormalParameter param) {
 		if (param.isVarArgs() || param.eContainer() instanceof XClosure
+				&& param.getParameterType() != null
 				&& nodeModelUtil.getProgramText(param.getParameterType()).endsWith("...")) {
 			var params = (List<?>) param.eContainer().eGet(param.eContainingFeature());
 			if (param != params.getLast()) {
