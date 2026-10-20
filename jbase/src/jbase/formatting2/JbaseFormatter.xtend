@@ -21,6 +21,7 @@ import jbase.util.JbaseModelUtil
 import org.eclipse.emf.common.util.EList
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.XCastedExpression
+import org.eclipse.xtext.xbase.XClosure
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.xbase.XForLoopExpression
 import org.eclipse.xtext.xbase.XSwitchExpression
@@ -154,6 +155,17 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		if (e.expression !== null)
 			format(e.expression, document)
 		formatSemicolon(e, document)
+	}
+
+	override dispatch void format(XClosure closure, extension IFormattableDocument document) {
+		closure.regionFor.keyword("(").append[noSpace]
+		closure.regionFor.keyword(")").prepend[noSpace]
+		closure.regionFor.keywords(",").forEach[prepend[noSpace].append[oneSpace]]
+		closure.regionFor.keyword("->").surround[oneSpace]
+		for (parameter : closure.declaredFormalParameters) {
+			format(parameter, document)
+		}
+		format(closure.expression, document)
 	}
 
 	override dispatch void format(XConstructorCall expr, extension IFormattableDocument document) {

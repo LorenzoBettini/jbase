@@ -12,6 +12,18 @@ import org.junit.runner.RunWith;
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
+	public void testInferredLambdaParameterMembers() throws Exception {
+		newBuilder().append("java.util.function.Function<String, Integer> f = s -> s.len")
+			.assertProposal("length");
+	}
+
+	@Test
+	public void testLambdaParameterInBlock() throws Exception {
+		newBuilder().append("java.util.function.IntUnaryOperator f = value -> { return val")
+			.assertProposal("value");
+	}
+
+	@Test
 	public void testKeywordInEmptyProgram() throws Exception {
 		newBuilder().append("w").assertProposal("while");
 	}

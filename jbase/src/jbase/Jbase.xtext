@@ -119,6 +119,7 @@ XJAdditionalXVariableDeclaration returns XVariableDeclaration:
 
 @Override 
 XAssignment returns XExpression :
+	XClosure |
 	=>({XJAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
 		'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
 		OpSingleAssign) value=XAssignment |	
@@ -129,6 +130,53 @@ XAssignment returns XExpression :
 		|
 		=>({XBinaryOperation.leftOperand=current} feature=[types::JvmIdentifiableElement|OpMultiAssign]) rightOperand=XAssignment
 	)?;
+
+/**
+ * Java lambdas use XClosure so Xbase can infer the functional interface,
+ * parameter types and return type. The arrow always makes the parameter list
+ * explicit, including the empty list (there are no implicit 'it' parameters).
+ * Recognize the entire header before committing, to distinguish parentheses
+ * and casts from lambda parameter lists.
+ */
+@Override
+XClosure returns XExpression:
+	=>({XClosure}
+		(declaredFormalParameters+=XJInferredLambdaParameter |
+			'(' (
+				(declaredFormalParameters+=XJLambdaParameter
+					(',' declaredFormalParameters+=XJLambdaParameter)*) |
+				(declaredFormalParameters+=XJInferredLambdaParameter
+					(',' declaredFormalParameters+=XJInferredLambdaParameter)*)
+			)? ')')
+		explicitSyntax?='->')
+		expression=XJLambdaBody
+;
+
+XJInferredLambdaParameter returns types::JvmFormalParameter:
+	{types::JvmFormalParameter} name=ValidID
+;
+
+// Leave var's parameterType unset so Xbase infers it from the target interface.
+XJLambdaParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'?
+	(=>'var' | parameterType=XJLambdaParameterType) name=ValidID
+;
+
+// A variable arity lambda parameter has the same type as an array parameter.
+XJLambdaParameterType returns types::JvmTypeReference:
+	JvmTypeReference
+	=>({types::JvmGenericArrayTypeReference.componentType=current} '...')?
+;
+
+XJLambdaBody returns XExpression:
+	XJLambdaBlock | XExpression
+;
+
+// Commit at the opening brace, so incomplete lambda blocks remain blocks
+// during editing rather than falling back to array initializers.
+XJLambdaBlock returns XExpression:
+	=>({XBlockExpression} '{') (expressions+=XJStatementOrBlock)* '}'
+;
 
 @Override 
 OpMultiAssign:
@@ -191,8 +239,9 @@ XJArrayDimension:
 
 @Override 
 XCastedExpression returns XExpression:
-	// Java casts bind to a unary operand; parentheses can still enclose a full expression.
-	=>({XCastedExpression} '(' type=JvmTypeReference ')' target=XUnaryOperation)
+	// Keep unary precedence for ordinary casts, while allowing a lambda target.
+	=>({XCastedExpression} '(' type=JvmTypeReference ')'
+		(=>target=XClosure | target=XUnaryOperation))
 	|
 	XPostfixOperation
 ;

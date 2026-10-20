@@ -29,6 +29,25 @@ class CompilerTest {
 	@Inject extension CompilationTestHelper
 	@Inject extension ReflectExtensions
 
+	@Test def void testJavaLambdaWithInferredLocals() throws Exception {
+		'''
+			import java.util.function.IntUnaryOperator;
+			entity Foo {
+				op calculate(int input):int {
+					final var offset = 2;
+					var add = (IntUnaryOperator) n -> {
+						var result = n + offset;
+						return result;
+					};
+					return add.applyAsInt(input);
+				}
+			}
+		'''.compile [
+			val obj = it.compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(5, obj.invoke('calculate', 3))
+		]
+	}
+
 	@Test def void testGeneratedJava() throws Exception {
 		'''
 			entity Foo {

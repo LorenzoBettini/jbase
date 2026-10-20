@@ -13,6 +13,7 @@ import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
+import jbase.typesystem.JbaseReentrantTypeResolver;
 import jbase.validation.JbaseConfigurableIssueCodes;
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
@@ -25,6 +26,7 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
+import org.eclipse.xtext.xbase.typesystem.internal.AbstractRootedReentrantTypeResolver;
 
 /**
  * Use this class to register components to be used at runtime / without the
@@ -47,6 +49,11 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 
 	public Class<? extends ExpressionArgumentFactory> bindExpressionArgumentFactory() {
 		return JbaseExpressionArgumentFactory.class;
+	}
+
+	public Class<? extends AbstractRootedReentrantTypeResolver>
+			bindAbstractRootedReentrantTypeResolver() {
+		return JbaseReentrantTypeResolver.class;
 	}
 
 	public Class<? extends IEarlyExitComputer> bindIEarlyExitComputer() {

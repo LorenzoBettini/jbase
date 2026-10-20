@@ -8,6 +8,7 @@ import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XDoWhileExpression;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
@@ -85,6 +86,8 @@ public class JbaseInitializedVariableFinder {
 			case XSwitchExpression statement ->
 				inspectNotInitialized(statement, initialized, acceptor);
 			case XBlockExpression block -> inspectNotInitialized(block, initialized, acceptor);
+			case XClosure closure -> detectNotInitializedDispatch(closure.getExpression(),
+				createCopy(initialized), acceptor);
 			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);
 			case XIfExpression conditional ->
 				inspectNotInitialized(conditional, initialized, acceptor);
@@ -147,6 +150,7 @@ public class JbaseInitializedVariableFinder {
 
 	private void inspectNotInitialized(final XForLoopExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		detectNotInitializedDispatch(e.getForExpression(), initialized, acceptor);
 		// discard information collected
 		detectNotInitializedDispatch(e.getEachExpression(), createCopy(initialized), acceptor);
 	}

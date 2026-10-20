@@ -19,6 +19,30 @@ import org.junit.runner.RunWith
 @InjectWith(DomainmodelInjectorProvider)
 class FormatterTest extends AbstractFormatterTest {
 
+	@Test def void testJavaLambdaWithInferredLocals() {
+		'''
+			import java.util.function.IntUnaryOperator;
+			entity Foo { op calculate(int input):int {
+			final var offset=2;
+			IntUnaryOperator add=( int n )-> {var result=n+offset;return result;};
+			return add.applyAsInt(input);
+			} }
+		'''.assertFormattedTo('''
+			import java.util.function.IntUnaryOperator;
+
+			entity Foo {
+				op calculate(int input):int {
+					final var offset = 2;
+					IntUnaryOperator add = (int n) -> {
+						var result = n + offset;
+						return result;
+					};
+					return add.applyAsInt(input);
+				}
+			}
+		''')
+	}
+
 	/**
 	 * This example tests if the formatted document equals the unformatted document.
 	 * This is the most convenient way to test a formatter.

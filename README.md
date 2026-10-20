@@ -59,6 +59,27 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
+## Java lambda expressions
+
+Lambda expressions use Java syntax and a functional interface as their target type:
+
+```java
+java.util.function.Function<String, Integer> length = s -> s.length();
+java.util.function.IntBinaryOperator sum = (int x, int y) -> x + y;
+java.util.function.IntUnaryOperator identity = (var n) -> n;
+Runnable task = () -> { System.out.println("hello"); };
+java.util.function.IntUnaryOperator abs = n -> {
+	if (n < 0) return -n;
+	return n;
+};
+```
+
+Parameter types can be inferred, written with `var` (optionally `final var`), or
+declared explicitly. All parameters in a `var` parameter list must use `var`.
+Block bodies use explicit `return` statements for results. Captured local variables must be final or
+effectively final. Lambdas are represented by Xbase's `XClosure`, reusing its
+functional interface typing and Java generation. Method references are not supported.
+
 ## Local variable type inference
 
 Jbase supports Java's `var` and `final var` for local variables, basic and enhanced
@@ -81,8 +102,13 @@ try (var input = new java.io.StringReader("hello")) {
 The inferred type stays fixed after initialization. Local `var` declarations need
 one variable and an initializer; `null` and bare array initializers such as `{1, 2}`
 cannot supply the type. Use `new int[] {1, 2}` for an inferred array type.
+Lambdas also need an explicit target type, for example
+`var task = (Runnable) () -> System.out.println("hello");`.
 `var` is not supported for method or catch parameters. Resource variables are
 implicitly final, and `var` remains valid as a variable or method name.
+
+Known Java compatibility gaps and implementation tasks are tracked in
+[Unsupported Java features](UNSUPPORTED_JAVA_FEATURES.md).
 
 ## Contribute to Jbase
 

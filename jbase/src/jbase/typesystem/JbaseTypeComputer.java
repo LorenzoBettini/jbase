@@ -2,10 +2,13 @@ package jbase.typesystem;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
+import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XCastedExpression;
+import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
@@ -15,6 +18,7 @@ import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
+import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
@@ -99,6 +103,43 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	protected void _computeTypes(final XStringLiteral object, final ITypeComputationState state) {
 		var result = getTypeForName(String.class, state);
 		state.acceptActualType(result);
+	}
+
+	@Override
+	protected void _computeTypes(final XCastedExpression expression,
+			final ITypeComputationState state) {
+		if (expression.getTarget() instanceof XClosure && expression.getType() != null) {
+			// Unlike an ordinary cast, a lambda cast supplies the target interface
+			// from which Xbase must infer the lambda's parameter and return types.
+			var targetType = state.getReferenceOwner()
+				.toLightweightTypeReference(expression.getType());
+			state.withExpectation(targetType).computeTypes(expression.getTarget());
+			state.acceptActualType(targetType);
+		} else {
+			super._computeTypes(expression, state);
+		}
+	}
+
+	@Override
+	protected void _computeTypes(final XClosure closure, final ITypeComputationState state) {
+		for (var expectation : state.getExpectations()) {
+			var expectedType = expectation.getExpectedType();
+			if (expectedType != null && expectedType.isRawType()) {
+				// Java infers erased parameter types for a raw functional interface.
+				// Xbase would otherwise leave these parameters as unbound types.
+				var owner = state.getReferenceOwner();
+				var type = (JvmGenericType) expectedType.getRawTypeReference().getType();
+				var parameterized = owner.newParameterizedTypeReference(type);
+				for (var parameter : type.getTypeParameters()) {
+					parameterized.addTypeArgument(owner.newParameterizedTypeReference(parameter)
+						.getRawTypeReference());
+				}
+				super._computeTypes(closure, state.withExpectation(parameterized));
+				state.acceptActualType(parameterized);
+			} else {
+				new ClosureTypeComputer(closure, expectation, state).computeTypes();
+			}
+		}
 	}
 
 	@Override

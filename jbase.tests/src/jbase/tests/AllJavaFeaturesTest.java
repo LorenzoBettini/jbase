@@ -1,0 +1,391 @@
+package jbase.tests;
+
+import com.google.inject.Inject;
+import jbase.testlanguage.validation.JbaseTestlanguageValidator;
+import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
+import org.eclipse.xtext.testing.InjectWith;
+import org.eclipse.xtext.testing.XtextRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+/**
+ * A compilation showcase of the Java features supported by Jbase.
+ * Keep this single program up to date when adding Java features.
+ */
+@RunWith(XtextRunner.class)
+@InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
+public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
+
+	@Inject
+	private JbaseTestlanguageValidator validator;
+
+	@Test
+	public void testAllJavaFeatures() throws Exception {
+		validator.setSkipVariableInitializationCheck(false);
+		checkCompilation("""
+			import java.io.ByteArrayInputStream;
+			import java.io.IOException;
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.function.IntSupplier;
+			import java.util.function.IntUnaryOperator;
+			import static java.lang.Math.abs;
+
+			@SuppressWarnings({"unused", "deprecation"})
+			value : Object
+
+			method @Deprecated echo(final String prefix, String... parts) : String {
+				this.value = prefix;
+				return prefix + parts[0];
+			}
+
+			op sum(final int... values) : int {
+				int total = 0;
+				for (final int value : values) {
+					total += value;
+				}
+				return total;
+			}
+
+			// Primitive types, literals, declarations, assignments and operators.
+			final boolean enabled = true;
+			byte small = (byte) 1;
+			short medium = (short) 2;
+			short positive = +1;
+			char letter = 'a';
+			int count = 0, limit = 3;
+			long mask = 255L;
+			float fraction = 1.5f;
+			double decimal = 2.5e2;
+			String text = "hello";
+			Object absent = null;
+			int hexadecimal = 0xFF;
+			int assigned;
+			assigned = count = 1;
+			count += 2;
+			count -= 1;
+			count *= 2;
+			count /= 2;
+			count %= 3;
+			count++;
+			count--;
+			++count;
+			--count;
+			int arithmetic = count + (-limit) * 2 / 1 % 3;
+			mask &= 15L;
+			mask |= 16L;
+			mask ^= 1L;
+			long bits = (~mask & 3L) | (mask ^ 2L);
+			long shifted = (mask << 1) + (mask >> 1) + (mask >>> 1);
+			boolean comparison = count < limit && count <= limit || count > limit && count >= limit;
+			boolean equality = text == absent || text != absent;
+			boolean logical = !enabled | (enabled & false) ^ true;
+			String choice = comparison ? text : "fallback";
+			Object boxed = count;
+			int unboxed = (Integer) boxed;
+			boolean stringValue = boxed instanceof String;
+			Class<?> type = String.class;
+			Class<?> arrayType = String[].class;
+			;
+
+			// Arrays, constructors, generics, diamond inference and wildcards.
+			int[] numbers = {1, 2, 3};
+			int[] empty = {};
+			int[] sized = new int[limit];
+			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
+			int[][] partial = new int[limit][];
+			matrix[0][1] = numbers[0];
+			numbers[1] = numbers[1] + matrix[0][1];
+			int length = matrix[0].length;
+			int[] copy = numbers.clone();
+			List<String> names = new ArrayList<>();
+			names.add(text);
+			List<? extends CharSequence> readable = names;
+			List<? super String> writable = new ArrayList<Object>();
+			writable.add(choice);
+			var inferred = new ArrayList<String>();
+			final var offset = 2;
+			inferred.add(names.get(0));
+
+			// Branches, all loop forms, break, continue and switch fall-through.
+			if (enabled) count = abs(-1);
+			else count = 0;
+			if (count != 0) {
+				count = sum(numbers);
+			}
+			for (int i = 0, j = limit; i < j; i++, j--) {
+				if (i == 1) continue;
+				numbers[i] = i;
+			}
+			for (var i = 0; i < limit; i++) {
+				if (i == 2) break;
+			}
+			for (var name : names) {
+				System.out.println(name);
+			}
+			while (count < limit) count++;
+			do {
+				count--;
+			} while (count > 0);
+			for (;;) {
+				break;
+			}
+			switch (count) {
+			case 0:
+			case 1:
+				count++;
+				break;
+			default:
+				count = 0;
+			}
+			switch (text) {
+			case "hello":
+				System.out.println(text);
+				break;
+			default:
+				System.out.println(choice);
+			}
+
+			// Expression and block lambdas, explicit parameters and captured locals.
+			IntUnaryOperator increment = n -> n + offset;
+			IntUnaryOperator decrement = (final int n) -> {
+				return n - offset;
+			};
+			IntSupplier supplier = () -> increment.applyAsInt(offset);
+			var task = (Runnable) () -> {
+				System.out.println(supplier.getAsInt());
+			};
+			task.run();
+			IntUnaryOperator identity = (final var n) -> n;
+
+			// Exceptions, resource management and synchronization.
+			try {
+				if (absent == null) throw new IllegalArgumentException(text);
+			} catch (final IllegalArgumentException e) {
+				System.out.println(e.getMessage());
+			} finally {
+				System.out.println("done");
+			}
+			try (final var first = new ByteArrayInputStream(new byte[] {1});
+				ByteArrayInputStream second = new ByteArrayInputStream(new byte[] {2})) {
+				System.out.println(first.read() + second.read());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			synchronized (names) {
+				names.clear();
+			}
+			""", """
+			package jbasetestlanguage;
+
+			import java.io.ByteArrayInputStream;
+			import java.io.IOException;
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.function.IntSupplier;
+			import java.util.function.IntUnaryOperator;
+			import org.eclipse.xtext.xbase.lib.Exceptions;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  @SuppressWarnings({ "unused", "deprecation" })
+			  private Object value;
+
+			  @Deprecated
+			  public String echo(final String prefix, String... parts) {
+			    this.value = prefix;
+			    return (prefix + parts[0]);
+			  }
+
+			  public static int sum(final int... values) {
+			    int total = 0;
+			    for (final int value : values) {
+			      int _tal = total;
+			      total = (_tal + value);
+			    }
+			    return total;
+			  }
+
+			  public static void main(String[] args) throws Throwable {
+			    final boolean enabled = true;
+			    byte small = ((byte) 1);
+			    short medium = ((short) 2);
+			    short positive = +1;
+			    char letter = 'a';
+			    int count = 0;
+			    int limit = 3;
+			    long mask = 255L;
+			    float fraction = 1.5f;
+			    double decimal = 2.5e2;
+			    String text = "hello";
+			    Object absent = null;
+			    int hexadecimal = 0xFF;
+			    int assigned = 0;
+			    assigned = (count = 1);
+			    int _count = count;
+			    count = (_count + 2);
+			    int _count_1 = count;
+			    count = (_count_1 - 1);
+			    int _count_2 = count;
+			    count = (_count_2 * 2);
+			    int _count_3 = count;
+			    count = (_count_3 / 2);
+			    int _count_4 = count;
+			    count = (_count_4 % 3);
+			    count++;
+			    count--;
+			    ++count;
+			    --count;
+			    int _minus = (-limit);
+			    int _multiply = (_minus * 2);
+			    int _divide = (_multiply / 1);
+			    int _modulo = (_divide % 3);
+			    int arithmetic = (count + _modulo);
+			    long _mask = mask;
+			    mask = (_mask & 15L);
+			    long _mask_1 = mask;
+			    mask = (_mask_1 | 16L);
+			    long _mask_2 = mask;
+			    mask = (_mask_2 ^ 1L);
+			    long _bitwiseNot = (~mask);
+			    long _bitwiseAnd = (_bitwiseNot & 3L);
+			    long bits = (_bitwiseAnd | (mask ^ 2L));
+			    long shifted = (((mask << 1) + (mask >> 1)) + (mask >>> 1));
+			    boolean comparison = (((count < limit) && (count <= limit)) || ((count > limit) && (count >= limit)));
+			    boolean equality = ((text == absent) || (text != absent));
+			    boolean _not = (!enabled);
+			    boolean logical = (_not | ((enabled & false) ^ true));
+			    String _xjconditionalexpression = null;
+			    if (comparison) {
+			      _xjconditionalexpression = text;
+			    } else {
+			      _xjconditionalexpression = "fallback";
+			    }
+			    String choice = _xjconditionalexpression;
+			    Object boxed = Integer.valueOf(count);
+			    int unboxed = (((Integer) boxed)).intValue();
+			    boolean stringValue = (boxed instanceof String);
+			    Class<?> type = String.class;
+			    Class<?> arrayType = String[].class;;
+			    int[] numbers = { 1, 2, 3 };
+			    int[] empty = {};
+			    int[] sized = new int[limit];
+			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };
+			    int[][] partial = new int[limit][];
+			    matrix[0][1] = numbers[0];
+			    int _plus = (numbers[1] + matrix[0][1]);
+			    numbers[1] = _plus;
+			    int length = matrix[0].length;
+			    int[] copy = numbers.clone();
+			    List<String> names = new ArrayList<String>();
+			    names.add(text);
+			    List<? extends CharSequence> readable = names;
+			    List<? super String> writable = new ArrayList<Object>();
+			    writable.add(choice);
+			    ArrayList<String> inferred = new ArrayList<String>();
+			    final int offset = 2;
+			    inferred.add(names.get(0));
+			    if (enabled) {
+			      count = Math.abs(-1);
+			    } else {
+			      count = 0;
+			    }
+			    if ((count != 0)) {
+			      count = MyFile.sum(numbers);
+			    }
+			    for (int i = 0, j = limit; (i < j); i++, j--) {
+			      {
+			        if ((i == 1)) {
+			          continue;
+			        }
+			        numbers[i] = i;
+			      }
+			    }
+			    for (int i = 0; (i < limit); i++) {
+			      if ((i == 2)) {
+			        break;
+			      }
+			    }
+			    for (String name : names) {
+			      System.out.println(name);
+			    }
+			    while ((count < limit)) {
+			      count++;
+			    }
+			    do {
+			      count--;
+			    } while((count > 0));
+			    for (;;) {
+			      break;
+			    }
+			    switch (count) {
+			      case 0:
+			      case 1:
+			        count++;
+			        break;
+			      default:
+			        count = 0;
+			    }
+			    switch (text) {
+			      case "hello":
+			        System.out.println(text);
+			        break;
+			      default:
+			        System.out.println(choice);
+			    }
+			    final IntUnaryOperator _function = (int n) -> {
+			      return (n + offset);
+			    };
+			    IntUnaryOperator increment = _function;
+			    final IntUnaryOperator _function_1 = (int n) -> {
+			      return (n - offset);
+			    };
+			    IntUnaryOperator decrement = _function_1;
+			    final IntSupplier _function_2 = () -> {
+			      return increment.applyAsInt(offset);
+			    };
+			    IntSupplier supplier = _function_2;
+			    final Runnable _function_3 = () -> {
+			      System.out.println(supplier.getAsInt());
+			    };
+			    Runnable task = ((Runnable) _function_3);
+			    task.run();
+			    final IntUnaryOperator _function_4 = (int n) -> {
+			      return n;
+			    };
+			    IntUnaryOperator identity = _function_4;
+			    try {
+			      if ((absent == null)) {
+			        throw new IllegalArgumentException(text);
+			      }
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IllegalArgumentException) {
+			        final IllegalArgumentException e = (IllegalArgumentException)_t;
+			        System.out.println(e.getMessage());
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    } finally {
+			      System.out.println("done");
+			    }
+			    try (final ByteArrayInputStream first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
+			      int _read = first.read();
+			      int _read_1 = second.read();
+			      int _plus_1 = (_read + _read_1);
+			      System.out.println(_plus_1);
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IOException) {
+			        final IOException e = (IOException)_t;
+			        throw new RuntimeException(e);
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    }
+			    synchronized (names) {
+			      names.clear();
+			    }
+			  }
+			}
+			""");
+	}
+}

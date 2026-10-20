@@ -941,7 +941,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test
 	public void testAssignmentToFinalParameterInForEachLoop() throws Exception {
 		assertIssuesAsStrings(parseHelper.parse("""
-			java.util.List<String> strings;
+			java.util.List<String> strings = null;
 			for (final String s : strings)
 				s = "a";
 			"""), "Assignment to final parameter");

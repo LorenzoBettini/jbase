@@ -16,6 +16,7 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
+import org.eclipse.xtext.xbase.typesystem.internal.AbstractRootedReentrantTypeResolver;
 
 import jbase.annotations.validation.JbaseAnnotationValueValidator;
 import jbase.compiler.JbaseJvmModelGenerator;
@@ -29,6 +30,7 @@ import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
+import jbase.typesystem.JbaseReentrantTypeResolver;
 import jbase.validation.JbaseConfigurableIssueCodes;
 
 /**
@@ -54,6 +56,11 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntim
 
 	public Class<? extends ExpressionArgumentFactory> bindExpressionArgumentFactory() {
 		return JbaseExpressionArgumentFactory.class;
+	}
+
+	public Class<? extends AbstractRootedReentrantTypeResolver>
+			bindAbstractRootedReentrantTypeResolver() {
+		return JbaseReentrantTypeResolver.class;
 	}
 
 	public Class<? extends IEarlyExitComputer> bindIEarlyExitComputer() {
