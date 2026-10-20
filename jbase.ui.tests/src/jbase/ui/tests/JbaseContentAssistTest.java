@@ -12,6 +12,18 @@ import org.junit.runner.RunWith;
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
+	public void testInstanceOfPatternScopes() throws Exception {
+		newBuilder().append("Object value = null; if (value instanceof String text) { text.len")
+			.assertProposal("length");
+		newBuilder().append("Object value = null; if (!(value instanceof String text)) {} "
+			+ "else { text.len").assertProposal("length");
+		newBuilder().append("Object value = null; if (value instanceof String text && text.len")
+			.assertProposal("length");
+		newBuilder().append("Object value = null; if (value instanceof String text) {} "
+			+ "else { <|> }").assertNoProposalAtCursor("text");
+	}
+
+	@Test
 	public void testMethodReferenceMembers() throws Exception {
 		newBuilder().append("java.util.function.ToIntFunction<String> f = String::len")
 			.assertProposal("length");

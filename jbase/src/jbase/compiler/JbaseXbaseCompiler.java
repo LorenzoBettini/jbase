@@ -3,6 +3,8 @@
  */
 package jbase.compiler;
 
+import java.util.Set;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -20,10 +22,12 @@ import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
+import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
@@ -45,7 +49,9 @@ import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
+import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJContinueStatement;
+import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
@@ -62,6 +68,7 @@ import jbase.util.JbaseModelUtil;
  * Method references are intercepted before inherited XClosure dispatch and emitted with
  * native Java reference syntax. Lambda-related customizations preserve blank local
  * declarations and the control-flow boundaries of loops inside closures.
+ * Type patterns retain native instanceof syntax and their boolean flow scopes.
  *
  * @author Lorenzo Bettini
  */
@@ -77,6 +84,21 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 
 	@Inject
 	private JbaseExpressionHelper expressionHelper;
+
+	@Override
+	public ITreeAppendable compile(final XExpression expression, final ITreeAppendable appendable,
+			final LightweightTypeReference returnType, final Set<JvmTypeReference> exceptions) {
+		// Reserve binding names before any synthetic locals are allocated. Java permits
+		// disjoint patterns with the same spelling, so emit each binding's original name.
+		for (final var pattern : EcoreUtil2.getAllContentsOfType(
+				expression, XJInstanceOfExpression.class)) {
+			final var variable = pattern.getPatternVariable();
+			if (variable != null && !appendable.hasObject(variable.getName())) {
+				appendable.declareVariable(variable, variable.getName());
+			}
+		}
+		return super.compile(expression, appendable, returnType, exceptions);
+	}
 
 	/**
 	 * Prepares reference receivers as ordinary expressions instead of compiling a closure body.
@@ -176,6 +198,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
 			case XJClassObject classObject -> compileClassObject(classObject, appendable);
 			case XJMethodReference reference -> compileReference(reference, appendable);
+			case XJInstanceOfExpression pattern -> compilePattern(pattern, appendable);
+			case XJConditionalExpression conditional when containsPattern(conditional) ->
+				compilePatternConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
 	}
@@ -210,6 +235,59 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			appendable.append(">");
 		}
 		appendable.append(reference.getMember());
+	}
+
+	private void compilePattern(final XJInstanceOfExpression pattern,
+			final ITreeAppendable appendable) {
+		if (pattern.getPatternVariable() != null) {
+			appendable.append("(");
+			internalToJavaExpression(pattern.getExpression(), appendable);
+			appendable.append(" instanceof ");
+			if (pattern.isFinal()) {
+				appendable.append("final ");
+			}
+			getTypeReferenceSerializer().serialize(pattern.getType(), pattern, appendable);
+			final var variable = pattern.getPatternVariable();
+			// Java permits the same name in disjoint flow scopes; do not rename it.
+			appendable.append(" ").append(variable.getName()).append(")");
+		} else {
+			super._toJavaExpression(pattern, appendable);
+		}
+	}
+
+	private boolean containsPattern(final XExpression expression) {
+		return expression != null && (expression instanceof XJInstanceOfExpression pattern
+				&& pattern.getPatternVariable() != null
+			|| EcoreUtil2.getAllContentsOfType(expression, XJInstanceOfExpression.class)
+				.stream().anyMatch(pattern -> pattern.getPatternVariable() != null));
+	}
+
+	@Override
+	protected void _toJavaStatement(final XIfExpression expression,
+			final ITreeAppendable appendable, final boolean isReferenced) {
+		if (!(expression instanceof XJConditionalExpression) || !containsPattern(expression)) {
+			super._toJavaStatement(expression, appendable, isReferenced);
+		}
+	}
+
+	private void compilePatternConditional(final XJConditionalExpression expression,
+			final ITreeAppendable appendable) {
+		appendable.append("(");
+		internalToJavaExpression(expression.getIf(), appendable);
+		appendable.append(" ? ");
+		internalToJavaExpression(expression.getThen(), appendable);
+		appendable.append(" : ");
+		internalToJavaExpression(expression.getElse(), appendable);
+		appendable.append(")");
+	}
+
+	@Override
+	protected boolean internalCanCompileToJavaExpression(final XExpression expression,
+			final ITreeAppendable appendable) {
+		if (expression instanceof XJConditionalExpression && containsPattern(expression)) {
+			return true;
+		}
+		return super.internalCanCompileToJavaExpression(expression, appendable);
 	}
 
 	private void compileJavaExpression(XJArrayConstructorCall call, ITreeAppendable b) {
@@ -259,7 +337,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				b.append(".");
 				appendFeatureCall(expr, b);
 			} else {
-				String name = b.getName(expr.getFeature());
+				final var name = feature.eContainer() instanceof XJInstanceOfExpression
+					? feature.getSimpleName() : b.getName(feature);
 				b.append(name);
 			}
 			
@@ -279,11 +358,15 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		super.assignmentToJavaExpression(expr, b, isExpressionContext);
 	}
 
-	/**
-	 * Overridden to deal with several variable declarations.
-	 * 
-	 * @see org.eclipse.xtext.xbase.compiler.XbaseCompiler#toJavaBasicForStatement(org.eclipse.xtext.xbase.XBasicForLoopExpression, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
-	 */
+	@Override
+	protected boolean canCompileToJavaBasicForStatement(final XBasicForLoopExpression expression,
+			final ITreeAppendable appendable) {
+		// A saved boolean condition would put the pattern outside the loop body scope.
+		return containsPattern(expression.getExpression())
+			|| super.canCompileToJavaBasicForStatement(expression, appendable);
+	}
+
+	/** Preserves the additional declarations parsed as part of the first for initializer. */
 	@Override
 	protected void toJavaBasicForStatement(XBasicForLoopExpression expr,
 			ITreeAppendable b, boolean isReferenced) {
@@ -330,7 +413,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			}
 			loopAppendable.append(" ");
 			XExpression updateExpression = updateExpressions.get(i);
-			internalToJavaExpression(updateExpression, loopAppendable);
+			if (updateExpression instanceof XAbstractFeatureCall call
+					&& getLightweightType(call).isPrimitiveVoid()) {
+				featureCalltoJavaExpression(call, loopAppendable, false);
+			} else {
+				internalToJavaExpression(updateExpression, loopAppendable);
+			}
 		}
 		loopAppendable.append(") {").increaseIndentation();
 		
@@ -585,6 +673,20 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 */
 	@Override
 	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b, boolean recursive) {
+		// Hoisting a negated match (or an operand using its binding) into a
+		// boolean temporary destroys Java's flow scope. Keep its expression intact.
+		var root = expr;
+		while (root.eContainer() instanceof XExpression parent
+				&& !(parent instanceof XBlockExpression)
+				&& !(parent instanceof XJSemicolonStatement)
+				&& (!(parent instanceof XIfExpression)
+					|| parent instanceof XJConditionalExpression)
+				&& !(parent instanceof XClosure)) {
+			root = parent;
+		}
+		if (containsPattern(root)) {
+			return false;
+		}
 		if (expr instanceof XUnaryOperation unaryOperation) {
 			return !expressionHelper.specialHandling(unaryOperation);
 		} else if (expr instanceof XJClassObject ||

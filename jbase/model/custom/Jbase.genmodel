@@ -61,5 +61,9 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/typeArguments"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/executable"/>
     </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJInstanceOfExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJInstanceOfExpression/final"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJInstanceOfExpression/patternVariable"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

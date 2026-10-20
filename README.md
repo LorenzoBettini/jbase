@@ -59,7 +59,8 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 
 Contributor guides explain the Xbase integration for
 [lambda expressions](docs/LAMBDA_EXPRESSIONS.md) and
-[method and constructor references](docs/METHOD_REFERENCES.md).
+[method and constructor references](docs/METHOD_REFERENCES.md), and
+[`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md).
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
@@ -99,6 +100,22 @@ References are emitted as Java references. Bound receivers are evaluated when th
 reference is created. References also work as method arguments, return values,
 assignments, conditional branches, and cast operands. Content assist after `::`
 proposes method names without invocation parentheses.
+
+## Pattern matching for instanceof
+
+Type patterns retain Java syntax in the generated code:
+
+```java
+if (value instanceof String text && !text.isEmpty()) {
+    System.out.println(text.length());
+}
+if (!(value instanceof String text)) return;
+System.out.println(text.length());
+```
+
+Bindings follow Java's flow scopes in then/else branches, negated and
+short-circuit conditions, conditional expressions, and loops. Optional `final`
+prevents reassignment. See the [type pattern guide](docs/INSTANCEOF_PATTERNS.md).
 
 ## Local variable type inference
 
