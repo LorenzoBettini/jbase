@@ -105,6 +105,9 @@ Lambdas also need an explicit target type, for example
 `var` is not supported for method or catch parameters. Resource variables are
 implicitly final, and `var` remains valid as a variable or method name.
 
+Known Java compatibility gaps and implementation tasks are tracked in
+[Unsupported Java features](UNSUPPORTED_JAVA_FEATURES.md).
+
 ## Contribute to Jbase
 
 We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which is available from the official Oomph catalog.
