@@ -31,6 +31,7 @@ import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
+import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XThrowExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
@@ -45,6 +46,7 @@ import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
+import jbase.conversion.JbaseTextBlockValueConverter;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
@@ -91,6 +93,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 
 	@Inject
 	private JbaseExpressionHelper expressionHelper;
+
+	@Inject
+	private JbaseTextBlockValueConverter textBlockValueConverter;
 
 	@Override
 	public ITreeAppendable compile(final XExpression expression, final ITreeAppendable appendable,
@@ -227,6 +232,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayConstructorCall call -> compileJavaExpression(call, appendable);
 			case XJArrayAccessExpression access -> compileJavaExpression(access, appendable);
 			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
+			case XStringLiteral literal -> compileStringLiteral(literal, appendable);
 			case XJClassObject classObject -> compileClassObject(classObject, appendable);
 			case XSwitchExpression expression ->
 				compileEnhancedSwitch(expression, appendable);
@@ -235,6 +241,24 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJConditionalExpression conditional when needsNativeConditional(conditional) ->
 				compilePatternConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
+		}
+	}
+
+	private void compileStringLiteral(final XStringLiteral literal,
+			final ITreeAppendable appendable) {
+		final var nodes = NodeModelUtils.findNodesForFeature(literal,
+				XbasePackage.Literals.XSTRING_LITERAL__VALUE);
+		if (!nodes.isEmpty() && nodes.getFirst().getText().startsWith("\"\"\"")) {
+			var content = textBlockValueConverter.normalizedContent(nodes.getFirst().getText());
+			if (!content.translateEscapes().equals(literal.getValue())) {
+				// A model transformation may have changed the value without changing its node.
+				content = textBlockValueConverter.normalizedContent(
+						textBlockValueConverter.toString(literal.getValue()));
+			}
+			// TreeAppendable adds the current Java indentation after every newline.
+			appendable.append("\"\"\"\n").append(content).append("\"\"\"");
+		} else {
+			super.internalToConvertedExpression(literal, appendable);
 		}
 	}
 
