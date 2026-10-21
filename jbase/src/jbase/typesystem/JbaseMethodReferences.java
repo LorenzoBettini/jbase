@@ -503,7 +503,7 @@ public class JbaseMethodReferences {
 				new DeferredTypeParameterHintCollector(getState().getReferenceOwner())
 					.processPairedReferences(parameter, argument.getWrapperTypeIfPrimitive());
 				if (!invocationCompatible(parameter, argument, boxing)) {
-					return null;
+					return null; // NOSONAR we cannot return an empty list because that would be a valid match for a zero-parameter method
 				}
 			}
 			return formal;
