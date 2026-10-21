@@ -37,7 +37,7 @@ public class JbaseSureReturnComputer extends JbaseSemicolonStatementAwareEarlyEx
 		}
 		final var result = new ArrayList<ExitPoint>();
 		for (final var part : expression.getCases()) {
-			if (part instanceof XJCasePart rule && rule.isArrow()
+			if (((XJCasePart) part).isArrow()
 					&& getExitPoints(part.getThen()).isEmpty()) {
 				return Collections.emptyList();
 			}

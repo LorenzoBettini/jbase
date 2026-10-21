@@ -51,7 +51,7 @@ public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExi
 			var caseExit = getExitPoints(then);
 			// if there is not a break then in Java it is an automatic fall through
 			// so we must not consider this case
-			if ((casePart instanceof XJCasePart rule && rule.isArrow()
+			if ((((XJCasePart) casePart).isArrow()
 					|| branchingStatementDetector.isSureBranchStatement(then))
 					&& !isNotEmpty(caseExit)) {
 				return Collections.emptyList();

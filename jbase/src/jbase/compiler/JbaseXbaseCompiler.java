@@ -81,6 +81,7 @@ import jbase.util.JbaseSwitches;
  */
 public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	
+	private static final String FINAL_MODIFIER = "final ";
 	private static final String ASSIGNED_TRUE = " = true;";
 
 	@Inject
@@ -277,7 +278,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			internalToJavaExpression(pattern.getExpression(), appendable);
 			appendable.append(" instanceof ");
 			if (pattern.isFinal()) {
-				appendable.append("final ");
+				appendable.append(FINAL_MODIFIER);
 			}
 			getTypeReferenceSerializer().serialize(pattern.getType(), pattern, appendable);
 			final var variable = pattern.getPatternVariable();
@@ -323,8 +324,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected boolean internalCanCompileToJavaExpression(final XExpression expression,
 			final ITreeAppendable appendable) {
-		if (expression instanceof XSwitchExpression statement
-				&& JbaseSwitches.isExpression(statement)) {
+		if (expression instanceof XSwitchExpression) {
 			return true;
 		}
 		if (expression instanceof XJConditionalExpression conditional
@@ -611,31 +611,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			final var part = (XJCasePart) original;
 			// Default may occur between cases; the inherited Xbase model stores it separately.
 			final var node = NodeModelUtils.getNode(part);
-			if (defaultPending && defaultNode != null && node != null
-					&& node.getOffset() > defaultNode.getOffset()) {
+			if (defaultPending && node.getOffset() > defaultNode.getOffset()) {
 				compileSwitchDefault((XJSwitchExpression) expression, appendable);
 				defaultPending = false;
 			}
 			appendable.openPseudoScope();
 			appendable.newLine().append("case ");
-			if (part.getTypeGuard() != null) {
-				if (part.isFinal()) {
-					appendable.append("final ");
-				}
-				getTypeReferenceSerializer().serialize(part.getTypeGuard(), part, appendable);
-				final var variable = part.getPatternVariable();
-				appendable.append(" ").append(variable.getName());
-				if (part.getCase() != null) {
-					appendable.append(" when ");
-					internalToJavaExpression(part.getCase(), appendable);
-				}
-			} else {
-				internalToJavaExpression(part.getCase(), appendable);
-				for (final var label : part.getAdditionalLabels()) {
-					appendable.append(", ");
-					internalToJavaExpression(label, appendable);
-				}
-			}
+			compileCaseLabels(part, appendable);
 			compileSwitchBody(expression, part.getThen(), part.isArrow(), appendable);
 			appendable.closeScope();
 		}
@@ -643,6 +625,27 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			compileSwitchDefault((XJSwitchExpression) expression, appendable);
 		}
 		appendable.decreaseIndentation().newLine().append("}");
+	}
+
+	private void compileCaseLabels(final XJCasePart part, final ITreeAppendable appendable) {
+		if (part.getTypeGuard() != null) {
+			if (part.isFinal()) {
+				appendable.append(FINAL_MODIFIER);
+			}
+			getTypeReferenceSerializer().serialize(part.getTypeGuard(), part, appendable);
+			final var variable = part.getPatternVariable();
+			appendable.append(" ").append(variable.getName());
+			if (part.getCase() != null) {
+				appendable.append(" when ");
+				internalToJavaExpression(part.getCase(), appendable);
+			}
+		} else {
+			internalToJavaExpression(part.getCase(), appendable);
+			for (final var label : part.getAdditionalLabels()) {
+				appendable.append(", ");
+				internalToJavaExpression(label, appendable);
+			}
+		}
 	}
 
 	private void compileSwitchDefault(final XJSwitchExpression expression,
@@ -885,7 +888,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected void appendForLoopParameter(XForLoopExpression expr, ITreeAppendable appendable) {
 		JvmFormalParameter declaredParam = expr.getDeclaredParam();
 		if (((XJJvmFormalParameter) declaredParam).isFinal()) {
-			appendable.append("final ");
+			appendable.append(FINAL_MODIFIER);
 		}
 		// this is the original code
 		JvmTypeReference paramType = getForLoopParameterType(expr);

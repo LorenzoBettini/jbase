@@ -153,7 +153,7 @@ class JbaseFormatter extends XbasePatchedFormatter {
 			close.prepend[newLine]
 			interior(open, close)[indent]
 			for (part : expr.cases) part.format(document)
-			if (expr instanceof XJSwitchExpression && (expr as XJSwitchExpression).nullDefault) {
+			if ((expr as XJSwitchExpression).nullDefault) {
 				expr.regionFor.keyword("case").prepend[newLine].append[oneSpace]
 			} else {
 				expr.regionFor.keyword("default").prepend[newLine]

@@ -144,15 +144,35 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			return;
 		}
 		final var selector = getActualType(expression.getSwitch());
-		if (selector == null || selector.isUnknown()) {
+		if (selector.isUnknown()) {
 			return;
 		}
+		checkSelectorType(expression, selector);
+		checkSwitchCases(expression, selector);
+		final var requiresExhaustive = JbaseSwitches.isExpression(expression)
+			|| expression.isNullDefault()
+			|| expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
+				|| part.getCase() instanceof XNullLiteral)
+			|| !(selector.isPrimitive() || selector.isWrapper() || selector.isType(String.class)
+				|| selector.getType() instanceof JvmEnumerationType);
+		if (requiresExhaustive && !isExhaustive(expression)) {
+			error("A switch expression or pattern switch must be exhaustive", expression, null,
+				JbaseIssueCodes.MISSING_DEFAULT);
+		}
+	}
+
+	private void checkSelectorType(final XJSwitchExpression expression,
+			final LightweightTypeReference selector) {
 		final var primitive = selector.getPrimitiveIfWrapperType();
 		if (primitive.isType(boolean.class) || primitive.isType(long.class)
 				|| primitive.isType(float.class) || primitive.isType(double.class)) {
 			error("Invalid Java 21 switch selector type " + selector.getSimpleName(),
 				expression.getSwitch(), null, JbaseIssueCodes.INVALID_SWITCH);
 		}
+	}
+
+	private void checkSwitchCases(final XJSwitchExpression expression,
+			final LightweightTypeReference selector) {
 		final var arrow = expression.getCases().isEmpty() ? expression.isDefaultArrow()
 			: ((XJCasePart) expression.getCases().getFirst()).isArrow();
 		for (final var original : expression.getCases()) {
@@ -169,16 +189,6 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		if (expression.getDefault() != null && expression.isDefaultArrow() != arrow) {
 			error("Cannot mix switch rules and statement groups", expression.getDefault(), null,
 				JbaseIssueCodes.INVALID_SWITCH);
-		}
-		final var requiresExhaustive = JbaseSwitches.isExpression(expression)
-			|| expression.isNullDefault()
-			|| expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
-				|| part.getCase() instanceof XNullLiteral)
-			|| !(selector.isPrimitive() || selector.isWrapper() || selector.isType(String.class)
-				|| selector.getType() instanceof JvmEnumerationType);
-		if (requiresExhaustive && !isExhaustive(expression)) {
-			error("A switch expression or pattern switch must be exhaustive", expression, null,
-				JbaseIssueCodes.MISSING_DEFAULT);
 		}
 	}
 
@@ -287,12 +297,18 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		if (expression.eContainingFeature() == JbasePackage.Literals.XJ_CASE_PART__ADDITIONAL_LABELS
 				|| expression.eContainer() instanceof XJYieldStatement
 				|| expression.eContainer() instanceof XJSemicolonStatement wrapper
-					&& JbaseSwitches.isArrow(wrapper)
-					&& JbaseSwitches.isExpression(
-						EcoreUtil2.getContainerOfType(wrapper, XSwitchExpression.class))) {
+					&& isExpressionSwitchRule(wrapper)) {
 			return true;
 		}
 		return super.isValueExpectedRecursive(expression);
+	}
+
+	/** A rule body of a switch expression, e.g., {@code case 1 -> value;}. */
+	private boolean isExpressionSwitchRule(final XJSemicolonStatement wrapper) {
+		final var owner = wrapper.eContainer();
+		final var parent = owner instanceof XJCasePart ? owner.eContainer() : owner;
+		return parent instanceof XSwitchExpression expression
+			&& JbaseSwitches.isExpression(expression);
 	}
 
 	@Check
@@ -517,18 +533,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		if (expression instanceof XAbstractFeatureCall call
 				&& call.getFeature() instanceof JvmFormalParameter parameter) {
-			if (parameter.eContainer() instanceof XJCasePart part) {
-				if (part.isFinal()) {
-					error("Cannot assign a value to final pattern variable " + parameter.getName(),
-						expression, feature, IssueCodes.ASSIGNMENT_TO_FINAL);
-				}
-				return;
-			}
-			if (parameter.eContainer() instanceof XJInstanceOfExpression pattern) {
-				if (pattern.isFinal()) {
-					error("Cannot assign a value to final pattern variable " + parameter.getName(),
-						expression, feature, IssueCodes.ASSIGNMENT_TO_FINAL);
-				}
+			if (checkPatternVariableAssignment(parameter, expression, feature)) {
 				return;
 			}
 			// all parameters are considered NOT final by default
@@ -538,6 +543,25 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			}
 		}
 		super.checkAssignment(expression, feature, simpleAssignment);
+	}
+
+	/** @return true if the parameter is a pattern variable, which has been fully checked */
+	private boolean checkPatternVariableAssignment(final JvmFormalParameter parameter,
+			final XExpression expression, final EStructuralFeature feature) {
+		final var owner = parameter.eContainer();
+		final boolean isFinal;
+		if (owner instanceof XJCasePart part) {
+			isFinal = part.isFinal();
+		} else if (owner instanceof XJInstanceOfExpression pattern) {
+			isFinal = pattern.isFinal();
+		} else {
+			return false;
+		}
+		if (isFinal) {
+			error("Cannot assign a value to final pattern variable " + parameter.getName(),
+				expression, feature, IssueCodes.ASSIGNMENT_TO_FINAL);
+		}
+		return true;
 	}
 
 	/**

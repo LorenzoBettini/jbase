@@ -258,6 +258,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 //					branchExpressionProcessor.process(thenResult);
 //				}
 		}
+		computeClassicSwitchDefault(object, expressionType, allCasePartsState, state);
+	}
+
+	private void computeClassicSwitchDefault(final XSwitchExpression object,
+			final LightweightTypeReference expressionType,
+			final ITypeComputationState allCasePartsState, final ITypeComputationState state) {
 		var defaultCase = object.getDefault();
 		if (defaultCase != null) {
 			if (object.getCases().stream().anyMatch(part -> part.getCase() == null)) {
@@ -295,22 +301,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			if (selectorType.getType() instanceof JvmEnumerationType enumeration) {
 				branch.addImports(new EnumLiteralImporter(enumeration));
 			}
-			if (part.getTypeGuard() != null) {
-				branch = branch.assignType(part.getPatternVariable(), state.getReferenceOwner()
-					.toLightweightTypeReference(part.getTypeGuard()));
-				if (part.getCase() != null) {
-					branch.withExpectation(getTypeForName(boolean.class, state))
-						.computeTypes(part.getCase());
-				}
-			} else {
-				// Labels remain constants: boxing would emit Integer.valueOf(1) as a case.
-				final var labelType = selectorType.getPrimitiveIfWrapperType();
-				branch.withExpectation(part.getCase() instanceof XNullLiteral ? selectorType : labelType)
-					.computeTypes(part.getCase());
-				for (final var label : part.getAdditionalLabels()) {
-					branch.withExpectation(labelType).computeTypes(label);
-				}
-			}
+			branch = computeEnhancedLabels(part, branch, selectorType, state);
 			branch.afterScope(part);
 			computeSwitchBody(expression, part.getThen(), branch);
 		}
@@ -320,6 +311,28 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		if (!JbaseSwitches.isExpression(expression)) {
 			state.acceptActualType(getPrimitiveVoid(state), ConformanceFlags.NO_IMPLICIT_RETURN);
 		}
+	}
+
+	private ITypeComputationState computeEnhancedLabels(final XJCasePart part,
+			final ITypeComputationState branch, final LightweightTypeReference selectorType,
+			final ITypeComputationState state) {
+		if (part.getTypeGuard() != null) {
+			final var typed = branch.assignType(part.getPatternVariable(), state
+				.getReferenceOwner().toLightweightTypeReference(part.getTypeGuard()));
+			if (part.getCase() != null) {
+				typed.withExpectation(getTypeForName(boolean.class, state))
+					.computeTypes(part.getCase());
+			}
+			return typed;
+		}
+		// Labels remain constants: boxing would emit Integer.valueOf(1) as a case.
+		final var labelType = selectorType.getPrimitiveIfWrapperType();
+		branch.withExpectation(part.getCase() instanceof XNullLiteral ? selectorType : labelType)
+			.computeTypes(part.getCase());
+		for (final var label : part.getAdditionalLabels()) {
+			branch.withExpectation(labelType).computeTypes(label);
+		}
+		return branch;
 	}
 
 	private void computeSwitchBody(final XSwitchExpression expression, final XExpression body,
@@ -332,10 +345,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final var local = expected == null ? state.withoutRootExpectation()
 				: state.withRootExpectation(expected);
 			final var result = local.withoutExpectation().computeTypes(body);
-			final var yieldedType = result.getReturnType();
-			if (yieldedType != null) {
-				state.acceptActualType(yieldedType);
-			}
+			state.acceptActualType(result.getReturnType());
 		} else {
 			state.computeTypes(body);
 		}
