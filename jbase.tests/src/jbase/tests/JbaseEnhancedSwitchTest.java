@@ -64,6 +64,46 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void generatedJavaPreservesPatternsGuardsAndYield() throws Exception {
+		checkCompilation("""
+			Object value = "hello";
+			int length = switch (value) {
+				case String s when s.length() > 2 -> s.length();
+				case String s -> 0;
+				case Integer n -> {
+					int result = n.intValue();
+					yield result;
+				}
+				case null, default -> -1;
+			};
+			""", """
+			package jbasetestlanguage;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    Object value = "hello";
+			    int length = switch (value) {
+			      case String s when (s.length() > 2) -> {
+			        yield s.length();
+			      }
+			      case String s -> {
+			        yield 0;
+			      }
+			      case Integer n -> {
+			        int result = n.intValue();
+			        yield result;
+			      }
+			      case null, default -> {
+			        yield -1;
+			      }
+			    };
+			  }
+			}
+			""");
+	}
+
+	@Test
 	public void yieldBlocksAndNestedExpressions() throws Exception {
 		checkCompilation("""
 			int n = 1;
