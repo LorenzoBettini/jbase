@@ -4,6 +4,7 @@
 package jbase.ui.syntaxcoloring;
 
 import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultAntlrTokenToAttributeIdMapper;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultHighlightingConfiguration;
 
 /**
  * Highlighting for char literals.
@@ -20,7 +21,7 @@ public class JbaseTokenToAttributeIdMapper extends
 			return JbaseHighlightingConfiguration.CHAR_ID;
 		}
 		if ("RULE_TEXT_BLOCK".equals(tokenName)) {
-			return JbaseHighlightingConfiguration.STRING_ID;
+			return DefaultHighlightingConfiguration.STRING_ID;
 		}
 		return super.calculateId(tokenName, tokenType);
 	}
