@@ -8,6 +8,9 @@ import org.eclipse.xtext.util.Strings;
 /** Java text blocks normalize line endings and indentation before interpreting escapes. */
 public class JbaseTextBlockValueConverter extends AbstractValueConverter<String> {
 
+	private record UnicodeEscape(char character, int endIndex) {
+	}
+
 	/**
 	 * Retains escapes while removing source indentation. The compiler can then add
 	 * the generated Java indentation uniformly, without changing the block's value.
@@ -41,21 +44,11 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		var i = 0;
 		while (i < source.length()) {
 			var character = source.charAt(i);
-			final var unicodeEscape = character == '\\'
-					&& (wasUnicodeEscape || backslashes % 2 == 0)
-					&& source.startsWith("u", i + 1);
+			final var unicodeEscape = isUnicodeEscape(source, i, backslashes, wasUnicodeEscape);
 			if (unicodeEscape) {
-				var start = i + 2;
-				while (start < source.length() && source.charAt(start) == 'u') {
-					start++;
-				}
-				final var end = Math.min(start + 4, source.length());
-				final var digits = source.substring(start, end);
-				if (!digits.matches("[0-9a-fA-F]{4}")) {
-					throw new IllegalArgumentException("Invalid Unicode escape in text block");
-				}
-				character = (char) Integer.parseInt(digits, 16);
-				i = end;
+				final var escape = parseUnicodeEscape(source, i);
+				character = escape.character();
+				i = escape.endIndex();
 			} else {
 				i++;
 			}
@@ -64,6 +57,26 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 			wasUnicodeEscape = unicodeEscape;
 		}
 		return result.toString();
+	}
+
+	private boolean isUnicodeEscape(final String source, final int index, final int backslashes,
+			final boolean wasUnicodeEscape) {
+		return source.charAt(index) == '\\'
+				&& (wasUnicodeEscape || backslashes % 2 == 0)
+				&& source.startsWith("u", index + 1);
+	}
+
+	private UnicodeEscape parseUnicodeEscape(final String source, final int index) {
+		var start = index + 2;
+		while (start < source.length() && source.charAt(start) == 'u') {
+			start++;
+		}
+		final var end = Math.min(start + 4, source.length());
+		final var digits = source.substring(start, end);
+		if (!digits.matches("[0-9a-fA-F]{4}")) {
+			throw new IllegalArgumentException("Invalid Unicode escape in text block");
+		}
+		return new UnicodeEscape((char) Integer.parseInt(digits, 16), end);
 	}
 
 	@Override
