@@ -450,6 +450,28 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 			""", "undefined");
 	}
 
+	@Test
+	public void mutableInstanceOfAndSwitchPatternsExecuteTogether() throws Exception {
+		assertExecuteMain("""
+			method testMe() {
+				Object value = " hello ";
+				if (value instanceof String text) {
+					text = text.trim();
+					value = text;
+				}
+				String result = switch (value) {
+					case String text -> {
+						text = text.toUpperCase();
+						yield text;
+					}
+					default -> "other";
+				};
+				result = result + "!";
+				System.out.println(result);
+			}
+			""", "HELLO!\n");
+	}
+
 	private void assertError(final String source, final String message) throws Exception {
 		final var issues = validationTestHelper.validate(parseHelper.parse(source));
 		assertTrue(issues.toString(), issues.stream()
