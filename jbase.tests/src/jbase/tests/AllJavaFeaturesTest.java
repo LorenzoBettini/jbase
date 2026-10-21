@@ -56,7 +56,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			short positive = +1;
 			char letter = 'a';
 			int count = 0, limit = 3;
-			long mask = 255L;
+			long mask = 0xFFL;
+			int binary = 0b1010;
+			int octal = 077;
 			float fraction = 1.5f;
 			double decimal = 2.5e2;
 			String text = "hello";
@@ -244,7 +246,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    char letter = 'a';
 			    int count = 0;
 			    int limit = 3;
-			    long mask = 255L;
+			    long mask = 0xFFL;
+			    int binary = 0xa;
+			    int octal = 0x3f;
 			    float fraction = 1.5f;
 			    double decimal = 2.5e2;
 			    String text = "hello";

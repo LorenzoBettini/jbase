@@ -11,7 +11,7 @@ import org.eclipse.xtext.xbase.conversion.XbaseValueConverterService;
 import com.google.inject.Inject;
 
 /**
- * Deals with character literals.
+ * Converts Java character, text block, and numeric literals.
  * 
  * @author Lorenzo Bettini
  *
@@ -23,6 +23,14 @@ public class JbaseValueConverterService extends XbaseValueConverterService {
 
 	@Inject
 	private JbaseTextBlockValueConverter textBlockValueConverter;
+
+	@Inject
+	private JbaseNumberValueConverter numberValueConverter;
+
+	@ValueConverter(rule = "Number")
+	public IValueConverter<String> Number() {
+		return numberValueConverter;
+	}
 
 	@ValueConverter(rule = "TEXT_BLOCK")
 	public IValueConverter<String> TEXT_BLOCK() {
