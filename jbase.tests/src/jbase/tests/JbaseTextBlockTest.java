@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.conversion.ValueConverterException;
+import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.serializer.ISerializer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
@@ -175,6 +176,35 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 				}
 			}
 			""", null);
+	}
+
+	@Test
+	public void openingDelimiterRequiresALineTerminator() throws Exception {
+		for (final var literal : List.of(
+			"\"\"\"text\"\"\"", "\"\"\" text \"\"\"", "\"\"\" \t\ftext\"\"\"",
+			"\"\"\"\"\"\"", "\"\"\"   \"\"\"", "\"\"\"text\n\"\"\"",
+			"\"\"\"\\ntext\"\"\"")) {
+			for (final var context : List.of(
+				"String text = %s;",
+				"method text() : String { return %s; }",
+				"System.out.println(%s);",
+				"String text = \"prefix\" + %s;")) {
+				final var source = context.formatted(literal);
+				final var model = parser.parse(source);
+				assertTrue(source, validationTestHelper.validate(model).stream()
+					.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+			}
+		}
+	}
+
+	@Test
+	public void closingDelimiterMayFollowContentOnTheSameLine() throws Exception {
+		assertExecuteMain("""
+			method testMe() {
+				System.out.print(\"\"\"
+				  single line\"\"\");
+			}
+			""", "single line");
 	}
 
 	@Test
