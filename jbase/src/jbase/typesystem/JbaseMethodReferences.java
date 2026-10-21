@@ -64,8 +64,6 @@ public class JbaseMethodReferences {
 	private static final TypeConformanceComputationArgument LOOSE =
 		new TypeConformanceComputationArgument(false, false, true, true, false, false);
 
-
-
 	@Inject
 	private OverrideHelper overrideHelper;
 
@@ -122,53 +120,10 @@ public class JbaseMethodReferences {
 		return new ContextualVisibilityHelper(new PublicVisibilityHelper(), context);
 	}
 
-	/**
-	 * Uses the linking candidate to distinguish {@code String::length} from {@code text::trim}.
-	 * Testing only whether the linked feature is a {@code JvmType} would also classify
-	 * {@code this} and {@code super} as type literals and lose their bound-receiver semantics.
-	 */
-	private boolean isTypeReceiver(final XJMethodReference reference,
-			final ITypeComputationState state) {
-		return reference.getType() != null
-			|| reference.getReceiver() instanceof XAbstractFeatureCall call
-				&& ((AbstractTypeComputationState) state).getResolvedTypes()
-					.getLinkingCandidate(call).isTypeLiteral();
-	}
-
 	private void error(final XJMethodReference reference, final ITypeComputationState state,
 			final String message) {
 		state.addDiagnostic(new EObjectDiagnosticImpl(Severity.ERROR, INVALID_METHOD_REFERENCE,
 			message, reference, JbasePackage.Literals.XJ_METHOD_REFERENCE__MEMBER, -1, null));
-	}
-
-	/**
-	 * Checks array constructor element types recursively: {@code List<?>[]::new} is valid,
-	 * but {@code List<String>[]::new} and {@code List<? super String>[]::new} are not.
-	 * Raw and non-parameterized element types have no arguments to reject.
-	 */
-	private boolean isReifiable(final LightweightTypeReference type) {
-		if (type.isArray()) {
-			return isReifiable(type.getComponentType());
-		}
-		return type.getTypeArguments().stream().allMatch(argument -> argument instanceof WildcardTypeReference wildcard
-			&& wildcard.getLowerBound() == null
-			&& wildcard.getUpperBoundSubstitute().isType(Object.class));
-	}
-
-	/**
-	 * Tests Java invocation conversion for parameters and reference results.
-	 * In particular, {@code int -> Integer -> Number} is allowed in a boxing phase,
-	 * whereas {@code int -> long -> Long} is not. Unboxing followed by primitive widening
-	 * is handled by the loose conformance mode. Receiver checks use STRICT directly.
-	 */
-	private boolean invocationCompatible(final LightweightTypeReference expected,
-			final LightweightTypeReference actual, final boolean boxing) {
-		if (boxing && actual.isPrimitive() && !expected.isPrimitive()) {
-			// Java permits boxing followed by reference widening, but not
-			// primitive widening followed by boxing (int cannot become Long).
-			return expected.isAssignableFrom(actual.getWrapperTypeIfPrimitive(), STRICT);
-		}
-		return expected.isAssignableFrom(actual, boxing ? LOOSE : STRICT);
 	}
 
 	/**
@@ -206,8 +161,29 @@ public class JbaseMethodReferences {
 		@Override
 		protected void computeTypes() {
 			final var state = getState();
-			var receiver = receiverType(reference, state);
-			final var typeReceiver = isTypeReceiver(reference, state);
+			final var receiver = receiverType(reference, state);
+			final var typeReceiver = isTypeReceiver();
+			final var adapted = adaptedReceiver(receiver, typeReceiver);
+			final var function = getExpectedClosureType();
+			final var arguments = function.getParameterTypes();
+			final var matches = findMatches(adapted, typeReceiver, arguments);
+			final var best = matches.stream().filter(candidate -> matches.stream()
+				.noneMatch(other -> other != candidate && moreSpecific(other, candidate))).toList();
+			if (best.size() == 1) {
+				applyMatch(best.getFirst(), function.getReturnType());
+			} else {
+				error(reference, state, best.isEmpty() ? "No applicable method reference"
+					: "Ambiguous method reference");
+			}
+			getExpectation().acceptActualType(function,
+				(valid ? ConformanceFlags.UNCHECKED
+					: ConformanceFlags.CHECKED | ConformanceFlags.INCOMPATIBLE | ConformanceFlags.SEALED)
+					| ConformanceFlags.LAMBDA_WITH_EXPECTATION);
+		}
+
+		private LightweightTypeReference adaptedReceiver(LightweightTypeReference receiver,
+				final boolean typeReceiver) {
+			final var state = getState();
 			if (typeReceiver && reference.getType() == null) {
 				receiver = receiver.getTypeArguments().getFirst();
 			}
@@ -219,68 +195,120 @@ public class JbaseMethodReferences {
 				}
 				receiver = inferred;
 			}
-			final var function = getExpectedClosureType();
-			final var arguments = function.getParameterTypes();
+			return receiver;
+		}
+
+		private List<Match> findMatches(final LightweightTypeReference receiver,
+				final boolean typeReceiver, final List<LightweightTypeReference> arguments) {
 			final var matches = new ArrayList<Match>();
 			if (receiver != null && receiver.isArray() && "new".equals(reference.getMember())) {
-				if (typeReceiver && isReifiable(receiver) && reference.getTypeArguments().isEmpty()
-						&& arguments.size() == 1
-						&& state.getReferenceOwner().newReferenceTo(int.class)
-							.isAssignableFrom(arguments.getFirst())) {
+				if (isArrayConstructorApplicable(receiver, typeReceiver, arguments)) {
 					matches.add(new Match(null, receiver, List.copyOf(arguments), List.of(), 0));
 				}
 			} else if (receiver != null && receiver.isArray()
 					&& "clone".equals(reference.getMember())
-					&& ((!typeReceiver && arguments.isEmpty())
-						|| (typeReceiver && arguments.size() == 1
-							&& receiver.isAssignableFrom(arguments.getFirst(), STRICT)))) {
+					&& isArrayCloneApplicable(receiver, typeReceiver, arguments)) {
 				matches.add(new Match(null, receiver, List.copyOf(arguments), List.of(), 0));
 			} else if (receiver != null && !receiver.isPrimitive()) {
 				collectMatches(receiver, typeReceiver, arguments, matches);
 			}
-			final var best = matches.stream().filter(candidate -> matches.stream()
-				.noneMatch(other -> other != candidate && moreSpecific(other, candidate))).toList();
-			if (best.size() == 1) {
-				final var match = best.getFirst();
-				executable = match.executable();
-				final var expectedReturn = function.getReturnType();
-				if (!expectedReturn.isPrimitiveVoid()) {
-					// Reverse result constraints infer, for example, emptyList's T from List<String>.
-					// Resolve only available hints: forcing an unconstrained invocation variable
-					// to its bound here would damage inference for comparing(String::length).
-					if (!match.result().isPrimitive()) {
-						if (expectedReturn instanceof UnboundTypeReference unbound) {
-							unbound.tryResolve(false);
-						}
-						final var projected = match.result().getSuperType(expectedReturn.getType());
-						new DeferredTypeParameterHintCollector(state.getReferenceOwner())
-							.processPairedReferences(projected == null ? match.result() : projected,
-								expectedReturn.getWrapperTypeIfPrimitive());
-					}
-					deferredBindTypeArgument(expectedReturn, match.result(),
-						BoundTypeArgumentSource.INFERRED);
-					// Check the original descriptor as well as the helper's synthetic return variable.
-					// Otherwise competing hints can conceal int-to-Long in Function<String, Long>.
-					final var targetReturn = getExpectation().getExpectedType()
-						.tryConvertToFunctionTypeReference(false).getReturnType();
-					deferredBindTypeArgument(targetReturn, match.result(),
-						BoundTypeArgumentSource.INFERRED);
-					if (targetReturn instanceof UnboundTypeReference unbound) {
-						unbound.tryResolve(false);
-					}
-					if (!invocationCompatible(targetReturn, match.result(), true)) {
-						error(reference, state, "Incompatible method reference return type");
-					}
+			return matches;
+		}
+
+		private boolean isArrayConstructorApplicable(final LightweightTypeReference receiver,
+				final boolean typeReceiver, final List<LightweightTypeReference> arguments) {
+			return typeReceiver && isReifiable(receiver) && reference.getTypeArguments().isEmpty()
+				&& arguments.size() == 1
+				&& getState().getReferenceOwner().newReferenceTo(int.class)
+					.isAssignableFrom(arguments.getFirst());
+		}
+
+		private boolean isArrayCloneApplicable(final LightweightTypeReference receiver,
+				final boolean typeReceiver, final List<LightweightTypeReference> arguments) {
+			return (!typeReceiver && arguments.isEmpty())
+				|| (typeReceiver && arguments.size() == 1
+					&& receiver.isAssignableFrom(arguments.getFirst(), STRICT));
+		}
+
+		private void applyMatch(final Match match, final LightweightTypeReference expectedReturn) {
+			executable = match.executable();
+			if (!expectedReturn.isPrimitiveVoid()) {
+				collectReturnHints(expectedReturn, match.result());
+				deferredBindTypeArgument(expectedReturn, match.result(),
+					BoundTypeArgumentSource.INFERRED);
+				// Check the original descriptor as well as the helper's synthetic return variable.
+				// Otherwise competing hints can conceal int-to-Long in Function<String, Long>.
+				final var targetReturn = getExpectation().getExpectedType()
+					.tryConvertToFunctionTypeReference(false).getReturnType();
+				deferredBindTypeArgument(targetReturn, match.result(),
+					BoundTypeArgumentSource.INFERRED);
+				if (targetReturn instanceof UnboundTypeReference unbound) {
+					unbound.tryResolve(false);
 				}
-				checkExceptions(match);
-			} else {
-				error(reference, state, best.isEmpty() ? "No applicable method reference"
-					: "Ambiguous method reference");
+				if (!invocationCompatible(targetReturn, match.result(), true)) {
+					error(reference, getState(), "Incompatible method reference return type");
+				}
 			}
-			getExpectation().acceptActualType(function,
-				(valid ? ConformanceFlags.UNCHECKED
-					: ConformanceFlags.CHECKED | ConformanceFlags.INCOMPATIBLE | ConformanceFlags.SEALED)
-					| ConformanceFlags.LAMBDA_WITH_EXPECTATION);
+			checkExceptions(match);
+		}
+
+		private void collectReturnHints(final LightweightTypeReference expectedReturn,
+				final LightweightTypeReference result) {
+			// Reverse result constraints infer, for example, emptyList's T from List<String>.
+			// Resolve only available hints: forcing an unconstrained invocation variable
+			// to its bound here would damage inference for comparing(String::length).
+			if (!result.isPrimitive()) {
+				if (expectedReturn instanceof UnboundTypeReference unbound) {
+					unbound.tryResolve(false);
+				}
+				final var projected = result.getSuperType(expectedReturn.getType());
+				new DeferredTypeParameterHintCollector(getState().getReferenceOwner())
+					.processPairedReferences(projected == null ? result : projected,
+						expectedReturn.getWrapperTypeIfPrimitive());
+			}
+		}
+
+		/**
+		 * Uses the linking candidate to distinguish {@code String::length} from {@code text::trim}.
+		 * Testing only whether the linked feature is a {@code JvmType} would also classify
+		 * {@code this} and {@code super} as type literals and lose their bound-receiver semantics.
+		 */
+		private boolean isTypeReceiver() {
+			return reference.getType() != null
+				|| reference.getReceiver() instanceof XAbstractFeatureCall call
+					&& ((AbstractTypeComputationState) getState()).getResolvedTypes()
+						.getLinkingCandidate(call).isTypeLiteral();
+		}
+
+		/**
+		 * Checks array constructor element types recursively: {@code List<?>[]::new} is valid,
+		 * but {@code List<String>[]::new} and {@code List<? super String>[]::new} are not.
+		 * Raw and non-parameterized element types have no arguments to reject.
+		 */
+		private boolean isReifiable(final LightweightTypeReference type) {
+			if (type.isArray()) {
+				return isReifiable(type.getComponentType());
+			}
+			return type.getTypeArguments().stream().allMatch(argument ->
+				argument instanceof WildcardTypeReference wildcard
+				&& wildcard.getLowerBound() == null
+				&& wildcard.getUpperBoundSubstitute().isType(Object.class));
+		}
+
+		/**
+		 * Tests Java invocation conversion for parameters and reference results.
+		 * In particular, {@code int -> Integer -> Number} is allowed in a boxing phase,
+		 * whereas {@code int -> long -> Long} is not. Unboxing followed by primitive widening
+		 * is handled by the loose conformance mode. Receiver checks use STRICT directly.
+		 */
+		private boolean invocationCompatible(final LightweightTypeReference expected,
+				final LightweightTypeReference actual, final boolean boxing) {
+			if (boxing && actual.isPrimitive() && !expected.isPrimitive()) {
+				// Java permits boxing followed by reference widening, but not
+				// primitive widening followed by boxing (int cannot become Long).
+				return expected.isAssignableFrom(actual.getWrapperTypeIfPrimitive(), STRICT);
+			}
+			return expected.isAssignableFrom(actual, boxing ? LOOSE : STRICT);
 		}
 
 		/** Marks this expectation incompatible as well as locating the diagnostic on the member. */
@@ -303,13 +331,7 @@ public class JbaseMethodReferences {
 			final var features = overrideHelper.getResolvedFeatures(receiver.isArray()
 				? getState().getReferenceOwner().newReferenceToObject() : receiver);
 			if ("new".equals(reference.getMember())) {
-				if (typeReceiver && receiver.getType() instanceof JvmGenericType type
-						&& !type.isAbstract()
-						&& receiver.getTypeArguments().stream().noneMatch(LightweightTypeReference::isWildcard)) {
-					for (final var constructor : features.getDeclaredConstructors()) {
-						addMatch(constructor, receiver, arguments, matches);
-					}
-				}
+				collectConstructors(receiver, typeReceiver, arguments, matches);
 				return;
 			}
 			for (final var method : features.getAllOperations().stream()
@@ -322,27 +344,48 @@ public class JbaseMethodReferences {
 				} else if (!typeReceiver) {
 					addMatch(method, referenceReturnType(method, receiver), arguments, matches);
 				} else if (!arguments.isEmpty()) {
-					// Constrain the original invocation variable before resolving the
-					// closure's corresponding parameter (e.g. comparing(String::length)).
-					final var targetFunction = getExpectation().getExpectedType()
-						.tryConvertToFunctionTypeReference(false);
-					deferredBindTypeArgument(targetFunction.getParameterTypes().getFirst()
-						.getLowerBoundSubstitute(), receiver, BoundTypeArgumentSource.INFERRED);
-					if (arguments.getFirst() instanceof UnboundTypeReference unbound) {
-						unbound.tryResolve(false);
-					}
-					if (!receiver.isAssignableFrom(arguments.getFirst(), STRICT)) {
-						continue;
-					}
-					// A raw type name can acquire type arguments from the receiver parameter.
-					final var actualReceiver = arguments.getFirst().getSuperType(receiver.getType());
-					final var resolved = overrideHelper
-						.getResolvedFeatures(actualReceiver)
-						.getResolvedOperation(method.getDeclaration());
-					addMatch(resolved, referenceReturnType(resolved, receiver),
-						arguments.subList(1, arguments.size()), matches);
+					addUnboundMatch(method, receiver, arguments, matches);
 				}
 			}
+		}
+
+		private void collectConstructors(final LightweightTypeReference receiver,
+				final boolean typeReceiver, final List<LightweightTypeReference> arguments,
+				final List<Match> matches) {
+			if (typeReceiver && receiver.getType() instanceof JvmGenericType type
+					&& !type.isAbstract()
+					&& receiver.getTypeArguments().stream()
+						.noneMatch(LightweightTypeReference::isWildcard)) {
+				final var constructors = overrideHelper.getResolvedFeatures(receiver)
+					.getDeclaredConstructors();
+				for (final var constructor : constructors) {
+					addMatch(constructor, receiver, arguments, matches);
+				}
+			}
+		}
+
+		private void addUnboundMatch(final IResolvedOperation method,
+				final LightweightTypeReference receiver,
+				final List<LightweightTypeReference> arguments, final List<Match> matches) {
+			// Constrain the original invocation variable before resolving the
+			// closure's corresponding parameter (e.g. comparing(String::length)).
+			final var targetFunction = getExpectation().getExpectedType()
+				.tryConvertToFunctionTypeReference(false);
+			deferredBindTypeArgument(targetFunction.getParameterTypes().getFirst()
+				.getLowerBoundSubstitute(), receiver, BoundTypeArgumentSource.INFERRED);
+			if (arguments.getFirst() instanceof UnboundTypeReference unbound) {
+				unbound.tryResolve(false);
+			}
+			if (!receiver.isAssignableFrom(arguments.getFirst(), STRICT)) {
+				return;
+			}
+			// A raw type name can acquire type arguments from the receiver parameter.
+			final var actualReceiver = arguments.getFirst().getSuperType(receiver.getType());
+			final var resolved = overrideHelper
+				.getResolvedFeatures(actualReceiver)
+				.getResolvedOperation(method.getDeclaration());
+			addMatch(resolved, referenceReturnType(resolved, receiver),
+				arguments.subList(1, arguments.size()), matches);
 		}
 
 		/**
@@ -413,32 +456,23 @@ public class JbaseMethodReferences {
 			final var parameters = resolved.getResolvedParameterTypes().stream()
 				.map(substitutor::substitute).toList();
 			final var returnType = substitutor.substitute(result);
+			addApplicableMatch(resolved, returnType, parameters, arguments, substitutor, matches);
+		}
+
+		private void addApplicableMatch(final IResolvedExecutable resolved,
+				final LightweightTypeReference returnType,
+				final List<LightweightTypeReference> parameters,
+				final List<LightweightTypeReference> arguments,
+				final TypeParameterByUnboundSubstitutor substitutor, final List<Match> matches) {
+			final var declaration = resolved.getDeclaration();
 			for (var phase = 0; phase < 3; phase++) {
 				final var expanded = phase == 2 && declaration.isVarArgs();
 				if ((!expanded && arguments.size() != parameters.size())
 						|| (expanded && arguments.size() < parameters.size() - 1)) {
 					continue;
 				}
-				final var formal = new ArrayList<LightweightTypeReference>();
-				var applicable = true;
-				for (var i = 0; i < arguments.size(); i++) {
-					var parameter = parameters.get(Math.min(i, parameters.size() - 1));
-					if (expanded && i >= parameters.size() - 1) {
-						parameter = parameter.getComponentType();
-					}
-					formal.add(parameter);
-					final var argument = arguments.get(i);
-					if (argument instanceof UnboundTypeReference inferredArgument) {
-						inferredArgument.tryResolve(false);
-					}
-					new DeferredTypeParameterHintCollector(owner)
-						.processPairedReferences(parameter, argument.getWrapperTypeIfPrimitive());
-					if (!invocationCompatible(parameter, argument, phase != 0)) {
-						applicable = false;
-						break;
-					}
-				}
-				if (applicable) {
+				final var formal = applicableParameters(parameters, arguments, expanded, phase != 0);
+				if (formal != null) {
 					// An empty varargs tail still participates in most-specific selection.
 					if (expanded && arguments.size() == parameters.size() - 1) {
 						formal.add(parameters.getLast().getComponentType());
@@ -449,6 +483,30 @@ public class JbaseMethodReferences {
 					return;
 				}
 			}
+		}
+
+		private List<LightweightTypeReference> applicableParameters(
+				final List<LightweightTypeReference> parameters,
+				final List<LightweightTypeReference> arguments,
+				final boolean expanded, final boolean boxing) {
+			final var formal = new ArrayList<LightweightTypeReference>();
+			for (var i = 0; i < arguments.size(); i++) {
+				var parameter = parameters.get(Math.min(i, parameters.size() - 1));
+				if (expanded && i >= parameters.size() - 1) {
+					parameter = parameter.getComponentType();
+				}
+				formal.add(parameter);
+				final var argument = arguments.get(i);
+				if (argument instanceof UnboundTypeReference inferredArgument) {
+					inferredArgument.tryResolve(false);
+				}
+				new DeferredTypeParameterHintCollector(getState().getReferenceOwner())
+					.processPairedReferences(parameter, argument.getWrapperTypeIfPrimitive());
+				if (!invocationCompatible(parameter, argument, boxing)) {
+					return null;
+				}
+			}
+			return formal;
 		}
 
 		/**
