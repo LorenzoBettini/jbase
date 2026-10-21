@@ -23,6 +23,7 @@ import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
+import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XClosure;
@@ -140,6 +141,14 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayConstructorCall call -> { /* compile only as expression */ }
 			case XJArrayAccessExpression access -> { /* compile only as expression */ }
 			case XJClassObject classObject -> { /* compile only as expression */ }
+			case XBinaryOperation operation when isArrayCompoundAssignment(operation) -> {
+				// Keep the element read/checks ahead of the RHS, with no operand hoisting.
+				if (!isReferenced) {
+					appendable.newLine();
+					featureCalltoJavaExpression(operation, appendable, false);
+					appendable.append(";");
+				}
+			}
 			case XJMethodReference reference -> {
 				if (reference.getReceiver() != null) {
 					internalToJavaStatement(reference.getReceiver(), appendable, true);
@@ -239,7 +248,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJMethodReference reference -> compileReference(reference, appendable);
 			case XJInstanceOfExpression pattern -> compilePattern(pattern, appendable);
 			case XJConditionalExpression conditional when needsNativeConditional(conditional) ->
-				compilePatternConditional(conditional, appendable);
+				compileNativeConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
 	}
@@ -322,7 +331,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void _toJavaStatement(final XIfExpression expression,
 			final ITreeAppendable appendable, final boolean isReferenced) {
-		if (!(expression instanceof XJConditionalExpression) || !containsPattern(expression)) {
+		if (!(expression instanceof XJConditionalExpression conditional)
+				|| !needsNativeConditional(conditional)) {
 			super._toJavaStatement(expression, appendable, isReferenced);
 		}
 	}
@@ -330,10 +340,23 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	private boolean needsNativeConditional(final XJConditionalExpression expression) {
 		final var part = EcoreUtil2.getContainerOfType(expression, XJCasePart.class);
 		return containsPattern(expression)
+			|| containsArrayCompoundAssignment(expressionRoot(expression))
 			|| part != null && EcoreUtil.isAncestor(part.getCase(), expression);
 	}
 
-	private void compilePatternConditional(final XJConditionalExpression expression,
+	private boolean isArrayCompoundAssignment(final XExpression expression) {
+		return expression instanceof XBinaryOperation operation
+			&& operation.isReassignFirstArgument()
+			&& operation.getLeftOperand() instanceof XJArrayAccessExpression;
+	}
+
+	private boolean containsArrayCompoundAssignment(final XExpression expression) {
+		return isArrayCompoundAssignment(expression)
+			|| EcoreUtil2.getAllContentsOfType(expression, XBinaryOperation.class)
+				.stream().anyMatch(this::isArrayCompoundAssignment);
+	}
+
+	private void compileNativeConditional(final XJConditionalExpression expression,
 			final ITreeAppendable appendable) {
 		appendable.append("(");
 		internalToJavaExpression(expression.getIf(), appendable);
@@ -347,6 +370,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected boolean internalCanCompileToJavaExpression(final XExpression expression,
 			final ITreeAppendable appendable) {
+		if (isArrayCompoundAssignment(expression)) {
+			return true;
+		}
 		if (expression instanceof XSwitchExpression statement
 				&& JbaseSwitches.isExpression(statement)) {
 			return true;
@@ -466,7 +492,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 					loopAppendable.append(", ");
 				}
 				XExpression initExpression = initExpressions.get(i);
-				compileAsJavaExpression(initExpression, loopAppendable, getLightweightType(initExpression));
+				if (isArrayCompoundAssignment(initExpression)) {
+					featureCalltoJavaExpression((XAbstractFeatureCall) initExpression,
+						loopAppendable, false);
+				} else {
+					compileAsJavaExpression(initExpression, loopAppendable,
+						getLightweightType(initExpression));
+				}
 			}
 		}
 
@@ -498,7 +530,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			loopAppendable.append(" ");
 			XExpression updateExpression = updateExpressions.get(i);
 			if (updateExpression instanceof XAbstractFeatureCall call
-					&& getLightweightType(call).isPrimitiveVoid()) {
+					&& (getLightweightType(call).isPrimitiveVoid()
+						|| isArrayCompoundAssignment(call))) {
 				featureCalltoJavaExpression(call, loopAppendable, false);
 			} else {
 				internalToJavaExpression(updateExpression, loopAppendable);
@@ -793,7 +826,19 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void featureCalltoJavaExpression(XAbstractFeatureCall call,
 			ITreeAppendable b, boolean isExpressionContext) {
-		if (call instanceof XJPrefixOperation prefixOperation) {
+		if (call instanceof XBinaryOperation operation && isArrayCompoundAssignment(operation)) {
+			// Native syntax evaluates receiver/index once and preserves implicit narrowing.
+			if (isExpressionContext) {
+				b.append("(");
+			}
+			compileJavaExpression((XJArrayAccessExpression) operation.getLeftOperand(), b);
+			b.append(" ").append(operation.getConcreteSyntaxFeatureName()).append(" ");
+			internalToJavaExpression(operation.getRightOperand(), b);
+			if (isExpressionContext) {
+				b.append(")");
+			}
+			return;
+		} else if (call instanceof XJPrefixOperation prefixOperation) {
 			// we can't simply retrieve the inline annotations as it is done
 			// for postfix operations, since postfix operations are already mapped to
 			// postfix methods operator_plusPlus and operator_minusMinus
@@ -844,16 +889,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected boolean isVariableDeclarationRequired(XExpression expr, ITreeAppendable b, boolean recursive) {
 		// Hoisting a negated match (or an operand using its binding) into a
 		// boolean temporary destroys Java's flow scope. Keep its expression intact.
-		var root = expr;
-		while (root.eContainer() instanceof XExpression parent
-				&& !(parent instanceof XBlockExpression)
-				&& !(parent instanceof XJSemicolonStatement)
-				&& (!(parent instanceof XIfExpression)
-					|| parent instanceof XJConditionalExpression)
-				&& !(parent instanceof XClosure)) {
-			root = parent;
-		}
-		if (containsPattern(root)) {
+		// The same applies to evaluation order around native array assignments.
+		final var root = expressionRoot(expr);
+		if (containsPattern(root) || containsArrayCompoundAssignment(root)) {
 			return false;
 		}
 		if (expr instanceof XUnaryOperation unaryOperation) {
@@ -865,6 +903,19 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			return false;
 		}
 		return super.isVariableDeclarationRequired(expr, b, recursive);
+	}
+
+	private XExpression expressionRoot(final XExpression expression) {
+		var root = expression;
+		while (root.eContainer() instanceof XExpression parent
+				&& !(parent instanceof XBlockExpression)
+				&& !(parent instanceof XJSemicolonStatement)
+				&& (!(parent instanceof XIfExpression)
+					|| parent instanceof XJConditionalExpression)
+				&& !(parent instanceof XClosure)) {
+			root = parent;
+		}
+		return root;
 	}
 
 	private void compileArrayAccess(XExpression expr, ITreeAppendable b) {

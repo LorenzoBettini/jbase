@@ -104,6 +104,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
 			int[][] partial = new int[limit][];
 			matrix[0][1] = numbers[0];
+			numbers[0] += 2;
+			matrix[1][0] *= numbers[0];
 			numbers[1] = numbers[1] + matrix[0][1];
 			int length = matrix[0].length;
 			int[] copy = numbers.clone();
@@ -315,6 +317,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };
 			    int[][] partial = new int[limit][];
 			    matrix[0][1] = numbers[0];
+			    numbers[0] += 2;
+			    matrix[1][0] *= numbers[0];
 			    int _plus = (numbers[1] + matrix[0][1]);
 			    numbers[1] = _plus;
 			    int length = matrix[0].length;

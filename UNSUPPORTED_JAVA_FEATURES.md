@@ -10,30 +10,24 @@ It is not an exhaustive comparison with every Java language feature.
 Each example below was checked independently with JbaseTestlanguage's compilation
 helper, validation, and the Java 21 compiler. The generated Java was also inspected: successful compilation alone does not
 reveal the array class literal and octal literal bugs.
-All checklist items remain open. On implementation, add focused regression tests
+Unchecked checklist items remain open. On implementation, add focused regression tests
 and update [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
 ## Confirmed gaps from the compilation showcase
 
-### [ ] Compound assignment to array elements
+### [x] Compound assignment to array elements
 
 ```java
 int[] values = {1};
 values[0] += 2;
 ```
 
-**Current behavior:** Java generation throws `ClassCastException`, attempting to
-cast `XJArrayAccessExpressionImpl` to `XAbstractFeatureCall`.
-
-**Expected:** Compile an array element compound assignment with Java semantics.
-Only `+=` was reproduced; check the other compound operators when implementing.
-
-**Workaround for this simple example:** `values[0] = values[0] + 2;`.
-A general rewrite must evaluate the array receiver and index only once and preserve
-the implicit narrowing conversion performed by Java compound assignment.
-
-**Investigate:** [JbaseXbaseCompiler](jbase/src/jbase/compiler/JbaseXbaseCompiler.java),
-especially its inherited compound assignment handling in `FeatureCallCompiler`.
+**Implemented:** Native Java generation supports `+=`, `-=`, `*=`, `/=`, `%=`,
+`&=`, `|=`, and `^=` on array elements, including multidimensional accesses.
+Receiver and index expressions are evaluated once, the element is read before the
+right operand, and implicit narrowing conversions and assignment values are preserved.
+Covered by `JbaseArrayCompoundAssignmentTest` and `AllJavaFeaturesTest`.
+Shift assignments remain subject to the separate parsing gap below.
 
 ### [ ] Shift assignment operators
 
