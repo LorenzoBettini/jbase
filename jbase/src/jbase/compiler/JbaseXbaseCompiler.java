@@ -337,9 +337,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				b.append(".");
 				appendFeatureCall(expr, b);
 			} else {
-				final var name = feature.eContainer() instanceof XJInstanceOfExpression
-					? feature.getSimpleName() : b.getName(feature);
-				b.append(name);
+				b.append(getAssignmentVariableName(feature, b));
 			}
 			
 			// custom implementation starts here
@@ -358,6 +356,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		super.assignmentToJavaExpression(expr, b, isExpressionContext);
 	}
 
+	private String getAssignmentVariableName(final JvmIdentifiableElement feature,
+			final ITreeAppendable appendable) {
+		return feature.eContainer() instanceof XJInstanceOfExpression
+			? feature.getSimpleName() : appendable.getName(feature);
+	}
+
 	@Override
 	protected boolean canCompileToJavaBasicForStatement(final XBasicForLoopExpression expression,
 			final ITreeAppendable appendable) {
@@ -373,7 +377,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		ITreeAppendable loopAppendable = b.trace(expr);
 		loopAppendable.openPseudoScope();
 		loopAppendable.newLine().append("for (");
-		
+
 		EList<XExpression> initExpressions = expr.getInitExpressions();
 		XExpression firstInitExpression = IterableExtensions.head(initExpressions);
 		if (firstInitExpression instanceof XJVariableDeclaration variableDeclaration) {
@@ -396,17 +400,28 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				compileAsJavaExpression(initExpression, loopAppendable, getLightweightType(initExpression));
 			}
 		}
-		
+
 		loopAppendable.append(";");
-		
+
 		XExpression expression = expr.getExpression();
 		if (expression != null) {
 			loopAppendable.append(" ");
 			internalToJavaExpression(expression, loopAppendable);
 		}
 		loopAppendable.append(";");
-		
-		EList<XExpression> updateExpressions = expr.getUpdateExpressions();
+
+		compileForUpdateExpressions(expr.getUpdateExpressions(), loopAppendable);
+		loopAppendable.append(") {").increaseIndentation();
+
+		XExpression eachExpression = expr.getEachExpression();
+		internalToJavaStatement(eachExpression, loopAppendable, false);
+
+		loopAppendable.decreaseIndentation().newLine().append("}");
+		loopAppendable.closeScope();
+	}
+
+	private void compileForUpdateExpressions(final EList<XExpression> updateExpressions,
+			final ITreeAppendable loopAppendable) {
 		for (int i = 0; i < updateExpressions.size(); i++) {
 			if (i != 0) {
 				loopAppendable.append(",");
@@ -420,13 +435,6 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				internalToJavaExpression(updateExpression, loopAppendable);
 			}
 		}
-		loopAppendable.append(") {").increaseIndentation();
-		
-		XExpression eachExpression = expr.getEachExpression();
-		internalToJavaStatement(eachExpression, loopAppendable, false);
-		
-		loopAppendable.decreaseIndentation().newLine().append("}");
-		loopAppendable.closeScope();
 	}
 
 	private void handleForStatementAdditionalVariables(XJVariableDeclaration variableDeclaration,
