@@ -70,8 +70,10 @@ import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCharLiteral;
+import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
+import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
@@ -79,6 +81,7 @@ import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
+import jbase.typesystem.JbasePatternVariables;
 import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseNodeModelUtil;
 
@@ -106,6 +109,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Inject
 	private JbaseSureReturnComputer sureReturnComputer;
 	@Inject
+	private JbasePatternVariables patternVariables;
+	@Inject
 	private IEarlyExitComputer earlyExitComputer;
 	@Inject
 	private JbaseInitializedVariableFinder initializedVariableFinder;
@@ -119,6 +124,50 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Override
 	public void checkClosureParams(final XClosure closure) {
 		// Java functional interfaces do not impose Xbase's limit of six parameters.
+	}
+
+
+	@Check
+	public void checkPatternSyntax(final XJInstanceOfExpression expression) {
+		if (expression.isFinal() && expression.getPatternVariable() == null) {
+			error("A final type pattern requires a variable name", expression, null,
+				IssueCodes.INVALID_INSTANCEOF);
+		}
+	}
+
+	@Check
+	public void checkDuplicatePatternBindings(final XBinaryOperation expression) {
+		final var operator = expression.getConcreteSyntaxFeatureName();
+		if ("&&".equals(operator) || "||".equals(operator)) {
+			checkDuplicatePatternBindings(expression.getLeftOperand(), true,
+				expression.getRightOperand(), true);
+			checkDuplicatePatternBindings(expression.getLeftOperand(), false,
+				expression.getRightOperand(), false);
+		}
+	}
+
+	@Check
+	public void checkDuplicatePatternBindings(final XJConditionalExpression expression) {
+		for (final var result : new boolean[] {true, false}) {
+			checkDuplicatePatternBindings(expression.getIf(), true,
+				expression.getElse(), result);
+			checkDuplicatePatternBindings(expression.getIf(), false,
+				expression.getThen(), result);
+			checkDuplicatePatternBindings(expression.getThen(), result,
+				expression.getElse(), result);
+		}
+	}
+
+	private void checkDuplicatePatternBindings(final XExpression first, final boolean firstResult,
+			final XExpression second, final boolean secondResult) {
+		final var names = patternVariables.matched(first, firstResult).stream()
+			.map(JvmFormalParameter::getName).toList();
+		for (final var variable : patternVariables.matched(second, secondResult)) {
+			if (names.contains(variable.getName())) {
+				error("Duplicate pattern variable " + variable.getName(), variable,
+					null, IssueCodes.VARIABLE_NAME_SHADOWING);
+			}
+		}
 	}
 
 	/**
@@ -300,6 +349,13 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		if (expression instanceof XAbstractFeatureCall call
 				&& call.getFeature() instanceof JvmFormalParameter parameter) {
+			if (parameter.eContainer() instanceof XJInstanceOfExpression pattern) {
+				if (pattern.isFinal()) {
+					error("Cannot assign a value to final pattern variable " + parameter.getName(),
+						expression, feature, IssueCodes.ASSIGNMENT_TO_FINAL);
+				}
+				return;
+			}
 			// all parameters are considered NOT final by default
 			var originalParam = modelUtil.getOriginalParam(parameter);
 			if (originalParam == null || !originalParam.isFinal()) {

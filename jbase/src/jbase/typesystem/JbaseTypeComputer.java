@@ -12,7 +12,6 @@ import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
-import org.eclipse.xtext.xbase.XInstanceOfExpression;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
@@ -43,6 +42,7 @@ import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
+import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
@@ -64,9 +64,17 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
 
+	@Inject
+	private JbasePatternVariables patternVariables;
+
 	@Override
-	public void computeTypes(final XExpression expression, final ITypeComputationState state) {
+	public void computeTypes(final XExpression expression, final ITypeComputationState originalState) {
+		final var state = patternVariables.enterScope(expression, originalState);
 		switch (expression) {
+			case XJInstanceOfExpression instanceOf -> {
+				super._computeTypes(instanceOf, state);
+				patternVariables.assignType(instanceOf, state);
+			}
 			case XJAssignment assignment -> computeJbaseTypes(assignment, state);
 			case XJArrayConstructorCall call -> computeJbaseTypes(call, state);
 			case XJArrayAccessExpression access -> computeJbaseTypes(access, state);
@@ -182,6 +190,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			addLocalToCurrentScope(statement.getExpression(), state);
 		} else {
 			super.addLocalToCurrentScope(e, state);
+			patternVariables.addIntroducedByStatement(e, state);
 		}
 	}
 
@@ -257,17 +266,11 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 	}
 
-	/**
-	 * In Javamm we must keep the semantics and typing of Java for instanceof expressions,
-	 * which do not imply a subsequent implicit cast like in Xbase.
-	 */
+	/** Java instanceof never refines the checked operand's declared type. */
 	@Override
 	protected ITypeComputationState reassignCheckedType(final XExpression condition,
 			final XExpression guardedExpression, final ITypeComputationState state) {
-		if (condition instanceof XInstanceOfExpression) {
-			return state;
-		}
-		return super.reassignCheckedType(condition, guardedExpression, state);
+		return state;
 	}
 
 	@Override

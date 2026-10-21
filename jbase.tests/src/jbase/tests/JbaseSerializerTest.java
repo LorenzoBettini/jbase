@@ -26,6 +26,18 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testInstanceOfPatterns() throws Exception {
+		assertSerialize("""
+			Object value = "hello";
+			if (value instanceof final String text && !text.isEmpty()) {
+				System.out.println(text);
+			} else if (!(value instanceof String text)) {
+				System.out.println(value);
+			} else System.out.println(text);
+			""");
+	}
+
+	@Test
 	public void testMethodReferences() throws Exception {
 		assertSerialize("""
 			java.util.function.ToIntFunction<String> length = String::length;

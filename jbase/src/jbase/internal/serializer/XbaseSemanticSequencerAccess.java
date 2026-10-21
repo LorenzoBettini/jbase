@@ -3,6 +3,7 @@ package jbase.internal.serializer;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.nodemodel.ICompositeNode;
@@ -18,21 +19,22 @@ import org.eclipse.xtext.serializer.sequencer.ISemanticNodeProvider.INodesForEOb
 import org.eclipse.xtext.serializer.tokens.SerializerScopeProviderBinding;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XbasePackage;
-import org.eclipse.xtext.xbase.services.XbaseGrammarAccess;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XAdditiveExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XAndExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XEqualityExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XMultiplicativeExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XOrExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XOtherOperatorExpressionElements;
-import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XRelationalExpressionElements;
+import org.eclipse.xtext.xbase.services.XbaseGrammarAccess;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
+import jbase.jbase.XJInstanceOfExpression;
 import jbase.serializer.AbstractJbaseSemanticSequencer;
-import jbase.services.JbaseGrammarAccess;
 import jbase.services.JbaseGrammarAccess.XBitwiseInclusiveOrExpressionElements;
+import jbase.services.JbaseGrammarAccess.XRelationalExpressionElements;
+import jbase.services.JbaseGrammarAccess;
 
 /**
  * Customizations needed since in the grammar we have
@@ -68,12 +70,16 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 	}
 
 	private void handleCustomBinaryOperation(ISerializationContext context, XBinaryOperation operation) {
+		if (!EcoreUtil2.getAllContentsOfType(operation, XJInstanceOfExpression.class).isEmpty()) {
+			genericSequencer.createSequence(context, operation);
+			return;
+		}
 		INodesForEObjectProvider nodes = createNodeProvider(operation);
 		SequenceFeeder acceptor = createSequencerFeeder(context, operation, nodes);
 		XAdditiveExpressionElements opAdd = grammarAccess.getXAdditiveExpressionAccess();
 		XMultiplicativeExpressionElements opMulti = grammarAccess.getXMultiplicativeExpressionAccess();
 		XOtherOperatorExpressionElements opOther = grammarAccess.getXOtherOperatorExpressionAccess();
-		XRelationalExpressionElements opCompare = grammarAccess.getXRelationalExpressionAccess();
+		XRelationalExpressionElements opCompare = access.getXRelationalExpressionAccess();
 		XEqualityExpressionElements opEquality = grammarAccess.getXEqualityExpressionAccess();
 		XAndExpressionElements opAnd = grammarAccess.getXAndExpressionAccess();
 		XOrExpressionElements opOr = grammarAccess.getXOrExpressionAccess();

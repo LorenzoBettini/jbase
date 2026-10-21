@@ -86,6 +86,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			Object boxed = count;
 			int unboxed = (Integer) boxed;
 			boolean stringValue = boxed instanceof String;
+			if (boxed instanceof String matched) System.out.println(matched);
+			if (!(boxed instanceof String matched)) System.out.println(boxed);
+			else System.out.println(matched);
 			Class<?> type = String.class;
 			Class<?> arrayType = String[].class;
 			;
@@ -277,6 +280,14 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    Object boxed = Integer.valueOf(count);
 			    int unboxed = (((Integer) boxed)).intValue();
 			    boolean stringValue = (boxed instanceof String);
+			    if ((boxed instanceof String matched)) {
+			      System.out.println(matched);
+			    }
+			    if ((!(boxed instanceof String matched))) {
+			      System.out.println(boxed);
+			    } else {
+			      System.out.println(matched);
+			    }
 			    Class<?> type = String.class;
 			    Class<?> arrayType = String[].class;;
 			    int[] numbers = { 1, 2, 3 };

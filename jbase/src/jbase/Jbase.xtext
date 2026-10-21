@@ -489,6 +489,21 @@ terminal STRING:
 terminal CHARACTER: 
 			"'" ( '\\' . /* ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') */ | !('\\'|"'") )* "'"?;
 
+// Keep the checked type on XInstanceOfExpression for the inherited Java type checks.
+// The pattern binding is a separate identifiable, visible only where definitely matched.
+@Override
+XRelationalExpression returns XExpression:
+	XOtherOperatorExpression
+	(=>({XJInstanceOfExpression.expression=current} 'instanceof')
+		final?='final'? type=JvmTypeReference (=>patternVariable=XJPatternVariable)? |
+	 =>({XBinaryOperation.leftOperand=current}
+		feature=[types::JvmIdentifiableElement|OpCompare]) rightOperand=XOtherOperatorExpression)*
+;
+
+XJPatternVariable returns types::JvmFormalParameter:
+	{types::JvmFormalParameter} name=ValidID
+;
+
 @Override 
 OpEquality:
 	'==' | '!=' ;

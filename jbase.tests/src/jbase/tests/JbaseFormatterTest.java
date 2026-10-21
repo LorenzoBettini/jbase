@@ -18,6 +18,22 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	private FormatterTestHelper formatterTestHelper;
 
 	@Test
+	public void testInstanceOfPatterns() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				Object value="hello";
+				if(value instanceof final  String   text){System.out.println(text);}
+				""");
+			request.setExpectation("""
+				Object value = "hello";
+				if (value instanceof final String text) {
+					System.out.println(text);
+				}
+				""");
+		});
+	}
+
+	@Test
 	public void testVarLambdaParameters() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

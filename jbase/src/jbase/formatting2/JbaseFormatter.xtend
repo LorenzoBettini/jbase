@@ -13,6 +13,7 @@ import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJContinueStatement
 import jbase.jbase.XJJvmFormalParameter
+import jbase.jbase.XJInstanceOfExpression
 import jbase.jbase.XJPrefixOperation
 import jbase.jbase.XJSemicolonStatement
 import jbase.jbase.XJSwitchStatements
@@ -37,6 +38,14 @@ import jbase.jbase.XJTryWithResourcesVariableDeclaration
 class JbaseFormatter extends XbasePatchedFormatter {
 
 	@Inject extension JbaseModelUtil
+
+	def dispatch void format(XJInstanceOfExpression expr, extension IFormattableDocument document) {
+		super._format(expr, document)
+		expr.regionFor.keyword("final").append[oneSpace]
+		if (expr.patternVariable !== null) {
+			expr.type.append[oneSpace]
+		}
+	}
 
 	def dispatch void format(XJJvmFormalParameter param, extension IFormattableDocument document) {
 		super._format(param, document);
