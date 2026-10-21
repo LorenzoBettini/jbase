@@ -3,7 +3,10 @@ package jbase.tests;
 import static org.junit.Assert.*;
 import com.google.inject.Inject;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
+import jbase.jbase.XJSwitchExpression;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.serializer.impl.Serializer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
@@ -50,6 +53,39 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			Object value = null;
 			int n = switch (value) { case null, default: yield 1; };
 			""");
+	}
+
+	@Test
+	public void testDefaultLabelsAtEveryPosition() throws Exception {
+		for (final var label : java.util.List.of("default", "case null, default")) {
+			for (final var body : java.util.List.of(" -> {} ", ": break; ")) {
+				for (var position = 0; position <= 2; position++) {
+					final var parts = new java.util.ArrayList<>(java.util.List.of(
+						"case 0" + body, "case 1" + body));
+					parts.add(position, label + body);
+					assertSerialize("switch (1) { " + String.join("", parts) + "}\n");
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testSwitchWithoutNodeModel() throws Exception {
+		final var source = "switch (1) { case 0 -> {} default -> {} }";
+		final var model = EcoreUtil.copy(parseHelper.parse(source));
+		assertEquals(source.replaceAll("\\s+", ""),
+			serializer.serialize(model).replaceAll("\\s+", ""));
+	}
+
+	@Test
+	public void testSwitchWithCaseWithoutNodeModel() throws Exception {
+		final var source = "switch (1) { case 0 -> {} default -> {} }";
+		final var model = parseHelper.parse(source);
+		final var expression = EcoreUtil2.getAllContentsOfType(model, XJSwitchExpression.class)
+			.getFirst();
+		expression.getCases().set(0, EcoreUtil.copy(expression.getCases().getFirst()));
+		assertEquals(source.replaceAll("\\s+", ""),
+			serializer.serialize(model).replaceAll("\\s+", ""));
 	}
 
 	@Test

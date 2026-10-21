@@ -33,7 +33,6 @@ import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmOperation;
 import org.eclipse.xtext.common.types.JvmType;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
@@ -141,10 +140,6 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkEnhancedSwitch(final XJSwitchExpression expression) {
-		if (NodeModelUtils.findNodesForFeature(expression,
-				XbasePackage.Literals.XSWITCH_EXPRESSION__DEFAULT).size() > 1) {
-			error("Duplicate default label", expression, null, JbaseIssueCodes.INVALID_SWITCH);
-		}
 		if (!JbaseSwitches.isEnhanced(expression)) {
 			return;
 		}

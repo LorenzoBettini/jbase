@@ -43,6 +43,7 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 		feeder.accept(elements.getSwitchXExpressionParserRuleCall_3_0(), expression.getSwitch());
 		final var defaultNode = NodeModelUtils.getNode(expression.getDefault());
 		var pendingDefault = expression.getDefault() != null;
+		var caseRule = elements.getCasesXCasePartParserRuleCall_6_0();
 		for (var index = 0; index < expression.getCases().size(); index++) {
 			final var part = expression.getCases().get(index);
 			final var node = NodeModelUtils.getNode(part);
@@ -50,8 +51,9 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 					&& defaultNode.getOffset() < node.getOffset()) {
 				feedDefault(feeder, expression);
 				pendingDefault = false;
+				caseRule = elements.getCasesXCasePartParserRuleCall_7_2_0();
 			}
-			feeder.accept(elements.getCasesXCasePartParserRuleCall_6_1_0(), part, index);
+			feeder.accept(caseRule, part, index);
 		}
 		if (pendingDefault) {
 			feedDefault(feeder, expression);
@@ -62,23 +64,15 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 	private void feedDefault(final SequenceFeeder feeder, final XJSwitchExpression expression) {
 		final var elements = access.getXSwitchExpressionAccess();
 		if (expression.isNullDefault()) {
-			feeder.accept(elements.getNullDefaultCaseKeyword_6_0_0_0_0_0(), true);
-			if (expression.isDefaultArrow()) {
-				feeder.accept(elements.getDefaultArrowHyphenMinusGreaterThanSignKeyword_6_0_1_0_0_0(),
-					true);
-				feeder.accept(elements.getDefaultXJSwitchRuleBodyParserRuleCall_6_0_1_0_1_0(),
-					expression.getDefault());
-			} else {
-				feeder.accept(elements.getDefaultXJSwitchStatementsParserRuleCall_6_0_1_1_1_0(),
-					expression.getDefault());
-			}
-		} else if (expression.isDefaultArrow()) {
-			feeder.accept(elements.getDefaultArrowHyphenMinusGreaterThanSignKeyword_6_2_1_0_0_0(),
+			feeder.accept(elements.getNullDefaultCaseKeyword_7_0_0_0_0_0(), true);
+		}
+		if (expression.isDefaultArrow()) {
+			feeder.accept(elements.getDefaultArrowHyphenMinusGreaterThanSignKeyword_7_1_0_0_0(),
 				true);
-			feeder.accept(elements.getDefaultXJSwitchRuleBodyParserRuleCall_6_2_1_0_1_0(),
+			feeder.accept(elements.getDefaultXJSwitchRuleBodyParserRuleCall_7_1_0_1_0(),
 				expression.getDefault());
 		} else {
-			feeder.accept(elements.getDefaultXJSwitchStatementsParserRuleCall_6_2_1_1_1_0(),
+			feeder.accept(elements.getDefaultXJSwitchStatementsParserRuleCall_7_1_1_1_0(),
 				expression.getDefault());
 		}
 	}

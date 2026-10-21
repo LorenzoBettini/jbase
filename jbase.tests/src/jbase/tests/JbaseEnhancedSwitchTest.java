@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.diagnostics.Diagnostic;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.XSwitchExpression;
@@ -418,16 +419,29 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
-	public void mixedCaseKindsAndDuplicateDefaultsAreRejected() throws Exception {
+	public void mixedCaseKindsAreRejected() throws Exception {
 		assertError("switch (1) { case 0 -> {} case 1: break; }", "Cannot mix");
 		assertError("switch (missing) { default -> {} }", "undefined");
 		assertError("switch (1) { case default: break; }", "Missing case label");
-		assertError("switch (1) { default -> {} default -> {} }", "Duplicate default");
-		assertError("switch (1) { default: break; default: break; }", "Duplicate default");
 		assertError("String s = \"a\"; switch (s) { case null, \"a\" -> {} default -> {} }",
 			"null label must stand alone");
 		assertError("Integer n = 1; switch (n) { case 1, null -> {} default -> {} }",
 			"null label must stand alone");
+	}
+
+	@Test
+	public void duplicateDefaultsAreSyntaxErrors() throws Exception {
+		for (final var label : java.util.List.of("default", "case null, default")) {
+			for (final var other : java.util.List.of("default", "case null, default")) {
+				for (final var body : java.util.List.of(" -> {} ", ": break; ")) {
+					final var source = "Object value = null; switch (value) { "
+						+ label + body + other + body + "}";
+					final var issues = validationTestHelper.validate(parseHelper.parse(source));
+					assertTrue(issues.toString(), issues.stream()
+						.anyMatch(issue -> Diagnostic.SYNTAX_DIAGNOSTIC.equals(issue.getCode())));
+				}
+			}
+		}
 	}
 
 	@Test

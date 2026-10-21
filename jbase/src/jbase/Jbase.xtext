@@ -356,17 +356,17 @@ XDoWhileExpression returns XExpression:
    'while' '(' predicate=XExpression ')';
 
 // Reuse Xbase's selector, cases, default and typeGuard, retaining Java rule syntax.
+// Assign the optional default only once, allowing ordinary cases on either side.
 @Override
 XSwitchExpression returns XExpression:
 	{XJSwitchExpression}
 	'switch' '(' switch=XExpression ')' '{'
+	(->cases+=XCasePart)*
 	(
-		(=>(nullDefault?='case' 'null' ',' 'default')
-			(defaultArrow?='->' default=XJSwitchRuleBody | ':' default=XJSwitchStatements))
-		| ->cases+=XCasePart
-		| ('default'
-			(defaultArrow?='->' default=XJSwitchRuleBody | ':' default=XJSwitchStatements))
-	)*
+		(=>(nullDefault?='case' 'null' ',' 'default') | 'default')
+		(defaultArrow?='->' default=XJSwitchRuleBody | ':' default=XJSwitchStatements)
+		(->cases+=XCasePart)*
+	)?
 	'}';
 
 // Recognize only the arrow header before committing, so incomplete rule bodies
