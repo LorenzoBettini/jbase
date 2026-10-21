@@ -241,4 +241,24 @@ public class JbaseArrayCompoundAssignmentTest extends JbaseAbstractCompilerTest 
 		checkCompilation(source, null);
 		assertExecuteMain(source, "4\n6\n");
 	}
+
+	@Test
+	public void radixLiteralsInArrayCompoundAssignments() throws Exception {
+		final var source = """
+			method testMe() {
+				int[] values = {0b1010};
+				values[0] += 077;
+				values[0] ^= 0xFF;
+				System.out.println(values[0]);
+				byte[] narrow = {127};
+				narrow[0] += 0x1L;
+				System.out.println(narrow[0]);
+				long[] masks = {0xFFL};
+				masks[0] &= 0B1010L;
+				System.out.println(masks[0]);
+			}
+			""";
+		checkCompilation(source, null);
+		assertExecuteMain(source, "182\n-128\n10\n");
+	}
 }

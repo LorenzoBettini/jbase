@@ -600,3 +600,17 @@ XAnnotationElementValue returns XExpression :
 @Override
 ValidID:
 	ID | 'var' | 'when' | 'yield';
+
+// Java radix prefixes and suffixes; Number retains Xbase's decimal/floating rules.
+@Override
+Number hidden():
+	BINARY | HEX | (INT | DECIMAL) ('.' (INT | DECIMAL))?;
+
+terminal BINARY:
+	('0b' | '0B') ('0' | '1') ('_'* ('0' | '1'))* ('l' | 'L')?;
+
+@Override
+terminal HEX:
+	('0x' | '0X') ('0'..'9' | 'a'..'f' | 'A'..'F')
+	('_'* ('0'..'9' | 'a'..'f' | 'A'..'F'))*
+	(('l' | 'L') | '#' (('b' | 'B') ('i' | 'I') | 'l' | 'L'))?;

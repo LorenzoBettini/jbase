@@ -104,6 +104,11 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 	 */
 	@Override
 	protected void _computeTypes(XNumberLiteral object, ITypeComputationState state) {
+		// A failed value conversion already reports the invalid literal at its source.
+		if (object.getValue() == null) {
+			state.acceptActualType(getTypeForName(Integer.TYPE, state));
+			return;
+		}
 		if (object.eContainer() instanceof XBinaryOperation) {
 			// temporary fix for https://github.com/LorenzoBettini/javamm/issues/34
 			super._computeTypes(object, state);
