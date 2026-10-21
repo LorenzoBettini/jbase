@@ -151,6 +151,17 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				System.out.println(choice);
 			}
 
+			// Java 21 switch expressions, guarded type rules, null labels and yield.
+			int selected = switch (boxed) {
+				case String s when s.length() > 1 -> s.length();
+				case Integer integerValue -> { yield integerValue.intValue(); }
+				case null, default -> -1;
+			};
+			switch (selected) {
+				case 0, 1 -> System.out.println(selected);
+				default -> System.out.println("other");
+			}
+
 			// Expression and block lambdas, explicit parameters and captured locals.
 			IntUnaryOperator increment = n -> n + offset;
 			IntUnaryOperator decrement = (final int n) -> {
@@ -355,6 +366,25 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        break;
 			      default:
 			        System.out.println(choice);
+			    }
+			    int selected = switch (boxed) {
+			      case String s when (s.length() > 1) -> {
+			        yield s.length();
+			      }
+			      case Integer integerValue -> {
+			        yield integerValue.intValue();
+			      }
+			      case null, default -> {
+			        yield -1;
+			      }
+			    };
+			    switch (selected) {
+			      case 0, 1 -> {
+			        System.out.println(selected);
+			      }
+			      default -> {
+			        System.out.println("other");
+			      }
 			    }
 			    final IntUnaryOperator _function = (int n) -> {
 			      return (n + offset);

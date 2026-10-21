@@ -18,6 +18,48 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	private FormatterTestHelper formatterTestHelper;
 
 	@Test
+	public void testEnhancedSwitch() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				Object value="hello";
+				int n=switch(value){case final String s when s.length()>1->{yield s.length();}
+				case null,default->0;};
+				switch(n){case 0,1->System.out.println(n);default->{System.out.println("other");}}
+				""");
+			request.setExpectation("""
+				Object value = "hello";
+				int n = switch (value) {
+					case final String s when s.length() > 1 -> {
+						yield s.length();
+					}
+					case null, default -> 0;
+				};
+				switch (n) {
+					case 0, 1 -> System.out.println(n);
+					default -> {
+						System.out.println("other");
+					}
+				}
+				""");
+		});
+	}
+
+	@Test
+	public void testColonSwitchExpression() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("int n=switch(1){case 0,1:yield 1;default:yield 2;};");
+			request.setExpectation("""
+				int n = switch (1) {
+					case 0, 1:
+					yield 1;
+					default:
+					yield 2;
+				};
+				""");
+		});
+	}
+
+	@Test
 	public void testInstanceOfPatterns() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

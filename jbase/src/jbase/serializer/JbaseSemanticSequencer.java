@@ -5,6 +5,7 @@ package jbase.serializer;
 
 import java.util.List;
 
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.serializer.ISerializationContext;
 import org.eclipse.xtext.serializer.acceptor.SequenceFeeder;
 import org.eclipse.xtext.serializer.sequencer.ISemanticNodeProvider.INodesForEObjectProvider;
@@ -15,6 +16,7 @@ import com.google.inject.Inject;
 import jbase.internal.serializer.XbaseSemanticSequencerAccess;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayDimension;
+import jbase.jbase.XJSwitchExpression;
 import jbase.services.JbaseGrammarAccess;
 import jbase.services.JbaseGrammarAccess.XJArrayConstructorCallElements;
 import jbase.util.JbaseModelUtil;
@@ -31,6 +33,49 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 
 	@Inject
 	private JbaseModelUtil modelUtil;
+
+	/** The inherited model stores default separately, so feed it in source order. */
+	@Override
+	protected void sequence_XSwitchExpression(final ISerializationContext context,
+			final XJSwitchExpression expression) {
+		final var feeder = createSequencerFeeder(context, expression, createNodeProvider(expression));
+		final var elements = access.getXSwitchExpressionAccess();
+		feeder.accept(elements.getSwitchXExpressionParserRuleCall_3_0(), expression.getSwitch());
+		final var defaultNode = NodeModelUtils.getNode(expression.getDefault());
+		var pendingDefault = expression.getDefault() != null;
+		var caseRule = elements.getCasesXCasePartParserRuleCall_6_0();
+		for (var index = 0; index < expression.getCases().size(); index++) {
+			final var part = expression.getCases().get(index);
+			final var node = NodeModelUtils.getNode(part);
+			if (pendingDefault && defaultNode != null && node != null
+					&& defaultNode.getOffset() < node.getOffset()) {
+				feedDefault(feeder, expression);
+				pendingDefault = false;
+				caseRule = elements.getCasesXCasePartParserRuleCall_7_2_0();
+			}
+			feeder.accept(caseRule, part, index);
+		}
+		if (pendingDefault) {
+			feedDefault(feeder, expression);
+		}
+		feeder.finish();
+	}
+
+	private void feedDefault(final SequenceFeeder feeder, final XJSwitchExpression expression) {
+		final var elements = access.getXSwitchExpressionAccess();
+		if (expression.isNullDefault()) {
+			feeder.accept(elements.getNullDefaultCaseKeyword_7_0_0_0_0_0(), true);
+		}
+		if (expression.isDefaultArrow()) {
+			feeder.accept(elements.getDefaultArrowHyphenMinusGreaterThanSignKeyword_7_1_0_0_0(),
+				true);
+			feeder.accept(elements.getDefaultXJSwitchRuleBodyParserRuleCall_7_1_0_1_0(),
+				expression.getDefault());
+		} else {
+			feeder.accept(elements.getDefaultXJSwitchStatementsParserRuleCall_7_1_1_1_0(),
+				expression.getDefault());
+		}
+	}
 
 	@Override
 	protected void sequence_XJArrayConstructorCall(ISerializationContext context, XJArrayConstructorCall semanticObject) {

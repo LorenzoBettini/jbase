@@ -9,6 +9,8 @@ import jbase.jbase.JbasePackage
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssignment
+import jbase.jbase.XJCasePart
+import jbase.jbase.XJYieldStatement
 import jbase.jbase.XJBreakStatement
 import jbase.jbase.XJConditionalExpression
 import jbase.jbase.XJContinueStatement
@@ -16,9 +18,11 @@ import jbase.jbase.XJJvmFormalParameter
 import jbase.jbase.XJInstanceOfExpression
 import jbase.jbase.XJPrefixOperation
 import jbase.jbase.XJSemicolonStatement
+import jbase.jbase.XJSwitchExpression
 import jbase.jbase.XJSwitchStatements
 import jbase.jbase.XJVariableDeclaration
 import jbase.util.JbaseModelUtil
+import jbase.util.JbaseSwitches
 import org.eclipse.emf.common.util.EList
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.XCastedExpression
@@ -127,11 +131,11 @@ class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	def dispatch void format(XJBreakStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("break").surround[noSpace]
+		expr.regionFor.keyword("break").append[noSpace]
 	}
 
 	def dispatch void format(XJContinueStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("continue").surround[noSpace]
+		expr.regionFor.keyword("continue").append[noSpace]
 	}
 
 	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {
@@ -140,9 +144,49 @@ class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	override dispatch void format(XSwitchExpression expr, extension IFormattableDocument document) {
-		super._format(expr, document)
+		if (JbaseSwitches.isEnhanced(expr)) {
+			expr.regionFor.keyword("switch").append[oneSpace]
+			expr.^switch.format(document)
+			val open = expr.regionFor.keyword("{")
+			val close = expr.regionFor.keyword("}")
+			open.prepend[oneSpace].append[newLine]
+			close.prepend[newLine]
+			interior(open, close)[indent]
+			for (part : expr.cases) part.format(document)
+			if ((expr as XJSwitchExpression).nullDefault) {
+				expr.regionFor.keyword("case").prepend[newLine].append[oneSpace]
+			} else {
+				expr.regionFor.keyword("default").prepend[newLine]
+			}
+			expr.regionFor.keyword(":").prepend[noSpace].append[newLine]
+			expr.^default.format(document)
+		} else {
+			super._format(expr, document)
+		}
 		expr.regionFor.keyword("(").append[noSpace]
 		expr.regionFor.keyword(")").prepend[noSpace]
+		expr.regionFor.keyword("->").surround[oneSpace]
+		expr.regionFor.keywords(",").forEach[prepend[noSpace].append[oneSpace]]
+	}
+
+	def dispatch void format(XJCasePart expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("case").prepend[newLine].append[oneSpace]
+		expr.regionFor.keyword("->").surround[oneSpace]
+		expr.regionFor.keyword("when").surround[oneSpace]
+		expr.regionFor.keyword("final").append[oneSpace]
+		expr.regionFor.keyword(":").prepend[noSpace].append[newLine]
+		expr.regionFor.keywords(",").forEach[prepend[noSpace].append[oneSpace]]
+		if (expr.patternVariable !== null) expr.typeGuard.append[oneSpace]
+		expr.typeGuard.format(document)
+		expr.patternVariable.format(document)
+		expr.^case.format(document)
+		for (label : expr.additionalLabels) label.format(document)
+		expr.then.format(document)
+	}
+
+	def dispatch void format(XJYieldStatement expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("yield").append[oneSpace]
+		expr.expression.format(document)
 	}
 
 	def dispatch void format(XJTryWithResourcesStatement expr, extension IFormattableDocument document) {

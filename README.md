@@ -58,9 +58,10 @@ For versions earlier than version 1.x the groupId and artifactId are as follows
 Jbase assumes that you are already familiar with Xtext and in particular with Xbase concepts.
 
 Contributor guides explain the Xbase integration for
-[lambda expressions](docs/LAMBDA_EXPRESSIONS.md) and
-[method and constructor references](docs/METHOD_REFERENCES.md), and
-[`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md).
+[lambda expressions](docs/LAMBDA_EXPRESSIONS.md),
+[method and constructor references](docs/METHOD_REFERENCES.md),
+[`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md), and
+[Java 21 switches](docs/ENHANCED_SWITCH.md).
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
@@ -116,6 +117,34 @@ System.out.println(text.length());
 Bindings follow Java's flow scopes in then/else branches, negated and
 short-circuit conditions, conditional expressions, and loops. Optional `final`
 prevents reassignment. See the [type pattern guide](docs/INSTANCEOF_PATTERNS.md).
+
+## Enhanced switches
+
+Jbase supports Java 21 switch statements and expressions, including arrow rules,
+grouped labels, type patterns, `when` guards, `yield`, and `case null, default`:
+
+```java
+Object value = "hello";
+int length = switch (value) {
+    case String text when !text.isEmpty() -> text.length();
+    case Integer number -> {
+        int result = number.intValue();
+        yield result;
+    }
+    case null, default -> 0;
+};
+switch (length) {
+    case 0, 1 -> System.out.println("short");
+    default -> System.out.println(length);
+}
+```
+
+Generated Java preserves native switches, patterns, guards, and `yield`.
+Expression rules may become blocks containing `yield`. Switch expressions must
+be exhaustive; arrow rules do not fall through and cannot be mixed with colon
+labels. Pattern bindings are visible in their guard and body. Compile generated
+pattern switches with Java 21 or later. See the [enhanced switch guide](docs/ENHANCED_SWITCH.md)
+for details and current limitations.
 
 ## Local variable type inference
 

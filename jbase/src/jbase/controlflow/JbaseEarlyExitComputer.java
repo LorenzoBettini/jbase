@@ -6,8 +6,12 @@ import java.util.Collections;
 
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
 import com.google.inject.Inject;
+
+import jbase.jbase.XJCasePart;
+import jbase.util.JbaseSwitches;
 
 /**
  * Customization to take into account that in Java, switch's cases automatically fall through
@@ -16,6 +20,9 @@ import com.google.inject.Inject;
  * @author Lorenzo Bettini
  */
 public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExitComputer {
+
+	@Inject
+	private IBatchTypeResolver typeResolver;
 
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
@@ -35,16 +42,25 @@ public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExi
 
 	@Override
 	protected Collection<ExitPoint> _exitPoints(final XSwitchExpression expression) {
+		if (JbaseSwitches.isExpression(expression)) {
+			return Collections.emptyList();
+		}
 		var result = new ArrayList<ExitPoint>();
 		for (var casePart : expression.getCases()) {
 			var then = casePart.getThen();
 			var caseExit = getExitPoints(then);
 			// if there is not a break then in Java it is an automatic fall through
 			// so we must not consider this case
-			if (branchingStatementDetector.isSureBranchStatement(then) && !isNotEmpty(caseExit)) {
+			if ((((XJCasePart) casePart).isArrow()
+					|| branchingStatementDetector.isSureBranchStatement(then))
+					&& !isNotEmpty(caseExit)) {
 				return Collections.emptyList();
 			}
 			result.addAll(caseExit);
+		}
+		if (expression.getDefault() == null && JbaseSwitches.isEnhanced(expression)
+				&& JbaseSwitches.isExhaustive(expression, typeResolver.resolveTypes(expression))) {
+			return result;
 		}
 		var defaultExit = getExitPoints(expression.getDefault());
 		if (!isNotEmpty(defaultExit)) {

@@ -12,6 +12,16 @@ import org.junit.runner.RunWith;
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
+	public void testSwitchPatternScopes() throws Exception {
+		newBuilder().append("Object value = null; switch (value) { case String text when text.len")
+			.assertProposal("length");
+		newBuilder().append("Object value = null; switch (value) { case String text -> { text.len")
+			.assertProposal("length");
+		newBuilder().append("Object value = null; switch (value) { case String text -> {} "
+			+ "default -> { <|> } }").assertNoProposalAtCursor("text");
+	}
+
+	@Test
 	public void testInstanceOfPatternScopes() throws Exception {
 		newBuilder().append("Object value = null; if (value instanceof String text) { text.len")
 			.assertProposal("length");

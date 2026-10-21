@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
+import jbase.jbase.XJCasePart;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJVariableDeclaration;
@@ -192,8 +193,12 @@ public class JbaseInitializedVariableFinder {
 		var effectiveBranches = new ArrayList<XExpression>();
 		var otherBranches = new ArrayList<XExpression>();
 		for (var casePart : e.getCases()) {
+			if (casePart.getTypeGuard() != null) {
+				detectNotInitializedDispatch(casePart.getCase(), createCopy(initialized), acceptor);
+			}
 			var then = casePart.getThen();
-			if (branchingStatementDetector.isSureBranchStatement(then)) {
+			if (((XJCasePart) casePart).isArrow()
+					|| branchingStatementDetector.isSureBranchStatement(then)) {
 				effectiveBranches.add(then);
 			} else {
 				otherBranches.add(then);
