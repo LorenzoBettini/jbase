@@ -48,6 +48,8 @@ public class JbaseIssueCodes {
 
 	public static final String INVALID_LAMBDA = PREFIX + "InvalidLambda";
 
+	public static final String INVALID_METHOD_REFERENCE = PREFIX + "InvalidMethodReference";
+
 	public static final String NON_EFFECTIVELY_FINAL_CAPTURE = PREFIX + "NonEffectivelyFinalCapture";
 
 }

@@ -25,12 +25,18 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJVariableDeclaration;
 
 /**
- * Detects references to variables which might not be initialized, according
- * to Java semantics.
+ * Detects references to variables which might not be initialized, according to Java semantics.
+ * Lambda bodies use a snapshot of the current initialized locals: their reads must be valid
+ * when the lambda is created, and their deferred writes cannot initialize an enclosing local.
+ * Method reference receivers instead execute immediately and use the current state.
+ *
+ * <p>This analysis complements the effectively-final capture check in JbaseValidator;
+ * absence of a later reassignment does not prove that a local was initialized before capture.
  *
  * @author Lorenzo Bettini
  */
@@ -69,6 +75,11 @@ public class JbaseInitializedVariableFinder {
 		}
 	}
 
+	/**
+	 * Dispatches reference receivers before the XClosure supertype case. For example,
+	 * {@code (text = "hello")::trim} initializes text immediately, whereas an assignment
+	 * in a lambda body must not update the caller's initialized-variable set.
+	 */
 	public void detectNotInitialized(final XExpression e, final InitializedVariables initialized,
 			final NotInitializedAcceptor acceptor) {
 		switch (e) {
@@ -86,6 +97,8 @@ public class JbaseInitializedVariableFinder {
 			case XSwitchExpression statement ->
 				inspectNotInitialized(statement, initialized, acceptor);
 			case XBlockExpression block -> inspectNotInitialized(block, initialized, acceptor);
+			case XJMethodReference reference -> detectNotInitializedDispatch(reference.getReceiver(),
+				initialized, acceptor);
 			case XClosure closure -> detectNotInitializedDispatch(closure.getExpression(),
 				createCopy(initialized), acceptor);
 			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);

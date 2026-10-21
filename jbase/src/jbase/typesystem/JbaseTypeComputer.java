@@ -1,8 +1,8 @@
 package jbase.typesystem;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmGenericType;
+import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
@@ -17,8 +17,8 @@ import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
-import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
+import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
@@ -43,17 +43,24 @@ import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.validation.JbaseIssueCodes;
 
 /**
+ * Adapts Xbase computation to Java expressions and Jbase statement wrappers.
+ * Ordinary lambdas retain Xbase's closure inference; method references are dispatched
+ * to {@link JbaseMethodReferences} before that inference attempts to visit a lambda body.
+ *
  * @author Lorenzo Bettini
  */
 public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	@Inject
 	private CommonTypeComputationServices services;
+	@Inject
+	private JbaseMethodReferences methodReferences;
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
 
@@ -105,6 +112,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		state.acceptActualType(result);
 	}
 
+	/**
+	 * Supplies a functional interface expectation for a cast lambda or method reference.
+	 * For example, {@code (IntUnaryOperator) n -> n} must infer n as int before computing
+	 * the operand. An ordinary cast's operand computation does not supply this expectation.
+	 * The type guard is needed while the editor is recovering an incomplete cast.
+	 */
 	@Override
 	protected void _computeTypes(final XCastedExpression expression,
 			final ITypeComputationState state) {
@@ -120,8 +133,18 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 	}
 
+	/**
+	 * Keeps closure inference tied to each enclosing expectation, including overload candidates.
+	 * A raw functional interface uses erased bounds (raw Consumer's parameter is Object);
+	 * other lambdas delegate to Xbase's ClosureTypeComputer with their original expectations.
+	 * The reference subtype must be intercepted before Xbase looks for a lambda body.
+	 */
 	@Override
 	protected void _computeTypes(final XClosure closure, final ITypeComputationState state) {
+		if (closure instanceof XJMethodReference reference) {
+			methodReferences.computeTypes(reference, state);
+			return;
+		}
 		for (var expectation : state.getExpectations()) {
 			var expectedType = expectation.getExpectedType();
 			if (expectedType != null && expectedType.isRawType()) {
@@ -408,6 +431,11 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		return state.getReferenceOwner();
 	}
 
+	/**
+	 * Exposes the statement wrapper to Xbase's scope tracker before typing its expression.
+	 * Lambda parameter and local completion depend on these tracked scopes, even though
+	 * the semicolon wrapper has no independent expression semantics.
+	 */
 	private ITypeComputationResult computeJbaseTypes(final XJSemicolonStatement st,
 			final ITypeComputationState state) {
 		var expression = st.getExpression();

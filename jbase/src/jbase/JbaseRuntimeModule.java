@@ -42,6 +42,7 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 		return JbaseOperatorMapping.class;
 	}
 
+	/** Installs Java closure expectations and reference dispatch alongside Jbase expression typing. */
 	@Override
 	public Class<? extends ITypeComputer> bindITypeComputer() {
 		return JbaseTypeComputer.class;
@@ -51,6 +52,7 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 		return JbaseExpressionArgumentFactory.class;
 	}
 
+	/** Defers writable-local capture errors until Jbase can inspect the complete linked write set. */
 	public Class<? extends AbstractRootedReentrantTypeResolver>
 			bindAbstractRootedReentrantTypeResolver() {
 		return JbaseReentrantTypeResolver.class;
@@ -65,6 +67,7 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 		return JbaseJvmModelGenerator.class;
 	}
 
+	/** Retains Xbase lambda generation while adding native method reference emission. */
 	public Class<? extends XbaseCompiler> bindXbaseCompiler() {
 		return JbaseXbaseCompiler.class;
 	}

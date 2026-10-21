@@ -4,7 +4,7 @@ Last verified: 2026-10-20.
 
 This is an implementation backlog for valid Java expressions and statements that
 Jbase currently rejects, crashes on, or translates incorrectly. It records the
-gaps found while building `AllJavaFeaturesTest`, plus a related method reference gap.
+gaps found while building `AllJavaFeaturesTest`.
 It is not an exhaustive comparison with every Java language feature.
 
 Each example below was checked independently with JbaseTestlanguage's compilation
@@ -157,26 +157,12 @@ class literals in annotation values. These workarounds were not separately teste
 [JbaseXbaseCompiler](jbase/src/jbase/compiler/JbaseXbaseCompiler.java).
 Check how repeated dimension values are retained in the model.
 
-## Additional confirmed lambda gaps
-
-### [ ] Method references
-
-```java
-java.util.function.ToIntFunction<String> length = String::length;
-```
-
-**Current behavior:** Parsing fails at `::`, with additional recovery diagnostics.
-The [README](README.md#java-lambda-expressions) also documents this limitation.
-
-**Expected:** Support Java method references with functional interface target typing.
-The reproduced case is an unbound instance method reference; static, bound instance,
-and constructor references should be considered in the implementation scope.
-
-**Workaround:** `s -> s.length()` for this example.
-
-**Investigate:** Expression grammar and functional interface type inference.
-
 ## Forms checked that should not be tracked as unsupported
+
+Method and constructor references are supported with functional interface target
+typing, including static, bound and unbound methods, generic type receivers, and
+array constructors. Covered by `JbaseMethodReferenceTest`, `JbaseSerializerTest`,
+`JbaseContentAssistTest`, and `AllJavaFeaturesTest`.
 
 Lambda parameters support `var` and `final var`, with types inferred from the
 functional interface. Covered by `JbaseLambdaTest` and `AllJavaFeaturesTest`:
