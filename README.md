@@ -60,10 +60,27 @@ Jbase assumes that you are already familiar with Xtext and in particular with Xb
 Contributor guides explain the Xbase integration for
 [lambda expressions](docs/LAMBDA_EXPRESSIONS.md),
 [method and constructor references](docs/METHOD_REFERENCES.md),
-[`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md), and
-[Java 21 switches](docs/ENHANCED_SWITCH.md).
+[`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md),
+[Java 21 switches](docs/ENHANCED_SWITCH.md), and
+[Java text blocks](docs/TEXT_BLOCKS.md).
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
+
+## Java text blocks
+
+Text blocks use Java syntax and whitespace semantics:
+
+```java
+String html = """
+    <p>
+      Hello
+    </p>
+    """;
+```
+
+Jbase removes incidental source indentation while preserving the indentation in
+the string value. Generated Java retains native text blocks, reindented to fit the
+surrounding code. Compile that Java with Java 15 or later.
 
 ## Java lambda expressions
 

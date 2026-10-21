@@ -60,6 +60,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			float fraction = 1.5f;
 			double decimal = 2.5e2;
 			String text = "hello";
+			String multiline = \"\"\"
+				first line
+				  second line
+				\"\"\";
 			Object absent = null;
 			int hexadecimal = 0xFF;
 			int assigned;
@@ -244,6 +248,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    float fraction = 1.5f;
 			    double decimal = 2.5e2;
 			    String text = "hello";
+			    String multiline = \"\"\"
+			    first line
+			      second line
+			    \"\"\";
 			    Object absent = null;
 			    int hexadecimal = 0xFF;
 			    int assigned = 0;

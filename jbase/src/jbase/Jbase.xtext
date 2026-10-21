@@ -509,7 +509,13 @@ XCharLiteral returns XExpression:
 
 @Override 
 XStringLiteral returns XExpression:
-	{XStringLiteral} value=STRING;
+	{XStringLiteral} (value=STRING | value=TEXT_BLOCK);
+
+// An escape consumes its following character, so an escaped quote cannot close
+// the block. At most two unescaped quotes may precede another content character.
+terminal TEXT_BLOCK:
+	'"""' (' ' | '\t' | '\f')* ('\r' | '\n')
+	(('"' '"'?)? ('\\' . | !('"' | '\\')))* '"""';
 
 @Override 
 terminal STRING: 
