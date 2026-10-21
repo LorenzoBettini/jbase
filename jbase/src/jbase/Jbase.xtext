@@ -43,8 +43,9 @@ FullJvmFormalParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
 
 XJSingleStatement returns XExpression:
+	// Commit on the switch keyword, including incomplete statements during editing.
+	->XSwitchExpression |
 	XJSemicolonStatement |
-	XSwitchExpression |
 	XIfExpression |
 	XForLoopExpression |
 	XBasicForLoopExpression |
@@ -64,14 +65,9 @@ XJSingleStatement returns XExpression:
  */
 XJSemicolonStatement returns XExpression:
 	{XJSemicolonStatement}
-	expression=
-		(
-			XJBranchingStatement |
-			XExpressionOrVarDeclaration |
-			XDoWhileExpression |
-			XReturnExpression |
-			XThrowExpression
-		)
+	(=>expression=XJYieldStatement |
+		expression=(XJBranchingStatement | XExpressionOrVarDeclaration |
+			XDoWhileExpression | XReturnExpression | XThrowExpression))
 	->semicolon=';'?
 ;
 
@@ -359,19 +355,52 @@ XDoWhileExpression returns XExpression:
        body=XJStatementOrBlock
    'while' '(' predicate=XExpression ')';
 
-@Override 
+// Reuse Xbase's selector, cases, default and typeGuard, retaining Java rule syntax.
+@Override
 XSwitchExpression returns XExpression:
-	{XSwitchExpression}
+	{XJSwitchExpression}
 	'switch' '(' switch=XExpression ')' '{'
-	(cases+=XCasePart)*
-	('default' ':' default=XJSwitchStatements )?
+	(
+		(=>(nullDefault?='case' 'null' ',' 'default')
+			(defaultArrow?='->' default=XJSwitchRuleBody | ':' default=XJSwitchStatements))
+		| ->cases+=XCasePart
+		| ('default'
+			(defaultArrow?='->' default=XJSwitchRuleBody | ':' default=XJSwitchStatements))
+	)*
 	'}';
 
-@Override 
-XCasePart:
-	{XCasePart}
-	'case' case=XExpression
-		':' then=XJSwitchStatements;
+// Recognize only the arrow header before committing, so incomplete rule bodies
+// and old colon cases keep their model nodes during editor recovery.
+@Override
+XCasePart returns XJCasePart:
+	{XJCasePart} 'case'
+	(=>XJSwitchRuleHead then=XJSwitchRuleBody | XJSwitchColonCase)?;
+
+fragment XJSwitchRuleHead returns XJCasePart:
+	(=>(final?='final'? typeGuard=JvmTypeReference patternVariable=XJPatternVariable)
+		('when' case=XExpression)?
+	| case=XJCaseLabel (',' additionalLabels+=XJCaseLabel)*)
+	arrow?='->';
+
+fragment XJSwitchColonCase returns XJCasePart:
+	(=>(final?='final'? typeGuard=JvmTypeReference patternVariable=XJPatternVariable)
+		('when' case=XExpression)?
+	| case=XJCaseLabel (',' additionalLabels+=XJCaseLabel)*)
+	':' then=XJSwitchStatements;
+
+// A constant label cannot be a lambda: NAME -> belongs to the switch rule.
+XJCaseLabel returns XExpression:
+	XOrExpression
+	(=>({XJConditionalExpression.if=current} '?') then=XJCaseLabel ':' else=XJCaseLabel)?;
+
+XJSwitchRuleBody returns XExpression:
+	=>XBlockExpression | XJSwitchRuleExpression;
+
+XJSwitchRuleExpression returns XExpression:
+	{XJSemicolonStatement} expression=(XThrowExpression | XExpression) semicolon=';'?;
+
+XJYieldStatement returns XExpression:
+	=>({XJYieldStatement} 'yield' expression=XExpression);
 
 /**
  * Java switch's case expression does not require an explicit block { }
@@ -437,7 +466,7 @@ XPrimaryExpression returns XExpression:
 	XJArrayConstructorCall |
 	XConstructorCall |
 //	XBlockExpression |
-//	XSwitchExpression |
+	XSwitchExpression |
 //	XSynchronizedExpression |
 	XJFeatureCallWithArrayAccess |
 	XLiteral |
@@ -564,4 +593,4 @@ XAnnotationElementValue returns XExpression :
 // Java's contextual keyword remains usable as a variable or member name.
 @Override
 ValidID:
-	ID | 'var';
+	ID | 'var' | 'when' | 'yield';

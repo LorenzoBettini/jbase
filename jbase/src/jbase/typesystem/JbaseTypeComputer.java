@@ -1,22 +1,27 @@
 package jbase.typesystem;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XNullLiteral;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
+import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
+import org.eclipse.xtext.xbase.typesystem.computation.EnumLiteralImporter;
 import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
@@ -39,6 +44,7 @@ import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
+import jbase.jbase.XJCasePart;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
@@ -46,6 +52,7 @@ import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.util.JbaseSwitches;
 import jbase.validation.JbaseIssueCodes;
 
 /**
@@ -200,6 +207,10 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	 */
 	@Override
 	protected void _computeTypes(final XSwitchExpression object, final ITypeComputationState state) {
+		if (JbaseSwitches.isEnhanced(object)) {
+			computeEnhancedSwitch(object, state);
+			return;
+		}
 		var switchExpressionState = state.withNonVoidExpectation();
 		var computedType = switchExpressionState.computeTypes(object.getSwitch());
 		var allCasePartsState = state;
@@ -249,7 +260,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 		var defaultCase = object.getDefault();
 		if (defaultCase != null) {
-			allCasePartsState.computeTypes(defaultCase);
+			if (object.getCases().stream().anyMatch(part -> part.getCase() == null)) {
+				// Keep useful scopes while an unfinished label has no result type yet.
+				allCasePartsState.withoutExpectation().computeTypes(defaultCase);
+			} else {
+				allCasePartsState.computeTypes(defaultCase);
+			}
 		} else { // if (branchExpressionProcessor != null) {
 			// branchExpressionProcessor.commit();
 			for (var expectation : state.getExpectations()) {
@@ -263,6 +279,65 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 					break;
 				}
 			}
+		}
+	}
+
+	/** Java patterns bind a new local; they never refine the selector variable. */
+	private void computeEnhancedSwitch(final XSwitchExpression expression,
+			final ITypeComputationState state) {
+		final var selectorType = state.withNonVoidExpectation()
+			.computeTypes(expression.getSwitch()).getActualExpressionType();
+		state.withinScope(expression);
+		for (final var original : expression.getCases()) {
+			final var part = (XJCasePart) original;
+			var branch = state.withTypeCheckpoint(part);
+			branch.withinScope(part);
+			if (selectorType.getType() instanceof JvmEnumerationType enumeration) {
+				branch.addImports(new EnumLiteralImporter(enumeration));
+			}
+			if (part.getTypeGuard() != null) {
+				branch = branch.assignType(part.getPatternVariable(), state.getReferenceOwner()
+					.toLightweightTypeReference(part.getTypeGuard()));
+				if (part.getCase() != null) {
+					branch.withExpectation(getTypeForName(boolean.class, state))
+						.computeTypes(part.getCase());
+				}
+			} else {
+				// Labels remain constants: boxing would emit Integer.valueOf(1) as a case.
+				final var labelType = selectorType.getPrimitiveIfWrapperType();
+				branch.withExpectation(part.getCase() instanceof XNullLiteral ? selectorType : labelType)
+					.computeTypes(part.getCase());
+				for (final var label : part.getAdditionalLabels()) {
+					branch.withExpectation(labelType).computeTypes(label);
+				}
+			}
+			branch.afterScope(part);
+			computeSwitchBody(expression, part.getThen(), branch);
+		}
+		if (expression.getDefault() != null) {
+			computeSwitchBody(expression, expression.getDefault(), state);
+		}
+		if (!JbaseSwitches.isExpression(expression)) {
+			state.acceptActualType(getPrimitiveVoid(state), ConformanceFlags.NO_IMPLICIT_RETURN);
+		}
+	}
+
+	private void computeSwitchBody(final XSwitchExpression expression, final XExpression body,
+			final ITypeComputationState state) {
+		if (!JbaseSwitches.isExpression(expression)) {
+			state.withoutExpectation().computeTypes(body);
+		} else if (body instanceof XBlockExpression) {
+			// A yield uses Xbase's return-type channel, isolated from the enclosing method.
+			final var expected = state.getExpectations().getFirst().getExpectedType();
+			final var local = expected == null ? state.withoutRootExpectation()
+				: state.withRootExpectation(expected);
+			final var result = local.withoutExpectation().computeTypes(body);
+			final var yieldedType = result.getReturnType();
+			if (yieldedType != null) {
+				state.acceptActualType(yieldedType);
+			}
+		} else {
+			state.computeTypes(body);
 		}
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.generator.trace.ILocationData;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.util.Strings;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
@@ -27,9 +28,11 @@ import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.XThrowExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
@@ -47,6 +50,7 @@ import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJBreakStatement;
+import jbase.jbase.XJCasePart;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConditionalExpression;
@@ -56,12 +60,15 @@ import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
+import jbase.jbase.XJSwitchExpression;
+import jbase.jbase.XJYieldStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.util.JbaseExpressionHelper.BaseCase;
 import jbase.util.JbaseExpressionHelper.StepCase;
 import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseModelUtil;
+import jbase.util.JbaseSwitches;
 
 /**
  * Generates Java expressions and statements while retaining Xbase's ordinary lambda compiler.
@@ -97,7 +104,23 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.declareVariable(variable, variable.getName());
 			}
 		}
+		for (final var part : EcoreUtil2.getAllContentsOfType(expression, XJCasePart.class)) {
+			final var variable = part.getPatternVariable();
+			if (variable != null && !appendable.hasObject(variable.getName())) {
+				appendable.declareVariable(variable, variable.getName());
+			}
+		}
 		return super.compile(expression, appendable, returnType, exceptions);
+	}
+
+	@Override
+	protected String getReferenceName(final XExpression expression,
+			final ITreeAppendable appendable) {
+		if (expression instanceof XFeatureCall call
+				&& call.getFeature().eContainer() instanceof XJCasePart) {
+			return call.getFeature().getSimpleName();
+		}
+		return super.getReferenceName(expression, appendable);
 	}
 
 	/**
@@ -116,6 +139,14 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				if (reference.getReceiver() != null) {
 					internalToJavaStatement(reference.getReceiver(), appendable, true);
 				}
+			}
+			case XJYieldStatement statement -> {
+				if (!canCompileToJavaExpression(statement.getExpression(), appendable)) {
+					internalToJavaStatement(statement.getExpression(), appendable, true);
+				}
+				appendable.newLine().append("yield ");
+				internalToJavaExpression(statement.getExpression(), appendable);
+				appendable.append(";");
 			}
 			case XJContinueStatement statement -> compileContinueStatement(statement, appendable);
 			case XJBreakStatement statement -> compileBranchingStatement(appendable, "break");
@@ -197,9 +228,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayAccessExpression access -> compileJavaExpression(access, appendable);
 			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
 			case XJClassObject classObject -> compileClassObject(classObject, appendable);
+			case XSwitchExpression expression ->
+				compileEnhancedSwitch(expression, appendable);
 			case XJMethodReference reference -> compileReference(reference, appendable);
 			case XJInstanceOfExpression pattern -> compilePattern(pattern, appendable);
-			case XJConditionalExpression conditional when containsPattern(conditional) ->
+			case XJConditionalExpression conditional when needsNativeConditional(conditional) ->
 				compilePatternConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
@@ -270,6 +303,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	private boolean needsNativeConditional(final XJConditionalExpression expression) {
+		final var part = EcoreUtil2.getContainerOfType(expression, XJCasePart.class);
+		return containsPattern(expression)
+			|| part != null && EcoreUtil.isAncestor(part.getCase(), expression);
+	}
+
 	private void compilePatternConditional(final XJConditionalExpression expression,
 			final ITreeAppendable appendable) {
 		appendable.append("(");
@@ -284,7 +323,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected boolean internalCanCompileToJavaExpression(final XExpression expression,
 			final ITreeAppendable appendable) {
-		if (expression instanceof XJConditionalExpression && containsPattern(expression)) {
+		if (expression instanceof XSwitchExpression statement
+				&& JbaseSwitches.isExpression(statement)) {
+			return true;
+		}
+		if (expression instanceof XJConditionalExpression conditional
+				&& needsNativeConditional(conditional)) {
 			return true;
 		}
 		return super.internalCanCompileToJavaExpression(expression, appendable);
@@ -337,7 +381,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				b.append(".");
 				appendFeatureCall(expr, b);
 			} else {
-				final var name = feature.eContainer() instanceof XJInstanceOfExpression
+				final var name = (feature.eContainer() instanceof XJInstanceOfExpression
+					|| feature.eContainer() instanceof XJCasePart)
 					? feature.getSimpleName() : b.getName(feature);
 				b.append(name);
 			}
@@ -534,7 +579,99 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 */
 	@Override
 	protected void _toJavaStatement(XSwitchExpression expr, ITreeAppendable b, boolean isReferenced) {
-		_toJavaSwitchStatement(expr, b, isReferenced);
+		if (JbaseSwitches.isExpression(expr)) {
+			internalToJavaStatement(expr.getSwitch(), b, true);
+		} else if (JbaseSwitches.isEnhanced(expr)) {
+			internalToJavaStatement(expr.getSwitch(), b, true);
+			b.newLine();
+			compileEnhancedSwitch(expr, b);
+		} else {
+			_toJavaSwitchStatement(expr, b, isReferenced);
+		}
+	}
+
+	/** Preserve Java rules, patterns and yield instead of lowering to if/else chains. */
+	private void compileEnhancedSwitch(final XSwitchExpression expression,
+			final ITreeAppendable appendable) {
+		appendable.append("switch (");
+		internalToJavaExpression(expression.getSwitch(), appendable);
+		appendable.append(") {").increaseIndentation();
+		final var defaultBody = expression.getDefault();
+		var defaultPending = defaultBody != null;
+		final var defaultNode = NodeModelUtils.getNode(defaultBody);
+		for (final var original : expression.getCases()) {
+			final var part = (XJCasePart) original;
+			// Default may occur between cases; the inherited Xbase model stores it separately.
+			final var node = NodeModelUtils.getNode(part);
+			if (defaultPending && defaultNode != null && node != null
+					&& node.getOffset() > defaultNode.getOffset()) {
+				compileSwitchDefault((XJSwitchExpression) expression, appendable);
+				defaultPending = false;
+			}
+			appendable.openPseudoScope();
+			appendable.newLine().append("case ");
+			if (part.getTypeGuard() != null) {
+				if (part.isFinal()) {
+					appendable.append("final ");
+				}
+				getTypeReferenceSerializer().serialize(part.getTypeGuard(), part, appendable);
+				final var variable = part.getPatternVariable();
+				appendable.append(" ").append(variable.getName());
+				if (part.getCase() != null) {
+					appendable.append(" when ");
+					internalToJavaExpression(part.getCase(), appendable);
+				}
+			} else {
+				internalToJavaExpression(part.getCase(), appendable);
+				for (final var label : part.getAdditionalLabels()) {
+					appendable.append(", ");
+					internalToJavaExpression(label, appendable);
+				}
+			}
+			compileSwitchBody(expression, part.getThen(), part.isArrow(), appendable);
+			appendable.closeScope();
+		}
+		if (defaultPending) {
+			compileSwitchDefault((XJSwitchExpression) expression, appendable);
+		}
+		appendable.decreaseIndentation().newLine().append("}");
+	}
+
+	private void compileSwitchDefault(final XJSwitchExpression expression,
+			final ITreeAppendable appendable) {
+		appendable.openPseudoScope();
+		appendable.newLine().append(expression.isNullDefault() ? "case null, default" : "default");
+		compileSwitchBody(expression, expression.getDefault(),
+			expression.isDefaultArrow(), appendable);
+		appendable.closeScope();
+	}
+
+	private void compileSwitchBody(final XSwitchExpression expression, final XExpression body,
+			final boolean arrow, final ITreeAppendable appendable) {
+		appendable.append(arrow ? " -> {" : ":").increaseIndentation();
+		if (JbaseSwitches.isExpression(expression) && arrow
+				&& body instanceof XJSemicolonStatement statement
+				&& !(statement.getExpression() instanceof XThrowExpression)) {
+			if (!canCompileToJavaExpression(statement.getExpression(), appendable)) {
+				internalToJavaStatement(statement.getExpression(), appendable, true);
+			}
+			appendable.newLine().append("yield ");
+			internalToJavaExpression(statement.getExpression(), appendable);
+			appendable.append(";");
+		} else {
+			// Blocks are already delimited by the rule. Compile their contents in this scope.
+			if (body instanceof XBlockExpression block) {
+				for (final var child : block.getExpressions()) {
+					internalToJavaStatement(child, appendable, false);
+				}
+			} else {
+				internalToJavaStatement(body, appendable, false);
+			}
+		}
+		appendable.decreaseIndentation();
+		if (arrow) {
+			appendable.newLine().append("}");
+		}
 	}
 
 	/**

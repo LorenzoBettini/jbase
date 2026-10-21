@@ -26,6 +26,33 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testEnhancedSwitches() throws Exception {
+		assertSerialize("""
+			Object value = "hello";
+			int n = switch (value) {
+				case final String s when s.length() > 1 -> { yield s.length(); }
+				case null, default -> 0;
+			};
+			switch (n) {
+				case 0, 1 -> System.out.println(n);
+				default -> { System.out.println("other"); }
+			}
+			""");
+	}
+
+	@Test
+	public void testSwitchDefaultOrderAndColonExpressions() throws Exception {
+		assertSerialize("""
+			switch (1) { default: break; case 0: break; }
+			switch (1) { case 0 -> {} default -> {} case 1 -> {} }
+			switch (1) { case 0: System.out.println(); break; }
+			switch (1) {}
+			Object value = null;
+			int n = switch (value) { case null, default: yield 1; };
+			""");
+	}
+
+	@Test
 	public void testInstanceOfPatterns() throws Exception {
 		assertSerialize("""
 			Object value = "hello";
