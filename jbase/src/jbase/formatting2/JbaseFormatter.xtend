@@ -131,11 +131,11 @@ class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	def dispatch void format(XJBreakStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("break").surround[noSpace]
+		expr.regionFor.keyword("break").append[noSpace]
 	}
 
 	def dispatch void format(XJContinueStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("continue").surround[noSpace]
+		expr.regionFor.keyword("continue").append[noSpace]
 	}
 
 	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {
