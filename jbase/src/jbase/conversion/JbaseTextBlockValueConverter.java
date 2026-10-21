@@ -16,15 +16,18 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		final var normalized = translateUnicodeEscapes(source)
 				.replace("\r\n", "\n").replace('\r', '\n');
 		final var start = normalized.indexOf('\n') + 1;
+		var i = start;
 		// Unicode escapes may introduce quotes that were not visible to the lexer.
-		for (var i = start; i < normalized.length(); i++) {
+		while (i < normalized.length()) {
 			if (normalized.charAt(i) == '\\') {
-				i++;
+				i += 2;
 			} else if (normalized.startsWith("\"\"\"", i)) {
 				if (i != normalized.length() - 3) {
 					throw new IllegalArgumentException("Unescaped text block delimiter in content");
 				}
 				return normalized.substring(start, i).stripIndent();
+			} else {
+				i++;
 			}
 		}
 		throw new IllegalArgumentException("Unterminated text block");
@@ -35,7 +38,8 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		final var result = new StringBuilder();
 		var backslashes = 0;
 		var wasUnicodeEscape = false;
-		for (var i = 0; i < source.length(); i++) {
+		var i = 0;
+		while (i < source.length()) {
 			var character = source.charAt(i);
 			final var unicodeEscape = character == '\\'
 					&& (wasUnicodeEscape || backslashes % 2 == 0)
@@ -51,7 +55,9 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 					throw new IllegalArgumentException("Invalid Unicode escape in text block");
 				}
 				character = (char) Integer.parseInt(digits, 16);
-				i = end - 1;
+				i = end;
+			} else {
+				i++;
 			}
 			result.append(character);
 			backslashes = character == '\\' ? backslashes + 1 : 0;
