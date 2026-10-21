@@ -98,6 +98,27 @@ public class JbaseInstanceOfPatternTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void assignmentsToNestedPatternVariables() throws Exception {
+		final var source = """
+			method testMe() {
+				Object value = " hello ";
+				Object other = " world ";
+				if (value instanceof String text) {
+					if (other instanceof String suffix) {
+						suffix = text.trim() + " " + suffix.trim();
+						text = suffix.toUpperCase();
+						System.out.println(suffix);
+						System.out.println(text);
+					}
+					System.out.println(text);
+				}
+			}
+			""";
+		checkCompilation(source, null);
+		assertExecuteMain(source, "hello world\nHELLO WORLD\nHELLO WORLD\n");
+	}
+
+	@Test
 	public void guardClausesAndLoopScopes() throws Exception {
 		checkCompilation("""
 			method length(Object value): int {
