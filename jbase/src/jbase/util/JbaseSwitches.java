@@ -18,12 +18,21 @@ import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJSwitchExpression;
+import jbase.typesystem.JbaseRecordPatterns;
 
 /** Shared distinctions between Java switch statements, rules and expressions. */
 public final class JbaseSwitches {
 	private JbaseSwitches() {
 	}
 
+	/**
+	 * Classifies a switch by its containment as a value expression or a statement.
+	 * This uses its syntactic position rather than its inferred result type.
+	 *
+	 * @param expression the attached switch to classify
+	 * @return {@code true} for a switch used as a value; {@code false} for a statement
+	 *         position or a detached switch
+	 */
 	public static boolean isExpression(final XSwitchExpression expression) {
 		final var parent = expression.eContainer();
 		final var feature = expression.eContainingFeature();
@@ -35,6 +44,14 @@ public final class JbaseSwitches {
 			|| feature == XbasePackage.Literals.XBASIC_FOR_LOOP_EXPRESSION__EACH_EXPRESSION);
 	}
 
+	/**
+	 * Determines whether a switch needs generation that preserves Java 21 case syntax.
+	 * This includes expressions, arrow rules, patterns, grouped labels, null labels,
+	 * and cases that appear after the default.
+	 *
+	 * @param expression a Jbase switch represented by {@link XJSwitchExpression}
+	 * @return whether the switch requires enhanced handling rather than the classic path
+	 */
 	public static boolean isEnhanced(final XSwitchExpression expression) {
 		return isExpression(expression) || hasCasesAfterDefault(expression)
 			|| ((XJSwitchExpression) expression).isDefaultArrow()
@@ -56,22 +73,42 @@ public final class JbaseSwitches {
 		return last != null && last.getOffset() > defaultNode.getOffset();
 	}
 
+	/**
+	 * Checks the supported forms of switch exhaustiveness.
+	 * Recognizes a default, a covering type or record pattern without a guard or with a
+	 * literal {@code true} guard, and complete enum-constant coverage. This does not
+	 * compute coverage over permitted subclasses of sealed types.
+	 *
+	 * @param expression a Jbase switch with resolved selector and pattern types
+	 * @param types resolved types for the selector and component bindings
+	 * @return whether a supported form proves the switch exhaustive
+	 */
 	public static boolean isExhaustive(final XSwitchExpression expression,
 			final IResolvedTypes types) {
 		if (expression.getDefault() != null) {
 			return true;
 		}
 		final var selector = types.getActualType(expression.getSwitch());
-		return hasTotalPattern(expression, selector) || coversAllLiterals(expression, selector);
+		return hasTotalPattern(expression, selector, types) || coversAllLiterals(expression, selector);
 	}
 
 	private static boolean hasTotalPattern(final XSwitchExpression expression,
-			final LightweightTypeReference selector) {
+			final LightweightTypeReference selector, final IResolvedTypes types) {
 		return expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
 			&& (part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
 				&& literal.isIsTrue())
-			&& selector.getOwner().toLightweightTypeReference(part.getTypeGuard())
-				.isAssignableFrom(selector));
+			&& coversSelector((XJCasePart) part, selector, types));
+	}
+
+	private static boolean coversSelector(final XJCasePart part,
+			final LightweightTypeReference selector, final IResolvedTypes types) {
+		final var type = selector.getOwner().toLightweightTypeReference(part.getTypeGuard());
+		if (!type.isAssignableFrom(selector)) {
+			return false;
+		}
+		final var records = new JbaseRecordPatterns();
+		return part.getRecordPattern() == null
+			|| records.covers(part.getRecordPattern(), records.recordType(type, selector), types);
 	}
 
 	private static boolean coversAllLiterals(final XSwitchExpression expression,

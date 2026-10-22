@@ -21,6 +21,7 @@ import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XWhileExpression;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
+import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState;
 
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -35,6 +36,14 @@ import jbase.jbase.XJSemicolonStatement;
  */
 public class JbasePatternVariables {
 
+	/**
+	 * Assigns types to the bindings of an {@code instanceof} pattern and checks their names.
+	 * The operand must already have been typed. A checkpoint validates declarations
+	 * without exposing them in the caller's current scope.
+	 *
+	 * @param expression the computed {@code instanceof} expression
+	 * @param state the active Xbase computation state receiving the binding types
+	 */
 	public void assignType(final XJInstanceOfExpression expression,
 			final ITypeComputationState state) {
 		final var variable = expression.getPatternVariable();
@@ -44,8 +53,27 @@ public class JbasePatternVariables {
 			// Validate the declaration even when no guarded expression uses it.
 			state.withTypeCheckpoint(expression).addLocalToCurrentScope(variable);
 		}
+		if (expression.getRecordPattern() != null) {
+			new JbaseRecordPatterns().assignTypes(expression.getRecordPattern(), state
+				.getReferenceOwner().toLightweightTypeReference(expression.getType()),
+				((AbstractTypeComputationState) state).getResolvedTypes()
+					.getActualType(expression.getExpression()), state);
+			final var declarations = state.withTypeCheckpoint(expression);
+			JbaseRecordPatterns.bindings(expression.getRecordPattern())
+				.forEach(declarations::addLocalToCurrentScope);
+		}
 	}
 
+	/**
+	 * Adds bindings that are definitely matched on entry to an expression.
+	 * Handles branches, short-circuit right operands, while bodies, and basic-for bodies
+	 * and updates. The original scope is left unchanged.
+	 *
+	 * @param expression the child expression about to be computed
+	 * @param state the computation state before entering the child's flow scope
+	 * @return a checkpoint containing the visible bindings, or the original state when
+	 *         no additional bindings are available
+	 */
 	public ITypeComputationState enterScope(final XExpression expression,
 			final ITypeComputationState state) {
 		final var parent = expression.eContainer();
@@ -77,10 +105,25 @@ public class JbasePatternVariables {
 		return scoped;
 	}
 
+	/**
+	 * Collects bindings definitely matched when a boolean expression has the given result.
+	 * Negation reverses the result; applicable short-circuit operands combine their
+	 * bindings. Saved boolean values and other expressions introduce no bindings.
+	 *
+	 * @param expression the condition to inspect; may be {@code null}
+	 * @param result the boolean outcome for which bindings are required
+	 * @return bindings in traversal order, possibly empty; duplicate declarations are
+	 *         retained so validation can report them
+	 */
 	public List<JvmFormalParameter> matched(final XExpression expression, final boolean result) {
 		if (expression instanceof XJInstanceOfExpression instanceOf
-				&& result && instanceOf.getPatternVariable() != null) {
-			return List.of(instanceOf.getPatternVariable());
+				&& result) {
+			if (instanceOf.getRecordPattern() != null) {
+				return new ArrayList<>(JbaseRecordPatterns.bindings(instanceOf.getRecordPattern()));
+			}
+			if (instanceOf.getPatternVariable() != null) {
+				return List.of(instanceOf.getPatternVariable());
+			}
 		}
 		if (expression instanceof XUnaryOperation unary
 				&& "!".equals(unary.getConcreteSyntaxFeatureName())) {
@@ -96,6 +139,15 @@ public class JbasePatternVariables {
 		return List.of();
 	}
 
+	/**
+	 * Exposes bindings established by a completed statement to following statements.
+	 * This handles guard clauses and the false conditions of loops without an exiting
+	 * break. When bindings are introduced, the computation state's scope is rewritten
+	 * for the completed statement.
+	 *
+	 * @param statement the statement whose types and control flow have been computed
+	 * @param state the enclosing block state to update
+	 */
 	public void addIntroducedByStatement(final XExpression statement,
 			final ITypeComputationState state) {
 		List<JvmFormalParameter> introduced = List.of();

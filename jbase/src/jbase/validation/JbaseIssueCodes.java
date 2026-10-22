@@ -52,6 +52,8 @@ public class JbaseIssueCodes {
 
 	public static final String NON_EFFECTIVELY_FINAL_CAPTURE = PREFIX + "NonEffectivelyFinalCapture";
 
+	public static final String INVALID_RECORD_PATTERN = PREFIX + "InvalidRecordPattern";
+
 	public static final String INVALID_SWITCH = PREFIX + "InvalidSwitch";
 
 }

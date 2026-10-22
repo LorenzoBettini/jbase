@@ -25,6 +25,14 @@ import jbase.scoping.featurecalls.JbaseOperatorMapping;
  */
 public class JbaseCompoundAssignmentState extends ExpressionTypeComputationState {
 
+	/**
+	 * Creates a state for resolving a native Java compound assignment.
+	 * Reuses the parent's resolved operand types and scope while candidates compute
+	 * promoted parameter expectations in isolated forks.
+	 *
+	 * @param operation the compound assignment being resolved
+	 * @param parent the active state containing the already computed left operand types
+	 */
 	public JbaseCompoundAssignmentState(final XBinaryOperation operation,
 			final AbstractTypeComputationState parent) {
 		super((StackedResolvedTypes) parent.getResolvedTypes(), parent.getFeatureScopeSession(),

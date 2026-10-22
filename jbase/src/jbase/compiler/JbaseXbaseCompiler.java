@@ -54,6 +54,8 @@ import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
+import jbase.jbase.XJComponentPattern;
+import jbase.jbase.XJRecordPattern;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConditionalExpression;
@@ -118,6 +120,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.declareVariable(variable, variable.getName());
 			}
 		}
+		for (final var component : EcoreUtil2.getAllContentsOfType(expression, XJComponentPattern.class)) {
+			if (component.getRecordPattern() == null && !appendable.hasObject(component.getName())) {
+				appendable.declareVariable(component, component.getName());
+			}
+		}
 		return super.compile(expression, appendable, returnType, exceptions);
 	}
 
@@ -125,7 +132,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected String getReferenceName(final XExpression expression,
 			final ITreeAppendable appendable) {
 		if (expression instanceof XFeatureCall call
-				&& call.getFeature().eContainer() instanceof XJCasePart) {
+				&& (call.getFeature().eContainer() instanceof XJCasePart
+					|| call.getFeature() instanceof XJComponentPattern)) {
 			return call.getFeature().getSimpleName();
 		}
 		return super.getReferenceName(expression, appendable);
@@ -237,6 +245,18 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	@Override
+	protected void internalToConvertedExpression(final XExpression expression,
+			final ITreeAppendable appendable, final LightweightTypeReference expected) {
+		if (expression instanceof XSwitchExpression) {
+			// Java switch expressions are poly expressions. Their yields already carry
+			// the target conversion; converting the switch again can unbox twice.
+			internalToConvertedExpression(expression, appendable.trace(expression, true));
+		} else {
+			super.internalToConvertedExpression(expression, appendable, expected);
+		}
+	}
+
+	@Override
 	protected void internalToConvertedExpression(final XExpression obj,
 			final ITreeAppendable appendable) {
 		switch (obj) {
@@ -307,7 +327,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 
 	private void compilePattern(final XJInstanceOfExpression pattern,
 			final ITreeAppendable appendable) {
-		if (pattern.getPatternVariable() != null) {
+		if (pattern.getPatternVariable() != null || pattern.getRecordPattern() != null) {
 			appendable.append("(");
 			internalToJavaExpression(pattern.getExpression(), appendable);
 			appendable.append(" instanceof ");
@@ -315,19 +335,47 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.append(FINAL_MODIFIER);
 			}
 			getTypeReferenceSerializer().serialize(pattern.getType(), pattern, appendable);
-			final var variable = pattern.getPatternVariable();
-			// Java permits the same name in disjoint flow scopes; do not rename it.
-			appendable.append(" ").append(variable.getName()).append(")");
+			if (pattern.getRecordPattern() != null) {
+				compileRecordPattern(pattern.getRecordPattern(), appendable);
+			} else {
+				// Java permits the same name in disjoint flow scopes; do not rename it.
+				appendable.append(" ").append(pattern.getPatternVariable().getName());
+			}
+			appendable.append(")");
 		} else {
 			super._toJavaExpression(pattern, appendable);
 		}
 	}
 
+	private void compileRecordPattern(final XJRecordPattern pattern, final ITreeAppendable appendable) {
+		appendable.append("(");
+		var separator = "";
+		for (final var component : pattern.getComponents()) {
+			appendable.append(separator);
+			separator = ", ";
+			if (component.isFinal()) {
+				appendable.append(FINAL_MODIFIER);
+			}
+			if (component.isInferred()) {
+				appendable.append("var");
+			} else {
+				getTypeReferenceSerializer().serialize(component.getParameterType(), component, appendable);
+			}
+			if (component.getRecordPattern() != null) {
+				compileRecordPattern(component.getRecordPattern(), appendable);
+			} else {
+				appendable.append(" ").append(component.getName());
+			}
+		}
+		appendable.append(")");
+	}
+
 	private boolean containsPattern(final XExpression expression) {
 		return expression != null && (expression instanceof XJInstanceOfExpression pattern
-				&& pattern.getPatternVariable() != null
+				&& (pattern.getPatternVariable() != null || pattern.getRecordPattern() != null)
 			|| EcoreUtil2.getAllContentsOfType(expression, XJInstanceOfExpression.class)
-				.stream().anyMatch(pattern -> pattern.getPatternVariable() != null));
+				.stream().anyMatch(pattern -> pattern.getPatternVariable() != null
+					|| pattern.getRecordPattern() != null));
 	}
 
 	@Override
@@ -456,7 +504,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	private String getAssignmentVariableName(final JvmIdentifiableElement feature,
 			final ITreeAppendable appendable) {
 		return (feature.eContainer() instanceof XJInstanceOfExpression
-			|| feature.eContainer() instanceof XJCasePart)
+			|| feature.eContainer() instanceof XJCasePart || feature instanceof XJComponentPattern)
 			? feature.getSimpleName() : appendable.getName(feature);
 	}
 
@@ -693,8 +741,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.append(FINAL_MODIFIER);
 			}
 			getTypeReferenceSerializer().serialize(part.getTypeGuard(), part, appendable);
-			final var variable = part.getPatternVariable();
-			appendable.append(" ").append(variable.getName());
+			if (part.getRecordPattern() != null) {
+				compileRecordPattern(part.getRecordPattern(), appendable);
+			} else {
+				appendable.append(" ").append(part.getPatternVariable().getName());
+			}
 			if (part.getCase() != null) {
 				appendable.append(" when ");
 				internalToJavaExpression(part.getCase(), appendable);

@@ -31,6 +31,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Supplier;
+			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import static java.lang.Math.abs;
 
 			@SuppressWarnings({"unused", "deprecation"})
@@ -100,6 +101,12 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			if (boxed instanceof String matched) System.out.println(matched);
 			if (!(boxed instanceof String matched)) System.out.println(boxed);
 			else System.out.println(matched);
+			Object point = new Point(1, 2);
+			if (point instanceof Point(int x, var y)) System.out.println(x + y);
+			int pointSum = switch (point) {
+				case Point(var x, var y) -> x + y;
+				default -> 0;
+			};
 			Class<?> type = String.class;
 			Class<?> arrayType = String[].class;
 			Class<int[][]> primitiveArrayType = int[][].class;
@@ -120,6 +127,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[] copy = numbers.clone();
 			List<String> names = new ArrayList<>();
 			names.add(text);
+			if (names instanceof ArrayList<String> arrayList) System.out.println(arrayList);
+			boolean arrayListCheck = names instanceof ArrayList<String>;
 			List<? extends CharSequence> readable = names;
 			List<? super String> writable = new ArrayList<Object>();
 			writable.add(choice);
@@ -177,6 +186,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				default -> System.out.println("other");
 			}
 
+			Long boxedLong = 1L;
+			int fromBoxedLong = switch (boxedLong) { case Long longNumber -> longNumber.intValue(); };
+			Boolean boxedBoolean = true;
+			boolean fromBoxedBoolean = switch (boxedBoolean) { case Boolean b -> b.booleanValue(); };
+			Float boxedFloat = 1.0f;
+			float fromBoxedFloat = switch (boxedFloat) { case Float f -> f.floatValue(); };
+			Double boxedDouble = 1.0;
+			double fromBoxedDouble = switch (boxedDouble) { case Double d -> d.doubleValue(); };
+
 			// Expression and block lambdas, explicit parameters and captured locals.
 			IntUnaryOperator increment = n -> n + offset;
 			IntUnaryOperator decrement = (final int n) -> {
@@ -225,6 +243,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Supplier;
 			import java.util.function.ToIntFunction;
+			import jbase.testlanguage.tests.RecordPatternTypes;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -327,6 +346,18 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    } else {
 			      System.out.println(matched);
 			    }
+			    Object point = new RecordPatternTypes.Point(1, 2);
+			    if ((point instanceof RecordPatternTypes.Point(int x, var y))) {
+			      System.out.println((x + y));
+			    }
+			    int pointSum = switch (point) {
+			      case RecordPatternTypes.Point(var x, var y) -> {
+			        yield (x + y);
+			      }
+			      default -> {
+			        yield 0;
+			      }
+			    };
 			    Class<?> type = String.class;
 			    Class<?> arrayType = String[].class;
 			    Class<int[][]> primitiveArrayType = int[][].class;
@@ -345,6 +376,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[] copy = numbers.clone();
 			    List<String> names = new ArrayList<String>();
 			    names.add(text);
+			    if ((names instanceof ArrayList<String> arrayList)) {
+			      System.out.println(arrayList);
+			    }
+			    boolean arrayListCheck = (names instanceof ArrayList<String>);
 			    List<? extends CharSequence> readable = names;
 			    List<? super String> writable = new ArrayList<Object>();
 			    writable.add(choice);
@@ -418,6 +453,30 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        System.out.println("other");
 			      }
 			    }
+			    Long boxedLong = Long.valueOf(1L);
+			    int fromBoxedLong = switch (boxedLong) {
+			      case Long longNumber -> {
+			        yield longNumber.intValue();
+			      }
+			    };
+			    Boolean boxedBoolean = Boolean.valueOf(true);
+			    boolean fromBoxedBoolean = switch (boxedBoolean) {
+			      case Boolean b -> {
+			        yield b.booleanValue();
+			      }
+			    };
+			    Float boxedFloat = Float.valueOf(1.0f);
+			    float fromBoxedFloat = switch (boxedFloat) {
+			      case Float f -> {
+			        yield f.floatValue();
+			      }
+			    };
+			    Double boxedDouble = Double.valueOf(1.0);
+			    double fromBoxedDouble = switch (boxedDouble) {
+			      case Double d -> {
+			        yield d.doubleValue();
+			      }
+			    };
 			    final IntUnaryOperator _function = (int n) -> {
 			      return (n + offset);
 			    };

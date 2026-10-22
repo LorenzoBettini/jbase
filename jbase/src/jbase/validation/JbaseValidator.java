@@ -50,6 +50,7 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XIfExpression;
+import org.eclipse.xtext.xbase.XInstanceOfExpression;
 import org.eclipse.xtext.xbase.XMemberFeatureCall;
 import org.eclipse.xtext.xbase.XPostfixOperation;
 import org.eclipse.xtext.xbase.XSwitchExpression;
@@ -77,6 +78,8 @@ import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
+import jbase.jbase.XJComponentPattern;
+import jbase.jbase.XJRecordPattern;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
@@ -92,6 +95,8 @@ import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbasePatternVariables;
+import jbase.typesystem.JbaseRecordPatterns;
+import jbase.typesystem.JbaseInstanceOfTypes;
 import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseSwitches;
 import jbase.util.JbaseNodeModelUtil;
@@ -163,9 +168,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	private void checkSelectorType(final XJSwitchExpression expression,
 			final LightweightTypeReference selector) {
-		final var primitive = selector.getPrimitiveIfWrapperType();
-		if (primitive.isType(boolean.class) || primitive.isType(long.class)
-				|| primitive.isType(float.class) || primitive.isType(double.class)) {
+		if (selector.isType(boolean.class) || selector.isType(long.class)
+				|| selector.isType(float.class) || selector.isType(double.class)) {
 			error("Invalid Java 21 switch selector type " + selector.getSimpleName(),
 				expression.getSwitch(), null, JbaseIssueCodes.INVALID_SWITCH);
 		}
@@ -219,18 +223,24 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			super.checkTypeGuardsOrder(expression);
 			return;
 		}
-		final var previous = new ArrayList<LightweightTypeReference>();
-		for (final var part : expression.getCases()) {
+		final var previous = new ArrayList<XJCasePart>();
+		final var types = batchTypeResolver.resolveTypes(expression);
+		final var records = new JbaseRecordPatterns();
+		for (final var original : expression.getCases()) {
+			final var part = (XJCasePart) original;
 			if (part.getTypeGuard() == null) {
 				continue;
 			}
 			final var type = toLightweightTypeReference(part.getTypeGuard());
-			if (previous.stream().anyMatch(prior -> prior.isAssignableFrom(type))) {
+			if (previous.stream().anyMatch(prior ->
+				toLightweightTypeReference(prior.getTypeGuard()).isAssignableFrom(type)
+					&& (prior.getRecordPattern() == null || part.getRecordPattern() != null
+						&& records.dominates(prior.getRecordPattern(), part.getRecordPattern(), types)))) {
 				error("This case is dominated by a preceding pattern", part.getTypeGuard(), null,
 					IssueCodes.UNREACHABLE_CASE);
 			}
 			if (isUnconditionalPattern(part)) {
-				previous.add(type);
+				previous.add(part);
 			}
 		}
 	}
@@ -309,6 +319,72 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		final var parent = owner instanceof XJCasePart ? owner.eContainer() : owner;
 		return parent instanceof XSwitchExpression expression
 			&& JbaseSwitches.isExpression(expression);
+	}
+
+	@Override
+	public void checkInstanceOf(final XInstanceOfExpression expression) {
+		final var target = toLightweightTypeReference(expression.getType(), true);
+		if (containsTypeArgs(target)
+				&& new JbaseInstanceOfTypes().isChecked(getActualType(expression.getExpression()), target)) {
+			checkCast(expression.getType(), target, getActualType(expression.getExpression()));
+		} else {
+			super.checkInstanceOf(expression);
+		}
+	}
+
+	@Check
+	public void checkRecordPattern(final XJRecordPattern pattern) {
+		final var records = new JbaseRecordPatterns();
+		final var types = batchTypeResolver.resolveTypes(pattern);
+		final var declared = records.declaredType(pattern, types);
+		if (!declared.isSubtypeOf(Record.class) || declared.isType(Record.class)) {
+			error("A record pattern requires a record type", pattern, null,
+				JbaseIssueCodes.INVALID_RECORD_PATTERN);
+			return;
+		}
+		final var source = records.sourceType(pattern, types);
+		checkCast(records.typeReference(pattern), declared, source);
+		final var recordRef = records.recordType(declared, source);
+		final var fields = records.fields(recordRef);
+		if (fields.size() != pattern.getComponents().size()) {
+			error("Record pattern requires " + fields.size() + " component patterns", pattern, null,
+				JbaseIssueCodes.INVALID_RECORD_PATTERN);
+		}
+		if (pattern.eContainer() instanceof XJCasePart part && part.isFinal()
+				|| pattern.eContainer() instanceof XJComponentPattern component && component.isFinal()) {
+			error("A record pattern cannot be final", pattern, null,
+				JbaseIssueCodes.INVALID_RECORD_PATTERN);
+		}
+		checkPatternConversion(declared, source, pattern);
+		for (var i = 0; i < Math.min(fields.size(), pattern.getComponents().size()); i++) {
+			final var component = pattern.getComponents().get(i);
+			if (!component.isInferred() && component.getRecordPattern() == null) {
+				checkExplicitComponent(component,
+					records.componentType(recordRef, fields.get(i)));
+			}
+		}
+	}
+
+	private void checkExplicitComponent(final XJComponentPattern component,
+			final LightweightTypeReference expected) {
+		final var actual = toLightweightTypeReference(component.getParameterType());
+		if (expected.isPrimitive() || actual.isPrimitive()) {
+			if (!expected.getIdentifier().equals(actual.getIdentifier())) {
+				error("A primitive component pattern must match its component type", component,
+					null, JbaseIssueCodes.INVALID_RECORD_PATTERN);
+			}
+		} else {
+			checkCast(component.getParameterType(), actual, expected);
+			checkPatternConversion(actual, expected, component);
+		}
+	}
+
+	private void checkPatternConversion(final LightweightTypeReference target,
+			final LightweightTypeReference source, final EObject pattern) {
+		if (containsTypeArgs(target) && !new JbaseInstanceOfTypes().isChecked(source, target)) {
+			error("Pattern requires an unchecked conversion", pattern, null,
+				JbaseIssueCodes.INVALID_RECORD_PATTERN);
+		}
 	}
 
 	@Check
@@ -554,6 +630,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			isFinal = part.isFinal();
 		} else if (owner instanceof XJInstanceOfExpression pattern) {
 			isFinal = pattern.isFinal();
+		} else if (parameter instanceof XJComponentPattern component) {
+			isFinal = component.isFinal();
 		} else {
 			return false;
 		}

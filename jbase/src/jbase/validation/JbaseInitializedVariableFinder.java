@@ -46,11 +46,18 @@ public class JbaseInitializedVariableFinder {
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
 
+	/** Receives a reference whose local variable is not initialized at that program point. */
 	@FunctionalInterface
 	public interface NotInitializedAcceptor {
+		/**
+		 * Reports a reference to a local variable that may be uninitialized.
+		 *
+		 * @param call the feature call that reads the variable
+		 */
 		void accept(XAbstractFeatureCall call);
 	}
 
+	/** Mutable set of local declarations known to be initialized along the current path. */
 	public static class InitializedVariables extends HashSet<XVariableDeclaration> {
 		private static final long serialVersionUID = 1L;
 	}
@@ -59,7 +66,10 @@ public class JbaseInitializedVariableFinder {
 	 * Calls the acceptor's accept method with all the references to
 	 * variables which are not considered initialized.
 	 *
-	 * Method to be called from clients.
+	 * Starts with an empty set of initialized locals.
+	 *
+	 * @param e the block to analyze
+	 * @param acceptor callback for references that may read uninitialized locals
 	 */
 	public void detectNotInitialized(final XBlockExpression e,
 			final NotInitializedAcceptor acceptor) {
@@ -67,7 +77,11 @@ public class JbaseInitializedVariableFinder {
 	}
 
 	/**
-	 * We handle null case gracefully
+	 * Continues analysis with an existing initialization set, ignoring a null expression.
+	 *
+	 * @param e the expression to analyze; may be {@code null}
+	 * @param initialized the mutable set of locals initialized before the expression
+	 * @param acceptor callback for references that may read uninitialized locals
 	 */
 	public void detectNotInitializedDispatch(final XExpression e,
 			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
@@ -80,6 +94,11 @@ public class JbaseInitializedVariableFinder {
 	 * Dispatches reference receivers before the XClosure supertype case. For example,
 	 * {@code (text = "hello")::trim} initializes text immediately, whereas an assignment
 	 * in a lambda body must not update the caller's initialized-variable set.
+	 *
+	 * @param e the non-null expression to analyze
+	 * @param initialized the mutable set of locals initialized on the current path
+	 * @param acceptor callback for references that may read uninitialized locals
+	 * @throws IllegalArgumentException if the expression is null
 	 */
 	public void detectNotInitialized(final XExpression e, final InitializedVariables initialized,
 			final NotInitializedAcceptor acceptor) {

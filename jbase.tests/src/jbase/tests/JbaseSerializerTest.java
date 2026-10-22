@@ -29,6 +29,36 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testRecordPatterns() throws Exception {
+		assertSerialize("""
+			Object value = null;
+			if (value instanceof Box<Point>(Point(final int x, final var y))) {}
+			int result = switch (value) {
+				case Empty() -> 0;
+				case Box(Point(var x, var y)) when x > 0 -> x + y;
+				default -> -1;
+			};
+			switch (value) { case Point(var x, int y): break; default: break; }
+			""");
+	}
+
+	@Test
+	public void testRecordPatternsWithoutNodeModel() throws Exception {
+		final var recordName = "jbase.testlanguage.tests.RecordPatternTypes.";
+		final var source = "Object value = null; if (value instanceof " + recordName + "Box("
+			+ recordName + "Point(var x, int y))) {} switch (value) { case " + recordName
+			+ "Empty() -> {} case " + recordName + "Point(final var x, var y) -> {} default -> {} }";
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		assertEquals(source.replaceAll("\\s+", ""), serializer.serialize(copy).replaceAll("\\s+", ""));
+	}
+
+	@Test
 	public void testEnhancedSwitches() throws Exception {
 		assertSerialize("""
 			Object value = "hello";

@@ -42,7 +42,10 @@ public class JbaseModelUtil {
 	 *
 	 * <pre>new int[][0][][0]</pre>
 	 *
-	 * will correspond to the list [null, XNumberLiteral, null, XNumberLiteral]
+	 * will correspond to the list [null, XNumberLiteral, null, XNumberLiteral].
+	 *
+	 * @param c the parsed array constructor whose nodes supply dimension order
+	 * @return dimension expressions in source order, with null entries for empty dimensions
 	 */
 	public List<XExpression> arrayDimensionIndexAssociations(final XJArrayConstructorCall c) {
 		var sortedByOffset = Stream.concat(c.getDimensions().stream(), c.getIndexes().stream())
@@ -74,6 +77,9 @@ public class JbaseModelUtil {
 	 * This also takes into consideration Jvm model methods inferred from Jbase
 	 * methods; in such case the parameter is not a XJJvmFormalParameter, but
 	 * its original source is, and we return the original one.
+	 *
+	 * @param p the source or inferred JVM parameter to inspect
+	 * @return the Jbase source parameter, or {@code null} if no such source is associated
 	 */
 	public XJJvmFormalParameter getOriginalParam(final JvmFormalParameter p) {
 		if (p instanceof XJJvmFormalParameter parameter) {
@@ -84,6 +90,13 @@ public class JbaseModelUtil {
 		return original instanceof XJJvmFormalParameter parameter ? parameter : null;
 	}
 
+	/**
+	 * Distinguishes a raw generic constructor call from diamond or explicit type arguments.
+	 *
+	 * @param e a constructor call with its constructor already linked
+	 * @return whether the declaring type is generic and the call has neither type arguments
+	 *         nor an explicit argument list such as the diamond
+	 */
 	public boolean isRawType(final XJConstructorCall e) {
 		var type = e.getConstructor().eContainer();
 		return type instanceof JvmGenericType genericType

@@ -27,6 +27,87 @@ public class JbaseInstanceOfPatternTest extends JbaseAbstractCompilerTest {
 	private JbaseTestlanguageValidator validator;
 
 	@Test
+	public void checkedParameterizedNarrowing() throws Exception {
+		checkCompilation("""
+			java.util.List<String> values = new java.util.ArrayList<String>();
+			if (values instanceof java.util.ArrayList<String> list) System.out.println(list);
+			boolean ordinary = values instanceof java.util.ArrayList<String>;
+			""", """
+			package jbasetestlanguage;
+
+			import java.util.ArrayList;
+			import java.util.List;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    List<String> values = new ArrayList<String>();
+			    if ((values instanceof ArrayList<String> list)) {
+			      System.out.println(list);
+			    }
+			    boolean ordinary = (values instanceof ArrayList<String>);
+			  }
+			}
+			""");
+	}
+
+	@Test
+	public void checkedParameterizedConversions() throws Exception {
+		checkCompilation("""
+			import java.util.List;
+			import java.util.ArrayList;
+			import jbase.testlanguage.tests.GenericPatternTypes;
+			method test(List<String>[] arrays, List<? extends Number> bounded,
+					List<? super Integer> lower, List<List<String>> nested,
+					GenericPatternTypes<String>.Inner<Integer> inner) {
+				if (arrays instanceof ArrayList<String>[] a) System.out.println(a.length);
+				if (bounded instanceof ArrayList<? extends Number> a) System.out.println(a);
+				if (lower instanceof ArrayList<? super Integer> a) System.out.println(a);
+				if (nested instanceof GenericPatternTypes.Nested<String> a) System.out.println(a);
+				List<String> values = new ArrayList<String>();
+				if (values instanceof GenericPatternTypes.Extra<String, ?> a) System.out.println(a);
+				boolean sameInner = inner instanceof GenericPatternTypes<String>.Inner<Integer>;
+				boolean childInner = inner instanceof GenericPatternTypes<String>.Child<Integer>;
+				boolean widening = new ArrayList<String>() instanceof List<String>;
+				boolean containing = values instanceof ArrayList<? extends CharSequence>;
+				boolean nilArray = null instanceof ArrayList<String>[];
+				boolean nil = null instanceof ArrayList<String>;
+			}
+			""", null);
+		assertExecuteMain("""
+			method testMe() {
+				java.util.List<String> values = new java.util.ArrayList<String>();
+				values.add("hello");
+				if (values instanceof java.util.ArrayList<String> list) {
+					list.add("world");
+					System.out.println(list.get(0) + " " + list.get(1));
+				}
+				System.out.println(values instanceof java.util.LinkedList<String>);
+			}
+			""", "hello world\nfalse\n");
+	}
+
+	@Test
+	public void uncheckedParameterizedConversionsAreRejected() throws Exception {
+		for (final var source : java.util.List.of(
+			"Object value = null; boolean b = value instanceof java.util.ArrayList<String>;",
+			"String value = null; boolean b = value instanceof java.util.ArrayList<String>;",
+			"java.util.List value = null; boolean b = value instanceof java.util.ArrayList<String>;",
+			"java.util.List<?> value = null; boolean b = value instanceof java.util.ArrayList<String>;",
+			"java.util.List<Integer> value = null; boolean b = value instanceof java.util.ArrayList<String>;",
+			"java.util.List<? extends Number> value = null; "
+				+ "boolean b = value instanceof java.util.ArrayList<Number>;",
+			"Object[] value = null; boolean b = value instanceof java.util.ArrayList<String>[];",
+			"Object value = null; boolean b = value instanceof java.util.ArrayList<String>[];",
+			"java.util.List<String> value = null; "
+				+ "boolean b = value instanceof jbase.testlanguage.tests.GenericPatternTypes.Extra<String, Integer>;")) {
+			assertTrue(source, validationTestHelper.validate(parser.parse(source)).stream()
+				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR
+					&& issue.getMessage().contains("Cannot perform instanceof")));
+		}
+	}
+
+	@Test
 	public void branchScopesAndJavaGeneration() throws Exception {
 		checkCompilation("""
 			Object value = "hello";
