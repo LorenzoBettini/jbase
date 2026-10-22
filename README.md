@@ -138,7 +138,7 @@ prevents reassignment. See the [type pattern guide](docs/INSTANCEOF_PATTERNS.md)
 ## Enhanced switches
 
 Jbase supports Java 21 switch statements and expressions, including arrow rules,
-grouped labels, type patterns, `when` guards, `yield`, and `case null, default`:
+grouped labels, type and record patterns, `when` guards, `yield`, and `case null, default`:
 
 ```java
 Object value = "hello";
@@ -162,6 +162,36 @@ be exhaustive; arrow rules do not fall through and cannot be mixed with colon
 labels. Pattern bindings are visible in their guard and body. Compile generated
 pattern switches with Java 21 or later. See the [enhanced switch guide](docs/ENHANCED_SWITCH.md)
 for details and current limitations.
+
+## Recursive record patterns
+
+Jbase supports Java 21 record patterns in `instanceof` and `switch`, including
+nested deconstruction and inferred `var` component types. With these records
+declared in Java:
+
+```java
+record Point(int x, int y) {}
+record Segment(Point start, Point end) {}
+```
+
+Their components can be matched directly in Jbase:
+
+```java
+Object value = new Segment(new Point(1, 2), new Point(3, 4));
+if (value instanceof Segment(Point(int x, var y), Point(var endX, var endY))) {
+    System.out.println(x + y + endX + endY);
+}
+int sum = switch (value) {
+    case Segment(Point(var x, var y), Point(var endX, var endY)) when x > 0 ->
+        x + y + endX + endY;
+    default -> 0;
+};
+```
+
+Component bindings follow Java's flow scopes and may use `final` to prevent
+reassignment. `var` infers the component type, including generic type arguments.
+Generated Java preserves native record patterns and their accessor evaluation and
+null-matching behavior. Compile it with Java 21 or later.
 
 ## Local variable type inference
 
