@@ -102,6 +102,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			else System.out.println(matched);
 			Class<?> type = String.class;
 			Class<?> arrayType = String[].class;
+			Class<int[][]> primitiveArrayType = int[][].class;
+			Class<String[][][]> referenceArrayType = String[][][].class;
 			;
 
 			// Arrays, constructors, generics, diamond inference and wildcards.
@@ -326,7 +328,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      System.out.println(matched);
 			    }
 			    Class<?> type = String.class;
-			    Class<?> arrayType = String[].class;;
+			    Class<?> arrayType = String[].class;
+			    Class<int[][]> primitiveArrayType = int[][].class;
+			    Class<String[][][]> referenceArrayType = String[][][].class;;
 			    int[] numbers = { 1, 2, 3 };
 			    int[] empty = {};
 			    int[] sized = new int[limit];

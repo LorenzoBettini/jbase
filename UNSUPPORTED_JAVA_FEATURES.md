@@ -92,29 +92,23 @@ promotion, unboxing, invalid operands and narrowing, nested arithmetic, and side
 Variable operands also appear in
 [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
-### [ ] Multidimensional array class literals lose dimensions
+### [x] Multidimensional array class literals lose dimensions
 
 ```java
 Class<?> primitiveType = int[][].class;
 Class<?> referenceType = String[][][].class;
 ```
 
-**Current behavior:** Both validate and compile, but generate `int[].class` and
-`String[].class`, respectively. Array rank is lost silently.
+**Implemented:** Every dimension is preserved in type computation, generated Java,
+and annotation values. Primitive array literals have primitive component types:
+`int[][].class` has type `Class<int[][]>`, while `int.class` retains `Class<Integer>`.
 
-**Expected:** Preserve every dimension in both type computation and generated Java.
-Single-dimensional literals such as `String[].class` already work.
-
-**Workaround when a class object is needed:** `new int[0][0].getClass()` or
-`new String[0][0][0].getClass()`. These allocate arrays and are not substitutes for
-class literals in annotation values. These workarounds were not separately tested.
-
-**Investigate:** `XJClassObject` and `ArrayBrackets` in
-[Jbase.xtext](jbase/src/jbase/Jbase.xtext), `computeJbaseTypes(XJClassObject, ...)` in
-[JbaseTypeComputer](jbase/src/jbase/typesystem/JbaseTypeComputer.java), and
-`compileClassObject` in
-[JbaseXbaseCompiler](jbase/src/jbase/compiler/JbaseXbaseCompiler.java).
-Check how repeated dimension values are retained in the model.
+The `XJClassObject.arrayDimensions` model attribute now retains duplicate `[]`
+values instead of collapsing them into one dimension.
+[JbaseArrayClassLiteralTest](jbase.tests/src/jbase/tests/JbaseArrayClassLiteralTest.java)
+covers model dimensions, primitive and reference types, generated Java, runtime
+class objects, annotations, and serialization of parsed and edited dimensions.
+Both multidimensional examples also appear in `AllJavaFeaturesTest`.
 
 ## Forms checked that should not be tracked as unsupported
 
