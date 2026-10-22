@@ -833,21 +833,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected void featureCalltoJavaExpression(XAbstractFeatureCall call,
 			ITreeAppendable b, boolean isExpressionContext) {
 		if (call instanceof XBinaryOperation operation && isNativeCompoundAssignment(operation)) {
-			// Native syntax evaluates receiver/index once and preserves implicit narrowing.
-			if (isExpressionContext) {
-				b.append("(");
-			}
-			if (operation.getLeftOperand() instanceof XJArrayAccessExpression access) {
-				compileJavaExpression(access, b);
-			} else {
-				// Emit the lvalue directly, without the operator's unboxing conversion.
-				featureCalltoJavaExpression((XAbstractFeatureCall) operation.getLeftOperand(), b, true);
-			}
-			b.append(" ").append(operation.getConcreteSyntaxFeatureName()).append(" ");
-			internalToJavaExpression(operation.getRightOperand(), b);
-			if (isExpressionContext) {
-				b.append(")");
-			}
+			compileNativeCompoundAssignment(operation, b, isExpressionContext);
 			return;
 		} else if (call instanceof XJPrefixOperation prefixOperation) {
 			// we can't simply retrieve the inline annotations as it is done
@@ -886,6 +872,25 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 
 		super.featureCalltoJavaExpression(call, b, isExpressionContext);
+	}
+
+	private void compileNativeCompoundAssignment(final XBinaryOperation operation,
+			final ITreeAppendable b, final boolean isExpressionContext) {
+		// Native syntax evaluates receiver/index once and preserves implicit narrowing.
+		if (isExpressionContext) {
+			b.append("(");
+		}
+		if (operation.getLeftOperand() instanceof XJArrayAccessExpression access) {
+			compileJavaExpression(access, b);
+		} else {
+			// Emit the lvalue directly, without the operator's unboxing conversion.
+			featureCalltoJavaExpression((XAbstractFeatureCall) operation.getLeftOperand(), b, true);
+		}
+		b.append(" ").append(operation.getConcreteSyntaxFeatureName()).append(" ");
+		internalToJavaExpression(operation.getRightOperand(), b);
+		if (isExpressionContext) {
+			b.append(")");
+		}
 	}
 
 	/**
