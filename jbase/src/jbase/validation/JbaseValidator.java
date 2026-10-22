@@ -50,6 +50,7 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XIfExpression;
+import org.eclipse.xtext.xbase.XInstanceOfExpression;
 import org.eclipse.xtext.xbase.XMemberFeatureCall;
 import org.eclipse.xtext.xbase.XPostfixOperation;
 import org.eclipse.xtext.xbase.XSwitchExpression;
@@ -92,6 +93,7 @@ import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbasePatternVariables;
+import jbase.typesystem.JbaseInstanceOfTypes;
 import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseSwitches;
 import jbase.util.JbaseNodeModelUtil;
@@ -308,6 +310,17 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		final var parent = owner instanceof XJCasePart ? owner.eContainer() : owner;
 		return parent instanceof XSwitchExpression expression
 			&& JbaseSwitches.isExpression(expression);
+	}
+
+	@Override
+	public void checkInstanceOf(final XInstanceOfExpression expression) {
+		final var target = toLightweightTypeReference(expression.getType(), true);
+		if (containsTypeArgs(target)
+				&& new JbaseInstanceOfTypes().isChecked(getActualType(expression.getExpression()), target)) {
+			checkCast(expression.getType(), target, getActualType(expression.getExpression()));
+		} else {
+			super.checkInstanceOf(expression);
+		}
 	}
 
 	@Check

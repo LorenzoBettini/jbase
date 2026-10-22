@@ -1,0 +1,85 @@
+package jbase.typesystem;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.eclipse.xtext.common.types.JvmTypeParameter;
+import org.eclipse.xtext.common.types.JvmTypeParameterDeclarator;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightMergedBoundTypeArgument;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightBoundTypeArgument;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+import org.eclipse.xtext.xbase.typesystem.references.ParameterizedTypeReference;
+import org.eclipse.xtext.xbase.typesystem.util.BoundTypeArgumentSource;
+import org.eclipse.xtext.xbase.typesystem.util.StandardTypeParameterSubstitutor;
+import org.eclipse.xtext.xbase.typesystem.util.TypeArgumentFromComputedTypeCollector;
+import org.eclipse.xtext.xbase.typesystem.util.VarianceInfo;
+
+/** Checked parameterized narrowing conversions for Java instanceof (JLS 5.1.6.2). */
+public class JbaseInstanceOfTypes {
+
+	public boolean isChecked(final LightweightTypeReference source,
+			final LightweightTypeReference target) {
+		if (source.isAny()) {
+			return true;
+		}
+		if (target.isArray()) {
+			return source.isArray() && isChecked(source.getComponentType(), target.getComponentType());
+		}
+		if (!source.isRawType() && target.isAssignableFrom(source)) {
+			return true;
+		}
+		final var parameters = new ArrayList<JvmTypeParameter>();
+		final var declaration = declaration(target, parameters);
+		final var constraint = source.getConstraintSubstitute();
+		final var projection = declaration.getSuperType(constraint.getType());
+		if (projection == null || constraint.isRawType()) {
+			return false;
+		}
+		final var collector = new TypeArgumentFromComputedTypeCollector(parameters,
+			BoundTypeArgumentSource.INFERRED, target.getOwner());
+		collector.populateTypeParameterMapping(projection, constraint);
+		final var inferred = collector.rawGetTypeParameterMapping();
+		final var mapping = new HashMap<JvmTypeParameter, LightweightMergedBoundTypeArgument>();
+		for (final var parameter : parameters) {
+			final var bounds = inferred.get(parameter);
+			final var argument = bounds == null ? target.getOwner().newWildcardTypeReference()
+				: inferredArgument(bounds.getFirst());
+			mapping.put(parameter, new LightweightMergedBoundTypeArgument(argument, VarianceInfo.INVARIANT));
+		}
+		// Unconstrained parameters stay wildcards. Accept only if the requested target
+		// contains every instantiation still possible for the source's static type.
+		final var widest = new StandardTypeParameterSubstitutor(mapping, target.getOwner())
+			.substitute(declaration);
+		return target.isAssignableFrom(widest);
+	}
+
+	private LightweightTypeReference inferredArgument(final LightweightBoundTypeArgument bound) {
+		final var type = bound.getTypeReference();
+		if (bound.getActualVariance() == VarianceInfo.INVARIANT) {
+			return type;
+		}
+		final var wildcard = type.getOwner().newWildcardTypeReference();
+		if (bound.getActualVariance() == VarianceInfo.IN) {
+			wildcard.setLowerBound(type);
+		} else {
+			wildcard.addUpperBound(type);
+		}
+		return wildcard;
+	}
+
+	private ParameterizedTypeReference declaration(final LightweightTypeReference target,
+			final List<JvmTypeParameter> parameters) {
+		final var owner = target.getOwner();
+		final var result = target.getOuter() == null
+			? owner.newParameterizedTypeReference(target.getType())
+			: owner.newParameterizedTypeReference(declaration(target.getOuter(), parameters),
+				target.getType());
+		final var generic = (JvmTypeParameterDeclarator) target.getType();
+		for (final var parameter : generic.getTypeParameters()) {
+			parameters.add(parameter);
+			result.addTypeArgument(owner.newParameterizedTypeReference(parameter));
+		}
+		return result;
+	}
+}

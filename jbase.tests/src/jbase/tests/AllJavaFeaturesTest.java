@@ -120,6 +120,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[] copy = numbers.clone();
 			List<String> names = new ArrayList<>();
 			names.add(text);
+			if (names instanceof ArrayList<String> arrayList) System.out.println(arrayList);
+			boolean arrayListCheck = names instanceof ArrayList<String>;
 			List<? extends CharSequence> readable = names;
 			List<? super String> writable = new ArrayList<Object>();
 			writable.add(choice);
@@ -354,6 +356,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[] copy = numbers.clone();
 			    List<String> names = new ArrayList<String>();
 			    names.add(text);
+			    if ((names instanceof ArrayList<String> arrayList)) {
+			      System.out.println(arrayList);
+			    }
+			    boolean arrayListCheck = (names instanceof ArrayList<String>);
 			    List<? extends CharSequence> readable = names;
 			    List<? super String> writable = new ArrayList<Object>();
 			    writable.add(choice);
