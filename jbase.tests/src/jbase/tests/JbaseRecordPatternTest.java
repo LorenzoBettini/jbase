@@ -2,6 +2,8 @@ package jbase.tests;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.diagnostics.Severity;
@@ -13,6 +15,7 @@ import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.common.types.access.IJvmTypeProvider;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -266,7 +269,9 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 		};
 		final var factory = new MissingTypeProviderFactory();
 		final var unavailable = new TestSealedTypeResolver(missingClassLoader, factory);
-		assertTrue(unavailable.permittedTypes(expression, selector).isEmpty());
+		final List<LightweightTypeReference> unavailableTypes =
+			unavailable.permittedTypes(expression, selector);
+		assertTrue(unavailableTypes.isEmpty());
 
 		final var missingPermittedType = new TestSealedTypeResolver(
 			SealedTypes.Shape.class.getClassLoader(), factory);

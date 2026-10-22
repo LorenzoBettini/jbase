@@ -129,7 +129,7 @@ public final class JbaseSwitches {
 		if (permittedTypes.isEmpty()) {
 			return false;
 		}
-		for (final var permittedType : permittedTypes.get()) {
+		for (final var permittedType : permittedTypes) {
 			if (!coversPermittedType(expression, selector, permittedType, types,
 					sealedTypeResolver)) {
 				return false;
@@ -160,7 +160,7 @@ public final class JbaseSwitches {
 		if (nested.isEmpty()) {
 			return false;
 		}
-		for (final var nestedType : nested.get()) {
+		for (final var nestedType : nested) {
 			if (!coversPermittedType(expression, branchType, nestedType, types,
 					sealedTypeResolver)) {
 				return false;

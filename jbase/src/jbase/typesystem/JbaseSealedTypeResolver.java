@@ -2,7 +2,6 @@ package jbase.typesystem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.common.types.JvmGenericType;
@@ -29,40 +28,40 @@ public class JbaseSealedTypeResolver {
 		this.typeProviderFactory = typeProviderFactory;
 	}
 
-	public Optional<List<LightweightTypeReference>> permittedTypes(final EObject context,
+	public List<LightweightTypeReference> permittedTypes(final EObject context,
 			final LightweightTypeReference type) {
 		if (!(type.getType() instanceof JvmGenericType) || context == null
 				|| context.eResource() == null) {
-			return Optional.empty();
+			return List.of();
 		}
 		final var names = permittedTypeNames(context, type);
-		if (names.isEmpty() || names.get().isEmpty()) {
-			return Optional.empty();
+		if (names.isEmpty()) {
+			return List.of();
 		}
 		final var typeProvider = typeProviderFactory.findOrCreateTypeProvider(
 			context.eResource().getResourceSet());
 		final var result = new ArrayList<LightweightTypeReference>();
-		for (final var name : names.get()) {
+		for (final var name : names) {
 			if (!(typeProvider.findTypeByName(name) instanceof JvmType permittedType)) {
-				return Optional.empty();
+				return List.of();
 			}
 			result.add(type.getOwner().toLightweightTypeReference(permittedType));
 		}
-		return Optional.of(List.copyOf(result));
+		return List.copyOf(result);
 	}
 
-	protected Optional<List<String>> permittedTypeNames(final EObject context,
+	protected List<String> permittedTypeNames(final EObject context,
 			final LightweightTypeReference type) {
 		final Class<?> javaType;
 		try {
 			javaType = classLoader.loadClass(type.getType().getIdentifier());
 		} catch (final ClassNotFoundException exception) {
-			return Optional.empty();
+			return List.of();
 		}
 		if (!javaType.isSealed()) {
-			return Optional.empty();
+			return List.of();
 		}
-		return Optional.of(java.util.Arrays.stream(javaType.getPermittedSubclasses())
-			.map(Class::getName).toList());
+		return java.util.Arrays.stream(javaType.getPermittedSubclasses())
+			.map(Class::getName).toList();
 	}
 }

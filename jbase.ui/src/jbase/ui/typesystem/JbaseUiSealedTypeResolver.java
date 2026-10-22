@@ -1,7 +1,6 @@
 package jbase.ui.typesystem;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.IType;
@@ -18,7 +17,7 @@ public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 	private static final Logger LOGGER = Logger.getLogger(JbaseUiSealedTypeResolver.class);
 
 	@Override
-	protected Optional<List<String>> permittedTypeNames(final EObject context,
+	protected List<String> permittedTypeNames(final EObject context,
 			final LightweightTypeReference type) {
 		final var resource = type.getType().eResource();
 		if (resource instanceof TypeResource typeResource
@@ -28,24 +27,24 @@ public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 		return super.permittedTypeNames(context, type);
 	}
 
-	Optional<List<String>> permittedTypeNames(final IType javaType) {
+	List<String> permittedTypeNames(final IType javaType) {
 		try {
 			if (!javaType.isSealed()) {
-				return Optional.empty();
+				return List.of();
 			}
 			final var names = new java.util.ArrayList<String>();
 			for (final var name : javaType.getPermittedSubtypeNames()) {
 				final var permittedType = resolvePermittedType(javaType, name);
 				if (permittedType == null) {
-					return Optional.empty();
+					return List.of();
 				}
 				names.add(permittedType.getFullyQualifiedName('$'));
 			}
-			return Optional.of(List.copyOf(names));
+			return List.copyOf(names);
 		} catch (final JavaModelException exception) {
 			LOGGER.error("Could not read permitted subclasses of " + javaType.getFullyQualifiedName(),
 				exception);
-			return Optional.empty();
+			return List.of();
 		}
 	}
 
