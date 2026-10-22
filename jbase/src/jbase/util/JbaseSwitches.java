@@ -18,6 +18,7 @@ import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJSwitchExpression;
+import jbase.typesystem.JbaseRecordPatterns;
 
 /** Shared distinctions between Java switch statements, rules and expressions. */
 public final class JbaseSwitches {
@@ -62,16 +63,26 @@ public final class JbaseSwitches {
 			return true;
 		}
 		final var selector = types.getActualType(expression.getSwitch());
-		return hasTotalPattern(expression, selector) || coversAllLiterals(expression, selector);
+		return hasTotalPattern(expression, selector, types) || coversAllLiterals(expression, selector);
 	}
 
 	private static boolean hasTotalPattern(final XSwitchExpression expression,
-			final LightweightTypeReference selector) {
+			final LightweightTypeReference selector, final IResolvedTypes types) {
 		return expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
 			&& (part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
 				&& literal.isIsTrue())
-			&& selector.getOwner().toLightweightTypeReference(part.getTypeGuard())
-				.isAssignableFrom(selector));
+			&& coversSelector((XJCasePart) part, selector, types));
+	}
+
+	private static boolean coversSelector(final XJCasePart part,
+			final LightweightTypeReference selector, final IResolvedTypes types) {
+		final var type = selector.getOwner().toLightweightTypeReference(part.getTypeGuard());
+		if (!type.isAssignableFrom(selector)) {
+			return false;
+		}
+		final var records = new JbaseRecordPatterns();
+		return part.getRecordPattern() == null
+			|| records.covers(part.getRecordPattern(), records.recordType(type, selector), types);
 	}
 
 	private static boolean coversAllLiterals(final XSwitchExpression expression,

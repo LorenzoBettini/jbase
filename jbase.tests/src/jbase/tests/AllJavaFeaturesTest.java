@@ -31,6 +31,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Supplier;
+			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import static java.lang.Math.abs;
 
 			@SuppressWarnings({"unused", "deprecation"})
@@ -100,6 +101,12 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			if (boxed instanceof String matched) System.out.println(matched);
 			if (!(boxed instanceof String matched)) System.out.println(boxed);
 			else System.out.println(matched);
+			Object point = new Point(1, 2);
+			if (point instanceof Point(int x, var y)) System.out.println(x + y);
+			int pointSum = switch (point) {
+				case Point(var x, var y) -> x + y;
+				default -> 0;
+			};
 			Class<?> type = String.class;
 			Class<?> arrayType = String[].class;
 			Class<int[][]> primitiveArrayType = int[][].class;
@@ -236,6 +243,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Supplier;
 			import java.util.function.ToIntFunction;
+			import jbase.testlanguage.tests.RecordPatternTypes;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -338,6 +346,18 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    } else {
 			      System.out.println(matched);
 			    }
+			    Object point = new RecordPatternTypes.Point(1, 2);
+			    if ((point instanceof RecordPatternTypes.Point(int x, var y))) {
+			      System.out.println((x + y));
+			    }
+			    int pointSum = switch (point) {
+			      case RecordPatternTypes.Point(var x, var y) -> {
+			        yield (x + y);
+			      }
+			      default -> {
+			        yield 0;
+			      }
+			    };
 			    Class<?> type = String.class;
 			    Class<?> arrayType = String[].class;
 			    Class<int[][]> primitiveArrayType = int[][].class;

@@ -379,13 +379,15 @@ XCasePart returns XJCasePart:
 	(=>XJSwitchRuleHead then=XJSwitchRuleBody | XJSwitchColonCase)?;
 
 fragment XJSwitchRuleHead returns XJCasePart:
-	(=>(final?='final'? typeGuard=JvmTypeReference patternVariable=XJPatternVariable)
+	(=>(final?='final'? typeGuard=JvmTypeReference
+		(recordPattern=XJRecordPattern | patternVariable=XJPatternVariable))
 		('when' case=XExpression)?
 	| case=XJCaseLabel (',' additionalLabels+=XJCaseLabel)*)
 	arrow?='->';
 
 fragment XJSwitchColonCase returns XJCasePart:
-	(=>(final?='final'? typeGuard=JvmTypeReference patternVariable=XJPatternVariable)
+	(=>(final?='final'? typeGuard=JvmTypeReference
+		(recordPattern=XJRecordPattern | patternVariable=XJPatternVariable))
 		('when' case=XExpression)?
 	| case=XJCaseLabel (',' additionalLabels+=XJCaseLabel)*)
 	':' then=XJSwitchStatements;
@@ -532,7 +534,8 @@ terminal CHARACTER:
 XRelationalExpression returns XExpression:
 	XOtherOperatorExpression
 	(=>({XJInstanceOfExpression.expression=current} 'instanceof')
-		final?='final'? type=JvmTypeReference (=>patternVariable=XJPatternVariable)? |
+		final?='final'? type=JvmTypeReference
+		(=>recordPattern=XJRecordPattern | =>patternVariable=XJPatternVariable)? |
 	 =>({XBinaryOperation.leftOperand=current}
 		feature=[types::JvmIdentifiableElement|OpCompare] rightOperand=XOtherOperatorExpression))*
 ;
@@ -549,6 +552,15 @@ XOtherOperatorExpression returns XExpression:
 XJPatternVariable returns types::JvmFormalParameter:
 	{types::JvmFormalParameter} name=ValidID
 ;
+
+// Components are recursively nested patterns, with var restricted to leaf bindings.
+XJRecordPattern:
+	{XJRecordPattern} '(' (components+=XJComponentPattern (',' components+=XJComponentPattern)*)? ')';
+
+XJComponentPattern:
+	final?='final'?
+	(=>(inferred?='var' name=ValidID)
+	| parameterType=JvmTypeReference (recordPattern=XJRecordPattern | name=ValidID));
 
 @Override 
 OpEquality:

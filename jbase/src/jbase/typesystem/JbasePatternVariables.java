@@ -21,6 +21,7 @@ import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XWhileExpression;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
+import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState;
 
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -43,6 +44,15 @@ public class JbasePatternVariables {
 				.toLightweightTypeReference(expression.getType()), false);
 			// Validate the declaration even when no guarded expression uses it.
 			state.withTypeCheckpoint(expression).addLocalToCurrentScope(variable);
+		}
+		if (expression.getRecordPattern() != null) {
+			new JbaseRecordPatterns().assignTypes(expression.getRecordPattern(), state
+				.getReferenceOwner().toLightweightTypeReference(expression.getType()),
+				((AbstractTypeComputationState) state).getResolvedTypes()
+					.getActualType(expression.getExpression()), state);
+			final var declarations = state.withTypeCheckpoint(expression);
+			JbaseRecordPatterns.bindings(expression.getRecordPattern())
+				.forEach(declarations::addLocalToCurrentScope);
 		}
 	}
 
@@ -79,8 +89,13 @@ public class JbasePatternVariables {
 
 	public List<JvmFormalParameter> matched(final XExpression expression, final boolean result) {
 		if (expression instanceof XJInstanceOfExpression instanceOf
-				&& result && instanceOf.getPatternVariable() != null) {
-			return List.of(instanceOf.getPatternVariable());
+				&& result) {
+			if (instanceOf.getRecordPattern() != null) {
+				return new ArrayList<>(JbaseRecordPatterns.bindings(instanceOf.getRecordPattern()));
+			}
+			if (instanceOf.getPatternVariable() != null) {
+				return List.of(instanceOf.getPatternVariable());
+			}
 		}
 		if (expression instanceof XUnaryOperation unary
 				&& "!".equals(unary.getConcreteSyntaxFeatureName())) {

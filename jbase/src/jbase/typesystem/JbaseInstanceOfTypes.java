@@ -24,17 +24,25 @@ public class JbaseInstanceOfTypes {
 			return true;
 		}
 		if (target.isArray()) {
-			return source.isArray() && isChecked(source.getComponentType(), target.getComponentType());
+			return source.isArray()
+				&& isChecked(source.getComponentType(), target.getComponentType());
 		}
 		if (!source.isRawType() && target.isAssignableFrom(source)) {
 			return true;
 		}
+		final var inferred = inferType(source, target);
+		return inferred != null && target.isAssignableFrom(inferred);
+	}
+
+	/** Infer the widest target instantiation compatible with the source's static type. */
+	public LightweightTypeReference inferType(final LightweightTypeReference source,
+			final LightweightTypeReference target) {
 		final var parameters = new ArrayList<JvmTypeParameter>();
 		final var declaration = declaration(target, parameters);
 		final var constraint = source.getConstraintSubstitute();
 		final var projection = declaration.getSuperType(constraint.getType());
 		if (projection == null || constraint.isRawType()) {
-			return false;
+			return null;
 		}
 		final var collector = new TypeArgumentFromComputedTypeCollector(parameters,
 			BoundTypeArgumentSource.INFERRED, target.getOwner());
@@ -43,15 +51,22 @@ public class JbaseInstanceOfTypes {
 		final var mapping = new HashMap<JvmTypeParameter, LightweightMergedBoundTypeArgument>();
 		for (final var parameter : parameters) {
 			final var bounds = inferred.get(parameter);
-			final var argument = bounds == null ? target.getOwner().newWildcardTypeReference()
-				: inferredArgument(bounds.getFirst());
-			mapping.put(parameter, new LightweightMergedBoundTypeArgument(argument, VarianceInfo.INVARIANT));
+			final LightweightTypeReference argument;
+			if (bounds == null) {
+				final var wildcard = target.getOwner().newWildcardTypeReference();
+				wildcard.addUpperBound(target.getOwner().newParameterizedTypeReference(parameter)
+					.getConstraintSubstitute());
+				argument = wildcard;
+			} else {
+				argument = inferredArgument(bounds.getFirst());
+			}
+			mapping.put(parameter, new LightweightMergedBoundTypeArgument(
+				argument, VarianceInfo.INVARIANT));
 		}
-		// Unconstrained parameters stay wildcards. Accept only if the requested target
-		// contains every instantiation still possible for the source's static type.
-		final var widest = new StandardTypeParameterSubstitutor(mapping, target.getOwner())
+		// Unconstrained parameters stay wildcards within their declared bounds.
+		// The caller checks containment or projects the resulting component types.
+		return new StandardTypeParameterSubstitutor(mapping, target.getOwner())
 			.substitute(declaration);
-		return target.isAssignableFrom(widest);
 	}
 
 	private LightweightTypeReference inferredArgument(final LightweightBoundTypeArgument bound) {

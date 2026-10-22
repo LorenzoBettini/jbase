@@ -333,8 +333,15 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final ITypeComputationState branch, final LightweightTypeReference selectorType,
 			final ITypeComputationState state) {
 		if (part.getTypeGuard() != null) {
-			final var typed = branch.assignType(part.getPatternVariable(), state
-				.getReferenceOwner().toLightweightTypeReference(part.getTypeGuard()));
+			final var type = state.getReferenceOwner().toLightweightTypeReference(part.getTypeGuard());
+			final ITypeComputationState typed;
+			if (part.getRecordPattern() == null) {
+				typed = branch.assignType(part.getPatternVariable(), type);
+			} else {
+				new JbaseRecordPatterns().assignTypes(part.getRecordPattern(), type, selectorType, branch);
+				typed = branch.withTypeCheckpoint(part);
+				JbaseRecordPatterns.bindings(part.getRecordPattern()).forEach(typed::addLocalToCurrentScope);
+			}
 			if (part.getCase() != null) {
 				typed.withExpectation(getTypeForName(boolean.class, state))
 					.computeTypes(part.getCase());

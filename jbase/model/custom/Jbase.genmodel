@@ -64,6 +64,7 @@
     <genClasses ecoreClass="Jbase.ecore#//XJInstanceOfExpression">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJInstanceOfExpression/final"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJInstanceOfExpression/patternVariable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJInstanceOfExpression/recordPattern"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJSwitchExpression">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJSwitchExpression/defaultArrow"/>
@@ -74,7 +75,15 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJCasePart/arrow"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJCasePart/additionalLabels"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJCasePart/patternVariable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJCasePart/recordPattern"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJYieldStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJRecordPattern">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJRecordPattern/components"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJComponentPattern">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJComponentPattern/recordPattern"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJComponentPattern/inferred"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>
