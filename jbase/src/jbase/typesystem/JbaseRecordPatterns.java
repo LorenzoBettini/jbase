@@ -55,18 +55,19 @@ public class JbaseRecordPatterns {
 	 * Returns the component fields used to type a record's deconstruction patterns.
 	 * Records cannot declare additional instance fields, so static fields are excluded.
 	 *
-	 * @param type the resolved type to inspect
+	 * @param type the type to inspect, possibly unresolved
 	 * @return an unmodifiable list of component fields in declaration order; empty for
-	 *         non-record types and records without components
+	 *         unresolved types, non-record types and records without components
 	 */
 	public List<JvmField> fields(final LightweightTypeReference type) {
-		if (!type.isSubtypeOf(Record.class)) {
+		// Unknown references accept subtype checks but have no JVM declaration to inspect.
+		if (!(type.getType() instanceof JvmGenericType recordType)
+				|| !type.isSubtypeOf(Record.class)) {
 			return List.of();
 		}
 		// Records cannot declare additional instance fields. The JVM model retains the
 		// component fields in declaration order, including their generic signatures.
-		return StreamSupport.stream(((JvmGenericType) type.getType())
-			.getDeclaredFields().spliterator(), false)
+		return StreamSupport.stream(recordType.getDeclaredFields().spliterator(), false)
 			.filter(field -> !field.isStatic()).toList();
 	}
 

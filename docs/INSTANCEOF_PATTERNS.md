@@ -98,6 +98,8 @@ with guards and structural exhaustiveness checks.
 * [JbaseRecordPatterns](../jbase/src/jbase/typesystem/JbaseRecordPatterns.java)
   infers generic record arguments, assigns component types and collects nested
   bindings. Switch validation also uses its coverage and dominance checks.
+  Unresolved pattern types have no component fields; bindings receive unknown
+  expected types during error recovery so serialization can preserve unresolved patterns.
 * [JbasePatternVariables](../jbase/src/jbase/typesystem/JbasePatternVariables.java)
   computes definitely-matched bindings and isolated type-computation scopes.
   [JbaseTypeComputer](../jbase/src/jbase/typesystem/JbaseTypeComputer.java)
