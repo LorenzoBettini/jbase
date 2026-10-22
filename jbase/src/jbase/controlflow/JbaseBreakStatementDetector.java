@@ -16,6 +16,14 @@ import jbase.jbase.XJSemicolonStatement;
  */
 public class JbaseBreakStatementDetector {
 
+	/**
+	 * Checks for a possible break in a while or basic-for loop's body.
+	 * Semicolon wrappers are unwrapped. Nested loops are not traversed when checking
+	 * whether a break may exit the inspected loop.
+	 *
+	 * @param e the loop or semicolon-wrapped loop to inspect; may be {@code null}
+	 * @return whether its body contains a possible break; false for other expressions
+	 */
 	public boolean containsPossibleBreakStatement(final XExpression e) {
 		return e != null && containsPossibleBreak(e);
 	}
@@ -31,6 +39,14 @@ public class JbaseBreakStatementDetector {
 		};
 	}
 
+	/**
+	 * Searches an expression for a break through wrappers, blocks, and either if branch.
+	 * Other constructs, including nested loops, are not traversed, so their breaks do
+	 * not count as exits from the enclosing loop being analyzed.
+	 *
+	 * @param e the expression or loop body to inspect; may be {@code null}
+	 * @return whether a break is structurally reachable; false for {@code null}
+	 */
 	public boolean isPossibleBreakStatement(final XExpression e) {
 		return e != null && possibleBreak(e);
 	}

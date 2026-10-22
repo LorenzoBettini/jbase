@@ -29,6 +29,14 @@ public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExi
 	@Inject
 	private JbaseBreakStatementDetector breakStatementDetector;
 
+	/**
+	 * Computes exit points using Java fall-through and loop-break handling.
+	 * A possible break prevents a loop from being treated as an unconditional exit.
+	 * Switch-expression yields are local results rather than exits from the enclosing method.
+	 *
+	 * @param expression the expression whose exit points are required
+	 * @return the exit points established by the analysis, possibly empty
+	 */
 	@Override
 	public Collection<ExitPoint> getExitPoints(final XExpression expression) {
 		var exitPoints = super.getExitPoints(expression);

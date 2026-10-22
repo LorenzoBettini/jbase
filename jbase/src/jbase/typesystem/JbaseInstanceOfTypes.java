@@ -18,6 +18,17 @@ import org.eclipse.xtext.xbase.typesystem.util.VarianceInfo;
 /** Checked parameterized narrowing conversions for Java instanceof (JLS 5.1.6.2). */
 public class JbaseInstanceOfTypes {
 
+	/**
+	 * Checks whether generic type information permits a test without an unchecked conversion.
+	 * Arrays are checked recursively, and the null type is accepted. For example, a
+	 * {@code List<String>} can be tested against {@code ArrayList<String>}, whereas an
+	 * {@code Object} cannot. This complements ordinary cast-compatibility validation;
+	 * it does not replace it.
+	 *
+	 * @param source the operand's resolved static type
+	 * @param target the non-reifiable class, interface, or array type being tested
+	 * @return whether the source's constraints make the parameterized test checkable
+	 */
 	public boolean isChecked(final LightweightTypeReference source,
 			final LightweightTypeReference target) {
 		if (source.isAny()) {
@@ -34,7 +45,17 @@ public class JbaseInstanceOfTypes {
 		return inferred != null && target.isAssignableFrom(inferred);
 	}
 
-	/** Infer the widest target instantiation compatible with the source's static type. */
+	/**
+	 * Infers the widest target instantiation compatible with the source's static type.
+	 * Projects the target declaration onto the source's constraint type, then substitutes
+	 * inferred arguments into the target, including its enclosing types. Unconstrained
+	 * parameters remain wildcards within their declared bounds. No diagnostics are emitted.
+	 *
+	 * @param source the resolved static type supplying generic constraints
+	 * @param target a class or interface type whose declaration supplies the type parameters
+	 * @return an inferred reference owned by the target's reference owner, or {@code null}
+	 *         if the source constraint is raw or cannot be projected from the target
+	 */
 	public LightweightTypeReference inferType(final LightweightTypeReference source,
 			final LightweightTypeReference target) {
 		final var parameters = new ArrayList<JvmTypeParameter>();

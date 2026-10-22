@@ -13,15 +13,21 @@ import org.eclipse.xtext.xbase.lib.Functions.Function2;
  */
 public class JbaseExpressionHelper {
 
+	/** Callback for the innermost unary operation and its numeric literal operand. */
 	public abstract static class BaseCase
 			implements Function2<XUnaryOperation, XNumberLiteral, Boolean> {
 	}
 
+	/** Callback for outer unary operations, visited after a successful inner base case. */
 	public abstract static class StepCase implements IAcceptor<XUnaryOperation> {
 	}
 
 	/**
-	 * Whether this unary operation requires special handling
+	 * Checks whether a unary-operation chain terminates in a numeric literal and avoids
+	 * logical negation, allowing special numeric typing or generation without feature linking.
+	 *
+	 * @param unaryOperation the outer unary operation to inspect
+	 * @return whether the chain is eligible for special handling
 	 */
 	public boolean specialHandling(final XUnaryOperation unaryOperation) {
 		return specialHandling(unaryOperation, new BaseCase() {
@@ -67,6 +73,11 @@ public class JbaseExpressionHelper {
 	 *
 	 * Given <pre>-1</pre> the buffer will contain <pre>-1</pre> and the step case will not
 	 * be executed.
+	 *
+	 * @param unaryOperation the outer unary operation to inspect without resolving its feature
+	 * @param baseCase callback for a numeric literal; its result controls recursive success
+	 * @param stepCase callback for outer operations, invoked from the innermost one outward
+	 * @return whether the numeric base case accepted the chain and no logical negation intervened
 	 */
 	public boolean specialHandling(final XUnaryOperation unaryOperation,
 			final BaseCase baseCase, final StepCase stepCase) {

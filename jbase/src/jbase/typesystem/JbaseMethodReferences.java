@@ -75,6 +75,9 @@ public class JbaseMethodReferences {
 	 * For example, {@code Stream.of("a").map(String::length)} must contribute constraints
 	 * to the enclosing generic call rather than receive a standalone type during parsing.
 	 * Even a missing target still triggers receiver computation for linking diagnostics.
+	 *
+	 * @param reference the method or constructor reference being inferred
+	 * @param state the state supplying target expectations and receiving candidates or diagnostics
 	 */
 	public void computeTypes(final XJMethodReference reference,
 			final ITypeComputationState state) {
@@ -113,6 +116,9 @@ public class JbaseMethodReferences {
 	 * Shares contextual member visibility between inference and Eclipse completion.
 	 * The context is the generated JVM declaring type, obtained through the logical container;
 	 * public visibility alone would incorrectly hide accessible private or protected methods.
+	 *
+	 * @param reference the reference whose enclosing JVM type supplies the access context
+	 * @return a visibility helper shared by member matching and completion
 	 */
 	public IVisibilityHelper visibilityHelper(final XJMethodReference reference) {
 		final var container = logicalContainers.getLogicalContainer(reference);
@@ -559,6 +565,8 @@ public class JbaseMethodReferences {
 		 * Commits only the executable link after inference. The inherited implementation would
 		 * install implicit lambda parameters, which have no source or execution role in a reference.
 		 * Synthetic array signatures intentionally leave this transient link null.
+		 *
+		 * @param resolvedTypes the inference result; the executable was selected during computation
 		 */
 		@Override
 		public void applyToModel(final IResolvedTypes resolvedTypes) {

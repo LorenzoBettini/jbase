@@ -15,6 +15,15 @@ import jbase.jbase.XJSemicolonStatement;
  */
 public class JbaseBranchingStatementDetector {
 
+	/**
+	 * Applies the structural branch-statement check used by control-flow analysis.
+	 * Recognizes branching statements through semicolon wrappers, blocks, and conditional
+	 * branches. A conditional checks its then branch and its else branch when present;
+	 * this helper does not perform a complete reachability analysis.
+	 *
+	 * @param e the expression to inspect; may be {@code null}
+	 * @return whether the expression satisfies the structural check; false for {@code null}
+	 */
 	public boolean isSureBranchStatement(final XExpression e) {
 		return e != null && sureBranch(e);
 	}

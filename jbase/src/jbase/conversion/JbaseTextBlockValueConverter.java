@@ -12,8 +12,13 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 	}
 
 	/**
-	 * Retains escapes while removing source indentation. The compiler can then add
-	 * the generated Java indentation uniformly, without changing the block's value.
+	 * Translates Unicode escapes and removes delimiters and incidental source indentation.
+	 * Other escapes are retained so the compiler can reindent the generated Java block
+	 * without changing its value. Line endings are normalized to line feeds.
+	 *
+	 * @param source the complete text-block literal, including its delimiters
+	 * @return normalized content with ordinary Java escapes still present
+	 * @throws IllegalArgumentException if a Unicode escape or closing delimiter is invalid
 	 */
 	public String normalizedContent(final String source) {
 		final var normalized = translateUnicodeEscapes(source)
@@ -79,6 +84,14 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		return new UnicodeEscape((char) Integer.parseInt(digits, 16), end);
 	}
 
+	/**
+	 * Computes a text block's value by normalizing its content and interpreting Java escapes.
+	 *
+	 * @param string the complete text-block literal, including its delimiters
+	 * @param node the source node to associate with a conversion error
+	 * @return the normalized, unescaped string value
+	 * @throws ValueConverterException if the literal or one of its escapes is invalid
+	 */
 	@Override
 	public String toValue(final String string, final INode node) {
 		try {
@@ -88,6 +101,14 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		}
 	}
 
+	/**
+	 * Serializes a string value as a Java text block.
+	 * Spaces are escaped to protect them from incidental-whitespace removal, including
+	 * spaces at the ends of lines.
+	 *
+	 * @param value the string value to preserve
+	 * @return a complete text-block literal with escaped content and closing delimiter
+	 */
 	@Override
 	public String toString(final String value) {
 		// Protect spaces from incidental whitespace removal, including trailing spaces.
