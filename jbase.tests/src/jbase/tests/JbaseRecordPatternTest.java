@@ -210,7 +210,8 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 			}
 			method enumSize(EnumHierarchy value) : int {
 				return switch (value) {
-					case Color color -> color.ordinal();
+					case Color.RED -> 0;
+					case Color.BLUE -> 1;
 				};
 			}
 			""";
@@ -242,6 +243,18 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 			Nested value = null;
 			int size = switch (value) {
 				case NestedLeft left -> 0;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			boolean value = true;
+			int size = switch (value) {
+				case true -> 1;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			Shape value = null;
+			int size = switch (value) {
+				case true -> 1;
 			};
 			""", "must be exhaustive");
 		assertError("""
