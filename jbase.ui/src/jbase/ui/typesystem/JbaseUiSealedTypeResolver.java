@@ -1,0 +1,63 @@
+package jbase.ui.typesystem;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.log4j.Logger;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.common.types.access.TypeResource;
+import org.eclipse.xtext.common.types.access.jdt.JdtTypeMirror;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+
+import jbase.typesystem.JbaseSealedTypeResolver;
+
+/** Reads permitted subclasses from the JDT model used by the IDE type provider. */
+public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
+	private static final Logger LOGGER = Logger.getLogger(JbaseUiSealedTypeResolver.class);
+
+	@Override
+	protected Optional<List<String>> permittedTypeNames(final EObject context,
+			final LightweightTypeReference type) {
+		final var resource = type.getType().eResource();
+		if (resource instanceof TypeResource typeResource
+				&& typeResource.getMirror() instanceof JdtTypeMirror mirror) {
+			return permittedTypeNames(mirror.getMirroredType());
+		}
+		return super.permittedTypeNames(context, type);
+	}
+
+	Optional<List<String>> permittedTypeNames(final IType javaType) {
+		try {
+			if (!javaType.isSealed()) {
+				return Optional.empty();
+			}
+			final var names = new java.util.ArrayList<String>();
+			for (final var name : javaType.getPermittedSubtypeNames()) {
+				final var permittedType = resolvePermittedType(javaType, name);
+				if (permittedType == null) {
+					return Optional.empty();
+				}
+				names.add(permittedType.getFullyQualifiedName('$'));
+			}
+			return Optional.of(List.copyOf(names));
+		} catch (final JavaModelException exception) {
+			LOGGER.error("Could not read permitted subclasses of " + javaType.getFullyQualifiedName(),
+				exception);
+			return Optional.empty();
+		}
+	}
+
+	IType resolvePermittedType(final IType sealedType, final String name)
+			throws JavaModelException {
+		final var resolved = sealedType.resolveType(name);
+		if (resolved == null || resolved.length != 1) {
+			return null;
+		}
+		final var packageName = resolved[0][0];
+		final var qualifiedName = packageName.isEmpty() ? resolved[0][1]
+			: packageName + "." + resolved[0][1];
+		return sealedType.getJavaProject().findType(qualifiedName);
+	}
+}

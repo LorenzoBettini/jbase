@@ -19,6 +19,8 @@ import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJSwitchExpression;
 import jbase.typesystem.JbaseRecordPatterns;
+import jbase.typesystem.JbaseSealedTypeResolver;
+import jbase.typesystem.JbaseInstanceOfTypes;
 
 /** Shared distinctions between Java switch statements, rules and expressions. */
 public final class JbaseSwitches {
@@ -76,39 +78,95 @@ public final class JbaseSwitches {
 	/**
 	 * Checks the supported forms of switch exhaustiveness.
 	 * Recognizes a default, a covering type or record pattern without a guard or with a
-	 * literal {@code true} guard, and complete enum-constant coverage. This does not
-	 * compute coverage over permitted subclasses of sealed types.
+	 * literal {@code true} guard, complete enum-constant coverage, and coverage of all
+	 * permitted subclasses of sealed types.
 	 *
 	 * @param expression a Jbase switch with resolved selector and pattern types
 	 * @param types resolved types for the selector and component bindings
+	 * @param sealedTypeResolver resolves permitted subclasses in the active type system
 	 * @return whether a supported form proves the switch exhaustive
 	 */
 	public static boolean isExhaustive(final XSwitchExpression expression,
-			final IResolvedTypes types) {
+			final IResolvedTypes types, final JbaseSealedTypeResolver sealedTypeResolver) {
 		if (expression.getDefault() != null) {
 			return true;
 		}
 		final var selector = types.getActualType(expression.getSwitch());
-		return hasTotalPattern(expression, selector, types) || coversAllLiterals(expression, selector);
+		return hasTotalPattern(expression, selector, types) || coversAllLiterals(expression, selector)
+			|| coversPermittedTypes(expression, selector, types, sealedTypeResolver);
 	}
 
 	private static boolean hasTotalPattern(final XSwitchExpression expression,
 			final LightweightTypeReference selector, final IResolvedTypes types) {
-		return expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
-			&& (part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
-				&& literal.isIsTrue())
-			&& coversSelector((XJCasePart) part, selector, types));
+		return expression.getCases().stream().map(XJCasePart.class::cast)
+			.anyMatch(part -> isUnconditional(part) && part.getTypeGuard() != null
+				&& coversPattern(part, selector, selector, types));
 	}
 
-	private static boolean coversSelector(final XJCasePart part,
-			final LightweightTypeReference selector, final IResolvedTypes types) {
-		final var type = selector.getOwner().toLightweightTypeReference(part.getTypeGuard());
-		if (!type.isAssignableFrom(selector)) {
+	private static boolean isUnconditional(final XJCasePart part) {
+		return part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
+			&& literal.isIsTrue();
+	}
+
+	private static boolean coversPattern(final XJCasePart part,
+			final LightweightTypeReference patternSource, final LightweightTypeReference branchType,
+			final IResolvedTypes types) {
+		final var patternType = patternSource.getOwner()
+			.toLightweightTypeReference(part.getTypeGuard());
+		if (!patternType.isAssignableFrom(branchType)) {
 			return false;
 		}
 		final var records = new JbaseRecordPatterns();
 		return part.getRecordPattern() == null
-			|| records.covers(part.getRecordPattern(), records.recordType(type, selector), types);
+			|| records.covers(part.getRecordPattern(),
+				records.recordType(patternType, branchType), types);
+	}
+
+	private static boolean coversPermittedTypes(final XSwitchExpression expression,
+			final LightweightTypeReference selector, final IResolvedTypes types,
+			final JbaseSealedTypeResolver sealedTypeResolver) {
+		final var permittedTypes = sealedTypeResolver.permittedTypes(expression, selector);
+		if (permittedTypes.isEmpty()) {
+			return false;
+		}
+		for (final var permittedType : permittedTypes.get()) {
+			if (!coversPermittedType(expression, selector, permittedType, types,
+					sealedTypeResolver)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean coversPermittedType(final XSwitchExpression expression,
+			final LightweightTypeReference selector, final LightweightTypeReference permittedType,
+			final IResolvedTypes types, final JbaseSealedTypeResolver sealedTypeResolver) {
+		final var inferredType = new JbaseInstanceOfTypes().inferType(selector, permittedType);
+		final var branchType = inferredType == null ? permittedType : inferredType;
+		if (inferredType != null && !selector.isAssignableFrom(inferredType)) {
+			return true;
+		}
+		for (final var original : expression.getCases()) {
+			final var part = (XJCasePart) original;
+			if (isUnconditional(part) && part.getTypeGuard() != null
+					&& coversPattern(part, selector, branchType, types)) {
+				return true;
+			}
+		}
+		if (coversAllLiterals(expression, branchType)) {
+			return true;
+		}
+		final var nested = sealedTypeResolver.permittedTypes(expression, branchType);
+		if (nested.isEmpty()) {
+			return false;
+		}
+		for (final var nestedType : nested.get()) {
+			if (!coversPermittedType(expression, branchType, nestedType, types,
+					sealedTypeResolver)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static boolean coversAllLiterals(final XSwitchExpression expression,

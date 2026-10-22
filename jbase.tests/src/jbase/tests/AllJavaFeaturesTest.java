@@ -32,6 +32,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Supplier;
 			import jbase.testlanguage.tests.RecordPatternTypes.Point;
+			import jbase.testlanguage.tests.SealedTypes.Shape;
+			import jbase.testlanguage.tests.SealedTypes.Circle;
+			import jbase.testlanguage.tests.SealedTypes.Square;
 			import static java.lang.Math.abs;
 
 			@SuppressWarnings({"unused", "deprecation"})
@@ -106,6 +109,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int pointSum = switch (point) {
 				case Point(var x, var y) -> x + y;
 				default -> 0;
+			};
+			Shape shape = new Circle(1);
+			int shapeSize = switch (shape) {
+				case Circle circle -> circle.radius();
+				case Square square -> square.side();
 			};
 			Class<?> type = String.class;
 			Class<?> arrayType = String[].class;
@@ -244,6 +252,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.Supplier;
 			import java.util.function.ToIntFunction;
 			import jbase.testlanguage.tests.RecordPatternTypes;
+			import jbase.testlanguage.tests.SealedTypes;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -356,6 +365,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      }
 			      default -> {
 			        yield 0;
+			      }
+			    };
+			    SealedTypes.Shape shape = new SealedTypes.Circle(1);
+			    int shapeSize = switch (shape) {
+			      case SealedTypes.Circle circle -> {
+			        yield circle.radius();
+			      }
+			      case SealedTypes.Square square -> {
+			        yield square.side();
 			      }
 			    };
 			    Class<?> type = String.class;

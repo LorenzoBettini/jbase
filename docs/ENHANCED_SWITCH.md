@@ -33,14 +33,16 @@ Arrow rules do not fall through. A switch cannot mix arrows and colon groups.
 generation.
 
 Switch expressions must be exhaustive. Jbase recognizes a default, a total type
-pattern, a record pattern covering every component type, and complete enum coverage,
-including grouped enum labels. Record coverage is checked recursively for nested
-patterns. Pattern switch statements also require exhaustiveness. A rule block in an expression
-must yield or throw; `return`, `break`, and `continue` cannot exit an expression.
-Loops and lambdas inside an expression retain their own control-flow boundaries.
-
-Exhaustiveness over permitted subclasses of sealed types remains unsupported;
-add a `default` when switching over such a hierarchy.
+pattern, a record pattern covering every component type, complete enum coverage,
+including grouped enum labels, and complete coverage of sealed hierarchies. Sealed
+coverage follows permitted subclasses recursively; unguarded type patterns, covering
+record patterns and complete enum constants can cover each branch. In the IDE, the
+hierarchy is resolved through JDT so project and dependency types do not need to be
+loadable by the language bundle's class loader. Record coverage is checked recursively
+for nested patterns. Pattern switch statements also require exhaustiveness. A rule
+block in an expression must yield or throw; `return`, `break`, and `continue` cannot
+exit an expression. Loops and lambdas inside an expression retain their own
+control-flow boundaries.
 
 ## Record patterns
 

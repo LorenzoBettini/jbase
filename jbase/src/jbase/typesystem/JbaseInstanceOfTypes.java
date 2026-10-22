@@ -111,10 +111,11 @@ public class JbaseInstanceOfTypes {
 			? owner.newParameterizedTypeReference(target.getType())
 			: owner.newParameterizedTypeReference(declaration(target.getOuter(), parameters),
 				target.getType());
-		final var generic = (JvmTypeParameterDeclarator) target.getType();
-		for (final var parameter : generic.getTypeParameters()) {
-			parameters.add(parameter);
-			result.addTypeArgument(owner.newParameterizedTypeReference(parameter));
+		if (target.getType() instanceof JvmTypeParameterDeclarator generic) {
+			for (final var parameter : generic.getTypeParameters()) {
+				parameters.add(parameter);
+				result.addTypeArgument(owner.newParameterizedTypeReference(parameter));
+			}
 		}
 		return result;
 	}
