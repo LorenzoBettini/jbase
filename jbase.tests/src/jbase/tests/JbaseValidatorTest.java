@@ -1130,12 +1130,14 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 
 	@Test
 	public void testClassObjectWrongParameterizedTypeExpression() throws Exception {
+		// JLS 15.8.2 does not allow type arguments in class literals: Class.class is valid,
+		// but Class<String>.class is invalid Java syntax, so we expect a syntax diagnostic.
 		final var input = """
 			Class c1 = Class<String>.class;
 			""";
-		validationTestHelper.assertError(parseHelper.parse(input),
-				XbasePackage.eINSTANCE.getXBinaryOperation(), Diagnostic.SYNTAX_DIAGNOSTIC,
-				"no viable alternative at input '.'");
+		final var model = parseHelper.parse(input);
+		validationTestHelper.assertError(model, model.eClass(), Diagnostic.SYNTAX_DIAGNOSTIC,
+				"missing EOF at '>'");
 	}
 
 	@Test

@@ -5,6 +5,8 @@ package jbase.scoping.featurecalls;
 
 import static org.eclipse.xtext.naming.QualifiedName.create;
 
+import java.util.Set;
+
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 
@@ -24,6 +26,8 @@ public class JbaseOperatorMapping extends OperatorMapping {
 	 * Special method on array that is called without parenthesis
 	 */
 	public static final String ARRAY_LENGTH = "length";
+
+	public static final Set<String> SHIFT_ASSIGNMENTS = Set.of("<<=", ">>=", ">>>=");
 
 	public static final QualifiedName BITWISE_AND = create("&");
 	public static final QualifiedName BITWISE_OR = create("|");

@@ -87,6 +87,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			mask ^= 1L;
 			long bits = (~mask & 3L) | (mask ^ 2L);
 			long shifted = (mask << 1) + (mask >> 1) + (mask >>> 1);
+			count <<= 1;
+			count >>= 1;
+			count >>>= 1;
 			boolean comparison = count < limit && count <= limit || count > limit && count >= limit;
 			boolean equality = text == absent || text != absent;
 			boolean logical = !enabled | (enabled & false) ^ true;
@@ -297,6 +300,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    long _bitwiseAnd = (_bitwiseNot & 3L);
 			    long bits = (_bitwiseAnd | (mask ^ 2L));
 			    long shifted = (((mask << 1) + (mask >> 1)) + (mask >>> 1));
+			    count <<= 1;
+			    count >>= 1;
+			    count >>>= 1;
 			    boolean comparison = (((count < limit) && (count <= limit)) || ((count > limit) && (count >= limit)));
 			    boolean equality = ((text == absent) || (text != absent));
 			    boolean _not = (!enabled);

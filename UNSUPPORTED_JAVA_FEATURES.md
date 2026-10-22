@@ -1,6 +1,6 @@
 # Unsupported Java features and known compatibility gaps
 
-Last verified: 2026-10-21.
+Last verified: 2026-10-22.
 
 This is an implementation backlog for valid Java expressions and statements that
 Jbase currently rejects, crashes on, or translates incorrectly. It records the
@@ -23,15 +23,14 @@ values[0] += 2;
 ```
 
 **Implemented:** Native Java generation supports `+=`, `-=`, `*=`, `/=`, `%=`,
-`&=`, `|=`, and `^=` on array elements, including multidimensional accesses.
+`&=`, `|=`, `^=`, `<<=`, `>>=`, and `>>>=` on array elements, including
+multidimensional accesses.
 Receiver and index expressions are evaluated once, the element is read before the
 right operand, and implicit narrowing conversions and assignment values are preserved.
-Covered by `JbaseArrayCompoundAssignmentTest` and `AllJavaFeaturesTest`.
-Shift assignments remain subject to the separate parsing gap below.
+Covered by `JbaseArrayCompoundAssignmentTest`, `JbaseShiftAssignmentTest`, and
+`AllJavaFeaturesTest`.
 
-### [ ] Shift assignment operators
-
-These fail independently:
+### [x] Shift assignment operators
 
 ```java
 int n = 8;
@@ -40,18 +39,17 @@ n >>= 1;
 n >>>= 1;
 ```
 
-**Current behavior:** Parsing reports `no viable alternative` around `=`, `>=`,
-or `>`, with additional recovery diagnostics.
+**Implemented:** All three operators parse and compile for locals, fields, and
+array elements. Native Java generation preserves single evaluation of receivers
+and indexes, implicit narrowing conversions, and assignment values. Integral shift
+distances include `long`; signed and unsigned right shifts retain Java semantics.
 
-**Expected:** Accept and compile all three standard Java shift assignments.
+`OpMultiAssign` now matches the lexer's existing tokens, and shift/comparison
+lookahead prevents higher-precedence expressions from consuming assignment prefixes.
+Ordinary shifts, comparisons, and nested generic type arguments remain supported.
 
-**Workaround for an `int` local:** `n = n << 1;`, `n = n >> 1;`, or
-`n = n >>> 1;`. For other left-hand sides, preserve single evaluation and Java's
-implicit narrowing conversion.
-
-**Investigate:** `OpMultiAssign` in [Jbase.xtext](jbase/src/jbase/Jbase.xtext).
-The operators are already declared there; investigate tokenization and parsing
-rather than assuming the grammar alternatives are simply missing.
+Covered by [JbaseShiftAssignmentTest](jbase.tests/src/jbase/tests/JbaseShiftAssignmentTest.java),
+`JbaseParsingTest`, `JbaseSerializerTest`, and `AllJavaFeaturesTest`.
 
 ### [x] Binary integer literals
 

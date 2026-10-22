@@ -928,6 +928,35 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testMultiAssignmentLeftShift() throws Exception {
+		assertShiftAssignment("<<=", "doubleLessThan");
+	}
+
+	@Test
+	public void testMultiAssignmentRightShift() throws Exception {
+		assertShiftAssignment(">>=", "doubleGreaterThan");
+	}
+
+	@Test
+	public void testMultiAssignmentUnsignedRightShift() throws Exception {
+		assertShiftAssignment(">>>=", "tripleGreaterThan");
+	}
+
+	private void assertShiftAssignment(final String operator, final String method) throws Exception {
+		assertLastExpression("""
+			int n = 8;
+			n %s 1;
+			""".formatted(operator), expression -> {
+			final var operation = getXBinaryOperation(expression);
+			assertTrue(operation.eResource().getErrors().toString(),
+				operation.eResource().getErrors().isEmpty());
+			assertEquals("org.eclipse.xtext.xbase.lib.IntegerExtensions.operator_"
+				+ method + "(int,int)", operation.getFeature().getIdentifier());
+			assertTrue(operation.isReassignFirstArgument());
+		});
+	}
+
+	@Test
 	public void testMultiAssignmentBitwiseAnd() throws Exception {
 		assertBinaryOperation("""
 			int i = 0;

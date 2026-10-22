@@ -128,6 +128,16 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testShiftAssignments() throws Exception {
+		assertSerialize("""
+			int n = 8;
+			n <<= 1;
+			n >>= 1;
+			n >>>= 1;
+			""");
+	}
+
+	@Test
 	public void testAssignmentLeft() throws Exception {
 		assertSerialize("""
 			i = 1;

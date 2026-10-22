@@ -67,6 +67,7 @@ import jbase.jbase.XJSwitchExpression;
 import jbase.jbase.XJYieldStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseExpressionHelper.BaseCase;
 import jbase.util.JbaseExpressionHelper.StepCase;
 import jbase.util.JbaseExpressionHelper;
@@ -142,7 +143,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJArrayConstructorCall call -> { /* compile only as expression */ }
 			case XJArrayAccessExpression access -> { /* compile only as expression */ }
 			case XJClassObject classObject -> { /* compile only as expression */ }
-			case XBinaryOperation operation when isArrayCompoundAssignment(operation) -> {
+			case XBinaryOperation operation when isNativeCompoundAssignment(operation) -> {
 				// Keep the element read/checks ahead of the RHS, with no operand hoisting.
 				if (!isReferenced) {
 					appendable.newLine();
@@ -341,20 +342,22 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	private boolean needsNativeConditional(final XJConditionalExpression expression) {
 		final var part = EcoreUtil2.getContainerOfType(expression, XJCasePart.class);
 		return containsPattern(expression)
-			|| containsArrayCompoundAssignment(expressionRoot(expression))
+			|| containsNativeCompoundAssignment(expressionRoot(expression))
 			|| part != null && EcoreUtil.isAncestor(part.getCase(), expression);
 	}
 
-	private boolean isArrayCompoundAssignment(final XExpression expression) {
+	private boolean isNativeCompoundAssignment(final XExpression expression) {
 		return expression instanceof XBinaryOperation operation
 			&& operation.isReassignFirstArgument()
-			&& operation.getLeftOperand() instanceof XJArrayAccessExpression;
+			&& (operation.getLeftOperand() instanceof XJArrayAccessExpression
+				|| JbaseOperatorMapping.SHIFT_ASSIGNMENTS.contains(
+					operation.getConcreteSyntaxFeatureName()));
 	}
 
-	private boolean containsArrayCompoundAssignment(final XExpression expression) {
-		return isArrayCompoundAssignment(expression)
+	private boolean containsNativeCompoundAssignment(final XExpression expression) {
+		return isNativeCompoundAssignment(expression)
 			|| EcoreUtil2.getAllContentsOfType(expression, XBinaryOperation.class)
-				.stream().anyMatch(this::isArrayCompoundAssignment);
+				.stream().anyMatch(this::isNativeCompoundAssignment);
 	}
 
 	private void compileNativeConditional(final XJConditionalExpression expression,
@@ -371,7 +374,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected boolean internalCanCompileToJavaExpression(final XExpression expression,
 			final ITreeAppendable appendable) {
-		if (isArrayCompoundAssignment(expression)) {
+		if (isNativeCompoundAssignment(expression)) {
 			return true;
 		}
 		if (expression instanceof XSwitchExpression) {
@@ -492,7 +495,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 					loopAppendable.append(", ");
 				}
 				XExpression initExpression = initExpressions.get(i);
-				if (isArrayCompoundAssignment(initExpression)) {
+				if (isNativeCompoundAssignment(initExpression)) {
 					featureCalltoJavaExpression((XAbstractFeatureCall) initExpression,
 						loopAppendable, false);
 				} else {
@@ -531,7 +534,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			XExpression updateExpression = updateExpressions.get(i);
 			if (updateExpression instanceof XAbstractFeatureCall call
 					&& (getLightweightType(call).isPrimitiveVoid()
-						|| isArrayCompoundAssignment(call))) {
+						|| isNativeCompoundAssignment(call))) {
 				featureCalltoJavaExpression(call, loopAppendable, false);
 			} else {
 				internalToJavaExpression(updateExpression, loopAppendable);
@@ -829,12 +832,17 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void featureCalltoJavaExpression(XAbstractFeatureCall call,
 			ITreeAppendable b, boolean isExpressionContext) {
-		if (call instanceof XBinaryOperation operation && isArrayCompoundAssignment(operation)) {
+		if (call instanceof XBinaryOperation operation && isNativeCompoundAssignment(operation)) {
 			// Native syntax evaluates receiver/index once and preserves implicit narrowing.
 			if (isExpressionContext) {
 				b.append("(");
 			}
-			compileJavaExpression((XJArrayAccessExpression) operation.getLeftOperand(), b);
+			if (operation.getLeftOperand() instanceof XJArrayAccessExpression access) {
+				compileJavaExpression(access, b);
+			} else {
+				// Emit the lvalue directly, without the operator's unboxing conversion.
+				featureCalltoJavaExpression((XAbstractFeatureCall) operation.getLeftOperand(), b, true);
+			}
 			b.append(" ").append(operation.getConcreteSyntaxFeatureName()).append(" ");
 			internalToJavaExpression(operation.getRightOperand(), b);
 			if (isExpressionContext) {
@@ -894,7 +902,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		// boolean temporary destroys Java's flow scope. Keep its expression intact.
 		// The same applies to evaluation order around native array assignments.
 		final var root = expressionRoot(expr);
-		if (containsPattern(root) || containsArrayCompoundAssignment(root)) {
+		if (containsPattern(root) || containsNativeCompoundAssignment(root)) {
 			return false;
 		}
 		if (expr instanceof XUnaryOperation unaryOperation) {
