@@ -1,6 +1,6 @@
 # Unsupported Java features and known compatibility gaps
 
-Last verified: 2026-10-20.
+Last verified: 2026-10-21.
 
 This is an implementation backlog for valid Java expressions and statements that
 Jbase currently rejects, crashes on, or translates incorrectly. It records the
@@ -9,31 +9,25 @@ It is not an exhaustive comparison with every Java language feature.
 
 Each example below was checked independently with JbaseTestlanguage's compilation
 helper, validation, and the Java 21 compiler. The generated Java was also inspected: successful compilation alone does not
-reveal the array class literal and octal literal bugs.
-All checklist items remain open. On implementation, add focused regression tests
+reveal value changes such as the former octal literal bug.
+Completed items are checked below. On implementation, add focused regression tests
 and update [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
 ## Confirmed gaps from the compilation showcase
 
-### [ ] Compound assignment to array elements
+### [x] Compound assignment to array elements
 
 ```java
 int[] values = {1};
 values[0] += 2;
 ```
 
-**Current behavior:** Java generation throws `ClassCastException`, attempting to
-cast `XJArrayAccessExpressionImpl` to `XAbstractFeatureCall`.
-
-**Expected:** Compile an array element compound assignment with Java semantics.
-Only `+=` was reproduced; check the other compound operators when implementing.
-
-**Workaround for this simple example:** `values[0] = values[0] + 2;`.
-A general rewrite must evaluate the array receiver and index only once and preserve
-the implicit narrowing conversion performed by Java compound assignment.
-
-**Investigate:** [JbaseXbaseCompiler](jbase/src/jbase/compiler/JbaseXbaseCompiler.java),
-especially its inherited compound assignment handling in `FeatureCallCompiler`.
+**Implemented:** Native Java generation supports `+=`, `-=`, `*=`, `/=`, `%=`,
+`&=`, `|=`, and `^=` on array elements, including multidimensional accesses.
+Receiver and index expressions are evaluated once, the element is read before the
+right operand, and implicit narrowing conversions and assignment values are preserved.
+Covered by `JbaseArrayCompoundAssignmentTest` and `AllJavaFeaturesTest`.
+Shift assignments remain subject to the separate parsing gap below.
 
 ### [ ] Shift assignment operators
 
@@ -59,79 +53,46 @@ implicit narrowing conversion.
 The operators are already declared there; investigate tokenization and parsing
 rather than assuming the grammar alternatives are simply missing.
 
-### [ ] Binary integer literals
+### [x] Binary integer literals
 
-```java
-int bits = 0b1010;
-```
+`int bits = 0b1010;` now compiles with value 10. Both `0b` and `0B`, `L`/`l`
+suffixes, and internal underscore separators are supported.
 
-**Current behavior:** Lexing/parsing reports `mismatched character '1' expecting
-set null`.
+### [x] Hexadecimal literals with a long suffix
 
-**Expected:** Accept the literal as decimal value 10.
+`long mask = 0xFFL;` now compiles with value 255. Both prefix and suffix cases,
+separators, and 32-bit/64-bit boundaries are covered by regression tests.
+The inherited Xbase `#L` and `#BI` suffixes remain supported.
 
-**Workaround:** Use `10` or `0xA`.
+### [x] Octal integer literals change value during generation
 
-**Investigate:** The numeric literal rules inherited from Xbase and their value
-conversion. Check uppercase `0B`, long suffixes, and separators in regression tests;
-those variants were not independently checked here.
+`int octal = 077;` now generates an equivalent hexadecimal literal with value 63.
+Octal `L`/`l` suffixes and separators are supported; invalid octal digits are rejected.
+Floating-point literals such as `077.0` retain their decimal meaning.
 
-### [ ] Hexadecimal literals with a long suffix
+[JbaseIntegerLiteralTest](jbase.tests/src/jbase/tests/JbaseIntegerLiteralTest.java)
+checks generated runtime values, signed boundaries, invalid literals, and serialization
+for these three features. They also appear in
+[AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
-```java
-long mask = 0xFFL;
-```
-
-**Current behavior:** `L` is treated as a separate unresolved feature, producing
-`The method or field L is undefined` and a missing-semicolon diagnostic.
-
-**Expected:** Accept the literal as long value 255.
-
-**Workaround for this value:** `255L`. Unsuffixed hexadecimal literals such as
-`int mask = 0xFF;` work. Larger values require a suitably typed replacement.
-
-**Investigate:** The inherited numeric literal rules and value conversion.
-Check lowercase `l` and boundary values when implementing; the reproduced case
-uses uppercase `L`.
-
-### [ ] Octal integer literals change value during generation
-
-```java
-int octal = 077;
-```
-
-**Current behavior:** Validation and compilation succeed, but generated Java is
-`int octal = 77;`. The leading zero is dropped without converting the octal value.
-
-**Expected:** Preserve `077` or emit its decimal equivalent `63`.
-
-**Workaround for this value:** Write `63` or `0x3F`.
-
-**Investigate:** Numeric literal value conversion and generation inherited from
-Xbase. Add a runtime value assertion to prevent compilable but incorrect output.
-Other octal values and long suffixes were not independently checked here.
-
-### [ ] Unary plus on a variable
+### [x] Unary plus on a variable
 
 ```java
 int n = 1;
 int positive = +n;
 ```
 
-**Current behavior:** Validation resolves an unsuitable binary `operator_plus`
-overload, reporting invalid argument count and a `double`-to-`int` mismatch.
+Unary plus now validates and compiles with Java unary numeric promotion:
+`byte`, `short`, and `char` operands promote to `int`; `int`, `long`, `float`, and
+`double` retain their types. Boxed numeric operands are unboxed before promotion.
+Constant narrowing for numeric literals, such as `short positive = +1;`, still works.
 
-**Expected:** Apply Java unary numeric promotion and compile the expression.
-
-**Workaround for this `int` example:** `int positive = n;`.
-Unary plus on numeric literals, such as `short positive = +1;`, already works.
-For `byte`, `short`, or `char` operands, a replacement must account for promotion
-to `int`.
-
-**Investigate:** [PatchedTypeComputer](jbase/src/jbase/typesystem/PatchedTypeComputer.java),
-[JbaseExpressionHelper](jbase/src/jbase/util/JbaseExpressionHelper.java), and
-operator resolution. The larger showcase expression failed for the same reason;
-it was not a general failure of arithmetic or unary minus.
+[JbaseNumericExtensions](jbase.lib/src/jbase/lib/JbaseNumericExtensions.java)
+provides unary `operator_plus` overloads for normal operator resolution.
+[JbaseUnaryPlusTest](jbase.tests/src/jbase/tests/JbaseUnaryPlusTest.java) covers
+promotion, unboxing, invalid operands and narrowing, nested arithmetic, and side effects.
+Variable operands also appear in
+[AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
 ### [ ] Multidimensional array class literals lose dimensions
 

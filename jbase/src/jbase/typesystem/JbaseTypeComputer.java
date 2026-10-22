@@ -6,9 +6,11 @@ import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
+import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
@@ -97,7 +99,17 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	@Override
 	protected void _computeTypes(final XAbstractFeatureCall featureCall,
 			final ITypeComputationState state) {
-		var candidates = state.getLinkingCandidates(featureCall);
+		var linkingState = state;
+		if (featureCall instanceof XBinaryOperation operation
+				&& operation.getLeftOperand() instanceof XJArrayAccessExpression
+				&& services.getOperatorMapping().getCompoundOperators()
+					.contains(QualifiedName.create(operation.getConcreteSyntaxFeatureName()))) {
+			// Retain the lvalue's type and index types before numeric operator promotion.
+			state.withNonVoidExpectation().computeTypes(operation.getLeftOperand());
+			linkingState = new JbaseArrayCompoundAssignmentState(operation,
+				(AbstractTypeComputationState) state);
+		}
+		var candidates = linkingState.getLinkingCandidates(featureCall);
 		var best = (IFeatureLinkingCandidate) getBestCandidate(candidates);
 		if (best.isTypeLiteral()) {
 			// in Xbase when a type name can be used as a type literal

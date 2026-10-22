@@ -22,6 +22,7 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import com.google.common.collect.Lists;
 
 import jbase.lib.JbaseBooleanExtensions;
+import jbase.lib.JbaseNumericExtensions;
 
 /**
  * Avoid all the default extension classes and methods.
@@ -51,7 +52,8 @@ public class JbaseImplicitlyImportedFeatures extends ImplicitlyImportedFeatures 
 			ObjectExtensions.class,
 			ShortExtensions.class,
 			StringExtensions.class,
-			JbaseBooleanExtensions.class
+			JbaseBooleanExtensions.class,
+			JbaseNumericExtensions.class
 		);
 	}
 }
