@@ -4,6 +4,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
+import org.eclipse.xtext.common.types.JvmPrimitiveType;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -503,12 +504,19 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		var typeExpressionType = state
 			.withExpectation(state.getReferenceOwner().newReferenceTo(Class.class))
 			.computeTypes(typeExpression).getActualExpressionType();
+		final var primitiveType = typeExpression instanceof XFeatureCall featureCall
+			&& ((AbstractTypeComputationState) state).getResolvedTypes()
+				.getLinkedFeature(featureCall) instanceof JvmPrimitiveType;
 		// given Class<T>...
 		var typeArguments = typeExpressionType.getTypeArguments();
 		var typeArgument = typeArguments.isEmpty() ? null : typeArguments.getFirst();
 		if (typeArgument != null) {
 			// ...we possibly create as result Class<T[]...>
 			var arrayTypeRef = typeArgument;
+			if (primitiveType && !e.getArrayDimensions().isEmpty()) {
+				// int.class has type Class<Integer>, but int[].class has type Class<int[]>.
+				arrayTypeRef = typeArgument.getPrimitiveIfWrapperType();
+			}
 			for (var i = 0; i < e.getArrayDimensions().size(); i++) {
 				arrayTypeRef = getReferenceOwner(state).newArrayTypeReference(arrayTypeRef);
 			}
