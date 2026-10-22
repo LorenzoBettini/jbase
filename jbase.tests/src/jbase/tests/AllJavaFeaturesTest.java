@@ -56,6 +56,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			short positive = +1;
 			char letter = 'a';
 			int count = 0, limit = 3;
+			int positiveCount = +count;
+			int promoted = +small;
 			long mask = 0xFFL;
 			int binary = 0b1010;
 			int octal = 077;
@@ -248,6 +250,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    char letter = 'a';
 			    int count = 0;
 			    int limit = 3;
+			    int _plus = (+count);
+			    int positiveCount = _plus;
+			    int _plus_1 = (+small);
+			    int promoted = _plus_1;
 			    long mask = 0xFFL;
 			    int binary = 0xa;
 			    int octal = 0x3f;
@@ -323,8 +329,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    matrix[0][1] = numbers[0];
 			    numbers[0] += 2;
 			    matrix[1][0] *= numbers[0];
-			    int _plus = (numbers[1] + matrix[0][1]);
-			    numbers[1] = _plus;
+			    int _plus_2 = (numbers[1] + matrix[0][1]);
+			    numbers[1] = _plus_2;
 			    int length = matrix[0].length;
 			    int[] copy = numbers.clone();
 			    List<String> names = new ArrayList<String>();
@@ -445,8 +451,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    try (final ByteArrayInputStream first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
 			      int _read = first.read();
 			      int _read_1 = second.read();
-			      int _plus_1 = (_read + _read_1);
-			      System.out.println(_plus_1);
+			      int _plus_3 = (_read + _read_1);
+			      System.out.println(_plus_3);
 			    } catch (final Throwable _t) {
 			      if (_t instanceof IOException) {
 			        final IOException e = (IOException)_t;

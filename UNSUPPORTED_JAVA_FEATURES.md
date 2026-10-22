@@ -75,27 +75,24 @@ checks generated runtime values, signed boundaries, invalid literals, and serial
 for these three features. They also appear in
 [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
-### [ ] Unary plus on a variable
+### [x] Unary plus on a variable
 
 ```java
 int n = 1;
 int positive = +n;
 ```
 
-**Current behavior:** Validation resolves an unsuitable binary `operator_plus`
-overload, reporting invalid argument count and a `double`-to-`int` mismatch.
+Unary plus now validates and compiles with Java unary numeric promotion:
+`byte`, `short`, and `char` operands promote to `int`; `int`, `long`, `float`, and
+`double` retain their types. Boxed numeric operands are unboxed before promotion.
+Constant narrowing for numeric literals, such as `short positive = +1;`, still works.
 
-**Expected:** Apply Java unary numeric promotion and compile the expression.
-
-**Workaround for this `int` example:** `int positive = n;`.
-Unary plus on numeric literals, such as `short positive = +1;`, already works.
-For `byte`, `short`, or `char` operands, a replacement must account for promotion
-to `int`.
-
-**Investigate:** [PatchedTypeComputer](jbase/src/jbase/typesystem/PatchedTypeComputer.java),
-[JbaseExpressionHelper](jbase/src/jbase/util/JbaseExpressionHelper.java), and
-operator resolution. The larger showcase expression failed for the same reason;
-it was not a general failure of arithmetic or unary minus.
+[JbaseNumericExtensions](jbase.lib/src/jbase/lib/JbaseNumericExtensions.java)
+provides unary `operator_plus` overloads for normal operator resolution.
+[JbaseUnaryPlusTest](jbase.tests/src/jbase/tests/JbaseUnaryPlusTest.java) covers
+promotion, unboxing, invalid operands and narrowing, nested arithmetic, and side effects.
+Variable operands also appear in
+[AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
 ### [ ] Multidimensional array class literals lose dimensions
 
