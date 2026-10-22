@@ -109,4 +109,11 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 	public void invalidOctalConversionThrows() {
 		converter.toValue("08", null);
 	}
+
+	@Test
+	public void hexadecimalModelRepresentationIsPreserved() {
+		final var value = converter.toValue("0xFF#L", null);
+		assertEquals("0xFF#L", value);
+		assertEquals("0xFFL", converter.toString(value));
+	}
 }

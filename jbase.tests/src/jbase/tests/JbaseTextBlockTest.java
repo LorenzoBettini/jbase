@@ -113,7 +113,7 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 		compilationTestHelper.compile(input, result -> {
 			assertNoValidationErrors(result);
 			assertEquals(examples.size(),
-				result.getSingleGeneratedCode().split("return \"\"\"\n", -1).length - 1);
+				result.getSingleGeneratedCode().split("return \"\"\"\\R", -1).length - 1);
 			classes.add(result.getCompiledClass());
 		});
 		final var instance = classes.getFirst().getConstructor().newInstance();
@@ -260,8 +260,12 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void formattingPreservesTextBlockContent() {
 		formatter.assertFormatted(request -> {
-			request.setToBeFormatted("String text=\"\"\"\n  first\n    second\\s\n  \"\"\";");
-			request.setExpectation("String text = \"\"\"\n  first\n    second\\s\n  \"\"\";\n");
+			request.setToBeFormatted(
+				"String text=\"\"\"\n  first\n    second\\s\n  \"\"\";"
+					.replace("\n", System.lineSeparator()));
+			request.setExpectation(
+				"String text = \"\"\"\n  first\n    second\\s\n  \"\"\";\n"
+					.replace("\n", System.lineSeparator()));
 		});
 	}
 

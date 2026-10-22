@@ -72,7 +72,11 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	@Test
 	public void testSwitchWithoutNodeModel() throws Exception {
 		final var source = "switch (1) { case 0 -> {} default -> {} }";
-		final var model = EcoreUtil.copy(parseHelper.parse(source));
+		final var parsedModel = parseHelper.parse(source);
+		final var resource = parsedModel.eResource();
+		final var model = EcoreUtil.copy(parsedModel);
+		resource.getContents().clear();
+		resource.getContents().add(model);
 		assertEquals(source.replaceAll("\\s+", ""),
 			serializer.serialize(model).replaceAll("\\s+", ""));
 	}

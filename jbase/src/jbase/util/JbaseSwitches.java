@@ -6,14 +6,14 @@ import java.util.HashSet;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
-import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XBlockExpression;
-import org.eclipse.xtext.xbase.XExpression;
+import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XNullLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.typesystem.IResolvedTypes;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
@@ -37,12 +37,14 @@ public final class JbaseSwitches {
 
 	public static boolean isEnhanced(final XSwitchExpression expression) {
 		return isExpression(expression) || hasCasesAfterDefault(expression)
-			|| expression instanceof XJSwitchExpression statement
-				&& (statement.isDefaultArrow() || statement.isNullDefault())
-			|| expression.getCases().stream().anyMatch(part -> part instanceof XJCasePart rule
-				&& (rule.isArrow() || rule.getTypeGuard() != null
+			|| ((XJSwitchExpression) expression).isDefaultArrow()
+			|| ((XJSwitchExpression) expression).isNullDefault()
+			|| expression.getCases().stream().anyMatch(part -> {
+				final var rule = (XJCasePart) part;
+				return rule.isArrow() || rule.getTypeGuard() != null
 					|| !rule.getAdditionalLabels().isEmpty()
-					|| rule.getCase() instanceof XNullLiteral));
+					|| rule.getCase() instanceof XNullLiteral;
+			});
 	}
 
 	private static boolean hasCasesAfterDefault(final XSwitchExpression expression) {
@@ -60,35 +62,34 @@ public final class JbaseSwitches {
 			return true;
 		}
 		final var selector = types.getActualType(expression.getSwitch());
-		for (final var part : expression.getCases()) {
-			if (part.getTypeGuard() != null
-					&& (part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
-						&& literal.isIsTrue())
-					&& selector.getOwner().toLightweightTypeReference(part.getTypeGuard())
-						.isAssignableFrom(selector)) {
-				return true;
-			}
-		}
-		if (selector.getType() instanceof JvmEnumerationType enumeration) {
-			final var remaining = new HashSet<>(enumeration.getLiterals());
-			for (final var original : expression.getCases()) {
-				final var part = (XJCasePart) original;
-				final var labels = new ArrayList<>(part.getAdditionalLabels());
-				labels.add(part.getCase());
-				for (final var label : labels) {
-					if (label instanceof XAbstractFeatureCall call) {
-						remaining.remove(call.getFeature());
-					}
-				}
-			}
-			return remaining.isEmpty();
-		}
-		return false;
+		return hasTotalPattern(expression, selector) || coversAllLiterals(expression, selector);
 	}
 
-	public static boolean isArrow(final XExpression body) {
-		return body.eContainer() instanceof XJCasePart part && part.isArrow()
-			|| body.eContainer() instanceof XJSwitchExpression expression
-				&& expression.isDefaultArrow();
+	private static boolean hasTotalPattern(final XSwitchExpression expression,
+			final LightweightTypeReference selector) {
+		return expression.getCases().stream().anyMatch(part -> part.getTypeGuard() != null
+			&& (part.getCase() == null || part.getCase() instanceof XBooleanLiteral literal
+				&& literal.isIsTrue())
+			&& selector.getOwner().toLightweightTypeReference(part.getTypeGuard())
+				.isAssignableFrom(selector));
+	}
+
+	private static boolean coversAllLiterals(final XSwitchExpression expression,
+			final LightweightTypeReference selector) {
+		if (!(selector.getType() instanceof JvmEnumerationType enumeration)) {
+			return false;
+		}
+		final var remaining = new HashSet<>(enumeration.getLiterals());
+		for (final var original : expression.getCases()) {
+			final var part = (XJCasePart) original;
+			final var labels = new ArrayList<>(part.getAdditionalLabels());
+			labels.add(part.getCase());
+			for (final var label : labels) {
+				if (label instanceof XAbstractFeatureCall call) {
+					remaining.remove(call.getFeature());
+				}
+			}
+		}
+		return remaining.isEmpty();
 	}
 }

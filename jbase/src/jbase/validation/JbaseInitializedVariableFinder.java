@@ -197,7 +197,7 @@ public class JbaseInitializedVariableFinder {
 				detectNotInitializedDispatch(casePart.getCase(), createCopy(initialized), acceptor);
 			}
 			var then = casePart.getThen();
-			if (casePart instanceof XJCasePart rule && rule.isArrow()
+			if (((XJCasePart) casePart).isArrow()
 					|| branchingStatementDetector.isSureBranchStatement(then)) {
 				effectiveBranches.add(then);
 			} else {

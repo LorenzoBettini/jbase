@@ -131,11 +131,11 @@ class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	def dispatch void format(XJBreakStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("break").surround[noSpace]
+		expr.regionFor.keyword("break").append[noSpace]
 	}
 
 	def dispatch void format(XJContinueStatement expr, extension IFormattableDocument document) {
-		expr.regionFor.keyword("continue").surround[noSpace]
+		expr.regionFor.keyword("continue").append[noSpace]
 	}
 
 	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {
@@ -153,7 +153,7 @@ class JbaseFormatter extends XbasePatchedFormatter {
 			close.prepend[newLine]
 			interior(open, close)[indent]
 			for (part : expr.cases) part.format(document)
-			if (expr instanceof XJSwitchExpression && (expr as XJSwitchExpression).nullDefault) {
+			if ((expr as XJSwitchExpression).nullDefault) {
 				expr.regionFor.keyword("case").prepend[newLine].append[oneSpace]
 			} else {
 				expr.regionFor.keyword("default").prepend[newLine]

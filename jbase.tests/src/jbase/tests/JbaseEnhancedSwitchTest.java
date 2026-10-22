@@ -486,6 +486,106 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 			""", "HELLO!\n");
 	}
 
+	@Test
+	public void switchesAsLoopBodies() throws Exception {
+		checkCompilation("""
+			while (args.length > 5) switch (args.length) { default -> System.out.println("x"); }
+			for (String a : args) switch (a) { case "x" -> System.out.println(a); default -> {} }
+			for (int i = 0; i < 1; i++) switch (i) { default -> {} }
+			""", null);
+	}
+
+	@Test
+	public void invalidSelectorTypes() throws Exception {
+		assertError("boolean b = true; switch (b) { default -> {} }", "Invalid Java 21");
+		assertError("long l = 1; switch (l) { default -> {} }", "Invalid Java 21");
+		assertError("float f = 1; switch (f) { default -> {} }", "Invalid Java 21");
+		assertError("double d = 1; switch (d) { default -> {} }", "Invalid Java 21");
+	}
+
+	@Test
+	public void nonTotalPatternsAreNotExhaustive() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			Object o = "";
+			switch (o) { case CharSequence c when false -> {} case String s -> {} default -> {} }
+			"""));
+		assertError("""
+			Object o = "";
+			switch (o) {
+				case String s when s.isEmpty() -> {}
+				case Integer i when false -> {}
+				case Object x when false -> {}
+			}
+			""", "must be exhaustive");
+	}
+
+	@Test
+	public void enumWithNullLabelIsNotExhaustive() throws Exception {
+		assertError("""
+			java.time.DayOfWeek d = java.time.DayOfWeek.MONDAY;
+			switch (d) { case null -> {} case MONDAY -> {} }
+			""", "must be exhaustive");
+	}
+
+	@Test
+	public void nonExhaustiveStatementsMayFallOut() throws Exception {
+		assertError("""
+			method m(java.time.DayOfWeek d) : int {
+				switch (d) { case MONDAY -> { return 1; } }
+			}
+			""", "return");
+		checkCompilation("""
+			method m(java.time.DayOfWeek d) : int {
+				switch (d) { case MONDAY -> { return 1; } }
+				return 2;
+			}
+			method n(int n) : int {
+				switch (n) {
+					case 1: System.out.println();
+					case 2: return 2;
+					default: return 3;
+				}
+			}
+			""", null);
+	}
+
+	@Test
+	public void throwingBlocksYieldNoValue() throws Exception {
+		checkCompilation("""
+			int n = switch (args.length) {
+				case 1 -> { throw new RuntimeException(); }
+				case 2 -> args.length > 0 ? 1 : 2;
+				default -> 3;
+			};
+			""", null);
+	}
+
+	@Test
+	public void statementSwitchRulesAreNotValues() throws Exception {
+		assertError("Integer n = 1; switch (n) { case 1 -> n; default -> {} }", "side effects");
+	}
+
+	@Test
+	public void colonLabelsOfLegacyStyleSwitches() throws Exception {
+		checkCompilation("""
+			Integer n = 1;
+			switch (n) { case 1, 2: break; default: break; }
+			switch (n) { case null: break; default: break; }
+			""", null);
+		assertError("int n = switch (1) { case 1 -> { System.out.println(); } default -> 2; };",
+			"must yield");
+	}
+
+	@Test
+	public void colonDefaultInSwitchExpression() throws Exception {
+		checkCompilation("""
+			int n = switch (args.length) {
+				case 1: System.out.println(); yield 1;
+				default: yield 3;
+			};
+			""", null);
+	}
+
 	private void assertError(final String source, final String message) throws Exception {
 		final var issues = validationTestHelper.validate(parseHelper.parse(source));
 		assertTrue(issues.toString(), issues.stream()
