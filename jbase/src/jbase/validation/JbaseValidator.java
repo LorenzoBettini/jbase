@@ -163,9 +163,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	private void checkSelectorType(final XJSwitchExpression expression,
 			final LightweightTypeReference selector) {
-		final var primitive = selector.getPrimitiveIfWrapperType();
-		if (primitive.isType(boolean.class) || primitive.isType(long.class)
-				|| primitive.isType(float.class) || primitive.isType(double.class)) {
+		if (selector.isType(boolean.class) || selector.isType(long.class)
+				|| selector.isType(float.class) || selector.isType(double.class)) {
 			error("Invalid Java 21 switch selector type " + selector.getSimpleName(),
 				expression.getSwitch(), null, JbaseIssueCodes.INVALID_SWITCH);
 		}

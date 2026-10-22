@@ -496,6 +496,32 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void boxedSelectorsPreserveReferencePatterns() throws Exception {
+		final var source = """
+			method testMe() {
+				Long integral = 1L;
+				Boolean flag = true;
+				Float single = 2.0f;
+				Double decimal = 3.0;
+				int result = switch (integral) { case Long n -> n.intValue(); };
+				result += switch (flag) { case Boolean b -> b.booleanValue() ? 1 : 0; };
+				result += switch (single) { case Float n -> n.intValue(); };
+				result += switch (decimal) { case Double n -> n.intValue(); };
+				System.out.println(result);
+				integral = null;
+				switch (integral) {
+					case null -> System.out.println("null");
+					case Long n when n.longValue() > 0L -> System.out.println(n);
+					default -> System.out.println("other");
+				}
+				switch (flag) { case Boolean b: System.out.println(b); }
+			}
+			""";
+		checkCompilation(source, null);
+		assertExecuteMain(source, "7\nnull\ntrue\n");
+	}
+
+	@Test
 	public void invalidSelectorTypes() throws Exception {
 		assertError("boolean b = true; switch (b) { default -> {} }", "Invalid Java 21");
 		assertError("long l = 1; switch (l) { default -> {} }", "Invalid Java 21");

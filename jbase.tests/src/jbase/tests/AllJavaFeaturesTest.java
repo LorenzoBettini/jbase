@@ -177,6 +177,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				default -> System.out.println("other");
 			}
 
+			Long boxedLong = 1L;
+			int fromBoxedLong = switch (boxedLong) { case Long longNumber -> longNumber.intValue(); };
+			Boolean boxedBoolean = true;
+			boolean fromBoxedBoolean = switch (boxedBoolean) { case Boolean b -> b.booleanValue(); };
+			Float boxedFloat = 1.0f;
+			float fromBoxedFloat = switch (boxedFloat) { case Float f -> f.floatValue(); };
+			Double boxedDouble = 1.0;
+			double fromBoxedDouble = switch (boxedDouble) { case Double d -> d.doubleValue(); };
+
 			// Expression and block lambdas, explicit parameters and captured locals.
 			IntUnaryOperator increment = n -> n + offset;
 			IntUnaryOperator decrement = (final int n) -> {
@@ -418,6 +427,30 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        System.out.println("other");
 			      }
 			    }
+			    Long boxedLong = Long.valueOf(1L);
+			    int fromBoxedLong = switch (boxedLong) {
+			      case Long longNumber -> {
+			        yield longNumber.intValue();
+			      }
+			    };
+			    Boolean boxedBoolean = Boolean.valueOf(true);
+			    boolean fromBoxedBoolean = switch (boxedBoolean) {
+			      case Boolean b -> {
+			        yield b.booleanValue();
+			      }
+			    };
+			    Float boxedFloat = Float.valueOf(1.0f);
+			    float fromBoxedFloat = switch (boxedFloat) {
+			      case Float f -> {
+			        yield f.floatValue();
+			      }
+			    };
+			    Double boxedDouble = Double.valueOf(1.0);
+			    double fromBoxedDouble = switch (boxedDouble) {
+			      case Double d -> {
+			        yield d.doubleValue();
+			      }
+			    };
 			    final IntUnaryOperator _function = (int n) -> {
 			      return (n + offset);
 			    };
