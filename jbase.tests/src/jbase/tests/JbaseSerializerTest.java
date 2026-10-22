@@ -4,13 +4,16 @@ import static org.junit.Assert.*;
 import com.google.inject.Inject;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import jbase.jbase.XJSwitchExpression;
+import org.apache.log4j.Level;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.serializer.impl.Serializer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.testing.logging.LoggingTester;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.xbase.resource.BatchLinkableResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -313,6 +316,7 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 
 	private void assertSerialize(final CharSequence input) throws Exception {
 		final var o = parseHelper.parse(input);
-		assertEquals(input.toString(), serializer.serialize(o));
+		LoggingTester.captureLogging(Level.ERROR, BatchLinkableResource.class,
+			() -> assertEquals(input.toString(), serializer.serialize(o))).assertNoLogEntries();
 	}
 }
