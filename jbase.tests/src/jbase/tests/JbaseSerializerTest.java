@@ -44,10 +44,10 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 
 	@Test
 	public void testRecordPatternsWithoutNodeModel() throws Exception {
-		final var record = "jbase.testlanguage.tests.RecordPatternTypes.";
-		final var source = "Object value = null; if (value instanceof " + record + "Box("
-			+ record + "Point(var x, int y))) {} switch (value) { case " + record
-			+ "Empty() -> {} case " + record + "Point(final var x, var y) -> {} default -> {} }";
+		final var recordName = "jbase.testlanguage.tests.RecordPatternTypes.";
+		final var source = "Object value = null; if (value instanceof " + recordName + "Box("
+			+ recordName + "Point(var x, int y))) {} switch (value) { case " + recordName
+			+ "Empty() -> {} case " + recordName + "Point(final var x, var y) -> {} default -> {} }";
 		final var parsed = parseHelper.parse(source);
 		validationTestHelper.assertNoErrors(parsed);
 		EcoreUtil.resolveAll(parsed);

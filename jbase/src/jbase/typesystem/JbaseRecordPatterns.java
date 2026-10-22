@@ -74,14 +74,14 @@ public class JbaseRecordPatterns {
 	 * Substitutes a record's type arguments into one of its component field types.
 	 * An outer wildcard is projected to its upper bound for an inferred component binding.
 	 *
-	 * @param record the record type, with any inferred arguments already applied
+	 * @param recordRef the record type, with any inferred arguments already applied
 	 * @param field a component field declared by that record
 	 * @return the substituted component type in the record's reference owner
 	 */
-	public LightweightTypeReference componentType(final LightweightTypeReference record,
+	public LightweightTypeReference componentType(final LightweightTypeReference recordRef,
 			final JvmField field) {
-		final var mapping = new DeclaratorTypeArgumentCollector().getTypeParameterMapping(record);
-		return new StandardTypeParameterSubstitutor(mapping, record.getOwner())
+		final var mapping = new DeclaratorTypeArgumentCollector().getTypeParameterMapping(recordRef);
+		return new StandardTypeParameterSubstitutor(mapping, recordRef.getOwner())
 			.substitute(field.getType()).getUpperBoundSubstitute();
 	}
 
@@ -99,12 +99,12 @@ public class JbaseRecordPatterns {
 	 */
 	public void assignTypes(final XJRecordPattern pattern, final LightweightTypeReference declared,
 			final LightweightTypeReference source, final ITypeComputationState state) {
-		final var record = recordType(declared, source);
-		final var components = fields(record);
+		final var recordRef = recordType(declared, source);
+		final var components = fields(recordRef);
 		for (var i = 0; i < pattern.getComponents().size(); i++) {
 			final var component = pattern.getComponents().get(i);
 			final var expected = i < components.size()
-				? componentType(record, components.get(i))
+				? componentType(recordRef, components.get(i))
 				: state.getReferenceOwner().newUnknownTypeReference();
 			final var type = component.isInferred() ? expected
 				: state.getReferenceOwner().toLightweightTypeReference(component.getParameterType());
@@ -165,12 +165,12 @@ public class JbaseRecordPatterns {
 			default -> {
 				final var component = (XJComponentPattern) pattern.eContainer();
 				final var parent = (XJRecordPattern) component.eContainer();
-				final var record = recordType(declaredType(parent, types),
+				final var recordRef = recordType(declaredType(parent, types),
 					sourceType(parent, types));
-				final var components = fields(record);
+				final var components = fields(recordRef);
 				final var index = parent.getComponents().indexOf(component);
-				yield index < components.size() ? componentType(record, components.get(index))
-					: record.getOwner().newUnknownTypeReference();
+				yield index < components.size() ? componentType(recordRef, components.get(index))
+					: recordRef.getOwner().newUnknownTypeReference();
 			}
 		};
 	}
@@ -195,21 +195,23 @@ public class JbaseRecordPatterns {
 		for (var i = 0; i < prior.getComponents().size(); i++) {
 			final var left = prior.getComponents().get(i);
 			final var right = next.getComponents().get(i);
-			if (left.getRecordPattern() != null) {
-				if (right.getRecordPattern() == null
-						|| !dominates(left.getRecordPattern(), right.getRecordPattern(), types)) {
-					return false;
-				}
-			} else {
-				final var rightType = right.getRecordPattern() == null ? types.getActualType(right)
-					: recordType(declaredType(right.getRecordPattern(), types),
-						sourceType(right.getRecordPattern(), types));
-				if (!types.getActualType(left).isAssignableFrom(rightType)) {
-					return false;
-				}
+			if (!componentDominates(left, right, types)) {
+				return false;
 			}
 		}
 		return true;
+	}
+
+	private boolean componentDominates(final XJComponentPattern left,
+			final XJComponentPattern right, final IResolvedTypes types) {
+		if (left.getRecordPattern() != null) {
+			return right.getRecordPattern() != null
+				&& dominates(left.getRecordPattern(), right.getRecordPattern(), types);
+		}
+		final var rightType = right.getRecordPattern() == null ? types.getActualType(right)
+			: recordType(declaredType(right.getRecordPattern(), types),
+				sourceType(right.getRecordPattern(), types));
+		return types.getActualType(left).isAssignableFrom(rightType);
 	}
 
 	/**
@@ -222,15 +224,15 @@ public class JbaseRecordPatterns {
 	 * @param types resolved types, including the assigned component binding types
 	 * @return whether the pattern has the correct arity and covers every component type
 	 */
-	public boolean covers(final XJRecordPattern pattern, final LightweightTypeReference record,
+	public boolean covers(final XJRecordPattern pattern, final LightweightTypeReference recordRef,
 			final IResolvedTypes types) {
-		final var components = fields(record);
+		final var components = fields(recordRef);
 		if (components.size() != pattern.getComponents().size()) {
 			return false;
 		}
 		for (var i = 0; i < components.size(); i++) {
 			final var component = pattern.getComponents().get(i);
-			final var expected = componentType(record, components.get(i));
+			final var expected = componentType(recordRef, components.get(i));
 			if (component.getRecordPattern() != null) {
 				final var nested = component.getRecordPattern();
 				final var nestedType = recordType(declaredType(nested, types), expected);

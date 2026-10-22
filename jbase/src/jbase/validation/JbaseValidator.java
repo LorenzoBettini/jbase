@@ -344,8 +344,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		final var source = records.sourceType(pattern, types);
 		checkCast(records.typeReference(pattern), declared, source);
-		final var record = records.recordType(declared, source);
-		final var fields = records.fields(record);
+		final var recordRef = records.recordType(declared, source);
+		final var fields = records.fields(recordRef);
 		if (fields.size() != pattern.getComponents().size()) {
 			error("Record pattern requires " + fields.size() + " component patterns", pattern, null,
 				JbaseIssueCodes.INVALID_RECORD_PATTERN);
@@ -359,18 +359,23 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		for (var i = 0; i < Math.min(fields.size(), pattern.getComponents().size()); i++) {
 			final var component = pattern.getComponents().get(i);
 			if (!component.isInferred() && component.getRecordPattern() == null) {
-				final var expected = records.componentType(record, fields.get(i));
-				final var actual = toLightweightTypeReference(component.getParameterType());
-				if (expected.isPrimitive() || actual.isPrimitive()) {
-					if (!expected.getIdentifier().equals(actual.getIdentifier())) {
-						error("A primitive component pattern must match its component type", component,
-							null, JbaseIssueCodes.INVALID_RECORD_PATTERN);
-					}
-				} else {
-					checkCast(component.getParameterType(), actual, expected);
-					checkPatternConversion(actual, expected, component);
-				}
+				checkExplicitComponent(component,
+					records.componentType(recordRef, fields.get(i)));
 			}
+		}
+	}
+
+	private void checkExplicitComponent(final XJComponentPattern component,
+			final LightweightTypeReference expected) {
+		final var actual = toLightweightTypeReference(component.getParameterType());
+		if (expected.isPrimitive() || actual.isPrimitive()) {
+			if (!expected.getIdentifier().equals(actual.getIdentifier())) {
+				error("A primitive component pattern must match its component type", component,
+					null, JbaseIssueCodes.INVALID_RECORD_PATTERN);
+			}
+		} else {
+			checkCast(component.getParameterType(), actual, expected);
+			checkPatternConversion(actual, expected, component);
 		}
 	}
 
