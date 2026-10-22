@@ -86,6 +86,11 @@ Some notes:
 
 - When you have a `JvmType` use `type.getQualifiedName('$')` to get the fully qualified name of the type, including any nested types.
 - It's useless to look for the `Class` object of a `JvmType` in search of a sealed class if `!type.isInterface()`.
+- The `JbaseUiSealedTypeResolver` can be simplified: it is enough to use `IJavaProject.findType()`.
+To retrieve the Java project, it is enough to use `org.eclipse.xtext.common.types.access.jdt.IJavaProjectProvider.getJavaProject(ResourceSet)` of an injected `IJavaProjectProvider`, assuming that the context EObject is stored in a ResourceSet and the returned Java project is not null.
+- The superclass can be refactored to just delegate the retrieval
+of the Java type: the permitted types (if sealed) can be retrieved in the superclass.
+- However, with JDT, we only retrieve an `IType`
 
 ### [x] Pattern switches on some boxed selector types
 
