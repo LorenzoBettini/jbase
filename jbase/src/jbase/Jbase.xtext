@@ -180,7 +180,9 @@ XJLambdaBlock returns XExpression:
 OpMultiAssign:
 	'+=' | '-=' | '*=' | '/=' | '%=' | 
 	'&=' | '|=' | '^=' | // added in Jbase
-	'<' '<' '=' | 
+	// Match the lexer's existing shift/comparison tokens. Keep '>' separate
+	// so nested generic type arguments can still close without whitespace.
+	'<<' '=' |
 	'>' '>'? '>=';
 
 XJFeatureCallWithArrayAccess returns XExpression:
@@ -532,7 +534,16 @@ XRelationalExpression returns XExpression:
 	(=>({XJInstanceOfExpression.expression=current} 'instanceof')
 		final?='final'? type=JvmTypeReference (=>patternVariable=XJPatternVariable)? |
 	 =>({XBinaryOperation.leftOperand=current}
-		feature=[types::JvmIdentifiableElement|OpCompare]) rightOperand=XOtherOperatorExpression)*
+		feature=[types::JvmIdentifiableElement|OpCompare] rightOperand=XOtherOperatorExpression))*
+;
+
+// Require a right operand before consuming a shift or comparison prefix:
+// otherwise these higher-precedence rules steal tokens from >>= and >>>=.
+@Override
+XOtherOperatorExpression returns XExpression:
+	XAdditiveExpression
+	(=>({XBinaryOperation.leftOperand=current}
+		feature=[types::JvmIdentifiableElement|OpOther] rightOperand=XAdditiveExpression))*
 ;
 
 XJPatternVariable returns types::JvmFormalParameter:

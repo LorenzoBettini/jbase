@@ -24,7 +24,6 @@ import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XAndExpressionElement
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XEqualityExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XMultiplicativeExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XOrExpressionElements;
-import org.eclipse.xtext.xbase.services.XbaseGrammarAccess.XOtherOperatorExpressionElements;
 import org.eclipse.xtext.xbase.services.XbaseGrammarAccess;
 
 import com.google.common.collect.Sets;
@@ -34,6 +33,7 @@ import jbase.jbase.XJInstanceOfExpression;
 import jbase.serializer.AbstractJbaseSemanticSequencer;
 import jbase.services.JbaseGrammarAccess.XBitwiseInclusiveOrExpressionElements;
 import jbase.services.JbaseGrammarAccess.XRelationalExpressionElements;
+import jbase.services.JbaseGrammarAccess.XOtherOperatorExpressionElements;
 import jbase.services.JbaseGrammarAccess;
 
 /**
@@ -78,7 +78,7 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 		SequenceFeeder acceptor = createSequencerFeeder(context, operation, nodes);
 		XAdditiveExpressionElements opAdd = grammarAccess.getXAdditiveExpressionAccess();
 		XMultiplicativeExpressionElements opMulti = grammarAccess.getXMultiplicativeExpressionAccess();
-		XOtherOperatorExpressionElements opOther = grammarAccess.getXOtherOperatorExpressionAccess();
+		XOtherOperatorExpressionElements opOther = access.getXOtherOperatorExpressionAccess();
 		XRelationalExpressionElements opCompare = access.getXRelationalExpressionAccess();
 		XEqualityExpressionElements opEquality = grammarAccess.getXEqualityExpressionAccess();
 		XAndExpressionElements opAnd = grammarAccess.getXAndExpressionAccess();
@@ -113,14 +113,14 @@ public class XbaseSemanticSequencerAccess extends AbstractJbaseSemanticSequencer
 			acceptor.accept(opMulti.getXBinaryOperationLeftOperandAction_1_0_0_0(), operation.getLeftOperand());
 			acceptor.accept(opMulti.getFeatureJvmIdentifiableElementOpMultiParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
 			acceptor.accept(opMulti.getRightOperandXUnaryOperationParserRuleCall_1_1_0(), operation.getRightOperand());
-		} else if((featureToken = getValidOperator(operation, opOther.getFeatureJvmIdentifiableElementOpOtherParserRuleCall_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
-			acceptor.accept(opOther.getXBinaryOperationLeftOperandAction_1_0_0_0(), operation.getLeftOperand());
-			acceptor.accept(opOther.getFeatureJvmIdentifiableElementOpOtherParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
-			acceptor.accept(opOther.getRightOperandXAdditiveExpressionParserRuleCall_1_1_0(), operation.getRightOperand());
-		} else if((featureToken = getValidOperator(operation, opCompare.getFeatureJvmIdentifiableElementOpCompareParserRuleCall_1_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
-			acceptor.accept(opCompare.getXBinaryOperationLeftOperandAction_1_1_0_0_0(), operation.getLeftOperand());
-			acceptor.accept(opCompare.getFeatureJvmIdentifiableElementOpCompareParserRuleCall_1_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
-			acceptor.accept(opCompare.getRightOperandXOtherOperatorExpressionParserRuleCall_1_1_1_0(), operation.getRightOperand());
+		} else if((featureToken = getValidOperator(operation, opOther.getFeatureJvmIdentifiableElementOpOtherParserRuleCall_1_0_1_0_1(), operatorNames, featureNode)) != null) {
+			acceptor.accept(opOther.getXBinaryOperationLeftOperandAction_1_0_0(), operation.getLeftOperand());
+			acceptor.accept(opOther.getFeatureJvmIdentifiableElementOpOtherParserRuleCall_1_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
+			acceptor.accept(opOther.getRightOperandXAdditiveExpressionParserRuleCall_1_0_2_0(), operation.getRightOperand());
+		} else if((featureToken = getValidOperator(operation, opCompare.getFeatureJvmIdentifiableElementOpCompareParserRuleCall_1_1_0_1_0_1(), operatorNames, featureNode)) != null) {
+			acceptor.accept(opCompare.getXBinaryOperationLeftOperandAction_1_1_0_0(), operation.getLeftOperand());
+			acceptor.accept(opCompare.getFeatureJvmIdentifiableElementOpCompareParserRuleCall_1_1_0_1_0_1(), operation.getFeature(), featureToken, featureNode);
+			acceptor.accept(opCompare.getRightOperandXOtherOperatorExpressionParserRuleCall_1_1_0_2_0(), operation.getRightOperand());
 		} else if((featureToken = getValidOperator(operation, opEquality.getFeatureJvmIdentifiableElementOpEqualityParserRuleCall_1_0_0_1_0_1(), operatorNames, featureNode)) != null) {
 			acceptor.accept(opEquality.getXBinaryOperationLeftOperandAction_1_0_0_0(), operation.getLeftOperand());
 			acceptor.accept(opEquality.getFeatureJvmIdentifiableElementOpEqualityParserRuleCall_1_0_0_1_0_1(), operation.getFeature(), featureToken, featureNode);

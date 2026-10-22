@@ -54,6 +54,7 @@ import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseSwitches;
 import jbase.validation.JbaseIssueCodes;
 
@@ -101,12 +102,14 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final ITypeComputationState state) {
 		var linkingState = state;
 		if (featureCall instanceof XBinaryOperation operation
-				&& operation.getLeftOperand() instanceof XJArrayAccessExpression
+				&& (operation.getLeftOperand() instanceof XJArrayAccessExpression
+					|| JbaseOperatorMapping.SHIFT_ASSIGNMENTS.contains(
+						operation.getConcreteSyntaxFeatureName()))
 				&& services.getOperatorMapping().getCompoundOperators()
 					.contains(QualifiedName.create(operation.getConcreteSyntaxFeatureName()))) {
 			// Retain the lvalue's type and index types before numeric operator promotion.
 			state.withNonVoidExpectation().computeTypes(operation.getLeftOperand());
-			linkingState = new JbaseArrayCompoundAssignmentState(operation,
+			linkingState = new JbaseCompoundAssignmentState(operation,
 				(AbstractTypeComputationState) state);
 		}
 		var candidates = linkingState.getLinkingCandidates(featureCall);
