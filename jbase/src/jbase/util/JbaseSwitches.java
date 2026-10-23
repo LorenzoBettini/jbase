@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.eclipse.xtext.common.types.JvmEnumerationType;
+import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XBlockExpression;
@@ -79,7 +80,7 @@ public final class JbaseSwitches {
 	 * Checks the supported forms of switch exhaustiveness.
 	 * Recognizes a default, a covering type or record pattern without a guard or with a
 	 * literal {@code true} guard, complete enum-constant coverage, and coverage of all
-	 * permitted subclasses of sealed types.
+	 * permitted subclasses of sealed types, including concrete sealed classes themselves.
 	 *
 	 * @param expression a Jbase switch with resolved selector and pattern types
 	 * @param types resolved types for the selector and component bindings
@@ -126,7 +127,7 @@ public final class JbaseSwitches {
 			final LightweightTypeReference selector, final IResolvedTypes types,
 			final JbaseSealedTypeResolver sealedTypeResolver) {
 		final var permittedTypes = sealedTypeResolver.permittedTypes(expression, selector);
-		if (permittedTypes.isEmpty()) {
+		if (permittedTypes.isEmpty() || mayHaveInstances(selector)) {
 			return false;
 		}
 		for (final var permittedType : permittedTypes) {
@@ -157,7 +158,7 @@ public final class JbaseSwitches {
 			return true;
 		}
 		final var nested = sealedTypeResolver.permittedTypes(expression, branchType);
-		if (nested.isEmpty()) {
+		if (nested.isEmpty() || mayHaveInstances(branchType)) {
 			return false;
 		}
 		for (final var nestedType : nested) {
@@ -167,6 +168,11 @@ public final class JbaseSwitches {
 			}
 		}
 		return true;
+	}
+
+	private static boolean mayHaveInstances(final LightweightTypeReference type) {
+		return type.getType() instanceof JvmGenericType genericType
+			&& !genericType.isInterface() && !genericType.isAbstract();
 	}
 
 	private static boolean coversAllLiterals(final XSwitchExpression expression,

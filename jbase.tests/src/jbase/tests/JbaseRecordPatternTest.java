@@ -49,6 +49,8 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 		import jbase.testlanguage.tests.SealedTypes.AbstractShape;
 		import jbase.testlanguage.tests.SealedTypes.AbstractCircle;
 		import jbase.testlanguage.tests.SealedTypes.AbstractSquare;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteShape;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteCircle;
 		import jbase.testlanguage.tests.SealedTypes.Nested;
 		import jbase.testlanguage.tests.SealedTypes.NestedLeft;
 		import jbase.testlanguage.tests.SealedTypes.NestedRight;
@@ -187,6 +189,12 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 					case AbstractSquare square -> square.side();
 				};
 			}
+			method concreteShapeSize(ConcreteShape shape) : int {
+				return switch (shape) {
+					case ConcreteCircle circle -> circle.size();
+					case ConcreteShape base -> base.size();
+				};
+			}
 			method nestedSize(Nested nested) : int {
 				return switch (nested) {
 					case NestedLeft left -> 1;
@@ -239,6 +247,12 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 			AbstractShape shape = null;
 			int size = switch (shape) {
 				case AbstractCircle circle -> circle.radius();
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			ConcreteShape shape = null;
+			int size = switch (shape) {
+				case ConcreteCircle circle -> circle.size();
 			};
 			""", "must be exhaustive");
 		assertError(SEALED_IMPORTS + """

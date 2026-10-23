@@ -36,14 +36,28 @@ Switch expressions must be exhaustive. Jbase recognizes a default, a total type
 pattern, a record pattern covering every component type, complete enum coverage,
 including grouped enum labels, and complete coverage of sealed hierarchies, whether
 declared as sealed classes or interfaces. Sealed coverage follows permitted subclasses
-recursively; unguarded type patterns, covering
-record patterns and complete enum constants can cover each branch. In the IDE, the
+recursively; a non-abstract sealed class also requires coverage of instances of the
+base class itself. Unguarded type patterns, covering record patterns and complete enum
+constants can cover each branch. In the IDE, the
 hierarchy is resolved through JDT so project and dependency types do not need to be
 loadable by the language bundle's class loader. Record coverage is checked recursively
 for nested patterns. Pattern switch statements also require exhaustiveness. A rule
 block in an expression must yield or throw; `return`, `break`, and `continue` cannot
 exit an expression. Loops and lambdas inside an expression retain their own
 control-flow boundaries.
+
+### Exhaustiveness Summary
+
+| Situation                                          | Exhaustiveness enforced? | Can be exhaustive without `default`?        |
+| -------------------------------------------------- | ------------------------ | ------------------------------------------- |
+| `switch` expression over sealed interface          | Yes                      | Yes                                         |
+| `switch` expression over abstract sealed class     | Yes                      | Yes                                         |
+| `switch` expression over non-abstract sealed class | Yes                      | Yes, with a pattern covering the base class |
+| `switch` expression over enum                      | Yes                      | Yes, all constants covered                  |
+| `switch` expression over ordinary types            | Yes                      | Yes, with an unconditional pattern          |
+| Enhanced `switch` statement using patterns         | Yes                      | Yes                                         |
+| Traditional `switch` statement                     | No                       | Yes                                         |
+
 
 ## Record patterns
 

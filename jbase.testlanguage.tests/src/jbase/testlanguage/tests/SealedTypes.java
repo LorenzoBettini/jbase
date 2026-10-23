@@ -22,6 +22,19 @@ public final class SealedTypes {
 		}
 	}
 
+	public static sealed class ConcreteShape permits ConcreteCircle {
+		public int size() {
+			return 0;
+		}
+	}
+
+	public static final class ConcreteCircle extends ConcreteShape {
+		@Override
+		public int size() {
+			return 1;
+		}
+	}
+
 	public record Circle(int radius) implements Shape {
 	}
 
