@@ -82,11 +82,6 @@ int size = switch (shape) {
 constants, but does not compute coverage of permitted subclasses. Adding a default
 is a workaround; it does not implement Java's sealed-type exhaustiveness rules.
 
-Some notes:
-
-- When you have a `JvmType` use `type.getQualifiedName('$')` to get the fully qualified name of the type, including any nested types.
-- It's useless to look for the `Class` object of a `JvmType` in search of a sealed class if `!type.isInterface()`.
-
 ### [x] Pattern switches on some boxed selector types
 
 ```java
