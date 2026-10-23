@@ -73,6 +73,7 @@ import jbase.jbase.JbasePackage;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayConstructorCall;
+import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
@@ -141,7 +142,6 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	public void checkClosureParams(final XClosure closure) {
 		// Java functional interfaces do not impose Xbase's limit of six parameters.
 	}
-
 
 	@Check
 	public void checkEnhancedSwitch(final XJSwitchExpression expression) {
@@ -304,7 +304,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Override
 	protected boolean isValueExpectedRecursive(final XExpression expression) {
-		if (expression.eContainingFeature() == JbasePackage.Literals.XJ_CASE_PART__ADDITIONAL_LABELS
+		if (EcoreUtil2.getContainerOfType(expression, XJAssertStatement.class) != null
+				|| expression.eContainingFeature()
+					== JbasePackage.Literals.XJ_CASE_PART__ADDITIONAL_LABELS
 				|| expression.eContainer() instanceof XJYieldStatement
 				|| expression.eContainer() instanceof XJSemicolonStatement wrapper
 					&& isExpressionSwitchRule(wrapper)) {

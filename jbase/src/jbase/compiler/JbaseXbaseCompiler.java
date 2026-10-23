@@ -51,6 +51,7 @@ import jbase.conversion.JbaseTextBlockValueConverter;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
+import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
@@ -174,6 +175,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			}
 			case XJContinueStatement statement -> compileContinueStatement(statement, appendable);
 			case XJBreakStatement statement -> compileBranchingStatement(appendable, "break");
+			case XJAssertStatement statement -> compileAssertStatement(statement, appendable);
 			case XJSemicolonStatement statement ->
 				compileSemicolonStatement(statement, appendable, isReferenced);
 			case null, default -> super.doInternalToJavaStatement(obj, appendable, isReferenced);
@@ -232,6 +234,17 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 
 	private void compileBranchingStatement(ITreeAppendable b, String instruction) {
 		b.newLine().append(instruction).append(";");
+	}
+
+	private void compileAssertStatement(final XJAssertStatement statement,
+			final ITreeAppendable appendable) {
+		appendable.newLine().append("assert ");
+		internalToJavaExpression(statement.getCondition(), appendable);
+		if (statement.getMessage() != null) {
+			appendable.append(" : ");
+			internalToJavaExpression(statement.getMessage(), appendable);
+		}
+		appendable.append(";");
 	}
 
 	private void compileSemicolonStatement(XJSemicolonStatement st, ITreeAppendable b,

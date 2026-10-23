@@ -52,6 +52,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Primitive types, literals, declarations, assignments and operators.
 			final boolean enabled = true;
+			assert enabled;
+			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
 			short medium = (short) 2;
 			short positive = +1;
@@ -268,6 +270,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			  public static void main(String[] args) throws Throwable {
 			    final boolean enabled = true;
+			    assert enabled;
+			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);
 			    short medium = ((short) 2);
 			    short positive = +1;

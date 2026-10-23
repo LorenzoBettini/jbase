@@ -8,6 +8,7 @@ import java.util.List
 import jbase.jbase.JbasePackage
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJAssertStatement
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJCasePart
 import jbase.jbase.XJYieldStatement
@@ -136,6 +137,13 @@ class JbaseFormatter extends XbasePatchedFormatter {
 
 	def dispatch void format(XJContinueStatement expr, extension IFormattableDocument document) {
 		expr.regionFor.keyword("continue").append[noSpace]
+	}
+
+	def dispatch void format(XJAssertStatement expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("assert").append[oneSpace]
+		expr.condition.format(document)
+		expr.regionFor.keyword(":").surround[oneSpace]
+		expr.message.format(document)
 	}
 
 	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {

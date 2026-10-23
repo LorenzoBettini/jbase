@@ -114,15 +114,19 @@ complete generated Java, compile it and execute representative matches.
 Covered by `JbaseInstanceOfPatternTest` and `AllJavaFeaturesTest`; the new type utility
 and validator override have 100% instruction, branch and line coverage.
 
-### [ ] `assert` statements
+### [x] `assert` statements
 
 ```java
 assert true;
 assert true : "message";
 ```
 
-There is no assertion statement rule. Jbase treats `assert` as an unresolved name
-and reports statement or syntax errors; neither assertion form is implemented.
+**Implemented:** Assertions with optional detail expressions are parsed,
+type-checked, formatted, serialized, and generated as native Java statements.
+The condition must be boolean and the detail expression must not be void.
+Runtime assertion status follows Java's `-ea` behavior. Covered by
+`JbaseAssertStatementTest`, `JbaseFormatterTest`, `JbaseSerializerTest`, and
+`AllJavaFeaturesTest`; see the [assert statement guide](docs/ASSERT_STATEMENTS.md).
 
 ### [ ] Labeled statements, `break`, and `continue`
 
