@@ -42,14 +42,6 @@ JvmTypeReference returns types::JvmTypeReference:
 FullJvmFormalParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
 
-JbaseCatchFormalParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} final?='final'? parameterType=JbaseCatchTypeReference name=ValidID;
-
-JbaseCatchTypeReference returns types::JvmTypeReference:
-	JvmTypeReference
-	(=> '|' {types::JvmSynonymTypeReference.references+=current}
-		references+=JvmTypeReference ('|' references+=JvmTypeReference)*)?;
-
 XJSingleStatement returns XExpression:
 	// Commit on the switch keyword, including incomplete statements during editing.
 	->XSwitchExpression |
@@ -464,6 +456,14 @@ XTryCatchFinallyExpression returns XExpression:
 		(=>'finally' finallyExpression=XBlockExpression)?
 	|	'finally' finallyExpression=XBlockExpression
 	);
+
+JbaseCatchFormalParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'? parameterType=JbaseCatchTypeReference name=ValidID;
+
+JbaseCatchTypeReference returns types::JvmTypeReference:
+	JvmTypeReference
+	(=> '|' {types::JvmSynonymTypeReference.references+=current}
+		references+=JvmTypeReference ('|' references+=JvmTypeReference)*)?;
 
 // the explicit {XCatchClause} is required to make formatting work
 @Override 
