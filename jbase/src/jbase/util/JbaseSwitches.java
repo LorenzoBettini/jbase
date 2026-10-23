@@ -127,7 +127,8 @@ public final class JbaseSwitches {
 			final LightweightTypeReference selector, final IResolvedTypes types,
 			final JbaseSealedTypeResolver sealedTypeResolver) {
 		final var permittedTypes = sealedTypeResolver.permittedTypes(expression, selector);
-		if (permittedTypes.isEmpty() || mayHaveInstances(selector)) {
+		if (permittedTypes.isEmpty()
+				|| mayHaveInstances((JvmGenericType) selector.getType())) {
 			return false;
 		}
 		for (final var permittedType : permittedTypes) {
@@ -158,7 +159,7 @@ public final class JbaseSwitches {
 			return true;
 		}
 		final var nested = sealedTypeResolver.permittedTypes(expression, branchType);
-		if (nested.isEmpty() || mayHaveInstances(branchType)) {
+		if (nested.isEmpty() || mayHaveInstances((JvmGenericType) branchType.getType())) {
 			return false;
 		}
 		for (final var nestedType : nested) {
@@ -170,9 +171,8 @@ public final class JbaseSwitches {
 		return true;
 	}
 
-	private static boolean mayHaveInstances(final LightweightTypeReference type) {
-		return type.getType() instanceof JvmGenericType genericType
-			&& !genericType.isInterface() && !genericType.isAbstract();
+	private static boolean mayHaveInstances(final JvmGenericType type) {
+		return !type.isInterface() && !type.isAbstract();
 	}
 
 	private static boolean coversAllLiterals(final XSwitchExpression expression,

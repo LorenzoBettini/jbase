@@ -22,10 +22,16 @@ public final class SealedTypes {
 		}
 	}
 
-	public static sealed class ConcreteShape permits ConcreteCircle {
+	public sealed interface ConcreteHierarchy permits ConcreteShape, ConcreteEnd {
+	}
+
+	public static sealed class ConcreteShape implements ConcreteHierarchy permits ConcreteCircle {
 		public int size() {
 			return 0;
 		}
+	}
+
+	public record ConcreteEnd() implements ConcreteHierarchy {
 	}
 
 	public static final class ConcreteCircle extends ConcreteShape {
