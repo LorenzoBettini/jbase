@@ -1,4 +1,4 @@
-package jbase.ui.typesystem;
+package jbase.ui.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -13,28 +13,28 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.xtext.common.types.JvmGenericType;
+import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner;
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider;
+import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
 
 /**
- * 
+ * Test corner cases of {@link JbaseUiSealedTypeResolver} that are hard to reproduce in a real Eclipse environment.
  */
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseTestlanguageUiInjectorProvider.class)
 public class JbaseUiSealedTypeResolverTest {
-	@Inject
-	private Injector injector;
-
 	@Inject
 	private ParseHelper<EObject> parser;
 
@@ -56,6 +56,24 @@ public class JbaseUiSealedTypeResolverTest {
 	public void jdtFailuresAreReportedAsUnavailableCoverage() {
 		assertTrue(resolver.permittedTypeNames(
 			javaType(true, new String[0], null, null, true)).isEmpty());
+	}
+
+	/**
+	 * When calling {@link JbaseUiSealedTypeResolver#jbase.ui.typesystem.JbaseUiSealedTypeResolver.permittedTypeNames(EObject, LightweightTypeReference)}
+	 * and there's a {@link JavaModelException}, the fallback implementation should be used and return an empty list.
+	 */
+	@Test
+	public void jdtFailuresInContextAreReportedAsUnavailableCoverage() throws Exception {
+		final var sourceType = javaType(true, new String[0], null, null, false);
+		final var javaProject = javaProject(sourceType, true);
+		final var context = parser.parse("Object value = null;");
+		final JvmGenericType type = TypesFactory.eINSTANCE.createJvmGenericType();
+		type.setPackageName("missing");
+		type.setSimpleName("MissingSealedType");
+		final var owner = new StandardTypeReferenceOwner(typeServices, context);
+		final LightweightTypeReference reference = owner.toLightweightTypeReference(type);
+
+		assertTrue(resolver.permittedTypeNames(context, reference, javaProject).isEmpty());
 	}
 
 	@Test
@@ -86,18 +104,6 @@ public class JbaseUiSealedTypeResolverTest {
 		assertTrue(resolver.permittedTypeNames(sourceType).isEmpty());
 	}
 
-//	@Test
-//	public void nonJdtTypeReferencesUseTheStandaloneResolver() throws Exception {
-//		final var context = parser.parse("Object value = null;");
-//		final JvmGenericType type = TypesFactory.eINSTANCE.createJvmGenericType();
-//		type.setPackageName("missing");
-//		type.setSimpleName("MissingSealedType");
-//		final var owner = new StandardTypeReferenceOwner(typeServices, context);
-//		final LightweightTypeReference reference = owner.toLightweightTypeReference(type);
-//		injector.injectMembers(resolver);
-//		assertTrue(resolver.permittedTypeNames(context, reference).isEmpty());
-//	}
-
 	private static IType javaType(final boolean sealed, final String[] permittedNames,
 			final String[][] resolvedNames, final IJavaProject javaProject,
 			final boolean failToReadPermittedNames) {
@@ -122,9 +128,22 @@ public class JbaseUiSealedTypeResolverTest {
 	}
 
 	private static IJavaProject javaProject(final IType child) {
+		return javaProject(child, false);
+	}
+
+	private static IJavaProject javaProject(final IType child, final boolean failToFindType) {
 		return (IJavaProject) Proxy.newProxyInstance(IJavaProject.class.getClassLoader(),
-			new Class<?>[] { IJavaProject.class }, (proxy, method, arguments) ->
-				method.getName().equals("findType") ? child : null);
+			new Class<?>[] { IJavaProject.class }, (proxy, method, arguments) -> {
+				if (method.getName().equals("findType")) {
+					if (failToFindType) {
+						throw new JavaModelException(
+							new Status(IStatus.ERROR, "jbase.ui.tests", "Test failure"));
+					}
+					return child;
+				} else {
+					return null;
+				}
+			});
 	}
 
 	/**
@@ -134,6 +153,12 @@ public class JbaseUiSealedTypeResolverTest {
 		@Override
 		public List<String> permittedTypeNames(EObject context, LightweightTypeReference type) {
 			return super.permittedTypeNames(context, type);
+		}
+
+		@Override
+		protected List<String> permittedTypeNames(EObject context, LightweightTypeReference type,
+				IJavaProject javaProject) {
+			return super.permittedTypeNames(context, type, javaProject);
 		}
 
 		@Override

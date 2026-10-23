@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.xtext.common.types.access.jdt.IJavaProjectProvider;
@@ -25,6 +26,11 @@ public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 			final LightweightTypeReference type) {
 		final var resource = type.getType().eResource();
 		final var javaProject = javaProjectProvider.getJavaProject(resource.getResourceSet());
+		return permittedTypeNames(context, type, javaProject);
+	}
+
+	protected List<String> permittedTypeNames(final EObject context, final LightweightTypeReference type,
+			final IJavaProject javaProject) {
 		try {
 			final var javaType = javaProject.findType(
 					type.getType().getQualifiedName('.'));
