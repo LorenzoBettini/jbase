@@ -45,6 +45,34 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testTryWithExistingVariableResource() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				var input=new java.io.ByteArrayInputStream(new byte[0]);try(input){}
+				""");
+			request.setExpectation("""
+				var input = new java.io.ByteArrayInputStream(new byte[0]);
+				try (input) {
+				}
+				""");
+		});
+	}
+
+	@Test
+	public void testMixedTryWithResources() {
+		assertFormatted(request -> {
+				request.setToBeFormatted("""
+					var input = new java.io.StringReader("a");try(input;var second=new java.io.StringReader("b")){}
+					""");
+				request.setExpectation("""
+					var input = new java.io.StringReader("a");
+					try (input; var second = new java.io.StringReader("b")) {
+					}
+					""");
+		});
+	}
+
+	@Test
 	public void testColonSwitchExpression() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("int n=switch(1){case 0,1:yield 1;default:yield 2;};");

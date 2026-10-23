@@ -241,6 +241,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			} catch (IOException | IllegalArgumentException e) {
 				System.out.println(e.getMessage());
 			}
+			var existingInput = new ByteArrayInputStream(new byte[] {3});
+			try (existingInput; var secondInput = new ByteArrayInputStream(new byte[] {4})) {
+				System.out.println(existingInput.read());
+				System.out.println(secondInput.read());
+			}
 			synchronized (names) {
 				names.clear();
 			}
@@ -565,6 +570,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      } else {
 			        throw Exceptions.sneakyThrow(_t);
 			      }
+			    }
+			    ByteArrayInputStream existingInput = new ByteArrayInputStream(new byte[] { 3 });
+			    try (existingInput; final ByteArrayInputStream secondInput = new ByteArrayInputStream(new byte[] { 4 })) {
+			      System.out.println(existingInput.read());
+			      System.out.println(secondInput.read());
 			    }
 			    synchronized (names) {
 			      names.clear();

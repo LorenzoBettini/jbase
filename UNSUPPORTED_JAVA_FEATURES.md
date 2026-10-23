@@ -155,18 +155,6 @@ compiler emits a type check for each alternative and resolves the catch variable
 to their common supertype. Multi-catch is supported with and without
 try-with-resources.
 
-### [ ] Existing-variable resources in `try`-with-resources
-
-```java
-var input = new java.io.ByteArrayInputStream(new byte[0]);
-try (input) {}
-```
-
-Java 9 and later allow an existing final or effectively final local variable, or a
-final field, as a resource. Jbase's resource rule requires a declaration with an
-initializer. The local-variable example has syntax errors and can crash generation.
-Declarations such as `try (var input = ...)` are supported.
-
 ### [ ] Annotations on local variables, parameters, and type uses
 
 ```java

@@ -4,6 +4,7 @@
 package jbase.compiler;
 
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -19,6 +20,7 @@ import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.generator.trace.ILocationData;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.util.Strings;
+import org.eclipse.xtext.util.Tuples;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XAssignment;
@@ -35,6 +37,7 @@ import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XThrowExpression;
+import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
@@ -69,6 +72,8 @@ import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJSwitchExpression;
 import jbase.jbase.XJYieldStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
+import jbase.jbase.XJTryWithResourcesExistingResource;
+import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseExpressionHelper.BaseCase;
@@ -983,6 +988,39 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			return false;
 		}
 		return super.isVariableDeclarationRequired(expr, b, recursive);
+	}
+
+	@Override
+	protected void _toJavaStatement(final XTryCatchFinallyExpression expression,
+			final ITreeAppendable appendable, final boolean isReferenced) {
+		if (!(expression instanceof XJTryWithResourcesStatement statement)
+				|| statement.getResources().stream()
+					.noneMatch(XJTryWithResourcesExistingResource.class::isInstance)) {
+			super._toJavaStatement(expression, appendable, isReferenced);
+			return;
+		}
+		final var resources = statement.getResources();
+
+		appendable.newLine().trace(expression, false).append("try (");
+		for (var i = 0; i < resources.size(); i++) {
+			final var resource = resources.get(i);
+			if (resource instanceof XJTryWithResourcesExistingResource existingResource) {
+				internalToJavaExpression(existingResource.getRight(), appendable);
+			} else {
+				resource.setWriteable(false);
+				final var type = appendVariableTypeAndName(resource, appendable);
+				appendable.append(" = ");
+				compileAsJavaExpression(resource.getRight(), appendable, type);
+			}
+			if (i < resources.size() - 1) {
+				appendable.append("; ");
+			}
+		}
+		appendable.append(") {").increaseIndentation();
+		appendable.declareSyntheticVariable(Tuples.pair(expression, "_caughtThrowables"), "_ts");
+		internalToJavaStatement(expression.getExpression(), appendable, false);
+		appendable.decreaseIndentation().newLine().append("}");
+		appendCatchAndFinally(expression, appendable, isReferenced);
 	}
 
 	private XExpression expressionRoot(final XExpression expression) {

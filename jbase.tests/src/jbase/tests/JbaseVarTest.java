@@ -6,12 +6,16 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
+import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.serializer.ISerializer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XFeatureCall;
+import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.XbaseFactory;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.validation.IssueCodes;
@@ -20,10 +24,13 @@ import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
 
+import jbase.jbase.JbaseFactory;
 import jbase.jbase.JbasePackage;
+import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 import jbase.validation.JbaseIssueCodes;
+import jbase.validation.JbaseValidator;
 
 @RunWith(XtextRunner.class)
 @InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
@@ -37,6 +44,9 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 
 	@Inject
 	private ISerializer serializer;
+
+	@Inject
+	private JbaseValidator validator;
 
 	@Test
 	public void inferredTypes() throws Exception {
@@ -65,6 +75,108 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 				assertType(model, declaration, testCase[1]);
 			}
 		}
+	}
+
+	@Test
+	public void existingVariableResourceInference() throws Exception {
+		for (final var modifier : new String[] { "", "final " }) {
+			final var model = programParser.parse(modifier
+				+ "var input = new java.io.ByteArrayInputStream(new byte[0]); try (input) {}");
+			final var resource = EcoreUtil2.getAllContentsOfType(model,
+				XJTryWithResourcesExistingResource.class).getFirst();
+			assertTrue(resource.getRight() instanceof XFeatureCall);
+			final var reference = (XFeatureCall) resource.getRight();
+			assertTrue(reference.getFeature().getClass().getName(),
+				reference.getFeature() instanceof XVariableDeclaration);
+			assertEquals(modifier.isEmpty(),
+				((XVariableDeclaration) reference.getFeature()).isWriteable());
+			validationTestHelper.assertNoErrors(model);
+			assertType(model, reference.getFeature(), "java.io.ByteArrayInputStream");
+		}
+	}
+
+	@Test
+	public void existingVariableResourceMustBeEffectivelyFinal() throws Exception {
+		final var model = programParser.parse("""
+			var input = new java.io.ByteArrayInputStream(new byte[0]);
+			input = new java.io.ByteArrayInputStream(new byte[1]);
+			try (input) {}
+			""");
+		validationTestHelper.assertError(model,
+			JbasePackage.eINSTANCE.getXJTryWithResourcesExistingResource(),
+			JbaseIssueCodes.INVALID_RESOURCE,
+			"A resource must refer to a final or effectively final local variable or a final field");
+	}
+
+	@Test
+	public void assignedOnceLocalCanBeAnExistingResource() throws Exception {
+		parseValid("""
+			java.io.StringReader input;
+			input = new java.io.StringReader("hello");
+			try (input) {}
+			""");
+	}
+
+	@Test
+	public void existingVariableResourceMustBeAutoCloseable() throws Exception {
+		final var model = programParser.parse("""
+			var input = "not closeable";
+			try (input) {}
+			""");
+		validationTestHelper.assertError(model,
+			JbasePackage.eINSTANCE.getXJTryWithResourcesExistingResource(),
+			JbaseIssueCodes.NOT_AUTO_CLOSEABLE,
+			"The resource type String does not implement java.lang.AutoCloseable");
+	}
+
+	@Test
+	public void incompleteExistingResourcesAreIgnored() {
+		final var resource = JbaseFactory.eINSTANCE.createXJTryWithResourcesExistingResource();
+		validator.checkExistingResource(resource);
+		resource.setRight(XbaseFactory.eINSTANCE.createXStringLiteral());
+		validator.checkExistingResource(resource);
+		resource.setRight(XbaseFactory.eINSTANCE.createXFeatureCall());
+		validator.checkExistingResource(resource);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void unsupportedResourceEntriesAreRejected() {
+		final var statement = JbaseFactory.eINSTANCE.createXJTryWithResourcesStatement();
+		statement.getResources().add(XbaseFactory.eINSTANCE.createXVariableDeclaration());
+		statement.getResources().add(XbaseFactory.eINSTANCE.createXVariableDeclaration());
+		validator.checkTryWithResources(statement);
+	}
+
+	@Test
+	public void existingResourceSemicolonsAreRecognized() throws Exception {
+		final var statement = JbaseFactory.eINSTANCE.createXJTryWithResourcesStatement();
+		final var existingResource =
+			JbaseFactory.eINSTANCE.createXJTryWithResourcesExistingResource();
+		existingResource.setSemicolon(";");
+		statement.getResources().add(existingResource);
+		statement.getResources().add(XbaseFactory.eINSTANCE.createXVariableDeclaration());
+		validator.checkTryWithResources(statement);
+	}
+
+	@Test
+	public void existingResourceMustReferenceAVariable() throws Exception {
+		final var model = programParser.parse("try (String) {}");
+		validationTestHelper.assertError(model,
+			JbasePackage.eINSTANCE.getXJTryWithResourcesExistingResource(),
+			JbaseIssueCodes.INVALID_RESOURCE,
+			"A resource must refer to a final or effectively final local variable or a final field");
+	}
+
+	@Test
+	public void existingResourceCanBeALambdaParameter() throws Exception {
+		final var model = parseValid("""
+			java.util.function.Consumer<java.io.StringReader> consumer =
+				input -> { try (input) {} };
+			""");
+		final var resource = EcoreUtil2.getAllContentsOfType(model,
+			XJTryWithResourcesExistingResource.class).getFirst();
+		assertTrue(((XFeatureCall) resource.getRight()).getFeature()
+			instanceof JvmFormalParameter);
 	}
 
 	@Test
@@ -222,6 +334,15 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void resourceDeclarationRequiresInitializer() throws Exception {
+		final var model = programParser.parse("try (var value = ) {}");
+		validationTestHelper.assertError(model,
+			JbasePackage.eINSTANCE.getXJTryWithResourcesVariableDeclaration(),
+			JbaseIssueCodes.INVALID_RESOURCE,
+			"A resource declaration requires an initializer");
+	}
+
+	@Test
 	public void resourceIsImplicitlyFinal() throws Exception {
 		final var model = programParser.parse("""
 			try (var input = new java.io.StringReader("hello")) {
@@ -246,7 +367,8 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 		for (final var source : new String[] {
 			"var value = 1;", "final var value = 1;",
 			"for (var value : new int[] {1}) {}",
-			"try (final var value = new java.io.StringReader(\"a\")) {}"
+			"try (final var value = new java.io.StringReader(\"a\")) {}",
+			"var input = new java.io.StringReader(\"a\"); try (input) {}"
 		}) {
 			final var model = parseValid(source);
 			final var copy = EcoreUtil.copy(model);

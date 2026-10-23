@@ -1614,6 +1614,22 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testTryWithExistingResourceWithMissingSemicolon() throws Exception {
+		final var expression = parseHelper.parse("""
+			var input = new java.io.StringReader("");
+			try (
+				input
+				java.io.StringReader fr2 = new java.io.StringReader("")
+			) {
+			\t
+			}
+			""");
+		assertEquals(1, getValidationErrors(expression).size());
+		assertMissingSemicolon(expression,
+			jbasePackage.getXJTryWithResourcesExistingResource());
+	}
+
+	@Test
 	public void testTryWithResourcesWithSemicolonOk() throws Exception {
 		validationTestHelper.assertNoErrors(parseHelper.parse("""
 			try (
@@ -1646,7 +1662,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 			) {
 			\t
 			}
-			"""), "extraneous input ';' expecting ')'");
+			"""), "no viable alternative at input ';'\nmissing EOF at ')'");
 	}
 
 	@Test

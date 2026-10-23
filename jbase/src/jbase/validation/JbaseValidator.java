@@ -28,6 +28,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
+import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
@@ -92,6 +93,7 @@ import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJSwitchExpression;
 import jbase.jbase.XJYieldStatement;
 import jbase.jbase.XJTryWithResourcesStatement;
+import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
@@ -659,6 +661,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		if (containerToFindUsage instanceof XJSemicolonStatement) {
 			return isLocallyUsed(target, containerToFindUsage.eContainer());
 		}
+		if (target instanceof XJTryWithResourcesExistingResource) {
+			return true;
+		}
 		if (target instanceof XVariableDeclaration variable
 				&& variable.getType() instanceof JvmGenericArrayTypeReference
 				&& !super.isLocallyUsed(target, containerToFindUsage)
@@ -727,17 +732,14 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkTryWithResources(final XJTryWithResourcesStatement e) {
-		var resourceDeclarations = e.getResources().stream()
-			.filter(XJTryWithResourcesVariableDeclaration.class::isInstance)
-			.map(XJTryWithResourcesVariableDeclaration.class::cast).toList();
-		if (resourceDeclarations.isEmpty()) {
+		final var resources = e.getResources();
+		if (resources.isEmpty()) {
 			error("Syntax error on token \"(\", Resources expected after this token",
 				e, JBASE_PACKAGE.getXJTryWithResourcesStatement_OpenParenthesis(), MISSING_RESOURCES);
 		} else {
-			// in the last declaration the ';' is optional
-			for (var i = 0; i < resourceDeclarations.size() - 1; i++) {
-				var resource = resourceDeclarations.get(i);
-				if (resource.getSemicolon() == null) {
+			for (var i = 0; i < resources.size() - 1; i++) {
+				final var resource = resources.get(i);
+				if (!hasResourceSemicolon(resource)) {
 					errorMissingSemicolon(resource);
 				}
 			}
@@ -746,14 +748,70 @@ public class JbaseValidator extends AbstractJbaseValidator {
 
 	@Check
 	public void checkAutoCloseableResource(final XJTryWithResourcesVariableDeclaration e) {
-		var declaredType = getActualType((JvmIdentifiableElement) e);
-		var autoCloseable = new StandardTypeReferenceOwner(getServices(), e)
-			.toLightweightTypeReference(getServices().getTypeReferences()
-				.getTypeForName(AutoCloseable.class, e));
-		if (!autoCloseable.isAssignableFrom(declaredType)) {
-			error("The resource type " + declaredType + " does not implement java.lang.AutoCloseable",
-				e, XBASE_PACKAGE.getXVariableDeclaration_Type(), NOT_AUTO_CLOSEABLE);
+		if (e.getRight() == null) {
+			error("A resource declaration requires an initializer", e,
+				XBASE_PACKAGE.getXVariableDeclaration_Right(), JbaseIssueCodes.INVALID_RESOURCE);
+			return;
 		}
+		var declaredType = getActualType((JvmIdentifiableElement) e);
+		checkAutoCloseableResourceType(declaredType, e,
+			XBASE_PACKAGE.getXVariableDeclaration_Type());
+	}
+
+	private void checkAutoCloseableResourceType(final LightweightTypeReference resourceType,
+			final EObject source, final EStructuralFeature feature) {
+		var autoCloseable = new StandardTypeReferenceOwner(getServices(), source)
+			.toLightweightTypeReference(getServices().getTypeReferences()
+				.getTypeForName(AutoCloseable.class, source));
+		if (!autoCloseable.isAssignableFrom(resourceType)) {
+			error("The resource type " + resourceType
+				+ " does not implement java.lang.AutoCloseable",
+				source, feature, NOT_AUTO_CLOSEABLE);
+		}
+	}
+
+	@Check
+	public void checkExistingResource(final XJTryWithResourcesExistingResource resource) {
+		if (!(resource.getRight() instanceof XAbstractFeatureCall reference)
+				|| reference.getFeature() == null) {
+			return;
+		}
+		if (!isFinalOrEffectivelyFinalResource(reference.getFeature(), resource)) {
+			error("A resource must refer to a final or effectively final local variable or a final field",
+				resource, XBASE_PACKAGE.getXVariableDeclaration_Right(),
+				JbaseIssueCodes.INVALID_RESOURCE);
+			return;
+		}
+		checkAutoCloseableResourceType(getActualType(reference), resource,
+			XBASE_PACKAGE.getXVariableDeclaration_Right());
+	}
+
+	private boolean isFinalOrEffectivelyFinalResource(final JvmIdentifiableElement feature,
+			final EObject context) {
+		if (feature instanceof JvmField field) {
+			return field.isFinal();
+		}
+		if (!(feature instanceof XVariableDeclaration || feature instanceof JvmFormalParameter)) {
+			return false;
+		}
+		if (feature instanceof XVariableDeclaration variable && !variable.isWriteable()) {
+			return true;
+		}
+		final var writes = XbaseUsageCrossReferencer
+			.find(feature, EcoreUtil.getRootContainer(context))
+			.stream().map(Setting::getEObject).filter(this::isLocalWrite).toList();
+		return writes.isEmpty() || isEffectivelyFinal(feature, writes);
+	}
+
+	private boolean hasResourceSemicolon(final EObject resource) {
+		return switch (resource) {
+			case XJTryWithResourcesVariableDeclaration declaration ->
+				declaration.getSemicolon() != null;
+			case XJTryWithResourcesExistingResource existingResource ->
+				existingResource.getSemicolon() != null;
+			default -> throw new IllegalArgumentException("Unsupported try-with-resources entry: "
+				+ resource.eClass().getName());
+		};
 	}
 
 	@Check
