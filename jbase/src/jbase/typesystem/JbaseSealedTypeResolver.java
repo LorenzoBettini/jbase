@@ -1,6 +1,7 @@
 package jbase.typesystem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
@@ -50,6 +51,16 @@ public class JbaseSealedTypeResolver {
 		return List.copyOf(result);
 	}
 
+	/**
+	 * Returns the fully qualified names of the permitted subclasses of a sealed
+	 * Java type.
+	 * 
+	 * @param context subclasses can use the context to retrieve additional
+	 *                information; in the default implementation it is not used
+	 * @param type    the Java type for which to retrieve the permitted subclasses
+	 * @return a list of fully qualified names of the permitted subclasses, or an
+	 *         empty list if the type is not sealed or cannot be loaded
+	 */
 	protected List<String> permittedTypeNames(final EObject context,
 			final LightweightTypeReference type) {
 		final Class<?> javaType;
@@ -61,7 +72,7 @@ public class JbaseSealedTypeResolver {
 		if (!javaType.isSealed()) {
 			return List.of();
 		}
-		return java.util.Arrays.stream(javaType.getPermittedSubclasses())
+		return Arrays.stream(javaType.getPermittedSubclasses())
 			.map(Class::getName).toList();
 	}
 }
