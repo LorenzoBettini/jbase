@@ -457,10 +457,18 @@ XTryCatchFinallyExpression returns XExpression:
 	|	'finally' finallyExpression=XBlockExpression
 	);
 
+JbaseCatchFormalParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'? parameterType=JbaseCatchTypeReference name=ValidID;
+
+JbaseCatchTypeReference returns types::JvmTypeReference:
+	JvmTypeReference
+	(=> '|' {types::JvmSynonymTypeReference.references+=current}
+		references+=JvmTypeReference ('|' references+=JvmTypeReference)*)?;
+
 // the explicit {XCatchClause} is required to make formatting work
 @Override 
 XCatchClause :
-	{XCatchClause} =>'catch' '(' declaredParam=FullJvmFormalParameter ')' expression=XBlockExpression;
+	{XCatchClause} =>'catch' '(' declaredParam=JbaseCatchFormalParameter ')' expression=XBlockExpression;
 
 /**
  * Java needs block for synchronized

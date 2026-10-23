@@ -140,18 +140,20 @@ outer: for (int i = 0; i < 2; i++) {
 Labels are not modeled. `XJBranchingStatement` accepts only bare `break` and
 `continue`. Unlabeled jumps are already supported.
 
-### [ ] Multi-catch
+### [x] Multi-catch
 
 ```java
 try {
     throw new java.io.IOException();
 } catch (java.io.IOException | IllegalArgumentException ex) {
+    ex.getMessage();
 }
 ```
 
-`XCatchClause` requires a single `JvmTypeReference`, so the union type has syntax
-errors. Attempting generation of the recovered model can also throw an exception.
-Separate single-type catch clauses are supported.
+`XCatchClause` represents the alternatives with `JvmSynonymTypeReference`. The
+compiler emits a type check for each alternative and resolves the catch variable
+to their common supertype. Multi-catch is supported with and without
+try-with-resources.
 
 ### [ ] Existing-variable resources in `try`-with-resources
 

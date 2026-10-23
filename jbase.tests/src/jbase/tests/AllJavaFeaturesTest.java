@@ -25,6 +25,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
+			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
 			import java.util.function.IntFunction;
@@ -224,11 +225,21 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			} finally {
 				System.out.println("done");
 			}
+			try {
+				throw new IOException(text);
+			} catch (IOException | IllegalArgumentException e) {
+				System.out.println(e.getMessage());
+			}
 			try (final var first = new ByteArrayInputStream(new byte[] {1});
 				ByteArrayInputStream second = new ByteArrayInputStream(new byte[] {2})) {
 				System.out.println(first.read() + second.read());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
+			}
+			try (InputStream input = new ByteArrayInputStream(new byte[] {1})) {
+				System.out.println(input.read());
+			} catch (IOException | IllegalArgumentException e) {
+				System.out.println(e.getMessage());
 			}
 			synchronized (names) {
 				names.clear();
@@ -238,6 +249,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
+			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
 			import java.util.function.IntFunction;
@@ -521,6 +533,16 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    } finally {
 			      System.out.println("done");
 			    }
+			    try {
+			      throw new IOException(text);
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IOException || _t instanceof IllegalArgumentException) {
+			        final Exception e = (Exception)_t;
+			        System.out.println(e.getMessage());
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    }
 			    try (final ByteArrayInputStream first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
 			      int _read = first.read();
 			      int _read_1 = second.read();
@@ -530,6 +552,16 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      if (_t instanceof IOException) {
 			        final IOException e = (IOException)_t;
 			        throw new RuntimeException(e);
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    }
+			    try (final InputStream input = new ByteArrayInputStream(new byte[] { 1 })) {
+			      System.out.println(input.read());
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IOException || _t instanceof IllegalArgumentException) {
+			        final Exception e = (Exception)_t;
+			        System.out.println(e.getMessage());
 			      } else {
 			        throw Exceptions.sneakyThrow(_t);
 			      }
