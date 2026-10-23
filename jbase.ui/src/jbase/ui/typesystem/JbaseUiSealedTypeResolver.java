@@ -3,12 +3,13 @@ package jbase.ui.typesystem;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.common.types.access.TypeResource;
-import org.eclipse.xtext.common.types.access.jdt.JdtTypeMirror;
+import org.eclipse.xtext.common.types.access.jdt.IJavaProjectProvider;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+
+import com.google.inject.Inject;
 
 import jbase.typesystem.JbaseSealedTypeResolver;
 
@@ -16,15 +17,21 @@ import jbase.typesystem.JbaseSealedTypeResolver;
 public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 	private static final Logger LOGGER = Logger.getLogger(JbaseUiSealedTypeResolver.class);
 
+	@Inject
+	private IJavaProjectProvider javaProjectProvider;
+
 	@Override
 	protected List<String> permittedTypeNames(final EObject context,
 			final LightweightTypeReference type) {
 		final var resource = type.getType().eResource();
-		if (resource instanceof TypeResource typeResource
-				&& typeResource.getMirror() instanceof JdtTypeMirror mirror) {
-			return permittedTypeNames(mirror.getMirroredType());
+		final var javaProject = javaProjectProvider.getJavaProject(resource.getResourceSet());
+		try {
+			final var javaType = javaProject.findType(
+					type.getType().getQualifiedName('.'));
+			return permittedTypeNames(javaType);
+		} catch (JavaModelException e) {
+			return super.permittedTypeNames(context, type);
 		}
-		return super.permittedTypeNames(context, type);
 	}
 
 	List<String> permittedTypeNames(final IType javaType) {
