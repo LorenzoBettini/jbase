@@ -541,4 +541,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			}
 			""");
 	}
+
+	@Test
+	public void testMultiCatch() throws Exception {
+		checkCompilation("""
+			try {
+				throw new java.io.IOException();
+			} catch (java.io.IOException | IllegalArgumentException ex) {
+				ex.getMessage();
+			}
+			""", null);
+	}
 }
