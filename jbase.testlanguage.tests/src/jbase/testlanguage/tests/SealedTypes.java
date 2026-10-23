@@ -7,6 +7,21 @@ public final class SealedTypes {
 	public sealed interface Shape permits Circle, Square {
 	}
 
+	public abstract static sealed class AbstractShape permits AbstractCircle, AbstractSquare {
+	}
+
+	public static final class AbstractCircle extends AbstractShape {
+		public int radius() {
+			return 1;
+		}
+	}
+
+	public static final class AbstractSquare extends AbstractShape {
+		public int side() {
+			return 1;
+		}
+	}
+
 	public record Circle(int radius) implements Shape {
 	}
 

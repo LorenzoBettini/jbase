@@ -34,8 +34,9 @@ generation.
 
 Switch expressions must be exhaustive. Jbase recognizes a default, a total type
 pattern, a record pattern covering every component type, complete enum coverage,
-including grouped enum labels, and complete coverage of sealed hierarchies. Sealed
-coverage follows permitted subclasses recursively; unguarded type patterns, covering
+including grouped enum labels, and complete coverage of sealed hierarchies, whether
+declared as sealed classes or interfaces. Sealed coverage follows permitted subclasses
+recursively; unguarded type patterns, covering
 record patterns and complete enum constants can cover each branch. In the IDE, the
 hierarchy is resolved through JDT so project and dependency types do not need to be
 loadable by the language bundle's class loader. Record coverage is checked recursively
