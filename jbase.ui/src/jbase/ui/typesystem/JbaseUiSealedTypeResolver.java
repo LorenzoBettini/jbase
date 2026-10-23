@@ -34,7 +34,7 @@ public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 		}
 	}
 
-	List<String> permittedTypeNames(final IType javaType) {
+	protected List<String> permittedTypeNames(final IType javaType) {
 		try {
 			if (!javaType.isSealed()) {
 				return List.of();
@@ -55,7 +55,7 @@ public class JbaseUiSealedTypeResolver extends JbaseSealedTypeResolver {
 		}
 	}
 
-	IType resolvePermittedType(final IType sealedType, final String name)
+	protected IType resolvePermittedType(final IType sealedType, final String name)
 			throws JavaModelException {
 		final var resolved = sealedType.resolveType(name);
 		if (resolved == null || resolved.length != 1) {
