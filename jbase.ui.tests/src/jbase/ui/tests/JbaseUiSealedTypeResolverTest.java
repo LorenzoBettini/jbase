@@ -53,17 +53,13 @@ public class JbaseUiSealedTypeResolverTest {
 	}
 
 	@Test
-	public void jdtFailuresAreReportedAsUnavailableCoverage() {
+	public void jdtFailuresInPermittedTypeNames() {
 		assertTrue(resolver.permittedTypeNames(
 			javaType(true, new String[0], null, null, true)).isEmpty());
 	}
 
-	/**
-	 * When calling {@link JbaseUiSealedTypeResolver#jbase.ui.typesystem.JbaseUiSealedTypeResolver.permittedTypeNames(EObject, LightweightTypeReference)}
-	 * and there's a {@link JavaModelException}, the fallback implementation should be used and return an empty list.
-	 */
 	@Test
-	public void jdtFailuresInContextAreReportedAsUnavailableCoverage() throws Exception {
+	public void jdtFailuresInFindType() throws Exception {
 		final var sourceType = javaType(true, new String[0], null, null, false);
 		final var javaProject = javaProject(sourceType, true);
 		final var context = parser.parse("Object value = null;");
