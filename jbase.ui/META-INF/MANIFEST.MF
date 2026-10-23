@@ -26,11 +26,12 @@ Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.ui,
  jbase.ui.contentassist,
+ jbase.ui.editor,
  jbase.ui.internal,
- jbase.ui.typesystem;x-internal:=true,
+ jbase.ui.jdt;x-friends:="jbase.ui.tests",
  jbase.ui.quickfix,
  jbase.ui.refactoring,
  jbase.ui.syntaxcoloring,
- jbase.ui.editor
+ jbase.ui.typesystem;x-friends:="jbase.ui.tests"
 Bundle-Activator: jbase.ui.internal.JbaseActivator
 Automatic-Module-Name: jbase.ui
