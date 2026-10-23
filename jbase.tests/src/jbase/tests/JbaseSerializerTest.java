@@ -138,6 +138,27 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testAssertStatements() throws Exception {
+			assertSerialize("""
+				assert true;
+				assert true : "message";
+				""");
+	}
+
+	@Test
+	public void testAssertStatementsWithoutNodeModel() throws Exception {
+			final var source = "assert true; assert true : \"message\";";
+			final var parsed = parseHelper.parse(source);
+			validationTestHelper.assertNoErrors(parsed);
+			final var resource = parsed.eResource();
+			final var model = EcoreUtil.copy(parsed);
+			resource.getContents().clear();
+			resource.getContents().add(model);
+			assertEquals(source.replaceAll("\\s+", ""),
+				serializer.serialize(model).replaceAll("\\s+", ""));
+	}
+
+	@Test
 	public void testMethodReferences() throws Exception {
 		assertSerialize("""
 			java.util.function.ToIntFunction<String> length = String::length;

@@ -273,6 +273,20 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testAssertStatements() {
+		assertFormatted(expression -> {
+			expression.setToBeFormatted("""
+				assert   condition ;
+				assert condition:"message";
+				""");
+			expression.setExpectation("""
+				assert condition;
+				assert condition : "message";
+				""");
+		});
+	}
+
+	@Test
 	public void testEmptyStatements() {
 		assertFormatted(expression -> {
 			expression.setExpectation("""

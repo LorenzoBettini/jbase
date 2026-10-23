@@ -66,9 +66,15 @@ XJSingleStatement returns XExpression:
 XJSemicolonStatement returns XExpression:
 	{XJSemicolonStatement}
 	(=>expression=XJYieldStatement |
+		=>expression=XJAssertStatement |
 		expression=(XJBranchingStatement | XExpressionOrVarDeclaration |
 			XDoWhileExpression | XReturnExpression | XThrowExpression))
 	->semicolon=';'?
+;
+
+XJAssertStatement returns XExpression:
+	{XJAssertStatement}
+	"assert" condition=XExpression (':' message=XExpression)?
 ;
 
 XJEmptyStatement returns XExpression:

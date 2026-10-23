@@ -85,5 +85,9 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJComponentPattern/recordPattern"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJComponentPattern/inferred"/>
     </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAssertStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/message"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>
