@@ -52,12 +52,12 @@ records, final and mutable bindings, flow-sensitive scopes, guarded rules and co
 switch groups. Component arity, record types, primitive compatibility, unchecked
 conversions, duplicate bindings, dominance and record-pattern coverage are validated.
 Native Java preserves null matching, component accessor evaluation and `MatchException`
-behavior. Sealed-hierarchy exhaustiveness remains the separate gap below.
+behavior. Sealed-hierarchy exhaustiveness is also implemented, as described below.
 Covered by `JbaseRecordPatternTest`, `JbaseSerializerTest` and `AllJavaFeaturesTest`,
 including full Java snapshots, compilation, execution and serialization without a
 node model. The runtime/UI JaCoCo aggregate has 100% instruction, branch and line coverage.
 
-### [ ] Exhaustiveness over sealed hierarchies
+### [x] Exhaustiveness over sealed hierarchies
 
 Assume these externally declared Java types:
 
@@ -67,9 +67,6 @@ record Circle(int radius) implements Shape {}
 record Square(int side) implements Shape {}
 ```
 
-This exhaustive Java 21 expression is rejected with
-`A switch expression or pattern switch must be exhaustive`:
-
 ```java
 Shape shape = new Circle(1);
 int size = switch (shape) {
@@ -78,9 +75,13 @@ int size = switch (shape) {
 };
 ```
 
-`JbaseSwitches.isExhaustive` recognizes a default, a total type pattern, or all enum
-constants, but does not compute coverage of permitted subclasses. Adding a default
-is a workaround; it does not implement Java's sealed-type exhaustiveness rules.
+**Implemented:** Exhaustiveness follows sealed `permits` hierarchies recursively,
+including nested sealed types, concrete sealed classes, generic hierarchies, and enum
+leaves. Unconditional type and record patterns contribute to coverage; a literal
+`true` guard is also unconditional, while other guarded patterns do not establish
+coverage. Incomplete or unresolved permitted-type coverage remains non-exhaustive.
+Covered by `JbaseRecordPatternTest`, `JbaseEnhancedSwitchTest`, and
+`AllJavaFeaturesTest`.
 
 ### [x] Pattern switches on some boxed selector types
 
@@ -155,17 +156,19 @@ compiler emits a type check for each alternative and resolves the catch variable
 to their common supertype. Multi-catch is supported with and without
 try-with-resources.
 
-### [ ] Existing-variable resources in `try`-with-resources
+### [x] Existing-variable resources in `try`-with-resources
 
 ```java
 var input = new java.io.ByteArrayInputStream(new byte[0]);
 try (input) {}
 ```
 
-Java 9 and later allow an existing final or effectively final local variable, or a
-final field, as a resource. Jbase's resource rule requires a declaration with an
-initializer. The local-variable example has syntax errors and can crash generation.
-Declarations such as `try (var input = ...)` are supported.
+**Implemented:** Existing final or effectively final local variables and parameters,
+as well as final fields, can be used as resources when they implement
+`AutoCloseable`. Existing-variable resources can be mixed with resource declarations
+and retain source order. Covered by `JbaseParsingTest`, `JbaseFormatterTest`,
+`JbaseVarTest`, and `JbaseCompilerTest`; see the
+[try-with-resources guide](docs/TRY_WITH_RESOURCES.md).
 
 ### [ ] Annotations on local variables, parameters, and type uses
 
