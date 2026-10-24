@@ -111,9 +111,9 @@ public class JbaseJdtHelperTest {
 
 	@Test
 	public void unresolvedOrAmbiguousPermittedTypesAreNotAccepted() throws Exception {
-		assertNull(JbaseJdtHelper.resolvePermittedType(
+		assertNull(JbaseJdtHelper.resolveType(
 			javaType(true, new String[0], null, null, false), "Missing"));
-		assertNull(JbaseJdtHelper.resolvePermittedType(javaType(true, new String[0],
+		assertNull(JbaseJdtHelper.resolveType(javaType(true, new String[0],
 			new String[][] { { "one", "Child" }, { "two", "Child" } }, null, false),
 			"Child"));
 

@@ -41,7 +41,7 @@ public class JbaseJdtHelper {
 			}
 			final var names = new java.util.ArrayList<String>();
 			for (final var name : javaType.getPermittedSubtypeNames()) {
-				final var permittedType = resolvePermittedType(javaType, name);
+				final var permittedType = resolveType(javaType, name);
 				if (permittedType == null) {
 					return List.of();
 				}
@@ -55,15 +55,15 @@ public class JbaseJdtHelper {
 		}
 	}
 
-	public static IType resolvePermittedType(final IType sealedType, final String name)
+	public static IType resolveType(final IType type, final String name)
 			throws JavaModelException {
-		final var resolved = sealedType.resolveType(name);
+		final var resolved = type.resolveType(name);
 		if (resolved == null || resolved.length != 1) {
 			return null;
 		}
 		final var packageName = resolved[0][0];
 		final var qualifiedName = packageName.isEmpty() ? resolved[0][1]
 			: packageName + "." + resolved[0][1];
-		return sealedType.getJavaProject().findType(qualifiedName);
+		return type.getJavaProject().findType(qualifiedName);
 	}
 }
