@@ -14,6 +14,7 @@ import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
 import jbase.typesystem.JbaseTypeComputer;
 import jbase.typesystem.JbaseReentrantTypeResolver;
+import jbase.typesystem.JbaseSealedTypeResolver;
 import jbase.validation.JbaseConfigurableIssueCodes;
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
@@ -60,6 +61,10 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 
 	public Class<? extends IEarlyExitComputer> bindIEarlyExitComputer() {
 		return JbaseEarlyExitComputer.class;
+	}
+
+	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
+		return JbaseSealedTypeResolver.class;
 	}
 
 	@Override

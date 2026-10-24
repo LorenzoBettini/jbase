@@ -99,6 +99,7 @@ import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.typesystem.JbasePatternVariables;
 import jbase.typesystem.JbaseRecordPatterns;
+import jbase.typesystem.JbaseSealedTypeResolver;
 import jbase.typesystem.JbaseInstanceOfTypes;
 import jbase.util.JbaseModelUtil;
 import jbase.util.JbaseSwitches;
@@ -133,6 +134,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	private IEarlyExitComputer earlyExitComputer;
 	@Inject
 	private JbaseInitializedVariableFinder initializedVariableFinder;
+	@Inject
+	private JbaseSealedTypeResolver sealedTypeResolver;
 	@Inject
 	private ProxyAwareUIStrings proxyAwareUIStrings;
 
@@ -211,7 +214,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	}
 
 	private boolean isExhaustive(final XSwitchExpression expression) {
-		return JbaseSwitches.isExhaustive(expression, batchTypeResolver.resolveTypes(expression));
+		return JbaseSwitches.isExhaustive(expression, batchTypeResolver.resolveTypes(expression),
+			sealedTypeResolver);
 	}
 
 	private boolean isUnconditionalPattern(final XCasePart part) {

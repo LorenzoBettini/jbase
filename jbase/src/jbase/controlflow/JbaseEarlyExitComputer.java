@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import com.google.inject.Inject;
 
 import jbase.jbase.XJCasePart;
+import jbase.typesystem.JbaseSealedTypeResolver;
 import jbase.util.JbaseSwitches;
 
 /**
@@ -23,6 +24,8 @@ public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExi
 
 	@Inject
 	private IBatchTypeResolver typeResolver;
+	@Inject
+	private JbaseSealedTypeResolver sealedTypeResolver;
 
 	@Inject
 	private JbaseBranchingStatementDetector branchingStatementDetector;
@@ -67,7 +70,8 @@ public class JbaseEarlyExitComputer extends JbaseSemicolonStatementAwareEarlyExi
 			result.addAll(caseExit);
 		}
 		if (expression.getDefault() == null && JbaseSwitches.isEnhanced(expression)
-				&& JbaseSwitches.isExhaustive(expression, typeResolver.resolveTypes(expression))) {
+				&& JbaseSwitches.isExhaustive(expression, typeResolver.resolveTypes(expression),
+					sealedTypeResolver)) {
 			return result;
 		}
 		var defaultExit = getExitPoints(expression.getDefault());

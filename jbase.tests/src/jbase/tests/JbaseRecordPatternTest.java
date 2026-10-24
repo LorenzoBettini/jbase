@@ -2,17 +2,28 @@ package jbase.tests;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.common.types.JvmType;
+import org.eclipse.xtext.common.types.access.IJvmTypeProvider;
+import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.inject.Inject;
 
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
+import jbase.testlanguage.tests.SealedTypes;
+import jbase.typesystem.JbaseSealedTypeResolver;
 
 @RunWith(XtextRunner.class)
 @InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
@@ -31,8 +42,39 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 		import jbase.testlanguage.tests.RecordPatternTypes.Failing;
 		""";
 
+	private static final String SEALED_IMPORTS = """
+		import jbase.testlanguage.tests.SealedTypes.Shape;
+		import jbase.testlanguage.tests.SealedTypes.Circle;
+		import jbase.testlanguage.tests.SealedTypes.Square;
+		import jbase.testlanguage.tests.SealedTypes.AbstractShape;
+		import jbase.testlanguage.tests.SealedTypes.AbstractCircle;
+		import jbase.testlanguage.tests.SealedTypes.AbstractSquare;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteShape;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteCircle;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteHierarchy;
+		import jbase.testlanguage.tests.SealedTypes.ConcreteEnd;
+		import jbase.testlanguage.tests.SealedTypes.Nested;
+		import jbase.testlanguage.tests.SealedTypes.NestedLeft;
+		import jbase.testlanguage.tests.SealedTypes.NestedRight;
+		import jbase.testlanguage.tests.SealedTypes.NestedEnd;
+		import jbase.testlanguage.tests.SealedTypes.Records;
+		import jbase.testlanguage.tests.SealedTypes.IntRecord;
+		import jbase.testlanguage.tests.SealedTypes.RecordEnd;
+		import jbase.testlanguage.tests.SealedTypes.OpenHierarchy;
+		import jbase.testlanguage.tests.SealedTypes.OpenBranch;
+		import jbase.testlanguage.tests.SealedTypes.ClosedBranch;
+		import jbase.testlanguage.tests.SealedTypes.Generic;
+		import jbase.testlanguage.tests.SealedTypes.GenericString;
+		import jbase.testlanguage.tests.SealedTypes.GenericInteger;
+		import jbase.testlanguage.tests.SealedTypes.EnumHierarchy;
+		import jbase.testlanguage.tests.SealedTypes.Color;
+		""";
+
 	@Inject
 	private ParseHelper<EObject> parser;
+
+	@Inject
+	private IBatchTypeResolver batchTypeResolver;
 
 	@Test
 	public void nativeJavaGeneration() throws Exception {
@@ -131,6 +173,219 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 			if (unknown instanceof Box(var value)) System.out.println(value);
 			if (unknown instanceof Box(String value)) System.out.println(value.length());
 			""", null);
+	}
+
+	@Test
+	public void sealedHierarchyExhaustiveness() throws Exception {
+		final var source = SEALED_IMPORTS + """
+			method shapeSize(Shape shape) : int {
+				return switch (shape) {
+					case null -> 0;
+					case Circle circle -> circle.radius();
+					case Square square -> square.side();
+				};
+			}
+			method abstractShapeSize(AbstractShape shape) : int {
+				return switch (shape) {
+					case AbstractCircle circle -> circle.radius();
+					case AbstractSquare square -> square.side();
+				};
+			}
+			method concreteShapeSize(ConcreteShape shape) : int {
+				return switch (shape) {
+					case ConcreteCircle circle -> circle.size();
+					case ConcreteShape base -> base.size();
+				};
+			}
+			method nestedSize(Nested nested) : int {
+				return switch (nested) {
+					case NestedLeft left -> 1;
+					case NestedRight right -> 2;
+					case NestedEnd end -> 3;
+				};
+			}
+			method recordSize(Records value) : int {
+				return switch (value) {
+					case IntRecord(int size) -> size;
+					case RecordEnd end -> 0;
+				};
+			}
+			method openSize(OpenHierarchy value) : int {
+				return switch (value) {
+					case OpenBranch open -> 1;
+					case ClosedBranch closed -> 2;
+				};
+			}
+			method genericSize(Generic<String> value) : int {
+				return switch (value) {
+					case GenericString string -> string.value().length();
+				};
+			}
+			method rawGenericSize(Generic value) : int {
+				return switch (value) {
+					case GenericString string -> string.value().length();
+					case GenericInteger integer -> integer.value().intValue();
+				};
+			}
+			method enumSize(EnumHierarchy value) : int {
+				return switch (value) {
+					case Color.RED -> 0;
+					case Color.BLUE -> 1;
+				};
+			}
+			""";
+		checkCompilation(source, null);
+	}
+
+	@Test
+	public void incompleteSealedHierarchySwitchesAreRejected() throws Exception {
+		assertError(SEALED_IMPORTS + """
+			Shape shape = null;
+			int size = switch (shape) {
+				case Circle circle -> circle.radius();
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			AbstractShape shape = null;
+			int size = switch (shape) {
+				case AbstractCircle circle -> circle.radius();
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			ConcreteShape shape = null;
+			int size = switch (shape) {
+				case ConcreteCircle circle -> circle.size();
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			ConcreteHierarchy shape = null;
+			int size = switch (shape) {
+				case ConcreteCircle circle -> circle.size();
+				case ConcreteEnd end -> 0;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			Shape shape = null;
+			int size = switch (shape) {
+				case Circle circle when circle.radius() > 0 -> circle.radius();
+				case Square square -> square.side();
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			OpenHierarchy value = null;
+			int size = switch (value) {
+				case ClosedBranch closed -> 0;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			Nested value = null;
+			int size = switch (value) {
+				case NestedLeft left -> 0;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			boolean value = true;
+			int size = switch (value) {
+				case true -> 1;
+			};
+			""", "must be exhaustive");
+		assertError(SEALED_IMPORTS + """
+			Shape value = null;
+			int size = switch (value) {
+				case true -> 1;
+			};
+			""", "must be exhaustive");
+		assertError("""
+			import java.time.DayOfWeek;
+			int size = switch (DayOfWeek.MONDAY) {
+				case MONDAY -> 1;
+			};
+			""", "must be exhaustive");
+	}
+
+	@Test
+	public void sealedTypeResolutionHandlesMissingTypesAndResources() throws Exception {
+		final var expression = shapeSwitch();
+		final var selector = batchTypeResolver.resolveTypes(expression)
+			.getActualType(expression.getSwitch());
+		final var missingClassLoader = new ClassLoader(SealedTypes.class.getClassLoader()) {
+			@Override
+			protected Class<?> loadClass(final String name, final boolean resolve)
+					throws ClassNotFoundException {
+				if (name.equals(SealedTypes.Shape.class.getName())) {
+					throw new ClassNotFoundException(name);
+				}
+				return super.loadClass(name, resolve);
+			}
+		};
+		final var factory = new MissingTypeProviderFactory();
+		final var unavailable = new TestSealedTypeResolver(missingClassLoader, factory);
+		final List<LightweightTypeReference> unavailableTypes =
+			unavailable.permittedTypes(expression, selector);
+		assertTrue(unavailableTypes.isEmpty());
+
+		final var missingPermittedType = new TestSealedTypeResolver(
+			SealedTypes.Shape.class.getClassLoader(), factory);
+		assertTrue(missingPermittedType.permittedTypes(expression, selector).isEmpty());
+		assertTrue(missingPermittedType.permittedTypes(null, selector).isEmpty());
+		assertTrue(missingPermittedType.permittedTypes(
+			org.eclipse.emf.ecore.EcoreFactory.eINSTANCE.createEObject(), selector).isEmpty());
+	}
+
+	private XSwitchExpression shapeSwitch() throws Exception {
+		return EcoreUtil2.getAllContentsOfType(parser.parse(SEALED_IMPORTS + """
+			Shape shape = null;
+			int size = switch (shape) {
+				case Circle circle -> circle.radius();
+				case Square square -> square.side();
+			};
+			"""), XSwitchExpression.class).getFirst();
+	}
+
+	private static final class TestSealedTypeResolver extends JbaseSealedTypeResolver {
+		TestSealedTypeResolver(final ClassLoader classLoader,
+				final IJvmTypeProvider.Factory typeProviderFactory) {
+			super(classLoader, typeProviderFactory);
+		}
+	}
+
+	private static final class MissingTypeProviderFactory implements IJvmTypeProvider.Factory {
+		private final IJvmTypeProvider typeProvider = new IJvmTypeProvider() {
+			@Override
+			public JvmType findTypeByName(final String name) {
+				return null;
+			}
+
+			@Override
+			public JvmType findTypeByName(final String name, final boolean binaryNestedTypeDelimiter) {
+				return null;
+			}
+
+			@Override
+			public ResourceSet getResourceSet() {
+				return null;
+			}
+		};
+
+		@Override
+		public IJvmTypeProvider createTypeProvider(final ResourceSet resourceSet) {
+			return typeProvider;
+		}
+
+		@Override
+		public IJvmTypeProvider findTypeProvider(final ResourceSet resourceSet) {
+			return typeProvider;
+		}
+
+		@Override
+		public IJvmTypeProvider findOrCreateTypeProvider(final ResourceSet resourceSet) {
+			return typeProvider;
+		}
+
+		@Override
+		public IJvmTypeProvider createTypeProvider() {
+			return typeProvider;
+		}
 	}
 
 	@Test
@@ -256,5 +511,11 @@ public class JbaseRecordPatternTest extends JbaseAbstractCompilerTest {
 			assertTrue(source + "\n" + issues, issues.stream()
 				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
 		}
+	}
+
+	private void assertError(final String source, final String message) throws Exception {
+		final var issues = validationTestHelper.validate(parser.parse(source));
+		assertTrue(issues.toString(),
+			issues.stream().anyMatch(issue -> issue.getMessage().contains(message)));
 	}
 }

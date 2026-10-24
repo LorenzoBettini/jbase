@@ -4,8 +4,10 @@
 package jbase.ui;
 
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
+import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
 import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
+import jbase.typesystem.JbaseSealedTypeResolver;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
@@ -31,5 +33,9 @@ public class JbaseUiModule extends AbstractJbaseUiModule {
 
 	public Class<? extends ExtractVariableRefactoring> bindExtractVariableRefactoring() {
 		return JbaseExtractVariableRefactoring.class;
+	}
+
+	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
+		return JbaseUiSealedTypeResolver.class;
 	}
 }
