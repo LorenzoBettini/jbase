@@ -48,6 +48,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJTryWithResourcesStatement/openParenthesis"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesVariableDeclaration"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesExistingResource"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesExistingResourceReference"/>
     <genClasses image="false" ecoreClass="Jbase.ecore#//XJWithSemicolon">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJWithSemicolon/semicolon"/>
     </genClasses>

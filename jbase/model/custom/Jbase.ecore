@@ -56,6 +56,10 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesVariableDeclaration"
       eSuperTypes="#//XJVariableDeclaration #//XJWithSemicolon"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesExistingResource"
+      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration #//XJWithSemicolon"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJTryWithResourcesExistingResourceReference"
+      eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XFeatureCall"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJWithSemicolon" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="semicolon" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>

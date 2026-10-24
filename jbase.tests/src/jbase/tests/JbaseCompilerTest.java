@@ -1,5 +1,7 @@
 package jbase.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.inject.Inject;
 import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
@@ -2755,6 +2757,51 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			  }
 			}
 			""");
+	}
+
+	@Test
+	public void testTryWithExistingVariableResources() throws Exception {
+		compilationTestHelper.compile("""
+			var input = new java.io.ByteArrayInputStream(new byte[0]);
+			try (input) {}
+			""", result -> {
+				assertNoValidationErrors(result);
+				assertTrue(result.getSingleGeneratedCode(),
+					result.getSingleGeneratedCode().contains("try (input)"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
+
+		compilationTestHelper.compile("""
+			var input = new java.io.ByteArrayInputStream(new byte[0]);
+			try (input; var second = new java.io.ByteArrayInputStream(new byte[0])) {}
+			""", result -> {
+				assertNoValidationErrors(result);
+				final var generated = result.getSingleGeneratedCode();
+				assertTrue(generated, generated.contains("try (input;"));
+				assertTrue(generated, generated.indexOf("second = new ByteArrayInputStream")
+					> generated.indexOf("try (input;"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
+
+		compilationTestHelper.compile("""
+			import static java.lang.System.in;
+			try (in) {}
+			""", result -> {
+				assertNoValidationErrors(result);
+				assertGeneratedJavaCodeCompiles(result);
+			});
+
+		compilationTestHelper.compile("""
+			var input = new java.io.StringReader("a");
+			try (input) {
+				input.read();
+			} catch (java.io.IOException e) {
+				throw new RuntimeException(e);
+			} finally {}
+			""", result -> {
+				assertNoValidationErrors(result);
+				assertGeneratedJavaCodeCompiles(result);
+			});
 	}
 
 	@Test

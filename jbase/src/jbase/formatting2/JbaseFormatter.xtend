@@ -36,6 +36,7 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesExistingResource
 import jbase.jbase.XJWithSemicolon
 import org.eclipse.xtext.xbase.XConstructorCall
 import jbase.jbase.XJTryWithResourcesVariableDeclaration
@@ -204,6 +205,10 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		for (r : expr.resources.filter(XJTryWithResourcesVariableDeclaration)) {
 			r.format(document)
 			r.formatSemicolon(document)
+		}
+		for (r : expr.resources.filter(XJTryWithResourcesExistingResource)) {
+			r.right.format(document)
+			r.regionFor.keyword(";").prepend[noSpace].append[oneSpace]
 		}
 		super._format(expr, document)
 	}

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJPrefixOperation;
+import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.util.JbaseNodeModelUtil;
 import org.eclipse.emf.ecore.EObject;
@@ -687,6 +688,19 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 			try (String s = "")
 			""", expression -> assertEquals(1,
 				getTryWithResources(expression).getResources().size()));
+	}
+
+	@Test
+	public void testTryWithExistingVariableResource() throws Exception {
+		assertLastExpression("""
+			try (input) {}
+			""", expression -> {
+			final var resources = getTryWithResources(expression).getResources().stream()
+				.filter(XJTryWithResourcesExistingResource.class::isInstance).toList();
+			assertEquals(1, resources.size());
+			assertTrue(resources.getFirst()
+				.getRight() instanceof XFeatureCall);
+		});
 	}
 
 	@Test
