@@ -25,6 +25,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
+			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
 			import java.util.function.IntFunction;
@@ -55,6 +56,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Primitive types, literals, declarations, assignments and operators.
 			final boolean enabled = true;
+			assert enabled;
+			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
 			short medium = (short) 2;
 			short positive = +1;
@@ -230,11 +233,26 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			} finally {
 				System.out.println("done");
 			}
+			try {
+				throw new IOException(text);
+			} catch (IOException | IllegalArgumentException e) {
+				System.out.println(e.getMessage());
+			}
 			try (final var first = new ByteArrayInputStream(new byte[] {1});
 				ByteArrayInputStream second = new ByteArrayInputStream(new byte[] {2})) {
 				System.out.println(first.read() + second.read());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
+			}
+			try (InputStream input = new ByteArrayInputStream(new byte[] {1})) {
+				System.out.println(input.read());
+			} catch (IOException | IllegalArgumentException e) {
+				System.out.println(e.getMessage());
+			}
+			var existingInput = new ByteArrayInputStream(new byte[] {3});
+			try (existingInput; var secondInput = new ByteArrayInputStream(new byte[] {4})) {
+				System.out.println(existingInput.read());
+				System.out.println(secondInput.read());
 			}
 			synchronized (names) {
 				names.clear();
@@ -244,6 +262,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
+			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
 			import java.util.function.IntFunction;
@@ -277,6 +296,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			  public static void main(String[] args) throws Throwable {
 			    final boolean enabled = true;
+			    assert enabled;
+			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);
 			    short medium = ((short) 2);
 			    short positive = +1;
@@ -535,6 +556,16 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    } finally {
 			      System.out.println("done");
 			    }
+			    try {
+			      throw new IOException(text);
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IOException || _t instanceof IllegalArgumentException) {
+			        final Exception e = (Exception)_t;
+			        System.out.println(e.getMessage());
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    }
 			    try (final ByteArrayInputStream first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
 			      int _read = first.read();
 			      int _read_1 = second.read();
@@ -547,6 +578,21 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      } else {
 			        throw Exceptions.sneakyThrow(_t);
 			      }
+			    }
+			    try (final InputStream input = new ByteArrayInputStream(new byte[] { 1 })) {
+			      System.out.println(input.read());
+			    } catch (final Throwable _t) {
+			      if (_t instanceof IOException || _t instanceof IllegalArgumentException) {
+			        final Exception e = (Exception)_t;
+			        System.out.println(e.getMessage());
+			      } else {
+			        throw Exceptions.sneakyThrow(_t);
+			      }
+			    }
+			    ByteArrayInputStream existingInput = new ByteArrayInputStream(new byte[] { 3 });
+			    try (existingInput; final ByteArrayInputStream secondInput = new ByteArrayInputStream(new byte[] { 4 })) {
+			      System.out.println(existingInput.read());
+			      System.out.println(secondInput.read());
 			    }
 			    synchronized (names) {
 			      names.clear();

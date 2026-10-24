@@ -48,6 +48,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJTryWithResourcesStatement/openParenthesis"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesVariableDeclaration"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesExistingResource"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJTryWithResourcesExistingResourceReference"/>
     <genClasses image="false" ecoreClass="Jbase.ecore#//XJWithSemicolon">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJWithSemicolon/semicolon"/>
     </genClasses>
@@ -84,6 +86,10 @@
     <genClasses ecoreClass="Jbase.ecore#//XJComponentPattern">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJComponentPattern/recordPattern"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJComponentPattern/inferred"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAssertStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/message"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

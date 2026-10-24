@@ -45,6 +45,7 @@ import jbase.jbase.JbasePackage;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
+import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJCasePart;
@@ -55,6 +56,7 @@ import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseSwitches;
 import jbase.validation.JbaseIssueCodes;
@@ -90,6 +92,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			case XJArrayConstructorCall call -> computeJbaseTypes(call, state);
 			case XJArrayAccessExpression access -> computeJbaseTypes(access, state);
 			case XJBranchingStatement statement -> state.acceptActualType(getPrimitiveVoid(state));
+			case XJAssertStatement statement -> computeJbaseTypes(statement, state);
 			case XJCharLiteral literal -> computeCharLiteralTypes(state);
 			case XJVariableDeclaration declaration -> computeJbaseTypes(declaration, state);
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
@@ -199,6 +202,9 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	@Override
 	protected void addLocalToCurrentScope(final XVariableDeclaration localVariable,
 			final ITypeComputationState state) {
+		if (localVariable instanceof XJTryWithResourcesExistingResource) {
+			return;
+		}
 		super.addLocalToCurrentScope(localVariable, state);
 		if (localVariable instanceof XJVariableDeclaration declaration) {
 			for (var additional : declaration.getAdditionalVariables()) {
@@ -547,6 +553,16 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	private ITypeReferenceOwner getReferenceOwner(final ITypeComputationState state) {
 		return state.getReferenceOwner();
+	}
+
+	private void computeJbaseTypes(final XJAssertStatement statement,
+			final ITypeComputationState state) {
+		state.withExpectation(getTypeForName(boolean.class, state))
+			.computeTypes(statement.getCondition());
+		if (statement.getMessage() != null) {
+			state.withNonVoidExpectation().computeTypes(statement.getMessage());
+		}
+		state.acceptActualType(getPrimitiveVoid(state));
 	}
 
 	/**

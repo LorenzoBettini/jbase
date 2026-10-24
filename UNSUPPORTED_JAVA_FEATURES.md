@@ -114,15 +114,19 @@ complete generated Java, compile it and execute representative matches.
 Covered by `JbaseInstanceOfPatternTest` and `AllJavaFeaturesTest`; the new type utility
 and validator override have 100% instruction, branch and line coverage.
 
-### [ ] `assert` statements
+### [x] `assert` statements
 
 ```java
 assert true;
 assert true : "message";
 ```
 
-There is no assertion statement rule. Jbase treats `assert` as an unresolved name
-and reports statement or syntax errors; neither assertion form is implemented.
+**Implemented:** Assertions with optional detail expressions are parsed,
+type-checked, formatted, serialized, and generated as native Java statements.
+The condition must be boolean and the detail expression must not be void.
+Runtime assertion status follows Java's `-ea` behavior. Covered by
+`JbaseAssertStatementTest`, `JbaseFormatterTest`, `JbaseSerializerTest`, and
+`AllJavaFeaturesTest`; see the [assert statement guide](docs/ASSERT_STATEMENTS.md).
 
 ### [ ] Labeled statements, `break`, and `continue`
 
@@ -136,18 +140,20 @@ outer: for (int i = 0; i < 2; i++) {
 Labels are not modeled. `XJBranchingStatement` accepts only bare `break` and
 `continue`. Unlabeled jumps are already supported.
 
-### [ ] Multi-catch
+### [x] Multi-catch
 
 ```java
 try {
     throw new java.io.IOException();
 } catch (java.io.IOException | IllegalArgumentException ex) {
+    ex.getMessage();
 }
 ```
 
-`XCatchClause` requires a single `JvmTypeReference`, so the union type has syntax
-errors. Attempting generation of the recovered model can also throw an exception.
-Separate single-type catch clauses are supported.
+`XCatchClause` represents the alternatives with `JvmSynonymTypeReference`. The
+compiler emits a type check for each alternative and resolves the catch variable
+to their common supertype. Multi-catch is supported with and without
+try-with-resources.
 
 ### [ ] Existing-variable resources in `try`-with-resources
 

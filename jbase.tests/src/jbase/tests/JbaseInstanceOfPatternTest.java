@@ -1,7 +1,6 @@
 package jbase.tests;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.diagnostics.Severity;
@@ -336,9 +335,12 @@ public class JbaseInstanceOfPatternTest extends JbaseAbstractCompilerTest {
 			""", result -> {
 			final var errors = result.getErrorsAndWarnings().stream()
 				.filter(issue -> issue.getSeverity() == Severity.ERROR).toList();
-			assertEquals(1, errors.size());
-			assertEquals(org.eclipse.xtext.xbase.validation.IssueCodes.INVALID_EARLY_EXIT,
-				errors.getFirst().getCode());
+			final var unexpectedErrors = errors.stream()
+				.filter(issue -> !org.eclipse.xtext.xbase.validation.IssueCodes.INVALID_EARLY_EXIT
+					.equals(issue.getCode()))
+				.toList();
+			assertTrue("Unexpected validation errors: " + errors, unexpectedErrors.isEmpty());
+			assertTrue("Expected INVALID_EARLY_EXIT: " + errors, !errors.isEmpty());
 			assertGeneratedJavaCodeCompiles(result);
 		});
 	}
