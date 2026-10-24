@@ -12,6 +12,8 @@ import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
 import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
+import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
+import jbase.typesystem.JbaseSealedTypeResolver;
 
 /**
  * This is meant to be used as the default base class for DSLs using Jbase.
@@ -36,5 +38,9 @@ public class DefaultJbaseUiModule extends DefaultXbaseUiModule {
 
 	public Class<? extends ExtractVariableRefactoring> bindExtractVariableRefactoring() {
 		return JbaseExtractVariableRefactoring.class;
+	}
+
+	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
+		return JbaseUiSealedTypeResolver.class;
 	}
 }

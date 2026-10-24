@@ -147,6 +147,28 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 			};
 			""", null);
 	}
+
+	@Test
+	public void traditionalSwitchStatementsDoNotRequireExhaustiveness() throws Exception {
+		checkCompilation("""
+			import java.time.DayOfWeek;
+			import static java.time.DayOfWeek.*;
+			DayOfWeek day = DayOfWeek.MONDAY;
+			switch (day) {
+				case MONDAY: break;
+			}
+			switch (day) {
+				case MONDAY: break;
+				case TUESDAY: break;
+				case WEDNESDAY: break;
+				case THURSDAY: break;
+				case FRIDAY: break;
+				case SATURDAY: break;
+				case SUNDAY: break;
+			}
+			""", null);
+	}
+
 	@Test
 	public void patternScopeAndNullExecution() throws Exception {
 		assertExecuteMain("""
@@ -198,6 +220,10 @@ public class JbaseEnhancedSwitchTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void reportsInvalidSwitches() throws Exception {
 		assertError("int n = switch (1) { case 0 -> 1; };", "must be exhaustive");
+		assertError("""
+			Object value = "hello";
+			int length = switch (value) { case String text -> text.length(); };
+			""", "must be exhaustive");
 		assertError("switch (1) { case 0 -> {} default: break; }", "Cannot mix");
 		assertError("switch (1) { case 0: break; default -> {} }", "Cannot mix");
 		assertError("switch (1L) { case 0 -> {} }", "selector type");
