@@ -1,7 +1,6 @@
 package jbase.tests;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.diagnostics.Severity;

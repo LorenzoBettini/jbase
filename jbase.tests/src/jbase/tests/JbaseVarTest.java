@@ -148,7 +148,7 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
-	public void existingResourceSemicolonsAreRecognized() throws Exception {
+	public void existingResourceSemicolonsAreRecognized() {
 		final var statement = JbaseFactory.eINSTANCE.createXJTryWithResourcesStatement();
 		final var existingResource =
 			JbaseFactory.eINSTANCE.createXJTryWithResourcesExistingResource();

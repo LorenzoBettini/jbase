@@ -698,7 +698,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 			final var resources = getTryWithResources(expression).getResources().stream()
 				.filter(XJTryWithResourcesExistingResource.class::isInstance).toList();
 			assertEquals(1, resources.size());
-			assertTrue(((XJTryWithResourcesExistingResource) resources.getFirst())
+			assertTrue(resources.getFirst()
 				.getRight() instanceof XFeatureCall);
 		});
 	}
