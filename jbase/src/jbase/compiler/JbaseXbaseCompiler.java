@@ -396,6 +396,25 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	@Override
+	protected LightweightTypeReference appendVariableTypeAndName(
+			final XVariableDeclaration varDeclaration, final ITreeAppendable appendable) {
+		if (varDeclaration.getType() == null) {
+			final var type = getLightweightType(varDeclaration.getRight());
+			final var tracedAppendable = appendable.trace(varDeclaration);
+			final var customDeclaration = (XJVariableDeclaration) varDeclaration;
+			if (customDeclaration.isFinal()) {
+				tracedAppendable.append(FINAL_MODIFIER);
+			}
+			tracedAppendable.append("var ");
+			final var name = tracedAppendable.declareVariable(varDeclaration,
+				makeJavaIdentifier(varDeclaration.getName()));
+			tracedAppendable.append(name);
+			return type;
+		}
+		return super.appendVariableTypeAndName(varDeclaration, appendable);
+	}
+
+	@Override
 	protected void _toJavaStatement(final XIfExpression expression,
 			final ITreeAppendable appendable, final boolean isReferenced) {
 		if (!(expression instanceof XJConditionalExpression conditional)
@@ -1081,7 +1100,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 		// this is the original code
 		JvmTypeReference paramType = getForLoopParameterType(expr);
-		serialize(paramType, expr, appendable);
+		final var originalParam = (XJJvmFormalParameter) declaredParam;
+		if (originalParam.getParameterType() == null) {
+			appendable.append("var");
+		} else {
+			serialize(paramType, expr, appendable);
+		}
 		appendable.append(" ");
 		final String name = makeJavaIdentifier(declaredParam.getName());
 		String varName = appendable.declareVariable(declaredParam, name);
