@@ -422,8 +422,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    List<? extends CharSequence> readable = names;
 			    List<? super String> writable = new ArrayList<Object>();
 			    writable.add(choice);
-			    ArrayList<String> inferred = new ArrayList<String>();
-			    final int offset = 2;
+			    var inferred = new ArrayList<String>();
+			    final var offset = 2;
 			    inferred.add(names.get(0));
 			    if (enabled) {
 			      count = Math.abs(-1);
@@ -441,12 +441,12 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        numbers[i] = i;
 			      }
 			    }
-			    for (int i = 0; (i < limit); i++) {
+			    for (var i = 0; (i < limit); i++) {
 			      if ((i == 2)) {
 			        break;
 			      }
 			    }
-			    for (String name : names) {
+			    for (var name : names) {
 			      System.out.println(name);
 			    }
 			    while ((count < limit)) {
@@ -531,7 +531,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    final Runnable _function_3 = () -> {
 			      System.out.println(supplier.getAsInt());
 			    };
-			    Runnable task = ((Runnable) _function_3);
+			    var task = ((Runnable) _function_3);
 			    task.run();
 			    final IntUnaryOperator _function_4 = (int n) -> {
 			      return n;
@@ -566,7 +566,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        throw Exceptions.sneakyThrow(_t);
 			      }
 			    }
-			    try (final ByteArrayInputStream first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
+			    try (final var first = new ByteArrayInputStream(new byte[] { 1 }); final ByteArrayInputStream second = new ByteArrayInputStream(new byte[] { 2 })) {
 			      int _read = first.read();
 			      int _read_1 = second.read();
 			      int _plus_3 = (_read + _read_1);
@@ -589,8 +589,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        throw Exceptions.sneakyThrow(_t);
 			      }
 			    }
-			    ByteArrayInputStream existingInput = new ByteArrayInputStream(new byte[] { 3 });
-			    try (existingInput; final ByteArrayInputStream secondInput = new ByteArrayInputStream(new byte[] { 4 })) {
+			    var existingInput = new ByteArrayInputStream(new byte[] { 3 });
+			    try (existingInput; var secondInput = new ByteArrayInputStream(new byte[] { 4 })) {
 			      System.out.println(existingInput.read());
 			      System.out.println(secondInput.read());
 			    }
