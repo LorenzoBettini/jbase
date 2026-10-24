@@ -4,12 +4,14 @@ import static org.junit.Assert.*;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJPrefixOperation;
+import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.util.JbaseNodeModelUtil;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XConstructorCall;
@@ -689,6 +691,19 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testTryWithExistingVariableResource() throws Exception {
+		assertLastExpression("""
+			try (input) {}
+			""", expression -> {
+			final var resources = getTryWithResources(expression).getResources().stream()
+				.filter(XJTryWithResourcesExistingResource.class::isInstance).toList();
+			assertEquals(1, resources.size());
+			assertTrue(resources.getFirst()
+				.getRight() instanceof XFeatureCall);
+		});
+	}
+
+	@Test
 	public void testTryWithResources2() throws Exception {
 		assertLastExpression("""
 			try (String s = "" ; String s = "")
@@ -747,6 +762,24 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 			""", expression -> {
 			assertTrue(getTryWithResources(expression).getCatchClauses().isEmpty());
 			assertNotNull(getTryWithResources(expression).getFinallyExpression());
+		});
+	}
+
+	@Test
+	public void testMultiCatch() throws Exception {
+		final var source = """
+			try {
+				throw new java.io.IOException();
+			} catch (java.io.IOException | IllegalArgumentException ex) {
+			}
+			""";
+		parseAndAssertNoErrors(source);
+		assertLastExpression(source, expression -> {
+			final var catchClause =
+				((XTryCatchFinallyExpression) expression).getCatchClauses().getFirst();
+			final var parameterType = catchClause.getDeclaredParam().getParameterType();
+			assertTrue(parameterType instanceof JvmSynonymTypeReference);
+			assertEquals(2, ((JvmSynonymTypeReference) parameterType).getReferences().size());
 		});
 	}
 

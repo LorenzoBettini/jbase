@@ -61,8 +61,9 @@ Contributor guides explain the Xbase integration for
 [lambda expressions](docs/LAMBDA_EXPRESSIONS.md),
 [method and constructor references](docs/METHOD_REFERENCES.md),
 [`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md),
-[Java 21 switches](docs/ENHANCED_SWITCH.md), and
-[Java text blocks](docs/TEXT_BLOCKS.md).
+[Java 21 switches](docs/ENHANCED_SWITCH.md),
+[Java text blocks](docs/TEXT_BLOCKS.md), and
+[assert statements](docs/ASSERT_STATEMENTS.md).
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
@@ -241,4 +242,3 @@ If you want to skip tests, you should run the following command instead of the p
 ```
 ./mvnw -f jbase.releng/pom.xml clean verify -DskipTests
 ```
-

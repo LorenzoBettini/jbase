@@ -3,7 +3,6 @@
  */
 package jbase.scoping;
 
-
 /**
  * This class contains custom scoping description.
  * 
@@ -11,5 +10,4 @@ package jbase.scoping;
  * on how and when to use it.
  */
 public class JbaseScopeProvider extends AbstractJbaseScopeProvider {
-
 }

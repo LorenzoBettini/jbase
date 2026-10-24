@@ -66,9 +66,15 @@ XJSingleStatement returns XExpression:
 XJSemicolonStatement returns XExpression:
 	{XJSemicolonStatement}
 	(=>expression=XJYieldStatement |
+		=>expression=XJAssertStatement |
 		expression=(XJBranchingStatement | XExpressionOrVarDeclaration |
 			XDoWhileExpression | XReturnExpression | XThrowExpression))
 	->semicolon=';'?
+;
+
+XJAssertStatement returns XExpression:
+	{XJAssertStatement}
+	"assert" condition=XExpression (':' message=XExpression)?
 ;
 
 XJEmptyStatement returns XExpression:
@@ -419,7 +425,10 @@ XJSwitchStatements returns XExpression:
  */
 XJTryWithResourcesStatement returns XExpression:
 	=>({XJTryWithResourcesStatement} 'try' openParenthesis?='(')
-	resources+=XJTryWithResourcesVariableDeclaration*
+	(
+		=>resources+=XJTryWithResourcesVariableDeclaration
+	|	=>resources+=XJTryWithResourcesExistingResource
+	)*
 	')'
 	expression=XBlockExpression
 	catchClauses+=XCatchClause*
@@ -433,8 +442,19 @@ XJTryWithResourcesStatement returns XExpression:
 XJTryWithResourcesVariableDeclaration:
 	{XJTryWithResourcesVariableDeclaration}
 	final?='final'?
-	(=>'var' | type=JvmTypeReference) name=ValidID '=' right=XExpression
+	(=>'var' | type=JvmTypeReference) name=ValidID '=' (=>right=XExpression)?
 	semicolon=';'?
+;
+
+XJTryWithResourcesExistingResource:
+	{XJTryWithResourcesExistingResource}
+	right=XJTryWithResourcesExistingResourceReference
+	semicolon=';'?
+;
+
+XJTryWithResourcesExistingResourceReference returns XFeatureCall:
+	{XJTryWithResourcesExistingResourceReference}
+	feature=[types::JvmIdentifiableElement|ValidID]
 ;
 
 /**
@@ -451,10 +471,18 @@ XTryCatchFinallyExpression returns XExpression:
 	|	'finally' finallyExpression=XBlockExpression
 	);
 
+JbaseCatchFormalParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} final?='final'? parameterType=JbaseCatchTypeReference name=ValidID;
+
+JbaseCatchTypeReference returns types::JvmTypeReference:
+	JvmTypeReference
+	(=> '|' {types::JvmSynonymTypeReference.references+=current}
+		references+=JvmTypeReference ('|' references+=JvmTypeReference)*)?;
+
 // the explicit {XCatchClause} is required to make formatting work
 @Override 
 XCatchClause :
-	{XCatchClause} =>'catch' '(' declaredParam=FullJvmFormalParameter ')' expression=XBlockExpression;
+	{XCatchClause} =>'catch' '(' declaredParam=JbaseCatchFormalParameter ')' expression=XBlockExpression;
 
 /**
  * Java needs block for synchronized

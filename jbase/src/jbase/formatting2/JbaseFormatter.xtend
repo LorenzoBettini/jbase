@@ -8,6 +8,7 @@ import java.util.List
 import jbase.jbase.JbasePackage
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
+import jbase.jbase.XJAssertStatement
 import jbase.jbase.XJAssignment
 import jbase.jbase.XJCasePart
 import jbase.jbase.XJYieldStatement
@@ -35,6 +36,7 @@ import org.eclipse.xtext.xbase.XVariableDeclaration
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.*
 import static org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys.*
 import jbase.jbase.XJTryWithResourcesStatement
+import jbase.jbase.XJTryWithResourcesExistingResource
 import jbase.jbase.XJWithSemicolon
 import org.eclipse.xtext.xbase.XConstructorCall
 import jbase.jbase.XJTryWithResourcesVariableDeclaration
@@ -138,6 +140,13 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		expr.regionFor.keyword("continue").append[noSpace]
 	}
 
+	def dispatch void format(XJAssertStatement expr, extension IFormattableDocument document) {
+		expr.regionFor.keyword("assert").append[oneSpace]
+		expr.condition.format(document)
+		expr.regionFor.keyword(":").surround[oneSpace]
+		expr.message.format(document)
+	}
+
 	override dispatch void format(XForLoopExpression expr, extension IFormattableDocument format) {
 		super._format(expr, format)
 		format(expr.declaredParam, format)
@@ -196,6 +205,10 @@ class JbaseFormatter extends XbasePatchedFormatter {
 		for (r : expr.resources.filter(XJTryWithResourcesVariableDeclaration)) {
 			r.format(document)
 			r.formatSemicolon(document)
+		}
+		for (r : expr.resources.filter(XJTryWithResourcesExistingResource)) {
+			r.right.format(document)
+			r.regionFor.keyword(";").prepend[noSpace].append[oneSpace]
 		}
 		super._format(expr, document)
 	}
