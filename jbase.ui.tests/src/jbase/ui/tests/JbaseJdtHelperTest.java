@@ -31,11 +31,8 @@ import com.google.inject.Inject;
 
 import jbase.testlanguage.ui.tests.JbaseTestlanguageUiInjectorProvider;
 import jbase.ui.jdt.JbaseJdtHelper;
-import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
 
-/**
- * Test corner cases of {@link JbaseUiSealedTypeResolver} that are hard to reproduce in a real Eclipse environment.
- */
+/** Tests permitted subtype lookup in {@link JbaseJdtHelper}, including JDT model failures. */
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseTestlanguageUiInjectorProvider.class)
 public class JbaseJdtHelperTest {
@@ -46,7 +43,7 @@ public class JbaseJdtHelperTest {
 	private CommonTypeComputationServices typeServices;
 
 	@Test
-	public void nonSealedTypesAndEmptyPermitsAreHandled() {
+	public void returnsEmptyListForNonSealedTypesAndTypesWithoutPermits() {
 		assertTrue(JbaseJdtHelper.permittedTypeNames(
 			javaType(false, new String[0], null, null, false)).isEmpty());
 		assertEquals(List.of(), JbaseJdtHelper.permittedTypeNames(
@@ -54,13 +51,13 @@ public class JbaseJdtHelperTest {
 	}
 
 	@Test
-	public void jdtFailuresInPermittedTypeNames() {
+	public void returnsEmptyListWhenJdtCannotReadPermittedSubtypes() {
 		assertTrue(JbaseJdtHelper.permittedTypeNames(
 			javaType(true, new String[0], null, null, true)).isEmpty());
 	}
 
 	@Test
-	public void jdtFailuresInFindType() throws Exception {
+	public void usesFallbackWhenJdtCannotFindTheType() throws Exception {
 		final var sourceType = javaType(true, new String[0], null, null, false);
 		final var javaProject = javaProject(sourceType, true);
 		final var context = parser.parse("Object value = null;");
@@ -74,7 +71,7 @@ public class JbaseJdtHelperTest {
 	}
 
 	@Test
-	public void retrievesPermittedTypeNames() throws Exception {
+	public void returnsPermittedSubtypeNamesFromJavaProject() throws Exception {
 		final var child = javaType(false, new String[0], null, null, false);
 		final Map<String, IType> typesByName = new HashMap<>();
 		final var javaProject = javaProjectForTypes(typesByName);
@@ -95,7 +92,7 @@ public class JbaseJdtHelperTest {
 	}
 
 	@Test
-	public void resolvesPermittedTypeNames() {
+	public void returnsResolvedNamesForPermittedTypesIncludingDefaultPackage() {
 		final var child = javaType(false, new String[0], null, null, false);
 		final var javaProject = javaProject(child);
 		final var sourceType = javaType(true, new String[] { "Child" },
@@ -110,7 +107,8 @@ public class JbaseJdtHelperTest {
 	}
 
 	@Test
-	public void unresolvedOrAmbiguousPermittedTypesAreNotAccepted() throws Exception {
+	public void returnsEmptyForMissingOrAmbiguousTypesAndEmptyListForUnresolvedPermits()
+			throws Exception {
 		assertNull(JbaseJdtHelper.resolveType(
 			javaType(true, new String[0], null, null, false), "Missing"));
 		assertNull(JbaseJdtHelper.resolveType(javaType(true, new String[0],

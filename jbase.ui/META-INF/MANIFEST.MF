@@ -28,10 +28,10 @@ Export-Package: jbase.ui,
  jbase.ui.contentassist,
  jbase.ui.editor,
  jbase.ui.internal,
- jbase.ui.jdt;x-friends:="jbase.ui.tests",
+ jbase.ui.jdt,
  jbase.ui.quickfix,
  jbase.ui.refactoring,
  jbase.ui.syntaxcoloring,
- jbase.ui.typesystem;x-friends:="jbase.ui.tests"
+ jbase.ui.typesystem
 Bundle-Activator: jbase.ui.internal.JbaseActivator
 Automatic-Module-Name: jbase.ui
