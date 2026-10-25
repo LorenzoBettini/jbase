@@ -213,6 +213,29 @@ instance creation expressions. Neither is provided by `XJStatementOrBlock` or
 `XConstructorCall`. This does not require Jbase itself to define a top-level Java
 compilation-unit language.
 
+Jbase, being only a Java expression and statement language, does not support local types or anonymous classes, because they depend on
+the syntax of classes, fields and methods. 
+
+However, we could support a base class for anonymous classes and, most of all, the typing and validation.
+
+At the grammar level, we could add a rule at least for parsing:
+
+```java
+new ClassOrInterfaceType() { body }
+```
+
+Where `body` defaults to an empty block.
+
+Languages using Jbase could then implement the body as a block of their version of fields and methods (see, e.g., the Domainmodel example, but we could add it to the Jbase testlanguage as well).
+Their implementation of inferrer should properly provide the mapping of the fields and methods to the anonymous class type.
+
+Jbase would then support the typing and validation of the anonymous class, and the generation of proper Java code.
+
+Having a rule with an empty body would allow to test the typing and validation of the anonymous class, and the generation of proper Java code in Jbase, without requiring a full implementation of the body.
+The Jbase testlanguage should be used to properly test the typing and validation of the anonymous class, and the generation of proper Java code in Jbase when a body is provided.
+
+For typing, validation and code generation, we could take inspiration from the Xtend implementation of anonymous classes.
+
 ### [ ] Qualified inner-class creation
 
 Assume an external Java class `Outer` with a public non-static member class `Inner`:
