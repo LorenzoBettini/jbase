@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.diagnostics.Severity;
+import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XbasePackage;
@@ -14,6 +15,9 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.validation.IssueCodes;
 import org.junit.Test;
 
+import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
+
+@InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
 public class JbaseUnaryPlusTest extends JbaseAbstractCompilerTest {
 
 	@Inject

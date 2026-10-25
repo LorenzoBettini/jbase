@@ -122,6 +122,26 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testInferredVariableDeclarationsPreserveVarSyntax() throws Exception {
+		compilationTestHelper.compile("""
+			final var i = 0;
+			var l = new java.util.ArrayList<String>();
+			for (var n = 0; n < 1; n++) {}
+			for (final var value : new int[] {1}) {}
+			try (var input = new java.io.ByteArrayInputStream(new byte[0])) {}
+			""", result -> {
+			assertNoValidationErrors(result);
+			final var generated = result.getSingleGeneratedCode();
+			assertTrue(generated, generated.contains("final var i = 0;"));
+			assertTrue(generated, generated.contains("var l = new ArrayList<String>();"));
+			assertTrue(generated, generated.contains("for (var n = 0;"));
+			assertTrue(generated, generated.contains("for (final var value :"));
+			assertTrue(generated, generated.contains("try (var input = new ByteArrayInputStream"));
+			assertGeneratedJavaCodeCompiles(result);
+		});
+	}
+
+	@Test
 	public void testSimpleAccess() throws Exception {
 		checkCompilation("""
 			int i;
