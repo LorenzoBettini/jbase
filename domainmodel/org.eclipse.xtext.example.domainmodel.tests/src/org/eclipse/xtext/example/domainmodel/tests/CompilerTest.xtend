@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import static org.junit.Assert.*
 
 @RunWith(XtextRunner)
-@InjectWith(DomainmodelInjectorProvider)
+@InjectWith(Java21InjectorProvider)
 class CompilerTest {
 
 	@Rule
