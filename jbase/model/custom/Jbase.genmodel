@@ -91,5 +91,10 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/condition"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAssertStatement/message"/>
     </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAnonymousClass">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAnonymousClass/constructorCall"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAnonymousClass/body"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJAnonymousClassBody"/>
   </genPackages>
 </genmodel:GenModel>

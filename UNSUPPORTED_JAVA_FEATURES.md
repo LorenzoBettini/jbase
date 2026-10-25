@@ -195,61 +195,29 @@ Object instance = new @A String();
 Object array = new String @A [1];
 ```
 
-### [ ] Anonymous class creation
+### [x] Anonymous class creation
 
-This is rejected:
+Solved with an extensible anonymous-class expression and an empty default body.
+Jbase handles anonymous type inference (including `var` retaining added fields
+and methods), constructor resolution, validation, captures, and Java generation.
 
-```java
-Runnable task = new Runnable() { public void run() {} };
-```
-
-Local declarations belong to Java's block language even though they are not
-statements in the narrow JLS grammar. Anonymous class bodies are part of class
-instance creation expressions. Neither is provided by `XJStatementOrBlock` or
-`XConstructorCall`.
-
-Jbase, being only a Java expression and statement language, does not support anonymous classes, because they depend on
-the syntax of classes, fields and methods. 
-
-However, we could support a base class for anonymous classes and, most of all, the typing, validation and code generation.
-
-At the grammar level, we could add a rule at least for parsing:
-
-```java
-new ClassOrInterfaceType() { body }
-```
-
-Where `body` defaults to an empty block.
-
-Languages using Jbase could then implement the body as a block of their version of fields and methods (see, e.g., the Domainmodel example, but we could add it to the Jbase testlanguage as well).
-Their implementation of inferrer should properly provide the mapping of the fields and methods to the anonymous class type.
-
-Jbase would then support the typing and validation of the anonymous class, and the generation of proper Java code.
-
-Having a rule with an empty body would allow to test the typing and validation of the anonymous class, and the generation of proper Java code in Jbase, without requiring a full implementation of the body.
-The Jbase testlanguage should be used to properly test the typing and validation of the anonymous class, and the generation of proper Java code in Jbase when a body is provided.
-
-For typing, validation and code generation, we could take inspiration from the Xtend implementation of anonymous classes.
-
-By the way, when used together with "var" and local type inference, Java allows to do this:
+Member syntax remains the responsibility of the embedding language. The test
+language demonstrates nonempty bodies with its existing properties and methods:
 
 ```java
 var point = new Object() {
-	int x = 10;
-	int y = 20;
-
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
-	}
+	x: int
+	y: int
+	method getX(): int { return x; }
+	method getY(): int { return y; }
 };
 point.x = 30;
 point.y = 40;
 System.out.println(point.getX() + ", " + point.getY());
 ```
+
+See [Anonymous classes](docs/ANONYMOUS_CLASSES.md) for the grammar and inferrer
+extension contract. General Java member declaration syntax remains outside Jbase.
 
 ### [ ] Qualified inner-class creation
 

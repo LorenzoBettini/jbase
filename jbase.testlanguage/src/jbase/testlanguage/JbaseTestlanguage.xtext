@@ -2,6 +2,7 @@ grammar jbase.testlanguage.JbaseTestlanguage with jbase.Jbase
 
 generate jbaseTestlanguage "http://www.testlanguage.jbase/JbaseTestlanguage"
 import "http://www.eclipse.org/xtext/xbase/Xbase" as xbase
+import "http://www.Jbase.jbase" as jbase
 
 /**
  * This is only a test language for Jbase used in jbase.tests for testing things
@@ -42,3 +43,8 @@ AbstractOperation:
 @Override 
 FeatureCallID:
 	ValidID;
+
+@Override
+XJAnonymousClassBody returns jbase::XJAnonymousClassBody:
+	{AnonymousClassBody} properties+=Property* methods+=OpMethod*
+;
