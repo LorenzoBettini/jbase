@@ -195,28 +195,23 @@ Object instance = new @A String();
 Object array = new String @A [1];
 ```
 
-### [ ] Local type declarations and anonymous class creation
+### [ ] Anonymous class creation
 
-Each of these independently valid block contents is rejected:
+This is rejected:
 
 ```java
-class Local {}
-enum Choice { ONE }
-record Item(int value) {}
-interface Marker {}
 Runnable task = new Runnable() { public void run() {} };
 ```
 
 Local declarations belong to Java's block language even though they are not
 statements in the narrow JLS grammar. Anonymous class bodies are part of class
 instance creation expressions. Neither is provided by `XJStatementOrBlock` or
-`XConstructorCall`. This does not require Jbase itself to define a top-level Java
-compilation-unit language.
+`XConstructorCall`.
 
-Jbase, being only a Java expression and statement language, does not support local types or anonymous classes, because they depend on
+Jbase, being only a Java expression and statement language, does not support anonymous classes, because they depend on
 the syntax of classes, fields and methods. 
 
-However, we could support a base class for anonymous classes and, most of all, the typing and validation.
+However, we could support a base class for anonymous classes and, most of all, the typing, validation and code generation.
 
 At the grammar level, we could add a rule at least for parsing:
 
@@ -329,10 +324,7 @@ final int ONE = 1;
 byte first = ONE;
 byte second = 1 + 2;
 char letter = 65 + 1;
-Byte boxed = 1;
-```
-
-These report type mismatches. Java assignment conversion allows representable
+Byte boxed = 1Aeport type mismatches. Java assignment conversion allows representable
 constant `int` expressions to narrow to `byte`, `short`, or `char`, and permits
 narrowing followed by boxing to `Byte`, `Short`, or `Character` in the applicable
 cases. Simple primitive literal narrowing such as `byte b = 1` and `char c = 65`
@@ -391,6 +383,24 @@ The inherited identifier lexer also rejects the shown non-ASCII identifier, and
 Unicode escapes are not translated throughout the source before tokenization as
 required by Java. `$` in identifiers is supported; these failures do not imply
 that every non-alphanumeric identifier is rejected.
+
+## Java features that are not related to expressions and statements
+
+### [ ] Local type declarations
+
+Each of these independently valid block contents is rejected:
+
+```java
+class Local {}
+enum Choice { ONE }
+record Item(int value) {}
+interface Marker {}
+```
+
+Local declarations belong to Java's block language even though they are not
+statements in the narrow JLS grammar.
+
+Jbase, being only a Java expression and statement language, does not support local types. 
 
 ## Java 21 preview expression and statement features
 
