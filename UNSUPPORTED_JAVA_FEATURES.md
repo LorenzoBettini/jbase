@@ -231,6 +231,26 @@ The Jbase testlanguage should be used to properly test the typing and validation
 
 For typing, validation and code generation, we could take inspiration from the Xtend implementation of anonymous classes.
 
+By the way, when used together with "var" and local type inference, Java allows to do this:
+
+```java
+var point = new Object() {
+	int x = 10;
+	int y = 20;
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+};
+point.x = 30;
+point.y = 40;
+System.out.println(point.getX() + ", " + point.getY());
+```
+
 ### [ ] Qualified inner-class creation
 
 Assume an external Java class `Outer` with a public non-static member class `Inner`:
