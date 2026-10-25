@@ -28,6 +28,7 @@ import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XClosure;
+import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
@@ -40,6 +41,10 @@ import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
+import org.eclipse.xtext.xbase.compiler.FeatureCallCompiler;
+import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
+import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
+import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
@@ -50,6 +55,7 @@ import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.conversion.JbaseTextBlockValueConverter;
+import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
@@ -74,6 +80,7 @@ import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.jbase.XJYieldStatement;
+import jbase.jvmmodel.JbaseAnonymousClassUtil;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseExpressionHelper.BaseCase;
@@ -91,6 +98,13 @@ import jbase.util.JbaseSwitches;
  * @author Lorenzo Bettini
  */
 public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
+
+	@Inject
+	private JbaseAnonymousClassUtil anonymousTypes;
+	@Inject
+	private JvmModelGenerator modelGenerator;
+	@Inject
+	private IGeneratorConfigProvider generatorConfigs;
 	
 	private static final String FINAL_MODIFIER = "final ";
 	private static final String ASSIGNED_TRUE = " = true;";
@@ -153,6 +167,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected void doInternalToJavaStatement(final XExpression obj,
 			final ITreeAppendable appendable, final boolean isReferenced) {
 		switch (obj) {
+			case XJAnonymousClass anonymous -> {
+				internalToJavaStatement(anonymous.getConstructorCall(), appendable, isReferenced);
+			}
 			case XJArrayConstructorCall call -> { /* compile only as expression */ }
 			case XJArrayAccessExpression access -> { /* compile only as expression */ }
 			case XJClassObject classObject -> { /* compile only as expression */ }
@@ -277,6 +294,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected void internalToConvertedExpression(final XExpression obj,
 			final ITreeAppendable appendable) {
 		switch (obj) {
+			case XJAnonymousClass anonymous ->
+				internalToJavaExpression(anonymous.getConstructorCall(), appendable);
 			case XJArrayConstructorCall call -> compileJavaExpression(call, appendable);
 			case XJArrayAccessExpression access -> compileJavaExpression(access, appendable);
 			case XJCharLiteral literal -> compileJavaExpression(literal, appendable);
@@ -289,6 +308,38 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			case XJConditionalExpression conditional when needsNativeConditional(conditional) ->
 				compileNativeConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
+		}
+	}
+
+	@Override
+	protected void constructorCallToJavaExpression(final XConstructorCall call,
+			final ITreeAppendable appendable) {
+		if (call.eContainer() instanceof XJAnonymousClass anonymous) {
+			appendable.append("new ").append(anonymousTypes.getSuperType(anonymous));
+			final var creation = anonymous.getConstructorCall();
+			if (creation.isExplicitTypeArguments()) {
+				appendable.append("<");
+				for (var i = 0; i < creation.getTypeArguments().size(); i++) {
+					if (i != 0) appendable.append(", ");
+					getTypeReferenceSerializer().serialize(creation.getTypeArguments().get(i),
+						creation, appendable);
+				}
+				appendable.append(">");
+			}
+			appendable.append("(");
+			for (var i = 0; i < call.getArguments().size(); i++) {
+				if (i != 0) appendable.append(", ");
+				internalToJavaExpression(call.getArguments().get(i), appendable);
+			}
+			appendable.append(")");
+			final var type = call.getConstructor().getDeclaringType();
+			appendable.append(" ").openScope();
+			final var config = generatorConfigs.get(anonymous);
+			modelGenerator.assignThisAndSuper(appendable, type, config);
+			modelGenerator.generateMembersInBody(type, appendable, config);
+			appendable.closeScope();
+		} else {
+			super.constructorCallToJavaExpression(call, appendable);
 		}
 	}
 
@@ -647,7 +698,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	/**
 	 * Overridden to deal with branching instructions.
 	 * 
-	 * @see org.eclipse.xtext.xbase.compiler.XbaseCompiler#toJavaWhileStatement(org.eclipse.xtext.xbase.XBasicForLoopExpression, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
+	 * @see XbaseCompiler#toJavaWhileStatement(XBasicForLoopExpression, ITreeAppendable, boolean)
 	 */
 	@Override
 	protected void toJavaWhileStatement(XBasicForLoopExpression expr,
@@ -727,7 +778,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	/**
 	 * In our Java-like switch statement we can always compile into Java switch.
 	 * 
-	 * @see org.eclipse.xtext.xbase.compiler.XbaseCompiler#_toJavaStatement(org.eclipse.xtext.xbase.XSwitchExpression, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
+	 * @see XbaseCompiler#_toJavaStatement(XSwitchExpression, ITreeAppendable, boolean)
 	 */
 	@Override
 	protected void _toJavaStatement(XSwitchExpression expr, ITreeAppendable b, boolean isReferenced) {
@@ -836,7 +887,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * Since we want Java switch statement, the compilation is simpler and does
 	 * not append break automatically.
 	 * 
-	 * @see org.eclipse.xtext.xbase.compiler.XbaseCompiler#_toJavaSwitchStatement(org.eclipse.xtext.xbase.XSwitchExpression, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
+	 * @see XbaseCompiler#_toJavaSwitchStatement(XSwitchExpression, ITreeAppendable, boolean)
 	 */
 	@Override
 	protected void _toJavaSwitchStatement(XSwitchExpression expr, ITreeAppendable b, boolean isReferenced) {
@@ -914,7 +965,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	/**
 	 * Specialized for prefix operator and unary expression
 	 * 
-	 * @see org.eclipse.xtext.xbase.compiler.FeatureCallCompiler#featureCalltoJavaExpression(org.eclipse.xtext.xbase.XAbstractFeatureCall, org.eclipse.xtext.xbase.compiler.output.ITreeAppendable, boolean)
+	 * @see FeatureCallCompiler#featureCalltoJavaExpression(XAbstractFeatureCall, ITreeAppendable, boolean)
 	 */
 	@Override
 	protected void featureCalltoJavaExpression(XAbstractFeatureCall call,

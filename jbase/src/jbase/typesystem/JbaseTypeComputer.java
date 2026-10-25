@@ -10,8 +10,8 @@ import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
-import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XBinaryOperation;
+import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XExpression;
@@ -22,13 +22,15 @@ import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
+import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
+import org.eclipse.xtext.xbase.typesystem.LocalVariableCapturer;
 import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
-import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
 import org.eclipse.xtext.xbase.typesystem.computation.EnumLiteralImporter;
 import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
+import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference;
@@ -42,6 +44,7 @@ import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.JbasePackage;
+import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
@@ -55,8 +58,8 @@ import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
-import jbase.jbase.XJVariableDeclaration;
 import jbase.jbase.XJTryWithResourcesExistingResource;
+import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseSwitches;
 import jbase.validation.JbaseIssueCodes;
@@ -69,6 +72,9 @@ import jbase.validation.JbaseIssueCodes;
  * @author Lorenzo Bettini
  */
 public class JbaseTypeComputer extends PatchedTypeComputer {
+
+	@Inject
+	private IJvmModelAssociations associations;
 
 	@Inject
 	private CommonTypeComputationServices services;
@@ -84,6 +90,17 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	public void computeTypes(final XExpression expression, final ITypeComputationState originalState) {
 		final var state = patternVariables.enterScope(expression, originalState);
 		switch (expression) {
+			case XJConstructorCall call when call.eContainer() instanceof XJAnonymousClass ->
+				super._computeTypes(call, new JbaseAnonymousClassState(call,
+					(AbstractTypeComputationState) state));
+			case XJAnonymousClass anonymous -> {
+				for (final var inferred : associations.getJvmElements(anonymous)) {
+					if (inferred instanceof JvmGenericType type) {
+						LocalVariableCapturer.captureLocalVariables(type, state);
+					}
+				}
+				state.computeTypes(anonymous.getConstructorCall());
+			}
 			case XJInstanceOfExpression instanceOf -> {
 				super._computeTypes(instanceOf, state);
 				patternVariables.assignType(instanceOf, state);

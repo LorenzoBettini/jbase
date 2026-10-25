@@ -4,19 +4,30 @@
 package jbase;
 
 import org.eclipse.xtext.conversion.IValueConverterService;
+import org.eclipse.xtext.formatting2.FormatterPreferenceValuesProvider;
+import org.eclipse.xtext.formatting2.FormatterPreferences;
+import org.eclipse.xtext.formatting2.IFormatter2;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.nodemodel.impl.NodeModelBuilder;
+import org.eclipse.xtext.preferences.IPreferenceValuesProvider;
+import org.eclipse.xtext.scoping.IScopeProvider;
+import org.eclipse.xtext.serializer.tokens.SerializerScopeProviderBinding;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
 import org.eclipse.xtext.xbase.annotations.DefaultXbaseWithAnnotationsRuntimeModule;
 import org.eclipse.xtext.xbase.annotations.validation.AnnotationValueValidator;
+import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
+import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider;
+import org.eclipse.xtext.xbase.scoping.batch.ConstructorScopes;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
-import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractRootedReentrantTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
+
+import com.google.inject.Binder;
 
 import jbase.annotations.validation.JbaseAnnotationValueValidator;
 import jbase.compiler.JbaseJvmModelGenerator;
@@ -26,12 +37,15 @@ import jbase.conversion.JbaseValueConverterService;
 import jbase.formatting2.JbaseFormatter;
 import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory;
 import jbase.internal.parser.PatchedLookAheadPreservingNodeModelBuilder;
+import jbase.scoping.JbaseAnonymousClassConstructorScopes;
+import jbase.scoping.JbaseImportSectionNamespaceScopeProvider;
 import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
+import jbase.serializer.JbaseSerializerScopeProvider;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
-import jbase.typesystem.JbaseTypeComputer;
 import jbase.typesystem.JbaseReentrantTypeResolver;
 import jbase.typesystem.JbaseSealedTypeResolver;
+import jbase.typesystem.JbaseTypeComputer;
 import jbase.validation.JbaseConfigurableIssueCodes;
 
 /**
@@ -40,6 +54,26 @@ import jbase.validation.JbaseConfigurableIssueCodes;
  * @author Lorenzo Bettini
  */
 public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntimeModule {
+
+	public Class<? extends XImportSectionNamespaceScopeProvider>
+			bindXImportSectionNamespaceScopeProvider() {
+		return JbaseImportSectionNamespaceScopeProvider.class;
+	}
+
+	@Override
+	public void configureSerializerIScopeProvider(final Binder binder) {
+		binder.bind(IScopeProvider.class)
+			.annotatedWith(SerializerScopeProviderBinding.class)
+			.to(JbaseSerializerScopeProvider.class);
+	}
+
+	public Class<? extends JvmModelGenerator> bindJvmModelGenerator() {
+		return JbaseJvmModelGenerator.class;
+	}
+
+	public Class<? extends ConstructorScopes> bindConstructorScopes() {
+		return JbaseAnonymousClassConstructorScopes.class;
+	}
 
 	@Override
 	public Class<? extends IValueConverterService> bindIValueConverterService() {
@@ -98,12 +132,12 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntim
 		return JbaseAnnotationValueValidator.class;
 	}
 
-	public Class<? extends org.eclipse.xtext.formatting2.IFormatter2> bindIFormatter2() {
+	public Class<? extends IFormatter2> bindIFormatter2() {
 		return JbaseFormatter.class;
 	}
 
-	public void configureFormatterPreferences(com.google.inject.Binder binder) {
-		binder.bind(org.eclipse.xtext.preferences.IPreferenceValuesProvider.class).annotatedWith(org.eclipse.xtext.formatting2.FormatterPreferences.class).to(org.eclipse.xtext.formatting2.FormatterPreferenceValuesProvider.class);
+	public void configureFormatterPreferences(Binder binder) {
+		binder.bind(IPreferenceValuesProvider.class).annotatedWith(FormatterPreferences.class).to(FormatterPreferenceValuesProvider.class);
 	}
 
 	@Override

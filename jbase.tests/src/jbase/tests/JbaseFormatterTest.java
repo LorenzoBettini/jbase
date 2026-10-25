@@ -18,6 +18,28 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	private FormatterTestHelper formatterTestHelper;
 
 	@Test
+	public void testAnonymousClasses() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("var value=new Object(){n:int method get():int{return n;}};");
+			request.setExpectation("""
+				var value = new Object() {
+					n:int
+					method get() : int {
+						return n;
+					}
+				};
+				""");
+		});
+		assertFormatted(request -> {
+			request.setToBeFormatted("Object value=new Object(){};");
+			request.setExpectation("""
+				Object value = new Object() {
+				};
+				""");
+		});
+	}
+
+	@Test
 	public void testEnhancedSwitch() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""
