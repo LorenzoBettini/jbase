@@ -381,7 +381,7 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
-	public void generatedJavaUsesInferredTypes() throws Exception {
+	public void generatedJavaPreservesVarSyntax() throws Exception {
 		checkCompilation("""
 			var value = 1;
 			final var text = "hello";
@@ -393,8 +393,8 @@ public class JbaseVarTest extends JbaseAbstractCompilerTest {
 			@SuppressWarnings("all")
 			public class MyFile {
 			  public static void main(String[] args) throws Throwable {
-			    int value = 1;
-			    final String text = "hello";
+			    var value = 1;
+			    final var text = "hello";
 			    value++;
 			    System.out.println((text + Integer.valueOf(value)));
 			  }

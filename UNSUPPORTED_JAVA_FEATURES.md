@@ -506,7 +506,7 @@ The following modern Java forms already have positive compilation tests:
 
 | Feature | Evidence |
 | --- | --- |
-| Local `var`, including enhanced `for` and resource declarations | `AllJavaFeaturesTest` |
+| Local `var`, including enhanced `for` and resource declarations | `JbaseVarTest`, `JbaseCompilerTest`, `AllJavaFeaturesTest` |
 | Text blocks | `JbaseTextBlockTest`, `AllJavaFeaturesTest` |
 | `instanceof` type patterns, checked parameterized tests and flow-sensitive binding scopes | `JbaseInstanceOfPatternTest` |
 | Record patterns in `instanceof` and `switch`, including nested and inferred components | `JbaseRecordPatternTest`, `AllJavaFeaturesTest` |
