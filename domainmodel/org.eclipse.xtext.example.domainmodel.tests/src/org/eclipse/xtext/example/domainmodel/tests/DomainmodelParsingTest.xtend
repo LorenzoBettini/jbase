@@ -9,6 +9,8 @@
 package org.eclipse.xtext.example.domainmodel.tests
 
 import com.google.inject.Inject
+import jbase.jbase.JbasePackage
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.TypesPackage
 import org.eclipse.xtext.example.domainmodel.DomainmodelStandaloneSetup
@@ -43,6 +45,35 @@ class DomainmodelParsingTest{
 	@Inject extension IJvmModelAssociations
 	@Inject ISerializer serializer
 	@Inject TypeReferences typeReferences
+
+	@Test def void testAnonymousClassSerialization() {
+		val source = '''
+			entity Foo {
+				op create():Object {
+					return new Object() {
+						value : int
+						op getValue():int { return this.value; }
+					};
+				}
+			}
+		'''
+		val model = source.parse
+		model.assertNoErrors
+		serializer.serialize(model).parse.assertNoErrors
+		EcoreUtil.resolveAll(model)
+		val copy = EcoreUtil.copy(model)
+		val resource = model.eResource
+		resource.contents.clear
+		resource.contents.add(copy)
+		serializer.serialize(copy).parse.assertNoErrors
+	}
+
+	@Test def void testAnonymousClassRequiresInterfaceImplementation() {
+		"entity Foo { op create():Runnable { return new Runnable() {}; } }".parse.assertError(
+			JbasePackage.Literals.XJ_ANONYMOUS_CLASS,
+			IssueCodes.ANONYMOUS_CLASS_MISSING_MEMBERS
+		)
+	}
 
 	@Test def void testParsing() throws Exception {
 		val model = '''

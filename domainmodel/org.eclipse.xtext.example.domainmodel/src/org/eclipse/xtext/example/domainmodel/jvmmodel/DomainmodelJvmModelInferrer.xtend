@@ -9,6 +9,9 @@
 package org.eclipse.xtext.example.domainmodel.jvmmodel
 
 import com.google.inject.Inject
+import jbase.jvmmodel.JbaseAnonymousClassInferrer
+import org.eclipse.xtext.example.domainmodel.domainmodel.AnonymousClassBody
+import org.eclipse.xtext.example.domainmodel.domainmodel.Feature
 import org.eclipse.xtext.common.types.JvmAnnotationTarget
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
@@ -24,6 +27,8 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociator
 
 class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
+
+	@Inject JbaseAnonymousClassInferrer anonymousClasses
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension IQualifiedNameProvider
@@ -49,42 +54,49 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 
-			// now let's go over the features
-			for ( f : entity.features ) {
-				switch f {
-
-					// for properties we create a field, a getter and a setter
-					Property : {
-						val field = f.toField(f.name, f.type)
-						members += field
-						members += f.toGetter(f.name, f.type)
-						members += f.toSetter(f.name, f.type)
-					}
-
-					// operations are mapped to methods
-					Operation : {
-						members += f.toMethod(f.name, f.type ?: inferredType) [
-							documentation = f.documentation
-							translateAnnotations(f.annotations)
-							for (p : f.params) {
-								parameters += p.toParameter(p.name, p.parameterType)
-							}
-							// here the body is implemented using a user expression.
-							// Note that by doing this we set the expression into the context of this method,
-							// The parameters, 'this' and all the members of this method will be visible for the expression.
-							body = f.body
-						]
-					}
-				}
-			}
-
-			// remove created getters/setters in case they
-			// are explicit in the source code
-			removeDuplicateGettersSetters
+			inferFeatures(entity.features)
 
 			// finally we want to have a nice toString methods.
 			members += entity.toToStringMethod(it)
 		]
+	}
+
+	def private void inferFeatures(JvmDeclaredType it, Iterable<Feature> features) {
+		for ( f : features ) {
+			switch f {
+
+				// for properties we create a field, a getter and a setter
+				Property : {
+					val field = f.toField(f.name, f.type)
+					members += field
+					members += f.toGetter(f.name, f.type)
+					members += f.toSetter(f.name, f.type)
+				}
+
+				// operations are mapped to methods
+				Operation : {
+					val method = f.toMethod(f.name, f.type ?: inferredType) [
+						documentation = f.documentation
+						translateAnnotations(f.annotations)
+						for (p : f.params) {
+							parameters += p.toParameter(p.name, p.parameterType)
+						}
+						// Put the expression in the method's scope, including parameters and this.
+						body = f.body
+					]
+					members += method
+					// Attach the method before resolving anonymous members for accessor cleanup.
+					anonymousClasses.inferLocalClasses(method, f.body) [ source, type |
+						val body = source.body as AnonymousClassBody
+						type.inferFeatures(body.features)
+					]
+				}
+			}
+		}
+
+		// remove created getters/setters in case they
+		// are explicit in the source code
+		removeDuplicateGettersSetters
 	}
 
 	def private removeDuplicateGettersSetters(JvmDeclaredType inferredType) {

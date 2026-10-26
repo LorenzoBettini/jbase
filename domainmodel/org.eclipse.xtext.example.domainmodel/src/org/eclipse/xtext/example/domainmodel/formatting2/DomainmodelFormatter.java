@@ -10,6 +10,7 @@ package org.eclipse.xtext.example.domainmodel.formatting2;
 
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.example.domainmodel.domainmodel.AbstractElement;
+import org.eclipse.xtext.example.domainmodel.domainmodel.AnonymousClassBody;
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel;
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelPackage;
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity;
@@ -59,6 +60,13 @@ public class DomainmodelFormatter extends JbaseFormatter {
 		for (Feature feature : entity.getFeatures()) {
 			document.format(feature);
 			document.append(feature, it -> it.setNewLines(1, 1, 2));
+		}
+	}
+
+	protected void _format(AnonymousClassBody body, IFormattableDocument document) {
+		for (final var feature : body.getFeatures()) {
+			document.format(feature);
+			document.append(feature, this::newLine);
 		}
 	}
 
