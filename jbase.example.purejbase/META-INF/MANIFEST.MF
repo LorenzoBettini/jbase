@@ -29,5 +29,6 @@ Export-Package: jbase.example.purejbase,
  jbase.example.purejbase.validation,
  jbase.example.purejbase.formatting,
  jbase.example.purejbase.jvmmodel,
- jbase.example.purejbase.scoping
+ jbase.example.purejbase.scoping,
+ jbase.example.purejbase.formatting2
 Automatic-Module-Name: jbase.example.purejbase

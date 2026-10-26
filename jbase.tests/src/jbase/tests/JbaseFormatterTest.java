@@ -1,6 +1,7 @@
 package jbase.tests;
 
 import com.google.inject.Inject;
+import jbase.formatting2.JbaseFormatter;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
@@ -16,6 +17,14 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 
 	@Inject
 	private FormatterTestHelper formatterTestHelper;
+
+	@Inject
+	private JbaseFormatter jbaseFormatter;
+
+	@Test
+	public void testDispatchWithNull() {
+		jbaseFormatter.format(null, null);
+	}
 
 	@Test
 	public void testAnonymousClasses() {
