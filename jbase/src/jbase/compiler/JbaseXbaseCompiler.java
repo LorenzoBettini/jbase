@@ -314,33 +314,53 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void constructorCallToJavaExpression(final XConstructorCall call,
 			final ITreeAppendable appendable) {
-		if (call.eContainer() instanceof XJAnonymousClass anonymous) {
-			appendable.append("new ").append(anonymousTypes.getSuperType(anonymous));
-			final var creation = anonymous.getConstructorCall();
-			if (creation.isExplicitTypeArguments()) {
-				appendable.append("<");
-				for (var i = 0; i < creation.getTypeArguments().size(); i++) {
-					if (i != 0) appendable.append(", ");
-					getTypeReferenceSerializer().serialize(creation.getTypeArguments().get(i),
-						creation, appendable);
-				}
-				appendable.append(">");
-			}
-			appendable.append("(");
-			for (var i = 0; i < call.getArguments().size(); i++) {
-				if (i != 0) appendable.append(", ");
-				internalToJavaExpression(call.getArguments().get(i), appendable);
-			}
-			appendable.append(")");
-			final var type = call.getConstructor().getDeclaringType();
-			appendable.append(" ").openScope();
-			final var config = generatorConfigs.get(anonymous);
-			modelGenerator.assignThisAndSuper(appendable, type, config);
-			modelGenerator.generateMembersInBody(type, appendable, config);
-			appendable.closeScope();
-		} else {
+		if (!(call.eContainer() instanceof XJAnonymousClass anonymous)) {
 			super.constructorCallToJavaExpression(call, appendable);
+			return;
 		}
+		compileAnonymousConstructorCall(call, anonymous, appendable);
+	}
+
+	private void compileAnonymousConstructorCall(final XConstructorCall call,
+			final XJAnonymousClass anonymous, final ITreeAppendable appendable) {
+		appendable.append("new ").append(anonymousTypes.getSuperType(anonymous));
+		appendExplicitTypeArguments(anonymous, appendable);
+		appendConstructorArguments(call, appendable);
+		final var type = call.getConstructor().getDeclaringType();
+		appendable.append(" ").openScope();
+		final var config = generatorConfigs.get(anonymous);
+		modelGenerator.assignThisAndSuper(appendable, type, config);
+		modelGenerator.generateMembersInBody(type, appendable, config);
+		appendable.closeScope();
+	}
+
+	private void appendExplicitTypeArguments(final XJAnonymousClass anonymous,
+			final ITreeAppendable appendable) {
+		final var creation = anonymous.getConstructorCall();
+		if (!creation.isExplicitTypeArguments()) {
+			return;
+		}
+		appendable.append("<");
+		for (var i = 0; i < creation.getTypeArguments().size(); i++) {
+			if (i != 0) {
+				appendable.append(", ");
+			}
+			getTypeReferenceSerializer().serialize(creation.getTypeArguments().get(i),
+				creation, appendable);
+		}
+		appendable.append(">");
+	}
+
+	private void appendConstructorArguments(final XConstructorCall call,
+			final ITreeAppendable appendable) {
+		appendable.append("(");
+		for (var i = 0; i < call.getArguments().size(); i++) {
+			if (i != 0) {
+				appendable.append(", ");
+			}
+			internalToJavaExpression(call.getArguments().get(i), appendable);
+		}
+		appendable.append(")");
 	}
 
 	private void compileStringLiteral(final XStringLiteral literal,

@@ -15,6 +15,7 @@ import org.eclipse.xtext.common.types.JvmVisibility;
 import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.TypesPackage;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociator;
@@ -83,54 +84,74 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 			final IFeatureScopeSession session, final JvmFeature feature,
 			final Map<JvmIdentifiableElement, ResolvedTypes> contexts) {
 		for (final var local : feature.getLocalClasses()) {
-			final var superType = local.getSuperTypes().getFirst();
-			if (!InferredTypeIndicator.isInferred(superType)) {
-				continue;
-			}
-			final var computed = (XComputedTypeReference) superType;
-			final var indicator = (InferredTypeIndicator) computed.getTypeProvider();
-			final var anonymous = (XJAnonymousClass) indicator.getExpression();
-			final var call = anonymous.getConstructorCall();
-			final var scope = session.getScope(call,
-				TypesPackage.Literals.JVM_PARAMETERIZED_TYPE_REFERENCE__TYPE, resolvedTypes);
-			final var type = anonymousClassUtil.getSuperTypeNonResolving(anonymous, scope);
-			final var copier = new EcoreUtil.Copier();
-			if (type instanceof JvmGenericType generic) {
-				local.getTypeParameters().addAll(copier.copyAll(generic.getTypeParameters()));
-				copier.copyReferences();
-			}
-			final JvmTypeReference reference;
-			if (type == null) {
-				reference = TypesFactory.eINSTANCE.createJvmUnknownTypeReference();
-			} else {
-				final var parameterized = TypesFactory.eINSTANCE.createJvmParameterizedTypeReference();
-				parameterized.setType(type);
-				typesBuilder.associate(call, parameterized);
-				for (final var parameter : local.getTypeParameters()) {
-					parameterized.getArguments().add(typesBuilder.newTypeRef(parameter));
-				}
-				reference = parameterized;
-			}
-			requestCapturedLocalVariables(reference, local, resolvedTypes, contexts, capturing -> {
-				computed.setEquivalent(capturing);
-				if (type == null || type instanceof JvmGenericType generic && generic.isInterface()
-						|| type instanceof JvmAnnotationType) {
-					if (type != null) {
-						local.getSuperTypes().add(0, typesBuilder.newTypeRef(local, Object.class));
-					}
-					addConstructor(anonymous, local, null, true, copier);
-				} else {
-					final var nested = addThisAndSuper(session, resolvedTypes.getReferenceOwner(),
-						local, reference, false);
-					for (final var member : type.getMembers()) {
-						if (member instanceof JvmConstructor constructor) {
-							addConstructor(anonymous, local, constructor,
-								nested.isVisible(constructor), copier);
-						}
-					}
-				}
-			});
+			prepareAnonymousType(resolvedTypes, session, local, contexts);
 		}
+	}
+
+	private void prepareAnonymousType(final ResolvedTypes resolvedTypes,
+			final IFeatureScopeSession session, final JvmGenericType local,
+			final Map<JvmIdentifiableElement, ResolvedTypes> contexts) {
+		final var superType = local.getSuperTypes().getFirst();
+		if (!InferredTypeIndicator.isInferred(superType)) {
+			return;
+		}
+		final var computed = (XComputedTypeReference) superType;
+		final var indicator = (InferredTypeIndicator) computed.getTypeProvider();
+		final var anonymous = (XJAnonymousClass) indicator.getExpression();
+		final var call = anonymous.getConstructorCall();
+		final var scope = session.getScope(call,
+			TypesPackage.Literals.JVM_PARAMETERIZED_TYPE_REFERENCE__TYPE, resolvedTypes);
+		final var type = anonymousClassUtil.getSuperTypeNonResolving(anonymous, scope);
+		final var copier = new EcoreUtil.Copier();
+		if (type instanceof JvmGenericType generic) {
+			local.getTypeParameters().addAll(copier.copyAll(generic.getTypeParameters()));
+			copier.copyReferences();
+		}
+		final var reference = createAnonymousTypeReference(call, local, type);
+		requestCapturedLocalVariables(reference, local, resolvedTypes, contexts, capturing -> {
+			computed.setEquivalent(capturing);
+			prepareAnonymousConstructors(anonymous, local, type, reference, copier,
+				resolvedTypes, session);
+		});
+	}
+
+	private JvmTypeReference createAnonymousTypeReference(final XConstructorCall call,
+			final JvmGenericType local, final JvmDeclaredType type) {
+		if (type == null) {
+			return TypesFactory.eINSTANCE.createJvmUnknownTypeReference();
+		}
+		final var parameterized = TypesFactory.eINSTANCE.createJvmParameterizedTypeReference();
+		parameterized.setType(type);
+		typesBuilder.associate(call, parameterized);
+		for (final var parameter : local.getTypeParameters()) {
+			parameterized.getArguments().add(typesBuilder.newTypeRef(parameter));
+		}
+		return parameterized;
+	}
+
+	private void prepareAnonymousConstructors(final XJAnonymousClass anonymous,
+			final JvmGenericType local, final JvmDeclaredType type,
+			final JvmTypeReference reference, final EcoreUtil.Copier copier,
+			final ResolvedTypes resolvedTypes, final IFeatureScopeSession session) {
+		if (requiresDefaultConstructor(type)) {
+			if (type != null) {
+				local.getSuperTypes().add(0, typesBuilder.newTypeRef(local, Object.class));
+			}
+			addConstructor(anonymous, local, null, true, copier);
+			return;
+		}
+		final var nested = addThisAndSuper(session, resolvedTypes.getReferenceOwner(),
+			local, reference, false);
+		for (final var member : type.getMembers()) {
+			if (member instanceof JvmConstructor constructor) {
+				addConstructor(anonymous, local, constructor, nested.isVisible(constructor), copier);
+			}
+		}
+	}
+
+	private boolean requiresDefaultConstructor(final JvmDeclaredType type) {
+		return type == null || type instanceof JvmGenericType generic && generic.isInterface()
+				|| type instanceof JvmAnnotationType;
 	}
 
 	private void addConstructor(final XJAnonymousClass anonymous, final JvmGenericType type,
