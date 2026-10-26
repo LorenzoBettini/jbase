@@ -114,6 +114,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Inject
 	private IGeneratorConfigProvider generatorConfigs;
 	
+	private static final String INSTANCEOF_OPERATOR = " instanceof ";
+
 	private static final String FINAL_MODIFIER = "final ";
 	private static final String ASSIGNED_TRUE = " = true;";
 
@@ -497,7 +499,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		if (pattern.getPatternVariable() != null || pattern.getRecordPattern() != null) {
 			appendable.append("(");
 			internalToJavaExpression(pattern.getExpression(), appendable);
-			appendable.append(" instanceof ");
+			appendable.append(INSTANCEOF_OPERATOR);
 			if (pattern.isFinal()) {
 				appendable.append(FINAL_MODIFIER);
 			}
@@ -1313,12 +1315,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				if (index > 0) {
 					appendable.append(" || ");
 				}
-				appendable.append(parentVariable).append(" instanceof ");
+				appendable.append(parentVariable).append(INSTANCEOF_OPERATOR);
 				serialize(references.get(index), clause, appendable);
 			}
 			typeToUse = resolveSynonymType(synonym, clause);
 		} else {
-			appendable.append(parentVariable).append(" instanceof ");
+			appendable.append(parentVariable).append(INSTANCEOF_OPERATOR);
 			serialize(type, clause, appendable);
 		}
 		appendable.append(") {");

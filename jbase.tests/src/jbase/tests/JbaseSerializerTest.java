@@ -92,13 +92,16 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			""");
 		final var typeReference = EcoreUtil2.getAllContentsOfType(parsed,
 			XJParameterizedTypeReference.class).getFirst();
+		final var context = typeReference.eContainer();
+		final var appendable = new StringBuilderBasedAppendable();
 		try {
-			typeReferenceSerializer.serialize(typeReference, typeReference.eContainer(),
-				new StringBuilderBasedAppendable(), false, false, false, false);
-			fail("Expected an exception for a non-tree appendable");
+			typeReferenceSerializer.serialize(typeReference, context, appendable,
+				false, false, false, false);
 		} catch (final IllegalStateException expected) {
 			assertEquals("Source annotations require a tree appendable", expected.getMessage());
+			return;
 		}
+		fail("Expected an exception for a non-tree appendable");
 	}
 
 	@Test

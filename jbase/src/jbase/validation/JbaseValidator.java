@@ -493,14 +493,25 @@ public class JbaseValidator extends AbstractJbaseValidator {
 					parameters.get(i), null, INVALID_LAMBDA);
 			}
 		}
-		var body = closure.getExpression();
+		checkJavaLambdaBody(closure, functionType.getReturnType().isPrimitiveVoid());
+	}
+
+	/**
+	 * Checks that a value block returns on every path and a void expression body can discard
+	 * its result according to Java's statement-expression rules.
+	 *
+	 * @param closure the lambda whose body is validated
+	 * @param returnsVoid whether the functional interface method returns void
+	 */
+	private void checkJavaLambdaBody(final XClosure closure, final boolean returnsVoid) {
+		final var body = closure.getExpression();
 		if (body instanceof XBlockExpression
-				&& !functionType.getReturnType().isPrimitiveVoid()
+				&& !returnsVoid
 				&& !earlyExitComputer.isEarlyExit(body)) {
 			errorMissingReturnStatement(body);
 		}
 		if (!(body instanceof XBlockExpression)
-				&& functionType.getReturnType().isPrimitiveVoid()
+				&& returnsVoid
 				&& !isStatementExpression(body)) {
 			error("A void lambda body must be a statement expression", closure, null, INVALID_LAMBDA);
 		}
