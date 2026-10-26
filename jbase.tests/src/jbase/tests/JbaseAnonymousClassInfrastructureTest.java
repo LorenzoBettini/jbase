@@ -59,7 +59,7 @@ public class JbaseAnonymousClassInfrastructureTest extends JbaseAbstractTest {
 	}
 
 	@Test
-	public void missingTypeScopesAndIncompleteModelsRecover() throws Exception {
+	public void missingTypeScopesAndIncompleteModelsRecover() {
 		final var anonymous = JbaseFactory.eINSTANCE.createXJAnonymousClass();
 		anonymous.setConstructorCall(JbaseFactory.eINSTANCE.createXJConstructorCall());
 		assertNull(anonymousTypes.getSuperType(anonymous));
