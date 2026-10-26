@@ -37,10 +37,10 @@ public class XbasePatchedFormatter extends XbaseWithAnnotationsFormatter {
 			// names of the methods for accessing grammar elements.
 			final var open = format.prepend(
 					regionFor(expr).keyword(grammar.getXFeatureCallAccess()
-							.getExplicitOperationCallLeftParenthesisKeyword_2_0_0()),
+							.getExplicitOperationCallLeftParenthesisKeyword_3_0_0()),
 					IHiddenRegionFormatter::noSpace);
 			final var close = regionFor(expr).keyword(
-					grammar.getXFeatureCallAccess().getRightParenthesisKeyword_2_2());
+					grammar.getXFeatureCallAccess().getRightParenthesisKeyword_3_2());
 			formatFeatureCallParams(expr.getFeatureCallArguments(), open, close, format);
 		} else {
 			for (final XExpression arg : expr.getFeatureCallArguments()) {
@@ -84,10 +84,11 @@ public class XbasePatchedFormatter extends XbaseWithAnnotationsFormatter {
 					// names of the methods for accessing grammar elements.
 					final var open = format.prepend(
 							regionFor(call).keyword(grammar.getXMemberFeatureCallAccess()
-									.getExplicitOperationCallLeftParenthesisKeyword_1_2_2_0_0()),
+									.getExplicitOperationCallLeftParenthesisKeyword_1_3_3_0_0()),
 							IHiddenRegionFormatter::noSpace);
 					final var close = regionFor(call).keyword(
-							grammar.getXMemberFeatureCallAccess().getRightParenthesisKeyword_1_2_2_2());
+							grammar.getXMemberFeatureCallAccess()
+									.getRightParenthesisKeyword_1_3_3_2());
 					formatFeatureCallParams(call.getMemberCallArguments(), open, close, format);
 				} else if (!call.getMemberCallArguments().isEmpty()) {
 					formatBuilderWithLeadingGap(builder(call.getMemberCallArguments()), format);

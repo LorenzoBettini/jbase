@@ -17,6 +17,7 @@ import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJContinueStatement;
+import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
@@ -35,7 +36,9 @@ import jbase.util.JbaseSwitches;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
+import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.formatting2.IFormattableDocument;
+import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
@@ -43,6 +46,7 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys;
 
@@ -360,11 +364,73 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 
 	@Override
 	protected void _format(final XConstructorCall expr, final IFormattableDocument document) {
+		// Jbase's XConstructorCall rule always creates the extended model type.
+		final var jbaseCall = (XJConstructorCall) expr;
+		if (!jbaseCall.getConstructorTypeArguments().isEmpty()) {
+			formatExplicitConstructorTypeArguments(jbaseCall, document);
+			return;
+		}
 		if (expr.getTypeArguments().isEmpty()) {
 			// case for diamond
 			handleOpenCloseParenthesis(expr, "<", ">", document);
 		}
 		super._format(expr, document);
+	}
+
+	private void formatExplicitConstructorTypeArguments(final XJConstructorCall call,
+			final IFormattableDocument document) {
+		final var constructorArguments = call.getConstructorTypeArguments();
+		final var constructorOpen = immediatelyPreceding(constructorArguments.getFirst())
+				.keyword("<");
+		final var constructorClose = immediatelyFollowing(constructorArguments.getLast())
+				.keyword(">");
+		formatTypeArguments(constructorArguments, constructorOpen, constructorClose, document);
+		document.prepend(constructorOpen, this::oneSpace);
+		if (!call.getSourceAnnotations().isEmpty()) {
+			document.append(constructorClose, this::oneSpace);
+			document.prepend(regionFor(call).feature(
+					XbasePackage.Literals.XCONSTRUCTOR_CALL__CONSTRUCTOR), this::oneSpace);
+			for (final XAnnotation annotation : call.getSourceAnnotations()) {
+				format(annotation, document);
+			}
+		} else {
+			document.prepend(regionFor(call).feature(
+					XbasePackage.Literals.XCONSTRUCTOR_CALL__CONSTRUCTOR), this::noSpace);
+		}
+		if (!call.getTypeArguments().isEmpty()) {
+			final var classArguments = call.getTypeArguments();
+			final var classOpen = immediatelyPreceding(classArguments.getFirst()).keyword("<");
+			final var classClose = immediatelyFollowing(classArguments.getLast()).keyword(">");
+			document.prepend(classOpen, this::noSpace);
+			formatTypeArguments(classArguments, classOpen, classClose, document);
+		} else if (call.isExplicitTypeArguments()) {
+			final var classOpen = regionFor(call).keywords("<").getLast();
+			final var classClose = regionFor(call).keywords(">").getLast();
+			document.surround(classOpen, this::noSpace);
+			document.prepend(classClose, this::noSpace);
+		}
+		final var open = regionFor(call).keyword("(");
+		final var close = regionFor(call).keyword(")");
+		if (open != null) {
+			document.prepend(open, this::noSpace);
+		}
+		formatFeatureCallParams(call.getArguments(), open, close, document);
+	}
+
+	private void formatTypeArguments(final List<JvmTypeReference> arguments,
+			final ISemanticRegion open, final ISemanticRegion close,
+			final IFormattableDocument document) {
+		document.append(open, this::noSpace);
+		for (var i = 0; i < arguments.size(); i++) {
+			final var argument = arguments.get(i);
+			format(argument, document);
+			if (i + 1 < arguments.size()) {
+				final var comma = immediatelyFollowing(argument).keyword(",");
+				document.prepend(comma, this::noSpace);
+				document.append(comma, this::oneSpace);
+			}
+		}
+		document.prepend(close, this::noSpace);
 	}
 
 	public void formatSemicolon(final XJWithSemicolon expr,

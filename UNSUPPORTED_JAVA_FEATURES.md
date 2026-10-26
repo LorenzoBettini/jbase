@@ -220,36 +220,35 @@ System.out.println(point.getX() + ", " + point.getY());
 See [Anonymous classes](docs/ANONYMOUS_CLASSES.md) for the grammar and inferrer
 extension contract. General Java member declaration syntax remains outside Jbase.
 
-### [ ] Qualified inner-class creation
+### [x] Qualified inner-class creation
 
 Assume an external Java class `Outer` with a public non-static member class `Inner`:
 
 ```java
 Outer outer = new Outer();
-Object inner = outer.new Inner();
+Outer.Inner inner = outer.new Inner();
 ```
 
-The `.new` form has syntax errors. Ordinary constructors and qualified names of
-static nested classes are supported.
+Jbase resolves the member-class constructor from the qualifier's type and emits
+Java's qualified creation syntax. Ordinary constructors and qualified names of
+static nested classes continue to use their existing syntax. See the
+[qualified inner-class creation guide](docs/QUALIFIED_INNER_CLASS_CREATION.md).
 
-### [ ] Explicit method and constructor type arguments
+### [x] Explicit method and constructor type arguments
 
 ```java
 java.util.List<String> values = java.util.Collections.<String>emptyList();
-```
-
-Method calls do not accept an explicit type-argument list before the method name.
-For an external class `GenericConstructor` declaring a constructor
-`<T> GenericConstructor(T value)`, this also fails:
-
-```java
 Object value = new <String>GenericConstructor("x");
 ```
 
-These are executable type arguments, distinct from supported class type arguments
-in `new ArrayList<String>()` and diamond inference in `new ArrayList<>()`.
-Explicit type arguments on method references, such as
-`Collections::<String>singletonList`, are supported.
+Method invocations and constructor invocations accept explicit executable type
+arguments in Java's source positions. Constructor executable arguments remain
+separate from class type arguments after the created type name, including when
+both lists are present. Existing class type arguments and diamond inference are
+unchanged. Explicit type arguments on method references are also supported.
+Covered by parsing, serialization, formatting, compilation and the
+`AllJavaFeaturesTest` showcase; see the
+[explicit executable type arguments guide](docs/EXPLICIT_EXECUTABLE_TYPE_ARGUMENTS.md).
 
 ### [ ] Intersection casts
 

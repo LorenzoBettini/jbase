@@ -240,6 +240,7 @@ XJFeatureCallWithArrayAccess returns XExpression:
 @Override 
 XFeatureCall returns XExpression:
 	{XFeatureCall}
+	('<' typeArguments+=JvmTypeReference (',' typeArguments+=JvmTypeReference)* '>')?
 	feature=[types::JvmIdentifiableElement|IdOrSuper] 
 	(=>explicitOperationCall?='(' 
 		(
@@ -262,7 +263,10 @@ XJAnonymousClassBody:
 
 XJPlainConstructorCall returns XJConstructorCall:
 	{XJConstructorCall}
-	'new' sourceAnnotations+=XAnnotation* constructor=[types::JvmConstructor|QualifiedName]
+	'new'
+	('<' constructorTypeArguments+=JvmTypeReference
+		(',' constructorTypeArguments+=JvmTypeReference)* '>')?
+	sourceAnnotations+=XAnnotation* constructor=[types::JvmConstructor|QualifiedName]
 	(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
 	(=>explicitConstructorCall?='(' 
 		(
@@ -324,13 +328,28 @@ XMemberFeatureCall returns XExpression:
 //			'[' index=XExpression ']'
 //			OpSingleAssign) value=XAssignment
 //	|
-		=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
+	=>({XJConstructorCall.qualifier=current} '.' 'new')
+		('<' constructorTypeArguments+=JvmTypeReference
+			(',' constructorTypeArguments+=JvmTypeReference)* '>')?
+		sourceAnnotations+=XAnnotation*
+		constructor=[types::JvmConstructor|QualifiedName]
+		(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference
+			(',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
+		(=>explicitConstructorCall?='('
+			(
+			    arguments+=XExpression (',' arguments+=XExpression)*
+			)?
+		')')?
+|
+	=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
 	|
 		=>({XAssignment.assignable=current} '.'
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
 				value=XAssignment
 	|
-		=>({XMemberFeatureCall.memberCallTarget=current} ".") 
+		=>({XMemberFeatureCall.memberCallTarget=current} ".")
+			('<' typeArguments+=JvmTypeReference
+				(',' typeArguments+=JvmTypeReference)* '>')?
 			feature=[types::JvmIdentifiableElement|IdOrSuper] (
 				=>explicitOperationCall?='(' 
 					(

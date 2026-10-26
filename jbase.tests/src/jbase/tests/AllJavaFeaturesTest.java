@@ -27,12 +27,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.IOException;
 			import java.io.InputStream;
 			import java.util.ArrayList;
+			import java.util.Collections;
 			import java.util.List;
 			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Function;
 			import java.util.function.Supplier;
+			import jbase.tests.util.ExplicitTypeArgumentFixtures.GenericConstructor;
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
 			import jbase.tests.util.SourceAnnotation;
 			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import jbase.testlanguage.tests.SealedTypes.Shape;
@@ -142,6 +145,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[] copy = numbers.clone();
 			List<String> names = new ArrayList<>();
 			names.add(text);
+			List<String> explicitlyTyped = Collections.<String>emptyList();
+			GenericConstructor<Double> explicitConstructor =
+				new <String, Integer>GenericConstructor<Double>("value", 1);
 			if (names instanceof ArrayList<String> arrayList) System.out.println(arrayList);
 			boolean arrayListCheck = names instanceof ArrayList<String>;
 			List<? extends CharSequence> readable = names;
@@ -150,6 +156,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			var inferred = new ArrayList<String>();
 			final var offset = 2;
 			inferred.add(names.get(0));
+			Outer outer = new Outer();
+			var inner = outer.new Inner();
+			int innerValue = inner.value();
 
 			// Anonymous bodies use the embedding test language's member syntax.
 			var pointObject = new Object() {
@@ -292,6 +301,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.IOException;
 			import java.io.InputStream;
 			import java.util.ArrayList;
+			import java.util.Collections;
 			import java.util.List;
 			import java.util.function.Function;
 			import java.util.function.IntFunction;
@@ -301,6 +311,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.ToIntFunction;
 			import jbase.testlanguage.tests.RecordPatternTypes;
 			import jbase.testlanguage.tests.SealedTypes;
+			import jbase.tests.util.ExplicitTypeArgumentFixtures;
+			import jbase.tests.util.QualifiedInnerFixtures;
 			import jbase.tests.util.SourceAnnotation;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
@@ -448,6 +460,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[] copy = numbers.clone();
 			    List<String> names = new ArrayList<String>();
 			    names.add(text);
+			    List<String> explicitlyTyped = Collections.<String>emptyList();
+			    ExplicitTypeArgumentFixtures.GenericConstructor<Double> explicitConstructor = new <String, Integer>ExplicitTypeArgumentFixtures.GenericConstructor<Double>("value", Integer.valueOf(1));
 			    if ((names instanceof ArrayList<String> arrayList)) {
 			      System.out.println(arrayList);
 			    }
@@ -458,6 +472,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    var inferred = new ArrayList<String>();
 			    final var offset = 2;
 			    inferred.add(names.get(0));
+			    QualifiedInnerFixtures.Outer outer = new QualifiedInnerFixtures.Outer();
+			    var inner = outer.new Inner();
+			    int innerValue = inner.value();
 			    var pointObject = new Object() {
 			      private int x;
 
