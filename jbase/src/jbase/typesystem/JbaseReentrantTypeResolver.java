@@ -34,7 +34,14 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jvmmodel.JbaseAnonymousClassUtil;
 
 /**
- * Java permits capturing effectively final locals without an explicit final modifier.
+ * Prepares and resolves the synthetic JVM types introduced by anonymous-class expressions.
+ *
+ * <p>Xbase's resolver does not know that these expressions introduce local classes. This
+ * resolver derives each synthetic type from its constructor's base type, prepares its
+ * constructors and captured variables, and maps the inferred members back to the resolved
+ * base type.
+ *
+ * <p>Java permits capturing effectively final locals without an explicit final modifier.
  * Xbase's early writable-local diagnostic is deferred so that
  * {@link jbase.validation.JbaseValidator#checkCapturedLocal(XAbstractFeatureCall)} can inspect
  * all linked writes, including mutually exclusive first assignments to a blank local.
@@ -71,6 +78,8 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 		if (associations.getPrimarySourceElement(type) instanceof XJAnonymousClass anonymous) {
 			final var actual = resolved.getActualType(anonymous.getConstructorCall());
 			final var memberTypes = prepared.get(type);
+			// Members were prepared against the synthetic type; bind them to the instantiated
+			// constructor target so inherited members see the actual base type arguments.
 			memberTypes.reassignTypeWithoutMerge(type, actual);
 			final var parameters = ((JvmGenericType) type).getTypeParameters();
 			for (var i = 0; i < parameters.size(); i++) {
@@ -104,14 +113,18 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 		final var call = anonymous.getConstructorCall();
 		final var scope = session.getScope(call,
 			TypesPackage.Literals.JVM_PARAMETERIZED_TYPE_REFERENCE__TYPE, resolvedTypes);
+		// Resolve the base type name from scope without recursively linking the constructor call.
 		final var type = anonymousClassUtil.getSuperTypeNonResolving(anonymous, scope);
 		final var copier = new EcoreUtil.Copier();
 		if (type instanceof JvmGenericType generic) {
+			// Give the synthetic type corresponding parameters while its base arguments are inferred.
 			local.getTypeParameters().addAll(copier.copyAll(generic.getTypeParameters()));
 			copier.copyReferences();
 		}
 		final var reference = createAnonymousTypeReference(call, local, type);
 		requestCapturedLocalVariables(reference, local, resolvedTypes, contexts, capturing -> {
+			// Captured variables affect the inferred type reference, so create constructors only
+			// after the capture-aware reference has been finalized.
 			computed.setEquivalent(capturing);
 			prepareAnonymousConstructors(anonymous, local, type, reference, copier,
 				resolvedTypes, session);
@@ -138,6 +151,8 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 			final ResolvedTypes resolvedTypes, final IFeatureScopeSession session) {
 		if (requiresDefaultConstructor(type)) {
 			if (type != null) {
+				// Interfaces and annotations have no constructor to copy; the local type still
+				// needs Object as its JVM superclass.
 				local.getSuperTypes().add(0,
 					typeReferences.getTypeForName(Object.class, local));
 			}
@@ -172,6 +187,7 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 		type.getMembers().add(constructor);
 		associator.associatePrimary(anonymous.getConstructorCall(), constructor);
 		constructor.setSimpleName(type.getSimpleName());
+		// Preserve whether the source could call the original constructor.
 		constructor.setVisibility(visible ? JvmVisibility.DEFAULT : JvmVisibility.PRIVATE);
 	}
 

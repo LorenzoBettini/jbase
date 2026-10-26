@@ -122,6 +122,8 @@ public class JbaseInitializedVariableFinder {
 				initialized, acceptor);
 			case XJAnonymousClass anonymous -> {
 				detectNotInitializedDispatch(anonymous.getConstructorCall(), initialized, acceptor);
+				// Constructor arguments execute here. Each member body runs later and starts with
+				// the locals initialized at class creation, but its writes cannot initialize them.
 				final var contents = anonymous.getBody().eAllContents();
 				while (contents.hasNext()) {
 					if (contents.next() instanceof XExpression body) {

@@ -311,6 +311,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	/**
+	 * Compiles anonymous creation expressions with their inferred body.
+	 *
+	 * <p>Unlike an ordinary constructor call, an anonymous-class call must emit the
+	 * generated members after the constructor arguments.
+	 */
 	@Override
 	protected void constructorCallToJavaExpression(final XConstructorCall call,
 			final ITreeAppendable appendable) {
@@ -321,6 +327,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		compileAnonymousConstructorCall(call, anonymous, appendable);
 	}
 
+	/**
+	 * Emits the source constructor call followed by the anonymous class body.
+	 *
+	 * <p>Xbase's normal constructor-call compiler emits only object creation; Jbase must also
+	 * generate the inferred members inside Java's anonymous-class body syntax.
+	 */
 	private void compileAnonymousConstructorCall(final XConstructorCall call,
 			final XJAnonymousClass anonymous, final ITreeAppendable appendable) {
 		appendable.append("new ").append(anonymousTypes.getSuperType(anonymous));
@@ -329,6 +341,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		final var type = call.getConstructor().getDeclaringType();
 		appendable.append(" ").openScope();
 		final var config = generatorConfigs.get(anonymous);
+		// Generate members from the inferred JVM type, while retaining the base type's this/super.
 		modelGenerator.assignThisAndSuper(appendable, type, config);
 		modelGenerator.generateMembersInBody(type, appendable, config);
 		appendable.closeScope();

@@ -15,7 +15,13 @@ import org.eclipse.xtext.xbase.typesystem.internal.FeatureLinkHelper;
 import org.eclipse.xtext.xbase.typesystem.internal.ScopeProviderAccess.ErrorDescription;
 import org.eclipse.xtext.xbase.typesystem.internal.StackedResolvedTypes;
 
-/** Anonymous local type parameters represent this creation's superclass arguments. */
+/**
+ * Computes constructor calls used to create anonymous classes.
+ *
+ * <p>The synthetic anonymous type has local copies of the base type's parameters. Constructor
+ * inference must instead use the constructor's declared parameters so diamond inference
+ * resolves the base type arguments, not the synthetic type's copies.
+ */
 public class JbaseAnonymousClassState extends ExpressionTypeComputationState {
 	public JbaseAnonymousClassState(final XConstructorCall call,
 			final AbstractTypeComputationState parent) {
@@ -35,6 +41,7 @@ public class JbaseAnonymousClassState extends ExpressionTypeComputationState {
 		return new ConstructorLinkingCandidate(call, description, getSingleExpectation(state), state) {
 			@Override
 			protected List<JvmTypeParameter> getDeclaredTypeParameters() {
+				// The anonymous type's copied parameters are not the constructor's type variables.
 				return new FeatureLinkHelper().getDeclaredTypeParameters(getConstructor());
 			}
 		};
