@@ -4,7 +4,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
+import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmPrimitiveType;
+import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -191,13 +193,29 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		if (expression.getTarget() instanceof XClosure && expression.getType() != null) {
 			// Unlike an ordinary cast, a lambda cast supplies the target interface
 			// from which Xbase must infer the lambda's parameter and return types.
-			var targetType = state.getReferenceOwner()
+			var castType = state.getReferenceOwner()
 				.toLightweightTypeReference(expression.getType());
-			state.withExpectation(targetType).computeTypes(expression.getTarget());
-			state.acceptActualType(targetType);
+			var lambdaTarget = getFunctionalCastTarget(expression.getType(), castType, state);
+			state.withExpectation(lambdaTarget).computeTypes(expression.getTarget());
+			state.acceptActualType(castType);
 		} else {
 			super._computeTypes(expression, state);
 		}
+	}
+
+	private LightweightTypeReference getFunctionalCastTarget(final JvmTypeReference castType,
+			final LightweightTypeReference lightweightCastType,
+			final ITypeComputationState state) {
+		if (!(castType instanceof JvmMultiTypeReference multiType)) {
+			return lightweightCastType;
+		}
+		final var owner = state.getReferenceOwner();
+		final var functionalTargets = multiType.getReferences().stream()
+			.map(owner::toLightweightTypeReference)
+			.filter(LightweightTypeReference::isInterfaceType)
+			.filter(type -> services.getFunctionTypes().findImplementingOperation(type) != null)
+			.toList();
+		return functionalTargets.size() == 1 ? functionalTargets.getFirst() : lightweightCastType;
 	}
 
 	/**

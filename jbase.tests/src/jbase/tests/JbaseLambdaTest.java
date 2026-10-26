@@ -609,4 +609,47 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 		assertTrue(validationTestHelper.validate(model).stream()
 			.anyMatch(issue -> JbaseIssueCodes.INVALID_LAMBDA.equals(issue.getCode())));
 	}
+
+	@Test
+	public void intersectionCastUsesItsUniqueFunctionalInterfaceBound() throws Exception {
+		checkCompilation("""
+			Object value = (java.io.Serializable & java.util.function.IntUnaryOperator)
+				n -> n + 1;
+			""", null);
+	}
+
+	@Test
+	public void intersectionCastLambdaImplementsMarkerInterface() throws Exception {
+		final var source = """
+			method testMe(): void {
+				Object value = (Runnable & java.io.Serializable) () -> {};
+				System.out.println(value instanceof java.io.Serializable);
+			}
+			""";
+		compilationTestHelper.compile(source, result -> assertTrue(result.getSingleGeneratedCode(),
+			result.getSingleGeneratedCode().contains("(Runnable & Serializable)")));
+		assertExecuteMain(source, "true\n");
+	}
+
+	@Test
+	public void intersectionCastMethodReferenceImplementsMarkerInterface() throws Exception {
+		assertExecuteMain("""
+			method testMe(): void {
+				Object value = (java.io.Serializable & java.util.function.Supplier<String>)
+					String::new;
+				System.out.println(value instanceof java.io.Serializable);
+			}
+			""", "true\n");
+	}
+
+	@Test
+	public void intersectionCastRequiresExactlyOneFunctionalInterfaceBound() throws Exception {
+		final var noFunctionalBound = """
+			Object value = (java.io.Serializable & Cloneable) () -> {};
+			""";
+		assertLambdaError(noFunctionalBound, JbaseIssueCodes.INVALID_LAMBDA);
+		assertLambdaError("""
+			Object value = (Runnable & java.util.concurrent.Callable<Object>) () -> {};
+			""", JbaseIssueCodes.INVALID_LAMBDA);
+	}
 }

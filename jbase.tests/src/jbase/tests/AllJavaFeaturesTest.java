@@ -26,6 +26,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
 			import java.io.InputStream;
+			import java.io.Serializable;
 			import java.util.ArrayList;
 			import java.util.Collections;
 			import java.util.List;
@@ -246,6 +247,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				System.out.println(supplier.getAsInt());
 			};
 			task.run();
+			Object intersectionTask = (Runnable & java.io.Serializable) () -> {};
+			Object functionalBoundNotFirst =
+				(java.io.Serializable & IntUnaryOperator) n -> n + 1;
+			Runnable existingTask = () -> {};
+			Object intersectionValue = (java.io.Serializable & Runnable) existingTask;
 			IntUnaryOperator identity = (final var n) -> n;
 			@SourceAnnotation final String annotatedValue = "text";
 			List<@SourceAnnotation String> annotatedValues = List.of(annotatedValue);
@@ -300,6 +306,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.ByteArrayInputStream;
 			import java.io.IOException;
 			import java.io.InputStream;
+			import java.io.Serializable;
 			import java.util.ArrayList;
 			import java.util.Collections;
 			import java.util.List;
@@ -619,16 +626,25 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    };
 			    var task = ((Runnable) _function_3);
 			    task.run();
-			    final IntUnaryOperator _function_4 = (int n) -> {
+			    Object intersectionTask = ((Runnable & Serializable) () -> {
+			    });
+			    Object functionalBoundNotFirst = ((Serializable & IntUnaryOperator) (int n) -> {
+			      return (n + 1);
+			    });
+			    final Runnable _function_4 = () -> {
+			    };
+			    Runnable existingTask = _function_4;
+			    Object intersectionValue = ((Serializable & Runnable) existingTask);
+			    final IntUnaryOperator _function_5 = (int n) -> {
 			      return n;
 			    };
-			    IntUnaryOperator identity = _function_4;
+			    IntUnaryOperator identity = _function_5;
 			    @SourceAnnotation final String annotatedValue = "text";
 			    List<@SourceAnnotation String> annotatedValues = List.<String>of(annotatedValue);
-			    final Function<String, Integer> _function_5 = (@SourceAnnotation String element) -> {
+			    final Function<String, Integer> _function_6 = (@SourceAnnotation String element) -> {
 			      return Integer.valueOf(element.length());
 			    };
-			    Function<String, Integer> annotatedLength = _function_5;
+			    Function<String, Integer> annotatedLength = _function_6;
 			    for (@SourceAnnotation String annotatedElement : annotatedValues) {
 			      System.out.println(annotatedLength.apply(annotatedElement));
 			    }

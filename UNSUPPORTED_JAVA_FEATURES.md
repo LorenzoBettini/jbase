@@ -250,15 +250,15 @@ Covered by parsing, serialization, formatting, compilation and the
 `AllJavaFeaturesTest` showcase; see the
 [explicit executable type arguments guide](docs/EXPLICIT_EXECUTABLE_TYPE_ARGUMENTS.md).
 
-### [ ] Intersection casts
+### [x] Intersection casts
 
 ```java
 Object task = (Runnable & java.io.Serializable) () -> {};
 ```
 
-The cast rule accepts only one type reference. This example can parse as a different
-expression rather than producing an intersection type, then generation throws an
-exception. Ordinary single-type casts of lambdas are supported.
+Intersection cast types are represented with Xtext's `JvmMultiTypeReference`.
+Lambda and method-reference targets use the unique functional-interface bound for
+inference, while generated Java retains the complete intersection cast.
 
 ### [ ] Array declarator dimensions and trailing initializer commas
 
