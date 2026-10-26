@@ -96,6 +96,11 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 				// than the synthetic anonymous type's copied parameters.
 				super._computeTypes(call, new JbaseAnonymousClassState(call,
 					(AbstractTypeComputationState) state));
+			case XJConstructorCall call when call.getQualifier() != null -> {
+				// Keep qualifier typing separate from the creation's target-type expectation.
+				state.withoutExpectation().computeTypes(call.getQualifier());
+				super._computeTypes(call, state);
+			}
 			case XJAnonymousClass anonymous -> {
 				for (final var inferred : associations.getJvmElements(anonymous)) {
 					if (inferred instanceof JvmGenericType type) {

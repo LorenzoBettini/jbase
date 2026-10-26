@@ -324,7 +324,18 @@ XMemberFeatureCall returns XExpression:
 //			'[' index=XExpression ']'
 //			OpSingleAssign) value=XAssignment
 //	|
-		=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
+	=>({XJConstructorCall.qualifier=current} '.' 'new')
+		sourceAnnotations+=XAnnotation*
+		constructor=[types::JvmConstructor|QualifiedName]
+		(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference
+			(',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
+		(=>explicitConstructorCall?='('
+			(
+			    arguments+=XExpression (',' arguments+=XExpression)*
+			)?
+		')')?
+|
+	=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
 	|
 		=>({XAssignment.assignable=current} '.'
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)

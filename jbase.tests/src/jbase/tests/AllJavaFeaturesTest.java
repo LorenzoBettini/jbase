@@ -33,6 +33,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntUnaryOperator;
 			import java.util.function.Function;
 			import java.util.function.Supplier;
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
 			import jbase.tests.util.SourceAnnotation;
 			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import jbase.testlanguage.tests.SealedTypes.Shape;
@@ -150,6 +151,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			var inferred = new ArrayList<String>();
 			final var offset = 2;
 			inferred.add(names.get(0));
+			Outer outer = new Outer();
+			var inner = outer.new Inner();
+			int innerValue = inner.value();
 
 			// Anonymous bodies use the embedding test language's member syntax.
 			var pointObject = new Object() {
@@ -301,6 +305,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.ToIntFunction;
 			import jbase.testlanguage.tests.RecordPatternTypes;
 			import jbase.testlanguage.tests.SealedTypes;
+			import jbase.tests.util.QualifiedInnerFixtures;
 			import jbase.tests.util.SourceAnnotation;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
@@ -458,6 +463,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    var inferred = new ArrayList<String>();
 			    final var offset = 2;
 			    inferred.add(names.get(0));
+			    QualifiedInnerFixtures.Outer outer = new QualifiedInnerFixtures.Outer();
+			    var inner = outer.new Inner();
+			    int innerValue = inner.value();
 			    var pointObject = new Object() {
 			      private int x;
 

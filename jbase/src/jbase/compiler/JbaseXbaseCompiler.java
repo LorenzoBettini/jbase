@@ -388,6 +388,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void constructorCallToJavaExpression(final XConstructorCall call,
 			final ITreeAppendable appendable) {
+		final var jbaseCall = (XJConstructorCall) call;
+		if (jbaseCall.getQualifier() != null) {
+			compileQualifiedConstructorCall(jbaseCall, appendable);
+			return;
+		}
 		if (!(call.eContainer() instanceof XJAnonymousClass anonymous)) {
 			super.constructorCallToJavaExpression(call, appendable);
 			return;
@@ -415,9 +420,23 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		appendable.closeScope();
 	}
 
+	private void compileQualifiedConstructorCall(final XJConstructorCall call,
+			final ITreeAppendable appendable) {
+		internalToJavaExpression(call.getQualifier(), appendable);
+		appendable.append(".new ");
+		appendSourceAnnotations(call.getSourceAnnotations(), appendable);
+		appendable.append(call.getConstructor().getDeclaringType().getSimpleName());
+		appendExplicitTypeArguments(call, appendable);
+		appendConstructorArguments(call, appendable);
+	}
+
 	private void appendExplicitTypeArguments(final XJAnonymousClass anonymous,
 			final ITreeAppendable appendable) {
-		final var creation = anonymous.getConstructorCall();
+		appendExplicitTypeArguments(anonymous.getConstructorCall(), appendable);
+	}
+
+	private void appendExplicitTypeArguments(final XJConstructorCall creation,
+			final ITreeAppendable appendable) {
 		if (!creation.isExplicitTypeArguments()) {
 			return;
 		}
