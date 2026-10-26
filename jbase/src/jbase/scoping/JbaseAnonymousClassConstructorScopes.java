@@ -37,7 +37,7 @@ public class JbaseAnonymousClassConstructorScopes extends ConstructorScopes {
 		if (context instanceof XConstructorCall) {
 			final var container = context.eContainer();
 			if (container instanceof XJAnonymousClass) {
-				final var inferredType = Iterables.getFirst(Iterables.filter(
+				final var inferredType = Iterables.getFirst(Iterables.filter( // NOSONAR
 					associations.getJvmElements(container), JvmGenericType.class), null);
 				if (inferredType != null) {
 					return createAnonymousClassConstructorScope(inferredType, context, session);
