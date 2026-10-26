@@ -1,5 +1,7 @@
 package jbase.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.inject.Inject;
 import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
@@ -657,7 +659,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void testSourceAnnotations() throws Exception {
-		checkCompilation("""
+		compilationTestHelper.compile("""
 			import java.util.List;
 			import java.util.function.Function;
 			import jbase.tests.util.SourceAnnotation;
@@ -670,6 +672,20 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			for (@SourceAnnotation String element : values) {
 				System.out.println(length.apply(element));
 			}
-			""", null);
+			""", result -> {
+				assertNoValidationErrors(result);
+				final var generated = result.getSingleGeneratedCode();
+				assertTrue(generated, generated.contains(
+					"annotated(@SourceAnnotation List<@SourceAnnotation String> parameter)"));
+				assertTrue(generated, generated.contains(
+					"@SourceAnnotation final String value = \"text\";"));
+				assertTrue(generated, generated.contains(
+					"List<@SourceAnnotation String> values ="));
+				assertTrue(generated, generated.contains(
+					"(@SourceAnnotation String element) ->"));
+				assertTrue(generated, generated.contains(
+					"for (@SourceAnnotation String element : values)"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
 	}
 }

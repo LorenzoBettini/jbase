@@ -30,6 +30,12 @@ public class JbaseBranchingStatementDetector {
 		return e != null && sureBranch(e);
 	}
 
+	/**
+	 * Applies the recursive structural check for expressions with guaranteed branching.
+	 *
+	 * @param e the non-null expression to inspect
+	 * @return whether the recognized structure guarantees a branch
+	 */
 	protected boolean sureBranch(final XExpression e) {
 		return switch (e) {
 			case null -> throw new IllegalArgumentException("Unhandled parameter types: [null]");
