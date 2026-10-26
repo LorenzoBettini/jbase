@@ -41,7 +41,7 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 			for (final var inferred : associations.getJvmElements(anonymous)) {
 				if (inferred instanceof JvmGenericType type) {
 					checkJvmGenericType(type, processed);
-					checkJavaAnonymousClass(anonymous, type);
+					checkJavaAnonymousClass(anonymous);
 				}
 			}
 		}
@@ -59,7 +59,7 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 		checkFunctionOverrides(features, flagged);
 	}
 
-	private void checkJavaAnonymousClass(final XJAnonymousClass source, final JvmGenericType type) {
+	private void checkJavaAnonymousClass(final XJAnonymousClass source) {
 		final var call = source.getConstructorCall();
 		final var superType = anonymousTypes.getSuperType(source);
 		if (superType == null) return;
