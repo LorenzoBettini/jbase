@@ -27,7 +27,7 @@ Export-Package: jbase.example.purejbase,
  jbase.example.purejbase.parser.antlr,
  jbase.example.purejbase.parser.antlr.internal,
  jbase.example.purejbase.validation,
- jbase.example.purejbase.formatting,
+ jbase.example.purejbase.formatting2,
  jbase.example.purejbase.jvmmodel,
  jbase.example.purejbase.scoping,
  jbase.example.purejbase.formatting2
