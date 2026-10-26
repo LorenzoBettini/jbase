@@ -19,7 +19,7 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jvmmodel.JbaseAnonymousClassUtil;
 
 /**
- * @author Jan Koehnlein - Initial contribution and API
+ * Inspired by org.eclipse.xtend.core.serializer.XtendSerializerScopeProvider
  */
 public class JbaseSerializerScopeProvider extends SerializerScopeProvider {
 
