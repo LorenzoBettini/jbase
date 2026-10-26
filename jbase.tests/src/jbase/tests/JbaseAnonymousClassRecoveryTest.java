@@ -32,6 +32,7 @@ public class JbaseAnonymousClassRecoveryTest {
 			@Override
 			protected JbaseTestlanguageRuntimeModule createRuntimeModule() {
 				return new JbaseTestlanguageRuntimeModule() {
+					@SuppressWarnings("unused")
 					public Class<? extends JbaseAnonymousClassUtil> bindJbaseAnonymousClassUtil() {
 						return UnavailableTypes.class;
 					}

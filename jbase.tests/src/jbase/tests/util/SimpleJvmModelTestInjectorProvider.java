@@ -12,6 +12,7 @@ public class SimpleJvmModelTestInjectorProvider extends JbaseInjectorProvider {
 	@Override
 	protected JbaseRuntimeModule createRuntimeModule() {
 		return new JbaseRuntimeModule() {
+			@SuppressWarnings("unused")
 			public Class<? extends DefaultBatchTypeResolver>
 					bindDefaultBatchTypeResolver() {
 				return LogicalContainerAwareBatchTypeResolver.class;
