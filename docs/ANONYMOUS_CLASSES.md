@@ -63,23 +63,153 @@ Anonymous operations can implement interfaces, override superclass methods,
 and contain further anonymous classes. Captured parameters and local variables
 follow Jbase's final or effectively final rules.
 
-## Inferrer integration
+## Adding anonymous classes to a DSL: the Domainmodel walkthrough
 
-Use `DefaultJbaseRuntimeModule` for the Jbase runtime bindings. Inject
-`jbase.jvmmodel.JbaseAnonymousClassInferrer` into the host JVM model inferrer.
-After assigning a JVM feature's expression body, call:
+The following steps show how Domainmodel integrates anonymous classes. Reuse
+these steps with your DSL's own member syntax and JVM model inference.
 
-```java
-anonymousClasses.inferLocalClasses(feature, expression);
+### 1. Keep the Jbase grammar and runtime integration
+
+The host grammar must inherit `jbase.Jbase`. Domainmodel's
+[GenerateDomainmodel.mwe2](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/GenerateDomainmodel.mwe2)
+already references Jbase's metamodel and uses its generator fragment:
+
+```mwe2
+referencedResource = "platform:/resource/jbase/model/custom/Jbase.genmodel"
+xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {}
 ```
 
-For nonempty bodies, use the overload accepting a
-`BiConsumer<XJAnonymousClass, JvmGenericType>`. Infer the body's members into the
-supplied type with ordinary `JvmTypesBuilder` associations and expression bodies.
-Call the helper for each inferred member's body as well, to support nested
-anonymous classes. The helper handles anonymous classes in constructor arguments.
-Do this during the inferrer's normal initialization callback, without resolving
-cross references during pre-indexing.
+This makes the generated abstract runtime module extend
+`jbase.DefaultJbaseRuntimeModule`, which supplies Jbase's type-system,
+validation, and Java generation bindings. An existing DSL using this setup
+needs no extra runtime binding just for anonymous classes.
+
+### 2. Define the anonymous body's members in the host grammar
+
+In [Domainmodel.xtext](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/Domainmodel.xtext),
+import Jbase's metamodel and override the body rule:
+
+```xtext
+import "http://www.Jbase.jbase" as jbase
+
+@Override
+XJAnonymousClassBody returns jbase::XJAnonymousClassBody:
+    {AnonymousClassBody} features+=Feature*;
+```
+
+`Feature` is Domainmodel's existing choice between `Property` and `Operation`.
+Reusing it gives anonymous bodies the same declarations as entities. The action
+creates a host-specific `AnonymousClassBody` subtype containing those features.
+Do not put braces in this rule: Jbase's anonymous-class expression already owns
+them. The `*` also allows empty bodies.
+
+Regenerate the language through its MWE2 workflow after changing the grammar;
+this generates Domainmodel's extended metamodel, parser, and serializer. Check
+the generation output for grammar ambiguity warnings. A DSL with a manually
+maintained metamodel must also define the new body subtype and its containment
+feature in its Ecore and GenModel files.
+
+### 3. Reuse member inference and register local classes
+
+In [DomainmodelJvmModelInferrer.xtend](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/jvmmodel/DomainmodelJvmModelInferrer.xtend),
+inject the Jbase helper:
+
+```xtend
+@Inject JbaseAnonymousClassInferrer anonymousClasses
+```
+
+Domainmodel extracts its entity feature loop into
+`inferFeatures(JvmDeclaredType it, Iterable<Feature> features)`. Both entities
+and anonymous types call that method. It maps properties to private fields with
+public accessors and operations to JVM methods, and removes generated accessors
+when explicit ones are present. Entity constructors and the generated entity
+`toString()` stay in the entity-specific inference.
+
+For each operation, assign the expression body, attach the method to its owner,
+and then infer its local anonymous classes. The operation branch uses:
+
+```xtend
+val method = f.toMethod(f.name, f.type ?: inferredType) [
+    documentation = f.documentation
+    translateAnnotations(f.annotations)
+    for (p : f.params) {
+        parameters += p.toParameter(p.name, p.parameterType)
+    }
+    body = f.body
+]
+members += method
+anonymousClasses.inferLocalClasses(method, f.body) [ source, type |
+    val body = source.body as AnonymousClassBody
+    type.inferFeatures(body.features)
+]
+```
+
+Here `f` is a Domainmodel `Operation`, and `members` belongs to the JVM type
+currently being initialized. `JvmTypesBuilder` supplies the source associations
+and logical body containers. Keep this work inside the inferrer's normal
+initialization callback; do not resolve cross references during pre-indexing.
+
+The callback receives the anonymous expression and its new local JVM type.
+Populate that supplied type with the body's members. Since `inferFeatures`
+applies the same operation branch recursively, anonymous classes inside anonymous
+methods are registered too. The helper handles anonymous classes in constructor
+arguments itself. For a DSL allowing only empty bodies, the two-argument overload
+`anonymousClasses.inferLocalClasses(method, expression)` is sufficient.
+
+Attaching the method before invoking the helper matters in Domainmodel:
+accessor cleanup resolves JVM operation signatures and needs the anonymous type
+to be attached to a resource through its enclosing method. Calling the helper
+inside `toMethod`'s initializer, before adding the method to `members`, leaves
+that resource unavailable during cleanup.
+
+Apply the helper to every JVM feature expression that your DSL permits to
+contain anonymous classes, including field initializers or constructor bodies
+if your DSL supports them. Domainmodel properties have no initializers, so its
+operation bodies are the integration points.
+
+### 4. Format the host-specific body
+
+Jbase's formatter handles the constructor call, braces, and indentation. The
+host formatter formats the declarations between those braces. Domainmodel's
+[DomainmodelFormatter.java](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/formatting2/DomainmodelFormatter.java)
+extends `JbaseFormatter` and adds:
+
+```java
+protected void _format(AnonymousClassBody body, IFormattableDocument document) {
+    for (final var feature : body.getFeatures()) {
+        document.format(feature);
+        document.append(feature, this::newLine);
+    }
+}
+```
+
+This reuses the existing property and operation formatters. Use a single newline
+after each member here: the last member shares its trailing whitespace with
+Jbase's closing-brace formatting. Conflicting newline constraints at that
+boundary cause formatting exceptions, which can also surface during serialization.
+
+### 5. Test the integration through generated Java
+
+Domainmodel's regression tests provide a starting point:
+
+- [CompilerTest.xtend](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/CompilerTest.xtend)
+  checks interface implementations with captured parameters and locals,
+  properties with explicit accessors, nested anonymous classes, superclass
+  constructor arguments and `super` calls, and empty bodies. It compiles and
+  executes the generated Java, and checks the complete Java output for an empty
+  anonymous body.
+- [DomainmodelParsingTest.xtend](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/DomainmodelParsingTest.xtend)
+  checks missing interface implementations and serialization with and without
+  a node model. For the latter, resolve references, copy the parsed model,
+  replace the resource contents with the copy, then serialize and reparse it.
+- [FormatterTest.xtend](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/FormatterTest.xtend)
+  checks formatting of properties and operations inside an anonymous body.
+
+Checking parsing alone does not establish that local types are inferred,
+captures are scoped correctly, or valid Java is generated. Keep compilation and
+runtime assertions alongside diagnostics and serialization checks.
+
+## Behavior supplied by Jbase
 
 The helper creates local anonymous JVM types and associates them with source
 expressions. Jbase resolves their supertypes and constructors during type
