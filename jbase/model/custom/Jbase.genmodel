@@ -30,9 +30,15 @@
     <genClasses ecoreClass="Jbase.ecore#//XJArrayAccessExpression">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayAccessExpression/array"/>
     </genClasses>
-    <genClasses ecoreClass="Jbase.ecore#//XJBranchingStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJBranchingStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJBranchingStatement/label"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJContinueStatement"/>
     <genClasses ecoreClass="Jbase.ecore#//XJBreakStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJLabeledStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJLabeledStatement/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJLabeledStatement/statement"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJCharLiteral"/>
     <genClasses ecoreClass="Jbase.ecore#//XJPrefixOperation"/>
     <genClasses ecoreClass="Jbase.ecore#//XJConditionalExpression"/>

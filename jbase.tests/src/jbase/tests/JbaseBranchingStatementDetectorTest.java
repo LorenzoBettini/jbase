@@ -45,16 +45,38 @@ public class JbaseBranchingStatementDetectorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testLabeledBranch() throws Exception {
+		assertIsSureBranchStatement("target: break target;", true);
+	}
+
+	@Test
 	public void testBreak() throws Exception {
 		assertIsSureBranchStatement("break;", true);
 	}
 
 	@Test
-	public void testContinueInSingleThenBranch() throws Exception {
+	public void testContinueInSingleThenBranchWithTrueCondition() throws Exception {
 		assertIsSureBranchStatement("""
 			if (true)
 				continue;
 			""", true);
+	}
+
+	@Test
+	public void testContinueInSingleThenBranchWithFalseCondition() throws Exception {
+		assertIsSureBranchStatement("""
+			if (false)
+				continue;
+			""", false);
+	}
+
+	@Test
+	public void testContinueInSingleThenBranchWithNonConstantCondition() throws Exception {
+		assertIsSureBranchStatement("""
+			boolean condition = true;
+			if (condition)
+				continue;
+			""", false);
 	}
 
 	@Test

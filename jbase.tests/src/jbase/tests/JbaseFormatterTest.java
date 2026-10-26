@@ -809,6 +809,23 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testLabeledStatementsAndBranches() {
+		assertFormatted(expression -> {
+			expression.setExpectation("""
+				exit: {
+					break exit;
+				}
+				outer: while (true)
+					continue outer;
+				""");
+			expression.setToBeFormatted("""
+				exit : { break   exit ; }
+				outer:while (true) continue   outer ;
+				""");
+		});
+	}
+
+	@Test
 	public void testIfStatements()  {
 		assertFormatted(expression -> {
 			expression.setExpectation("""

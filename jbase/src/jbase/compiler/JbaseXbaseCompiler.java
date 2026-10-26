@@ -56,11 +56,13 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.conversion.JbaseTextBlockValueConverter;
 import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJAssertStatement;
+import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJCharLiteral;
@@ -69,6 +71,7 @@ import jbase.jbase.XJComponentPattern;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
@@ -195,7 +198,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.append(";");
 			}
 			case XJContinueStatement statement -> compileContinueStatement(statement, appendable);
-			case XJBreakStatement statement -> compileBranchingStatement(appendable, "break");
+			case XJBreakStatement statement ->
+				compileBranchingStatement(statement, appendable, "break");
+			case XJLabeledStatement statement -> compileLabeledStatement(statement, appendable,
+				isReferenced);
 			case XJAssertStatement statement -> compileAssertStatement(statement, appendable);
 			case XJSemicolonStatement statement ->
 				compileSemicolonStatement(statement, appendable, isReferenced);
@@ -209,8 +215,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * while/enhanced-for containment checks discard that unrelated outer loop first.
 	 */
 	private void compileContinueStatement(XJContinueStatement st, ITreeAppendable b) {
-		XBasicForLoopExpression basicForLoop = EcoreUtil2.getContainerOfType(st, XBasicForLoopExpression.class);
-		if (basicForLoop != null
+		XBasicForLoopExpression basicForLoop = getContinueTarget(st);
+		if (st.getLabel() == null && basicForLoop != null
 				&& (EcoreUtil.isAncestor(basicForLoop,
 					EcoreUtil2.getContainerOfType(st, XAbstractWhileExpression.class))
 				|| EcoreUtil.isAncestor(basicForLoop,
@@ -242,7 +248,34 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				b.newLine().append(varName).append(ASSIGNED_TRUE);
 			}
 		}
-		compileBranchingStatement(b, "continue");
+		compileBranchingStatement(st, b, "continue");
+	}
+
+	protected XBasicForLoopExpression getContinueTarget(final XJContinueStatement statement) {
+		if (statement.getLabel() == null) {
+			return EcoreUtil2.getContainerOfType(statement, XBasicForLoopExpression.class);
+		}
+		for (var parent = statement.eContainer(); parent != null; parent = parent.eContainer()) {
+			if (parent instanceof XJLabeledStatement labeled
+					&& statement.getLabel().equals(labeled.getName())) {
+				return labeled.getStatement() instanceof XBasicForLoopExpression loop ? loop : null;
+			}
+			if (parent instanceof XClosure || parent instanceof XJAnonymousClassBody) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private void compileLabeledStatement(final XJLabeledStatement statement,
+			final ITreeAppendable appendable, final boolean isReferenced) {
+		if (statement.getStatement() instanceof XBasicForLoopExpression loop
+				&& !canCompileToJavaBasicForStatement(loop, appendable)) {
+			internalToJavaStatement(statement.getStatement(), appendable, isReferenced);
+			return;
+		}
+		appendable.newLine().append(statement.getName()).append(":");
+		internalToJavaStatement(statement.getStatement(), appendable, isReferenced);
 	}
 
 	private void compileClassObject(XJClassObject e, ITreeAppendable b) {
@@ -253,8 +286,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			append(Joiner.on("").join(e.getArrayDimensions())).append(".class");
 	}
 
-	private void compileBranchingStatement(ITreeAppendable b, String instruction) {
-		b.newLine().append(instruction).append(";");
+	private void compileBranchingStatement(final XJBranchingStatement statement,
+			final ITreeAppendable appendable, final String instruction) {
+		appendable.newLine().append(instruction);
+		if (statement.getLabel() != null) {
+			appendable.append(" ").append(statement.getLabel());
+		}
+		appendable.append(";");
 	}
 
 	private void compileAssertStatement(final XJAssertStatement statement,
@@ -768,6 +806,11 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			loopAppendable.newLine().append("boolean ").append(varName).append(ASSIGNED_TRUE);
 		}
 		loopAppendable.newLine();
+		final var labeledStatement = EcoreUtil2.getContainerOfType(
+			expr, XJLabeledStatement.class);
+		if (labeledStatement != null && labeledStatement.getStatement() == expr) {
+			loopAppendable.append(labeledStatement.getName()).append(": ");
+		}
 		loopAppendable.append("while (");
 		loopAppendable.append(varName);
 		loopAppendable.append(") {").increaseIndentation();

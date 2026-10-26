@@ -44,6 +44,7 @@ FullJvmFormalParameter returns XJJvmFormalParameter:
 
 XJSingleStatement returns XExpression:
 	// Commit on the switch keyword, including incomplete statements during editing.
+	=>XJLabeledStatement |
 	->XSwitchExpression |
 	XJSemicolonStatement |
 	XIfExpression |
@@ -67,7 +68,8 @@ XJSemicolonStatement returns XExpression:
 	{XJSemicolonStatement}
 	(=>expression=XJYieldStatement |
 		=>expression=XJAssertStatement |
-		expression=(XJBranchingStatement | XExpressionOrVarDeclaration |
+		=>expression=XJBranchingStatement |
+		expression=(XExpressionOrVarDeclaration |
 			XDoWhileExpression | XReturnExpression | XThrowExpression))
 	->semicolon=';'?
 ;
@@ -82,8 +84,12 @@ XJEmptyStatement returns XExpression:
 ;
 
 XJBranchingStatement returns XExpression:
-	{XJContinueStatement} "continue" |
-	{XJBreakStatement} "break"
+	{XJContinueStatement} "continue" (=>label=ID)? |
+	{XJBreakStatement} "break" (=>label=ID)?
+;
+
+XJLabeledStatement returns XExpression:
+	{XJLabeledStatement} name=ID ':' statement=XJStatementOrBlock
 ;
 
 /* 

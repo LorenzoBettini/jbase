@@ -12,11 +12,13 @@ import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJAssignment;
+import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
@@ -151,11 +153,30 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	protected void _format(final XJBreakStatement expr, final IFormattableDocument document) {
-		document.append(regionFor(expr).keyword("break"), this::noSpace);
+		formatBranchingStatement(expr, document, "break");
 	}
 
 	protected void _format(final XJContinueStatement expr, final IFormattableDocument document) {
-		document.append(regionFor(expr).keyword("continue"), this::noSpace);
+		formatBranchingStatement(expr, document, "continue");
+	}
+
+	private void formatBranchingStatement(final XJBranchingStatement expression,
+			final IFormattableDocument document, final String keyword) {
+		document.append(regionFor(expression).keyword(keyword),
+				expression.getLabel() == null ? this::noSpace : this::oneSpace);
+		if (expression.getLabel() != null) {
+			document.append(regionFor(expression)
+					.feature(jbase.jbase.JbasePackage.Literals.XJ_BRANCHING_STATEMENT__LABEL),
+					this::noSpace);
+		}
+	}
+
+	protected void _format(final XJLabeledStatement expr, final IFormattableDocument document) {
+		document.append(regionFor(expr).feature(
+				jbase.jbase.JbasePackage.Literals.XJ_LABELED_STATEMENT__NAME), this::noSpace);
+		document.append(document.prepend(regionFor(expr).keyword(":"), this::noSpace),
+				this::oneSpace);
+		format(expr.getStatement(), document);
 	}
 
 	protected void _format(final XJAssertStatement expr, final IFormattableDocument document) {
