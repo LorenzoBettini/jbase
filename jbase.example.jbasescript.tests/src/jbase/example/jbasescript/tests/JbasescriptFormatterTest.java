@@ -49,7 +49,7 @@ public class JbasescriptFormatterTest {
 				}
 
 				System.out.println("Done");
-				""".stripTrailing() + System.lineSeparator());
+				""".stripTrailing() + "\n");
 		});
 	}
 
