@@ -65,6 +65,7 @@ public class JbaseTypeReferenceSerializer extends TypeReferenceSerializer {
 				appendable.append(".");
 				appendAnnotations(annotated.getSourceAnnotations(), appendable);
 				final var simpleName = annotated.getType().getSimpleName();
+				// Remove the package or enclosing type prefix before emitting a nested type.
 				final var separator = Math.max(simpleName.lastIndexOf('.'),
 					simpleName.lastIndexOf('$'));
 				appendable.append(simpleName.substring(separator + 1));

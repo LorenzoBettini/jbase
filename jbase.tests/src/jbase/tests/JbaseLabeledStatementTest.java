@@ -10,6 +10,9 @@ import org.eclipse.xtext.xbase.XBlockExpression;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Tests parsing and validation of labeled statements and labeled branches.
+ */
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseInjectorProvider.class)
 public class JbaseLabeledStatementTest extends JbaseAbstractTest {

@@ -586,6 +586,12 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		state.acceptActualType(getPrimitiveVoid(state));
 	}
 
+	/**
+	 * Computes a labeled statement in its own scope and gives it the statement type {@code void}.
+	 *
+	 * @param statement the labeled statement to type
+	 * @param state the current type-computation state
+	 */
 	private void computeJbaseTypes(final XJLabeledStatement statement,
 			final ITypeComputationState state) {
 		state.withinScope(statement);

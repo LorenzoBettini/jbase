@@ -1253,19 +1253,31 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	/**
+	 * Emits constructor type-use annotations before the constructed type name.
+	 *
+	 * @param call the constructor call being compiled
+	 * @param appendable the output receiving generated Java
+	 */
 	@Override
 	protected void appendConstructedTypeName(final XConstructorCall call,
 			final ITreeAppendable appendable) {
-		// The superclass emits the constructor type here, after "new".
 		appendSourceAnnotations(((XJConstructorCall) call).getSourceAnnotations(), appendable);
 		super.appendConstructedTypeName(call, appendable);
 	}
 
+	/**
+	 * Emits source annotations before the generated catch parameter declaration.
+	 *
+	 * @param clause the catch clause being compiled
+	 * @param parameterType the type used for the generated parameter
+	 * @param parameterName the generated parameter name
+	 * @param appendable the output receiving generated Java
+	 */
 	@Override
 	protected void appendCatchClauseParameter(final XCatchClause clause,
 			final JvmTypeReference parameterType, final String parameterName,
 			final ITreeAppendable appendable) {
-		// Keep annotations attached to the source catch parameter declaration.
 		appendSourceAnnotations(
 			((XJJvmFormalParameter) clause.getDeclaredParam()).getSourceAnnotations(), appendable);
 		super.appendCatchClauseParameter(clause, parameterType, parameterName, appendable);
@@ -1295,6 +1307,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		appendable.append("if (");
 		var typeToUse = type;
 		if (type instanceof JvmSynonymTypeReference synonym) {
+			// Multi-catch aliases are lowered to a disjunction of instanceof checks.
 			final var references = synonym.getReferences();
 			for (var index = 0; index < references.size(); index++) {
 				if (index > 0) {
