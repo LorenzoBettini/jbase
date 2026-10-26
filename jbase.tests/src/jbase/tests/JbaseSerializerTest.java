@@ -138,6 +138,34 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testExplicitMethodAndConstructorTypeArguments() throws Exception {
+		final var source = """
+			import java.util.Collections;
+			import jbase.tests.util.ExplicitTypeArgumentFixtures.GenericConstructor;
+			Collections.<String>emptyList();
+			new <String, Integer>GenericConstructor<Double>("value", 1);
+			""";
+		assertSerialize(source);
+		final var sourceWithoutNodeModel = """
+			jbase.tests.util.ExplicitTypeArgumentFixtures fixtures =
+				new jbase.tests.util.ExplicitTypeArgumentFixtures();
+			fixtures.<String>identity("value");
+			jbase.tests.util.ExplicitTypeArgumentFixtures.GenericConstructor<Double> value =
+				new <String, Integer>jbase.tests.util.ExplicitTypeArgumentFixtures.GenericConstructor<Double>("value", 1);
+			""";
+		final var parsed = parseHelper.parse(sourceWithoutNodeModel);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		final var serialized = serializer.serialize(copy);
+		assertEquals(sourceWithoutNodeModel.replaceAll("\\s+", ""),
+			serialized.replaceAll("\\s+", ""));
+	}
+
+	@Test
 	public void testQualifiedInnerClassCreationWithoutNodeModel() throws Exception {
 		final var source = "jbase.tests.util.QualifiedInnerFixtures.Outer outer = "
 			+ "new jbase.tests.util.QualifiedInnerFixtures.Outer(); "

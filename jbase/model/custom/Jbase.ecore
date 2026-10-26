@@ -111,6 +111,10 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="qualifier"
         eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="constructorTypeArguments"
+        upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmTypeReference"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="explicitTypeArguments"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"

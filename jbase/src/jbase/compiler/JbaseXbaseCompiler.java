@@ -408,7 +408,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 */
 	private void compileAnonymousConstructorCall(final XConstructorCall call,
 			final XJAnonymousClass anonymous, final ITreeAppendable appendable) {
-		appendable.append("new ").append(anonymousTypes.getSuperType(anonymous));
+		appendable.append("new ");
+		appendExplicitConstructorTypeArguments((XJConstructorCall) call, appendable);
+		appendable.append(anonymousTypes.getSuperType(anonymous));
 		appendExplicitTypeArguments(anonymous, appendable);
 		appendConstructorArguments(call, appendable);
 		final var type = call.getConstructor().getDeclaringType();
@@ -424,6 +426,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			final ITreeAppendable appendable) {
 		internalToJavaExpression(call.getQualifier(), appendable);
 		appendable.append(".new ");
+		appendExplicitConstructorTypeArguments(call, appendable);
 		appendSourceAnnotations(call.getSourceAnnotations(), appendable);
 		appendable.append(call.getConstructor().getDeclaringType().getSimpleName());
 		appendExplicitTypeArguments(call, appendable);
@@ -446,6 +449,22 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				appendable.append(", ");
 			}
 			getTypeReferenceSerializer().serialize(creation.getTypeArguments().get(i),
+				creation, appendable);
+		}
+		appendable.append(">");
+	}
+
+	private void appendExplicitConstructorTypeArguments(final XJConstructorCall creation,
+			final ITreeAppendable appendable) {
+		if (creation.getConstructorTypeArguments().isEmpty()) {
+			return;
+		}
+		appendable.append("<");
+		for (var i = 0; i < creation.getConstructorTypeArguments().size(); i++) {
+			if (i != 0) {
+				appendable.append(", ");
+			}
+			getTypeReferenceSerializer().serialize(creation.getConstructorTypeArguments().get(i),
 				creation, appendable);
 		}
 		appendable.append(">");

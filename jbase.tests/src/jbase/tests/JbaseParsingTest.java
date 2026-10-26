@@ -3,6 +3,7 @@ package jbase.tests;
 import static org.junit.Assert.*;
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
+import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesStatement;
@@ -17,6 +18,7 @@ import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XListLiteral;
+import org.eclipse.xtext.xbase.XMemberFeatureCall;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XPostfixOperation;
 import org.eclipse.xtext.xbase.XStringLiteral;
@@ -164,6 +166,26 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 			// the argument
 			memberFeatureCall.getMemberCallArguments().getFirst();
 		});
+	}
+
+	@Test
+	public void testExplicitExecutableTypeArguments() throws Exception {
+		assertLastExpression("java.util.Collections.<String>emptyList();", expression -> {
+			final var call = (XMemberFeatureCall) expression;
+			assertEquals(1, call.getTypeArguments().size());
+		});
+		assertLastExpression(
+			"new <String, Integer>GenericConstructor<Double>(\"value\", 1);", expression -> {
+				final var call = (XJConstructorCall) expression;
+				assertEquals(2, call.getConstructorTypeArguments().size());
+				assertEquals(1, call.getTypeArguments().size());
+			});
+	}
+
+	@Test
+	public void testWildcardIsNotAnExecutableTypeArgument() throws Exception {
+		final var parsed = parseHelper.parse("java.util.Collections.<?>emptyList();");
+		assertFalse(parsed.eResource().getErrors().isEmpty());
 	}
 
 	@Test
