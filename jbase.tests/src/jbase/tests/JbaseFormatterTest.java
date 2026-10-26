@@ -22,7 +22,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	private JbaseFormatter jbaseFormatter;
 
 	@Test
-	public void testDispatchWithNull() {
+	public void testDispatchWithNull() { // NOSONAR: just testing that the formatter does not throw an exception when called with null
 		jbaseFormatter.format(null, null);
 	}
 
