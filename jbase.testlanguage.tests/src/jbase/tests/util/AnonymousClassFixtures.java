@@ -17,6 +17,7 @@ public class AnonymousClassFixtures {
 			value = first.toString().length() + second.toString().length();
 		}
 
+		@SuppressWarnings("unused")
 		private Base(final boolean value) {
 			this.value = 0;
 		}
