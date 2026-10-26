@@ -6,6 +6,7 @@ package jbase.testlanguage.formatting2;
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import jbase.formatting2.JbaseFormatter
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
+import jbase.testlanguage.jbaseTestlanguage.AnonymousClassBody
 import jbase.testlanguage.jbaseTestlanguage.OpMethod
 import jbase.testlanguage.jbaseTestlanguage.Operation
 import jbase.testlanguage.jbaseTestlanguage.Property
@@ -17,7 +18,9 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 		// you could use dispatch methods, but that will generate many other
 		// if cases for inherited dispatch methods that will never be executed during the
 		// tests and I prefer to have full control on code coverage.
-		if (expr instanceof JbaseTestLanguageModel) {
+		if (expr instanceof AnonymousClassBody) {
+			_format(expr, document)
+		} else if (expr instanceof JbaseTestLanguageModel) {
 			_format(expr, document);
 		} else if (expr instanceof Property) {
 			_format(expr, document);
@@ -29,6 +32,17 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 			super.format(expr, document)
 		}
 	}	
+
+	def void _format(AnonymousClassBody body, extension IFormattableDocument document) {
+		for (property : body.properties) {
+			format(property, document)
+			property.append[newLine]
+		}
+		for (method : body.methods) {
+			format(method, document)
+			method.append[newLine]
+		}
+	}
 
 	def void _format(JbaseTestLanguageModel model, extension IFormattableDocument document) {
 		val importSection = model.getImportSection()

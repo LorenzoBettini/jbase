@@ -32,6 +32,29 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	private Serializer serializer;
 
 	@Test
+	public void testAnonymousClasses() throws Exception {
+		assertSerialize("""
+			var value = new Object() { n: int method get(): int { return n; } };
+			Runnable task = new Runnable() { method run(): void {} };
+			Object empty = new Object() {};
+			""");
+	}
+
+	@Test
+	public void testAnonymousClassesWithoutNodeModel() throws Exception {
+		final var source = "var value = new Object() { n: int "
+			+ "method get(): int { return n; } }; Object marker = new Object() {};";
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		assertEquals(source.replaceAll("\\s+", ""), serializer.serialize(copy).replaceAll("\\s+", ""));
+	}
+
+	@Test
 	public void testRecordPatterns() throws Exception {
 		assertSerialize("""
 			Object value = null;

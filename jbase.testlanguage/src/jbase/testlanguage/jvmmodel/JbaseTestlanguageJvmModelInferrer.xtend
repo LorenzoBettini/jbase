@@ -1,6 +1,10 @@
 package jbase.testlanguage.jvmmodel
 
 import com.google.inject.Inject
+import jbase.jvmmodel.JbaseAnonymousClassInferrer
+import jbase.testlanguage.jbaseTestlanguage.AnonymousClassBody
+import org.eclipse.xtext.xbase.XExpression
+import org.eclipse.xtext.common.types.JvmFeature
 import jbase.jbase.XJJvmFormalParameter
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
@@ -26,6 +30,7 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 	 * convenience API to build and initialize JVM types and their members.
 	 */
 	@Inject extension JvmTypesBuilder jvmTypesBuilder
+	@Inject JbaseAnonymousClassInferrer anonymousClasses
 
 	/**
 	 * The dispatch method {@code infer} is called for each instance of the
@@ -73,6 +78,7 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 				static = true
 				// Associate the script as the body of the main method
 				body = e
+				inferAnonymousClasses(it, e, m)
 			]
 		]
 	}
@@ -87,6 +93,22 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 			}
 		
 			body = o.body
+			inferAnonymousClasses(it, o.body, m)
+		]
+	}
+
+	private def void inferAnonymousClasses(JvmFeature container, XExpression expression,
+		JbaseTestLanguageModel model) {
+		anonymousClasses.inferLocalClasses(container, expression) [ source, type |
+			if (source.body instanceof AnonymousClassBody) {
+				val body = source.body as AnonymousClassBody
+				for (p : body.properties) {
+					type.members += p.toField(p.name, p.type) [ translateAnnotations(p.annotations) ]
+				}
+				for (method : body.methods) {
+					type.members += inferJavaMethod(method, model)
+				}
+			}
 		]
 	}
 

@@ -212,6 +212,16 @@ XFeatureCall returns XExpression:
 // also record '<' to tell whether it's a diamond operator
 @Override 
 XConstructorCall returns XExpression:
+	XJPlainConstructorCall
+	(=>({XJAnonymousClass.constructorCall=current} '{') body=XJAnonymousClassBody '}')?
+;
+
+// Downstream languages override this rule with their own member declarations.
+XJAnonymousClassBody:
+	{XJAnonymousClassBody}
+;
+
+XJPlainConstructorCall returns XJConstructorCall:
 	{XJConstructorCall}
 	'new' constructor=[types::JvmConstructor|QualifiedName]
 	(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)*)? '>')?

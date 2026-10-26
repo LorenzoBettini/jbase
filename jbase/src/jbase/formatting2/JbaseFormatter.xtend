@@ -6,6 +6,7 @@ package jbase.formatting2;
 import com.google.inject.Inject
 import java.util.List
 import jbase.jbase.JbasePackage
+import jbase.jbase.XJAnonymousClass
 import jbase.jbase.XJArrayAccessExpression
 import jbase.jbase.XJArrayConstructorCall
 import jbase.jbase.XJAssertStatement
@@ -232,6 +233,14 @@ class JbaseFormatter extends XbasePatchedFormatter {
 			format(parameter, document)
 		}
 		format(closure.expression, document)
+	}
+
+	def dispatch void format(XJAnonymousClass anonymous, extension IFormattableDocument document) {
+		format(anonymous.constructorCall, document)
+		anonymous.regionFor.keyword("{").prepend[oneSpace].append[newLine]
+		anonymous.regionFor.keyword("}").prepend[newLine]
+		interior(anonymous.regionFor.keyword("{"), anonymous.regionFor.keyword("}"))[indent]
+		format(anonymous.body, document)
 	}
 
 	override dispatch void format(XConstructorCall expr, extension IFormattableDocument document) {

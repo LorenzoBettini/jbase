@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
@@ -35,16 +35,15 @@ import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmOperation;
 import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.validation.Check;
+import org.eclipse.xtext.validation.ComposedChecks;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBinaryOperation;
-import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XCasePart;
-import org.eclipse.xtext.xbase.XNullLiteral;
-import org.eclipse.xtext.xbase.XReturnExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
@@ -53,7 +52,9 @@ import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XInstanceOfExpression;
 import org.eclipse.xtext.xbase.XMemberFeatureCall;
+import org.eclipse.xtext.xbase.XNullLiteral;
 import org.eclipse.xtext.xbase.XPostfixOperation;
+import org.eclipse.xtext.xbase.XReturnExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
@@ -72,38 +73,40 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseSureReturnComputer;
 import jbase.jbase.JbasePackage;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
+import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayConstructorCall;
-import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJArrayLiteral;
+import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJAssignment;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
-import jbase.jbase.XJComponentPattern;
-import jbase.jbase.XJRecordPattern;
 import jbase.jbase.XJCharLiteral;
+import jbase.jbase.XJComponentPattern;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
+import jbase.jbase.XJRecordPattern;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJSwitchExpression;
-import jbase.jbase.XJYieldStatement;
-import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
+import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.jbase.XJTryWithResourcesVariableDeclaration;
 import jbase.jbase.XJVariableDeclaration;
+import jbase.jbase.XJYieldStatement;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
+import jbase.typesystem.JbaseInstanceOfTypes;
 import jbase.typesystem.JbasePatternVariables;
 import jbase.typesystem.JbaseRecordPatterns;
 import jbase.typesystem.JbaseSealedTypeResolver;
-import jbase.typesystem.JbaseInstanceOfTypes;
 import jbase.util.JbaseModelUtil;
-import jbase.util.JbaseSwitches;
 import jbase.util.JbaseNodeModelUtil;
+import jbase.util.JbaseSwitches;
 
 /**
  * Adds Java rules to Xbase validation after type inference and linking.
@@ -113,6 +116,7 @@ import jbase.util.JbaseNodeModelUtil;
  *
  * @author Lorenzo Bettini
  */
+@ComposedChecks(validators = JbaseAnonymousClassValidator.class)
 public class JbaseValidator extends AbstractJbaseValidator {
 
 	private static final XbasePackage XBASE_PACKAGE = XbasePackage.eINSTANCE;
@@ -261,7 +265,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	@Check
 	public void checkYield(final XJYieldStatement statement) {
 		var parent = statement.eContainer();
-		while (parent != null && !(parent instanceof XClosure)) {
+		while (parent != null && !(parent instanceof XClosure)
+				&& !(parent instanceof XJAnonymousClassBody)) {
 			if (parent instanceof XSwitchExpression expression
 					&& JbaseSwitches.isExpression(expression)) {
 				return;
@@ -278,7 +283,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			return;
 		}
 		var parent = statement.eContainer();
-		while (parent != null && !(parent instanceof XClosure)) {
+		while (parent != null && !(parent instanceof XClosure)
+				&& !(parent instanceof XJAnonymousClassBody)) {
 			if (parent instanceof XSwitchExpression expression
 					&& JbaseSwitches.isExpression(expression)) {
 				error("Cannot return from a switch expression", statement, null,
@@ -501,6 +507,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	 */
 	private boolean isStatementExpression(final XExpression body) {
 		return body instanceof XAssignment || body instanceof XConstructorCall
+			|| body instanceof XJAnonymousClass
 			|| body instanceof XPostfixOperation
 			|| body instanceof XBinaryOperation binary && binary.isReassignFirstArgument()
 			|| (body instanceof XFeatureCall || body instanceof XMemberFeatureCall)
@@ -519,11 +526,17 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		if (!(feature instanceof XVariableDeclaration || feature instanceof JvmFormalParameter)) {
 			return;
 		}
-		var closure = EcoreUtil2.getContainerOfType(call, XClosure.class);
-		while (closure instanceof XJMethodReference) {
-			closure = EcoreUtil2.getContainerOfType(closure.eContainer(), XClosure.class);
+		EObject closure = call.eContainer();
+		while (closure != null && !(closure instanceof XJAnonymousClassBody)
+				&& (!(closure instanceof XClosure) || closure instanceof XJMethodReference)) {
+			closure = closure.eContainer();
 		}
-		if (closure == null || EcoreUtil.isAncestor(closure, feature)) {
+		EObject source = feature;
+		if (feature instanceof JvmFormalParameter parameter) {
+			final var original = modelUtil.getOriginalParam(parameter);
+			if (original != null) source = original;
+		}
+		if (closure == null || EcoreUtil.isAncestor(closure, source)) {
 			return;
 		}
 		var writes = XbaseUsageCrossReferencer.find(feature, EcoreUtil.getRootContainer(closure))
@@ -531,7 +544,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			.filter(this::isLocalWrite).toList();
 		if (!writes.isEmpty() && !isEffectivelyFinal(feature, writes)) {
 			error("Local variable " + feature.getSimpleName()
-				+ " must be final or effectively final when captured by a lambda",
+				+ " must be final or effectively final when captured by a lambda or anonymous class",
 				call, XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NON_EFFECTIVELY_FINAL_CAPTURE);
 		}
 	}
@@ -569,7 +582,8 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	private boolean canRepeatWrite(final EObject write, final EObject scope) {
 		var child = write;
 		for (var parent = child.eContainer(); parent != scope; parent = child.eContainer()) {
-			if (parent instanceof XClosure || parent instanceof XAbstractWhileExpression
+			if (parent instanceof XClosure || parent instanceof XJAnonymousClassBody
+					|| parent instanceof XAbstractWhileExpression
 					|| parent instanceof XBasicForLoopExpression loop
 						&& !loop.getInitExpressions().contains(child)
 					|| parent instanceof XForLoopExpression loop && loop.getEachExpression() == child) {
@@ -702,7 +716,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			final Class<? extends EObject>... validContainers) {
 		var container = st.eContainer();
 		while (container != null) {
-			if (container instanceof XClosure) {
+			if (container instanceof XClosure || container instanceof XJAnonymousClassBody) {
 				break;
 			}
 			if (container instanceof XSwitchExpression expression
@@ -969,9 +983,13 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	 * top block expressions, as stated above.
 	 */
 	protected void checkVariableInitialization(final XBlockExpression e) {
-		initializedVariableFinder.detectNotInitialized(e, ref -> error(
-			"The local variable " + ref + " may not have been initialized", ref,
-			XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NOT_INITIALIZED_VARIABLE));
+		initializedVariableFinder.detectNotInitialized(e, ref -> {
+			// Captures are checked while analyzing the enclosing creation expression.
+			if (EcoreUtil.isAncestor(e, ref.getFeature())) {
+				error("The local variable " + ref + " may not have been initialized", ref,
+					XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NOT_INITIALIZED_VARIABLE);
+			}
+		});
 	}
 
 	private void errorMissingReturnStatement(final XExpression e) {
