@@ -3,7 +3,7 @@ package jbase.typesystem;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.xtext.EcoreUtil2;
+import com.google.inject.Inject;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
@@ -11,10 +11,8 @@ import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XExpression;
-import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XIfExpression;
 import org.eclipse.xtext.xbase.XReturnExpression;
-import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XSynchronizedExpression;
 import org.eclipse.xtext.xbase.XThrowExpression;
 import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
@@ -23,8 +21,8 @@ import org.eclipse.xtext.xbase.XWhileExpression;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState;
 
+import jbase.controlflow.JbaseBreakStatementDetector;
 import jbase.jbase.XJBranchingStatement;
-import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJSemicolonStatement;
@@ -35,6 +33,9 @@ import jbase.jbase.XJSemicolonStatement;
  * checked operand or to a saved boolean result.
  */
 public class JbasePatternVariables {
+
+	@Inject
+	private JbaseBreakStatementDetector breakStatementDetector;
 
 	/**
 	 * Assigns types to the bindings of an {@code instanceof} pattern and checks their names.
@@ -171,21 +172,7 @@ public class JbasePatternVariables {
 
 	/** Resolves break targets structurally without forcing reentrant feature linking. */
 	private boolean hasBreak(final XExpression target) {
-		return EcoreUtil2.getAllContentsOfType(target, XJBreakStatement.class).stream()
-			.anyMatch(statement -> {
-				for (var parent = statement.eContainer();;
-						parent = parent.eContainer()) {
-					if (parent == target) {
-						return true;
-					}
-					if (parent instanceof XAbstractWhileExpression
-							|| parent instanceof XBasicForLoopExpression
-							|| parent instanceof XForLoopExpression
-							|| parent instanceof XSwitchExpression) {
-						return false;
-					}
-				}
-			});
+		return breakStatementDetector.containsPossibleBreakStatement(target);
 	}
 
 	private boolean isTrue(final XExpression expression) {

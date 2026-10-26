@@ -10,6 +10,7 @@ import org.eclipse.xtext.serializer.tokens.SerializerScopeProviderBinding;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
 import org.eclipse.xtext.xbase.annotations.validation.AnnotationValueValidator;
 import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
+import org.eclipse.xtext.xbase.compiler.TypeReferenceSerializer;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.imports.RewritableImportSection;
@@ -25,6 +26,7 @@ import com.google.inject.Binder;
 
 import jbase.annotations.validation.JbaseAnnotationValueValidator;
 import jbase.compiler.JbaseJvmModelGenerator;
+import jbase.compiler.JbaseTypeReferenceSerializer;
 import jbase.compiler.JbaseXbaseCompiler;
 import jbase.controlflow.JbaseEarlyExitComputer;
 import jbase.conversion.JbaseValueConverterService;
@@ -59,6 +61,10 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 
 	public Class<? extends JvmModelGenerator> bindJvmModelGenerator() {
 		return JbaseJvmModelGenerator.class;
+	}
+
+	public Class<? extends TypeReferenceSerializer> bindTypeReferenceSerializer() {
+		return JbaseTypeReferenceSerializer.class;
 	}
 
 	public Class<? extends ConstructorScopes> bindConstructorScopes() {

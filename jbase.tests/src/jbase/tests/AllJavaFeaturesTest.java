@@ -31,7 +31,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
+			import java.util.function.Function;
 			import java.util.function.Supplier;
+			import jbase.tests.util.SourceAnnotation;
 			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import jbase.testlanguage.tests.SealedTypes.Shape;
 			import jbase.testlanguage.tests.SealedTypes.Circle;
@@ -45,6 +47,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				this.value = prefix;
 				return prefix + parts[0];
 			}
+
+			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
 
 			op sum(final int... values) : int {
 				int total = 0;
@@ -180,6 +184,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			for (;;) {
 				break;
 			}
+			exit: {
+				break exit;
+			}
+			outer: for (int i = 0; i < 3; i += 1) {
+				if (i == 1) continue outer;
+				if (i == 2) break outer;
+			}
 			switch (count) {
 			case 0:
 			case 1:
@@ -227,6 +238,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			};
 			task.run();
 			IntUnaryOperator identity = (final var n) -> n;
+			@SourceAnnotation final String annotatedValue = "text";
+			List<@SourceAnnotation String> annotatedValues = List.of(annotatedValue);
+			Function<String, Integer> annotatedLength =
+				(@SourceAnnotation var element) -> element.length();
+			for (@SourceAnnotation String annotatedElement : annotatedValues) {
+				System.out.println(annotatedLength.apply(annotatedElement));
+			}
 
 			// Static, bound, unbound, constructor and array constructor references.
 			IntUnaryOperator absolute = Math::abs;
@@ -275,6 +293,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
+			import java.util.function.Function;
 			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
@@ -282,6 +301,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.ToIntFunction;
 			import jbase.testlanguage.tests.RecordPatternTypes;
 			import jbase.testlanguage.tests.SealedTypes;
+			import jbase.tests.util.SourceAnnotation;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -293,6 +313,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			  public String echo(final String prefix, String... parts) {
 			    this.value = prefix;
 			    return (prefix + parts[0]);
+			  }
+
+			  public void annotated(@SourceAnnotation List<@SourceAnnotation String> parameter) {
 			  }
 
 			  public static int sum(final int... values) {
@@ -482,6 +505,28 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    for (;;) {
 			      break;
 			    }
+			    exit:
+			    break exit;
+			    {
+			      int i = 0;
+			      boolean _while = (i < 3);
+			      outer: while (_while) {
+			        {
+			          if ((i == 1)) {
+			            int _i = i;
+			            i = (_i + 1);
+			            _while = (i < 3);
+			            continue outer;
+			          }
+			          if ((i == 2)) {
+			            break outer;
+			          }
+			        }
+			        int _i = i;
+			        i = (_i + 1);
+			        _while = (i < 3);
+			      }
+			    }
 			    switch (count) {
 			      case 0:
 			      case 1:
@@ -561,6 +606,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      return n;
 			    };
 			    IntUnaryOperator identity = _function_4;
+			    @SourceAnnotation final String annotatedValue = "text";
+			    List<@SourceAnnotation String> annotatedValues = List.<String>of(annotatedValue);
+			    final Function<String, Integer> _function_5 = (@SourceAnnotation String element) -> {
+			      return Integer.valueOf(element.length());
+			    };
+			    Function<String, Integer> annotatedLength = _function_5;
+			    for (@SourceAnnotation String annotatedElement : annotatedValues) {
+			      System.out.println(annotatedLength.apply(annotatedElement));
+			    }
 			    IntUnaryOperator absolute = Math::abs;
 			    IntSupplier textLength = text::length;
 			    ToIntFunction<String> unboundLength = String::length;

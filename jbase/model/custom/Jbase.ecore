@@ -6,13 +6,44 @@
       <details key="documentation" value="A Java formal parameter with optional final and variable-arity syntax flags. Grammar rules assign the flags where applicable. For lambda parameters written with var, parameterType remains unset so Xbase infers it from the functional interface; final is retained independently of inference."/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="final" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="var" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="varArgs" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJAssignment" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XAssignment #//XJArrayAccess"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="final" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="additionalVariables" upperBound="-1"
         eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJParameterizedTypeReference"
+      eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmParameterizedTypeReference">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJInnerTypeReference"
+      eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmInnerTypeReference">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJGenericArrayTypeReference"
+      eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmGenericArrayTypeReference">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJWildcardTypeReference"
+      eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmWildcardTypeReference">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJAdditionalXVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration"/>
@@ -23,20 +54,33 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJArrayConstructorCall" eSuperTypes="#//XJArrayAccess ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass ../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="dimensions" upperBound="-1"
         eType="#//XJArrayDimension" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="arrayLiteral" eType="#//XJArrayLiteral"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJArrayDimension"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJArrayDimension">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJArrayLiteral" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XListLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJArrayAccessExpression" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression #//XJArrayAccess">
     <eStructuralFeatures xsi:type="ecore:EReference" name="array" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJBranchingStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJBranchingStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="label" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJContinueStatement" eSuperTypes="#//XJBranchingStatement"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJBreakStatement" eSuperTypes="#//XJBranchingStatement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJLabeledStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="statement" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression" containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJCharLiteral" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XStringLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJPrefixOperation" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XPostfixOperation"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJConditionalExpression" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XIfExpression"/>
@@ -66,6 +110,9 @@
   <eClassifiers xsi:type="ecore:EClass" name="XJConstructorCall" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XConstructorCall">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="explicitTypeArguments"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJMethodReference" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XClosure">
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
