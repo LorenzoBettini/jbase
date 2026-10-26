@@ -147,6 +147,16 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			final var offset = 2;
 			inferred.add(names.get(0));
 
+			// Anonymous bodies use the embedding test language's member syntax.
+			var pointObject = new Object() {
+				x: int
+				method getX(): int { return x; }
+			};
+			pointObject.x = 30;
+			System.out.println(pointObject.getX());
+			Runnable anonymousTask = new Runnable() { method run(): void {} };
+			anonymousTask.run();
+
 			// Branches, all loop forms, break, continue and switch fall-through.
 			if (enabled) count = abs(-1);
 			else count = 0;
@@ -425,6 +435,20 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    var inferred = new ArrayList<String>();
 			    final var offset = 2;
 			    inferred.add(names.get(0));
+			    var pointObject = new Object() {
+			      private int x;
+
+			      public int getX() {
+			        return this.x;
+			      }
+			    };
+			    pointObject.x = 30;
+			    System.out.println(pointObject.getX());
+			    Runnable anonymousTask = new Runnable() {
+			      public void run() {
+			      }
+			    };
+			    anonymousTask.run();
 			    if (enabled) {
 			      count = Math.abs(-1);
 			    } else {

@@ -125,4 +125,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="condition" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="message" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJAnonymousClass" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="constructorCall" eType="#//XJConstructorCall" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="#//XJAnonymousClassBody" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJAnonymousClassBody"/>
 </ecore:EPackage>

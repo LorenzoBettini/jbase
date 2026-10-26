@@ -29,6 +29,119 @@ class CompilerTest {
 	@Inject extension CompilationTestHelper
 	@Inject extension ReflectExtensions
 
+	@Test def void testAnonymousInterfaceCapturesLocals() throws Exception {
+		'''
+			import java.util.function.IntUnaryOperator;
+			entity Foo {
+				op calculate(int input):int {
+					final var offset = 2;
+					var add = new IntUnaryOperator() {
+						@Override
+						op applyAsInt(int value):int { return value + input + offset; }
+					};
+					return add.applyAsInt(4);
+				}
+			}
+		'''.compile [
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(9, obj.invoke('calculate', 3))
+		]
+	}
+
+	@Test def void testAnonymousPropertiesAndExplicitAccessors() throws Exception {
+		'''
+			entity Foo {
+				op calculate():int {
+					var counter = new Object() {
+						value : int
+						op getValue():int { return this.value + 1; }
+					};
+					counter.setValue(41);
+					return counter.getValue();
+				}
+			}
+		'''.compile [
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate'))
+		]
+	}
+
+	@Test def void testNestedAnonymousClasses() throws Exception {
+		'''
+			import java.util.function.IntSupplier;
+			entity Foo {
+				op calculate(int input):int {
+					var supplier = new IntSupplier() {
+						op getAsInt():int {
+							return new IntSupplier() {
+								op getAsInt():int { return input + 1; }
+							}.getAsInt();
+						}
+					};
+					return supplier.getAsInt();
+				}
+			}
+		'''.compile [
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate', 41))
+		]
+	}
+
+	@Test def void testAnonymousSuperclassConstructorAndSuper() throws Exception {
+		'''
+			import java.util.ArrayList;
+			entity Foo {
+				op calculate():int {
+					var values = new ArrayList<String>(10) {
+						@Override
+						op size():int { return super.size() + 1; }
+					};
+					values.add("hello");
+					return values.size();
+				}
+			}
+		'''.compile [
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(2, obj.invoke('calculate'))
+		]
+	}
+
+	@Test def void testEmptyAnonymousClass() throws Exception {
+		'''
+			entity Foo {
+				op create():Object { return new Object() {}; }
+			}
+		'''.compile [
+			assertEquals('''
+				import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+				import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+
+				@SuppressWarnings("all")
+				public class Foo {
+				  public Foo() {
+				  }
+
+				  public Foo(Procedure1<Foo> initializer) {
+				    initializer.apply(this);
+				  }
+
+				  public Object create() {
+				    return new Object() {
+				    };
+				  }
+
+				  @Override
+				  public String toString() {
+				    String result = new ToStringBuilder(this).addAllFields().toString();
+				    return result;
+				  }
+				}
+			'''.toString, singleGeneratedCode)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertTrue(obj.invoke('create').class.anonymousClass)
+		]
+	}
+
 	@Test def void testJavaLambdaWithInferredLocals() throws Exception {
 		'''
 			import java.util.function.IntUnaryOperator;

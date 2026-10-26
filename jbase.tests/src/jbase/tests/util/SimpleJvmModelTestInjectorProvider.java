@@ -1,6 +1,8 @@
 package jbase.tests.util;
 
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelInferrer;
+import org.eclipse.xtext.xbase.typesystem.internal.DefaultBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.internal.LogicalContainerAwareBatchTypeResolver;
 
 import jbase.JbaseRuntimeModule;
 import jbase.tests.JbaseInjectorProvider;
@@ -10,6 +12,12 @@ public class SimpleJvmModelTestInjectorProvider extends JbaseInjectorProvider {
 	@Override
 	protected JbaseRuntimeModule createRuntimeModule() {
 		return new JbaseRuntimeModule() {
+			@SuppressWarnings("unused")
+			public Class<? extends DefaultBatchTypeResolver>
+					bindDefaultBatchTypeResolver() {
+				return LogicalContainerAwareBatchTypeResolver.class;
+			}
+
 			@SuppressWarnings("unused")
 			public Class<? extends IJvmModelInferrer> bindIJvmModelInferrer() {
 				return SimpleJvmModelInferrer.class;

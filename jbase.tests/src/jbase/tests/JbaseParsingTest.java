@@ -32,6 +32,33 @@ import org.junit.runner.RunWith;
 public class JbaseParsingTest extends JbaseAbstractTest {
 
 	@Test
+	public void testAnonymousInterfaceRequiresAnInferrer() throws Exception {
+		final var model = parseHelper.parse("var value = new Runnable() {};");
+		assertTrue(validationTestHelper.validate(model).stream()
+			.anyMatch(issue -> issue.getSeverity() == org.eclipse.xtext.diagnostics.Severity.ERROR));
+	}
+
+	@Test
+	public void testAnonymousCreationOfPrimitiveIsRejected() throws Exception {
+		final var model = parseHelper.parse("var value = new int() {};");
+		assertTrue(validationTestHelper.validate(model).stream()
+			.anyMatch(issue -> issue.getSeverity() == org.eclipse.xtext.diagnostics.Severity.ERROR));
+	}
+
+	@Test
+	public void testDefaultAnonymousBodyIsEmpty() throws Exception {
+		final var model = parseHelper.parse("var value = new Object() {};");
+		assertTrue(model.eResource().getErrors().isEmpty());
+		assertLastExpression("var value = new Object() {};", expression -> {
+			final var anonymous = (jbase.jbase.XJAnonymousClass) getVariableDeclarationRight(expression);
+			assertEquals(jbase.jbase.JbasePackage.Literals.XJ_ANONYMOUS_CLASS_BODY,
+				anonymous.getBody().eClass());
+		});
+		final var invalid = parseHelper.parse("var value = new Object() { method get() {} };");
+		assertFalse(invalid.eResource().getErrors().isEmpty());
+	}
+
+	@Test
 	public void testAssignmentLeft() throws Exception {
 		assertLastExpression("""
 			i = 1;

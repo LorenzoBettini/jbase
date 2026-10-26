@@ -9,6 +9,7 @@
 grammar org.eclipse.xtext.example.domainmodel.Domainmodel with jbase.Jbase
 
 generate domainmodel "http://www.xtext.org/example/Domainmodel"
+import "http://www.Jbase.jbase" as jbase
 
 DomainModel:
 	importSection=XImportSection?
@@ -37,3 +38,7 @@ Operation:
 	annotations+=XAnnotation*
 	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')' (':' type=JvmTypeReference)?
 		body=XBlockExpression;
+
+@Override
+XJAnonymousClassBody returns jbase::XJAnonymousClassBody:
+	{AnonymousClassBody} features+=Feature*;

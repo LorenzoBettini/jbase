@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
+import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJMethodReference;
@@ -119,6 +120,18 @@ public class JbaseInitializedVariableFinder {
 			case XBlockExpression block -> inspectNotInitialized(block, initialized, acceptor);
 			case XJMethodReference reference -> detectNotInitializedDispatch(reference.getReceiver(),
 				initialized, acceptor);
+			case XJAnonymousClass anonymous -> {
+				detectNotInitializedDispatch(anonymous.getConstructorCall(), initialized, acceptor);
+				// Constructor arguments execute here. Each member body runs later and starts with
+				// the locals initialized at class creation, but its writes cannot initialize them.
+				final var contents = anonymous.getBody().eAllContents();
+				while (contents.hasNext()) {
+					if (contents.next() instanceof XExpression body) {
+						detectNotInitializedDispatch(body, createCopy(initialized), acceptor);
+						contents.prune();
+					}
+				}
+			}
 			case XClosure closure -> detectNotInitializedDispatch(closure.getExpression(),
 				createCopy(initialized), acceptor);
 			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);
