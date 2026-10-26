@@ -47,6 +47,8 @@ import static org.eclipse.xtext.xbase.XbasePackage.Literals.XABSTRACT_FEATURE_CA
 
 public class JbaseFormatter extends XbasePatchedFormatter {
 
+	private static final String FINAL = "final";
+
 	@Inject
 	private JbaseModelUtil modelUtil;
 
@@ -58,7 +60,7 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	protected void _format(final XJInstanceOfExpression expr,
 			final IFormattableDocument document) {
 		super._format(expr, document);
-		document.append(regionFor(expr).keyword("final"), this::oneSpace);
+		document.append(regionFor(expr).keyword(FINAL), this::oneSpace);
 		if (expr.getPatternVariable() != null) {
 			document.append(expr.getType(), this::oneSpace);
 		}
@@ -74,7 +76,7 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 
 	protected void _format(final XJVariableDeclaration expr,
 			final IFormattableDocument document) {
-		document.append(regionFor(expr).keyword("final"), this::oneSpace);
+		document.append(regionFor(expr).keyword(FINAL), this::oneSpace);
 		document.append(regionFor(expr).keyword("var"), this::oneSpace);
 		document.append(expr.getType(), this::oneSpace);
 		document.surround(regionFor(expr).keyword("="), this::oneSpace);
@@ -206,7 +208,7 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 				this::oneSpace);
 		document.surround(regionFor(expr).keyword("->"), this::oneSpace);
 		document.surround(regionFor(expr).keyword("when"), this::oneSpace);
-		document.append(regionFor(expr).keyword("final"), this::oneSpace);
+		document.append(regionFor(expr).keyword(FINAL), this::oneSpace);
 		document.append(document.prepend(regionFor(expr).keyword(":"), this::noSpace),
 				this::newLine);
 		regionFor(expr).keywords(",").forEach(comma ->
