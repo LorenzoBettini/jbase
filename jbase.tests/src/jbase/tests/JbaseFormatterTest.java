@@ -57,6 +57,28 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testExplicitMethodAndConstructorTypeArguments() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				java.util.Collections.<String>emptyList();
+				new <String, Integer>GenericConstructor<Double>("value", 1);
+				new <String>GenericConstructor("value");
+				new <String, Integer>GenericConstructor<>("value", 1);
+				new <String> @jbase.tests.util.SourceAnnotation GenericConstructor("value");
+				new <String>GenericConstructor;
+				""");
+			request.setExpectation("""
+				java.util.Collections.<String>emptyList();
+				new <String, Integer>GenericConstructor<Double>("value", 1);
+				new <String>GenericConstructor("value");
+				new <String, Integer>GenericConstructor<>("value", 1);
+				new <String> @jbase.tests.util.SourceAnnotation GenericConstructor("value");
+				new <String>GenericConstructor;
+				""");
+		});
+	}
+
+	@Test
 	public void testEnhancedSwitch() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

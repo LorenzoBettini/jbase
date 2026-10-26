@@ -240,6 +240,7 @@ XJFeatureCallWithArrayAccess returns XExpression:
 @Override 
 XFeatureCall returns XExpression:
 	{XFeatureCall}
+	('<' typeArguments+=JvmTypeReference (',' typeArguments+=JvmTypeReference)* '>')?
 	feature=[types::JvmIdentifiableElement|IdOrSuper] 
 	(=>explicitOperationCall?='(' 
 		(
@@ -262,7 +263,10 @@ XJAnonymousClassBody:
 
 XJPlainConstructorCall returns XJConstructorCall:
 	{XJConstructorCall}
-	'new' sourceAnnotations+=XAnnotation* constructor=[types::JvmConstructor|QualifiedName]
+	'new'
+	('<' constructorTypeArguments+=JvmTypeReference
+		(',' constructorTypeArguments+=JvmTypeReference)* '>')?
+	sourceAnnotations+=XAnnotation* constructor=[types::JvmConstructor|QualifiedName]
 	(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
 	(=>explicitConstructorCall?='(' 
 		(
@@ -325,6 +329,8 @@ XMemberFeatureCall returns XExpression:
 //			OpSingleAssign) value=XAssignment
 //	|
 	=>({XJConstructorCall.qualifier=current} '.' 'new')
+		('<' constructorTypeArguments+=JvmTypeReference
+			(',' constructorTypeArguments+=JvmTypeReference)* '>')?
 		sourceAnnotations+=XAnnotation*
 		constructor=[types::JvmConstructor|QualifiedName]
 		(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference
@@ -341,7 +347,9 @@ XMemberFeatureCall returns XExpression:
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
 				value=XAssignment
 	|
-		=>({XMemberFeatureCall.memberCallTarget=current} ".") 
+		=>({XMemberFeatureCall.memberCallTarget=current} ".")
+			('<' typeArguments+=JvmTypeReference
+				(',' typeArguments+=JvmTypeReference)* '>')?
 			feature=[types::JvmIdentifiableElement|IdOrSuper] (
 				=>explicitOperationCall?='(' 
 					(

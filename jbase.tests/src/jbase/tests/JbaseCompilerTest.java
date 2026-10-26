@@ -495,6 +495,35 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testExplicitMethodAndConstructorTypeArguments() throws Exception {
+		compilationTestHelper.compile("""
+			import jbase.tests.util.ExplicitTypeArgumentFixtures.GenericConstructor;
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
+			import java.util.List;
+
+			List<String> values = java.util.Collections.<String>emptyList();
+			GenericConstructor<Double> generic =
+				new <String, Integer>GenericConstructor<Double>("value", 1);
+			Outer outer = new Outer();
+			var inner = outer.new <String>GenericInner("value");
+			var anonymous = new <String, Integer>GenericConstructor<Double>("value", 1) {};
+			""", result -> {
+				assertNoValidationErrors(result);
+				final var generated = result.getSingleGeneratedCode();
+				assertTrue(generated, generated.contains("Collections.<String>emptyList()"));
+				assertTrue(generated, generated.contains(
+					"new <String, Integer>ExplicitTypeArgumentFixtures.GenericConstructor"
+						+ "<Double>(\"value\", Integer.valueOf(1))"));
+				assertTrue(generated, generated.contains(
+					"outer.new <String>GenericInner(\"value\")"));
+				assertTrue(generated, generated.contains(
+					"new <String, Integer>ExplicitTypeArgumentFixtures.GenericConstructor"
+						+ "<Double>(\"value\", Integer.valueOf(1)) {"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
+	}
+
+	@Test
 	public void testConstructorWithDiamondCallInVarDecl() throws Exception {
 		checkCompilation(jbaseInputs.constructorCallWithDiamondInVarDecl(), """
 			package jbasetestlanguage;

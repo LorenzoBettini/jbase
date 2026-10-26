@@ -91,16 +91,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 	public void computeTypes(final XExpression expression, final ITypeComputationState originalState) {
 		final var state = patternVariables.enterScope(expression, originalState);
 		switch (expression) {
-			case XJConstructorCall call when call.eContainer() instanceof XJAnonymousClass ->
-				// Infer constructor type arguments against the declared base constructor rather
-				// than the synthetic anonymous type's copied parameters.
-				super._computeTypes(call, new JbaseAnonymousClassState(call,
-					(AbstractTypeComputationState) state));
-			case XJConstructorCall call when call.getQualifier() != null -> {
-				// Keep qualifier typing separate from the creation's target-type expectation.
-				state.withoutExpectation().computeTypes(call.getQualifier());
-				super._computeTypes(call, state);
-			}
+			case XJConstructorCall call -> computeJbaseTypes(call, state);
 			case XJAnonymousClass anonymous -> {
 				for (final var inferred : associations.getJvmElements(anonymous)) {
 					if (inferred instanceof JvmGenericType type) {
@@ -124,6 +115,22 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
 			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
 			case null, default -> super.computeTypes(expression, state);
+		}
+	}
+
+	private void computeJbaseTypes(final XJConstructorCall call,
+			final ITypeComputationState state) {
+		if (call.getQualifier() != null) {
+			// Keep qualifier typing separate from the creation's target-type expectation.
+			state.withoutExpectation().computeTypes(call.getQualifier());
+		}
+		if (call.eContainer() instanceof XJAnonymousClass
+				|| !call.getConstructorTypeArguments().isEmpty()) {
+			// Constructor type arguments precede class type arguments in Java source.
+			super._computeTypes(call,
+				new JbaseConstructorCallState(call, (AbstractTypeComputationState) state));
+		} else {
+			super._computeTypes(call, state);
 		}
 	}
 

@@ -11,6 +11,11 @@ public final class QualifiedInnerFixtures {
 			}
 		}
 
+		public class GenericInner {
+			public <T> GenericInner(final T value) {
+			}
+		}
+
 		public static class StaticNested {
 		}
 
