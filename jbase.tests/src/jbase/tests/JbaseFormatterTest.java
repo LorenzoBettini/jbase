@@ -147,6 +147,43 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testSourceAnnotations() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("""
+				import jbase.tests.util.SourceAnnotation;
+				import java.util.Map;
+				import java.util.Map.Entry;
+				import java.util.function.IntUnaryOperator;
+				method annotated(@SourceAnnotation String parameter):void{}
+				@SourceAnnotation int local=1;
+				@SourceAnnotation var inferred=1;
+				@SourceAnnotation final String text="text";
+				java.util.List<@SourceAnnotation ? extends String> values=null;
+				Map.@SourceAnnotation Entry<String,String> entry=null;
+				IntUnaryOperator increment=(@SourceAnnotation var value)->value+1;
+				IntUnaryOperator identity=(@SourceAnnotation final int value)->value;
+				""");
+			request.setExpectation("""
+				import jbase.tests.util.SourceAnnotation;
+				import java.util.Map;
+				import java.util.Map.Entry;
+				import java.util.function.IntUnaryOperator;
+
+				method annotated(@SourceAnnotation String parameter) : void {
+				}
+
+				@SourceAnnotation int local = 1;
+				@SourceAnnotation var inferred = 1;
+				@SourceAnnotation final String text = "text";
+				java.util.List<@SourceAnnotation ? extends String> values = null;
+				Map.@SourceAnnotation Entry<String, String> entry = null;
+				IntUnaryOperator increment = (@SourceAnnotation var value) -> value + 1;
+				IntUnaryOperator identity = (@SourceAnnotation final int value) -> value;
+				""");
+		});
+	}
+
+	@Test
 	public void testLambdaExpressions() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

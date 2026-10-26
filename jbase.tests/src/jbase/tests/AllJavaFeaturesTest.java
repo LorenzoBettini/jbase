@@ -654,4 +654,22 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			}
 			""");
 	}
+
+	@Test
+	public void testSourceAnnotations() throws Exception {
+		checkCompilation("""
+			import java.util.List;
+			import java.util.function.Function;
+			import jbase.tests.util.SourceAnnotation;
+
+			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
+			@SourceAnnotation final String value = "text";
+			List<@SourceAnnotation String> values = List.of(value);
+			Function<String, Integer> length =
+				(@SourceAnnotation var element) -> element.length();
+			for (@SourceAnnotation String element : values) {
+				System.out.println(length.apply(element));
+			}
+			""", null);
+	}
 }

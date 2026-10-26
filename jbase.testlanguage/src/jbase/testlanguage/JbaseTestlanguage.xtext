@@ -11,7 +11,9 @@ import "http://www.Jbase.jbase" as jbase
 
 JbaseTestLanguageModel:
 	importSection=XImportSection?
-	properties+=Property* // correspond to Java fields
+	(=>properties+=XJTestlanguageAnnotatedProperty
+	| =>properties+=XJTestlanguagePlainProperty)*
+	// correspond to Java fields
 	methods+=OpMethod* // correspond to Java methods
 	operations+=Operation* // correspond to Java static methods
 	block=SpecialBlockExpression;
@@ -46,6 +48,12 @@ Property:
 	annotations+=XAnnotation*
 	name=ValidID ':' type=JvmTypeReference;
 
+XJTestlanguageAnnotatedProperty returns Property:
+	{Property} annotations+=XAnnotation+ name=ValidID ':' type=JvmTypeReference;
+
+XJTestlanguagePlainProperty returns Property:
+	{Property} name=ValidID ':' type=JvmTypeReference;
+
 OpMethod:
 	'method'
 	annotations+=XAnnotation* // to avoid ambiguity with Property we put annotations after 'method'
@@ -62,7 +70,7 @@ AbstractOperation:
 	OpMethod | Operation
 ;
 
-@Override 
+@Override
 FeatureCallID:
 	ValidID;
 

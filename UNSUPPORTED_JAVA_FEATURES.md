@@ -175,30 +175,26 @@ and retain source order. Covered by `JbaseParsingTest`, `JbaseFormatterTest`,
 `JbaseVarTest`, and `JbaseCompilerTest`; see the
 [try-with-resources guide](docs/TRY_WITH_RESOURCES.md).
 
-### [ ] Annotations on local variables, parameters, and type uses
+### [x] Annotations on local variables, parameters, and type uses
 
 ```java
-@SuppressWarnings("unused") String value = "x";
-java.util.function.Consumer<String> consumer = (@Deprecated var s) -> {};
-for (@SuppressWarnings("unused") String s : new String[0]) {}
-try { throw new java.io.IOException(); } catch (@Deprecated java.io.IOException ex) {}
-```
-
-These declaration annotations are not accepted by the corresponding variable,
-for-loop, lambda-parameter, and catch-parameter rules. Some recovered models crash
-validation or generation. Annotation support on host-language fields or methods
-does not imply annotation support in these positions.
-
-Type-use annotations are also missing. Assuming an external annotation `A` with
-`@Target(ElementType.TYPE_USE)`, these forms fail:
-
-```java
-java.util.List<@A String> values = new java.util.ArrayList<>();
-Object text = "x";
-String s = (@A String) text;
-Object instance = new @A String();
+@A final String value = "x";
+java.util.function.Consumer<String> consumer = (@A var s) -> {};
+for (@A String s : new String[0]) {}
+try { throw new java.io.IOException(); } catch (@A java.io.IOException ex) {}
+java.util.List<@A String> values = null;
+String cast = (@A String) value;
+Object instance = new @A String("x");
 Object array = new String @A [1];
 ```
+
+Local declarations, method and lambda parameters, enhanced-for variables,
+try-with-resources variables, and catch parameters retain declaration annotations.
+Type-use annotations are preserved in parameterized, wildcard, array, cast,
+constructor, and nested types. The annotation type must be available from the
+embedding Java environment and applicable to the annotated element. Covered by
+`JbaseCompilerTest`, `JbaseFormatterTest`, `JbaseSerializerTest`, and
+`AllJavaFeaturesTest`; see the [annotations guide](docs/ANNOTATIONS.md).
 
 ### [x] Anonymous class creation
 

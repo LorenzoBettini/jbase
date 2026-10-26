@@ -83,11 +83,11 @@ public class JbaseSemanticSequencer extends XbaseSemanticSequencerAccess {
 		SequenceFeeder acceptor = createSequencerFeeder(context, semanticObject, nodes);
 		XJArrayConstructorCallElements elements = access.getXJArrayConstructorCallAccess();
 
-		acceptor.accept(elements.getTypeJvmTypeQualifiedNameParserRuleCall_0_0_2_0_1(), semanticObject.getType());
+		acceptor.accept(elements.getTypeJvmTypeQualifiedNameParserRuleCall_0_0_3_0_1(), semanticObject.getType());
 
 		List<XExpression> associations = modelUtil.arrayDimensionIndexAssociations(semanticObject);
 		List<XJArrayDimension> dimensions = semanticObject.getDimensions();
-		acceptor.accept(elements.getDimensionsXJArrayDimensionParserRuleCall_0_0_3_0(), dimensions.get(0), 0);
+		acceptor.accept(elements.getDimensionsXJArrayDimensionParserRuleCall_0_0_4_0(), dimensions.get(0), 0);
 		if (associations.get(0) != null) {
 			acceptor.accept(elements.getIndexesXExpressionParserRuleCall_1_0(), semanticObject.getIndexes().get(0), 0);
 		}

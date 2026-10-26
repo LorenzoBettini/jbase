@@ -4,6 +4,11 @@ import static org.junit.Assert.*;
 import com.google.inject.Inject;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import jbase.jbase.XJSwitchExpression;
+import jbase.jbase.XJGenericArrayTypeReference;
+import jbase.jbase.XJInnerTypeReference;
+import jbase.jbase.XJParameterizedTypeReference;
+import jbase.jbase.XJWildcardTypeReference;
+import jbase.compiler.JbaseTypeReferenceSerializer;
 import org.apache.log4j.Level;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -13,6 +18,8 @@ import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.logging.LoggingTester;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.xbase.compiler.StringBuilderBasedAppendable;
+import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.xbase.resource.BatchLinkableResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +37,69 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 
 	@Inject
 	private Serializer serializer;
+
+	@Inject
+	private JbaseTypeReferenceSerializer typeReferenceSerializer;
+
+	@Test
+	public void annotationAwareTypeReferencesWithoutAnnotationsUseDefaultSerialization()
+			throws Exception {
+		final var parsed = parseHelper.parse("""
+			import java.util.List;
+			import java.util.Map;
+			import java.util.Map.Entry;
+			import jbase.tests.util.SourceAnnotation;
+
+			@SourceAnnotation List<String> parameterized = null;
+			List<@SourceAnnotation String> annotatedTypeArgument = null;
+			String @SourceAnnotation [] array = null;
+			Map.@SourceAnnotation Entry<String, String> inner = null;
+			Map.@SourceAnnotation Entry rawInner = null;
+			List<@SourceAnnotation ? extends String> wildcard = null;
+			""");
+		EcoreUtil.resolveAll(parsed);
+		final var typeReferences = new java.util.ArrayList<JvmTypeReference>();
+		typeReferences.addAll(EcoreUtil2.getAllContentsOfType(parsed,
+			XJParameterizedTypeReference.class));
+		typeReferences.addAll(EcoreUtil2.getAllContentsOfType(parsed,
+			XJGenericArrayTypeReference.class));
+		typeReferences.addAll(EcoreUtil2.getAllContentsOfType(parsed, XJInnerTypeReference.class));
+		typeReferences.addAll(EcoreUtil2.getAllContentsOfType(parsed,
+			XJWildcardTypeReference.class));
+		assertTrue(typeReferences.stream().anyMatch(XJParameterizedTypeReference.class::isInstance));
+		assertTrue(typeReferences.stream().anyMatch(XJGenericArrayTypeReference.class::isInstance));
+		assertTrue(typeReferences.stream().anyMatch(XJInnerTypeReference.class::isInstance));
+		assertTrue(typeReferences.stream().anyMatch(XJWildcardTypeReference.class::isInstance));
+		for (final var typeReference : typeReferences) {
+			switch (typeReference) {
+				case XJParameterizedTypeReference reference -> reference.getSourceAnnotations().clear();
+				case XJGenericArrayTypeReference reference -> reference.getSourceAnnotations().clear();
+				case XJInnerTypeReference reference -> reference.getSourceAnnotations().clear();
+				case XJWildcardTypeReference reference -> reference.getSourceAnnotations().clear();
+				default -> throw new IllegalStateException("Unexpected type reference");
+			}
+			typeReferenceSerializer.serialize(typeReference, typeReference.eContainer(),
+				new StringBuilderBasedAppendable(), false, false, false, false);
+		}
+	}
+
+	@Test
+	public void annotationSerializationRequiresTreeAppendable() throws Exception {
+		final var parsed = parseHelper.parse("""
+			import java.util.List;
+			import jbase.tests.util.SourceAnnotation;
+			List<@SourceAnnotation String> values = null;
+			""");
+		final var typeReference = EcoreUtil2.getAllContentsOfType(parsed,
+			XJParameterizedTypeReference.class).getFirst();
+		try {
+			typeReferenceSerializer.serialize(typeReference, typeReference.eContainer(),
+				new StringBuilderBasedAppendable(), false, false, false, false);
+			fail("Expected an exception for a non-tree appendable");
+		} catch (final IllegalStateException expected) {
+			assertEquals("Source annotations require a tree appendable", expected.getMessage());
+		}
+	}
 
 	@Test
 	public void testAnonymousClasses() throws Exception {
@@ -201,6 +271,40 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			java.util.function.IntUnaryOperator identity = (var n) -> n;
 			java.util.function.IntBinaryOperator add = (final var x, var y) -> x + y;
 			Runnable r = () -> {};
+			""");
+	}
+
+	@Test
+	public void testSourceAnnotationsWithoutNodeModel() throws Exception {
+		final var source = """
+			method annotated(@jbase.tests.util.SourceAnnotation String parameter): void {}
+			@jbase.tests.util.SourceAnnotation int local = 1;
+			final @jbase.tests.util.SourceAnnotation String text = "text";
+			java.util.List<@jbase.tests.util.SourceAnnotation String> values = null;
+			java.util.List<@jbase.tests.util.SourceAnnotation ? extends String> wildcard = null;
+			String @jbase.tests.util.SourceAnnotation [] names = null;
+			Object created = new @jbase.tests.util.SourceAnnotation String("text");
+			java.util.function.Function<String, Integer> length =
+				(@jbase.tests.util.SourceAnnotation var value) -> 1;
+			for (@jbase.tests.util.SourceAnnotation String value : values) {}
+			""";
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		assertEquals(source.replaceAll("\\s+", ""), serializer.serialize(copy).replaceAll("\\s+", ""));
+	}
+
+	@Test
+	public void testSourceAnnotationOnInnerType() throws Exception {
+		assertSerialize("""
+			import java.util.Map;
+			import java.util.Map.Entry;
+
+			Map.@jbase.tests.util.SourceAnnotation Entry<String, String> entry = null;
 			""");
 	}
 

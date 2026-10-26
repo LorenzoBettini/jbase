@@ -473,7 +473,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		var functionType = expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
 		var parameters = closure.getDeclaredFormalParameters();
-		if (parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
+		var jbaseParameters = parameters.stream().map(XJJvmFormalParameter.class::cast).toList();
+		var mixesVarAndOtherParameters = jbaseParameters.stream().anyMatch(XJJvmFormalParameter::isVar)
+			&& jbaseParameters.stream().anyMatch(parameter -> !parameter.isVar());
+		if (mixesVarAndOtherParameters
+				|| parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
 				&& parameters.stream().anyMatch(parameter -> parameter.getParameterType() != null)) {
 			error("Cannot mix 'var' and explicitly typed lambda parameters",
 				closure, null, INVALID_LAMBDA);

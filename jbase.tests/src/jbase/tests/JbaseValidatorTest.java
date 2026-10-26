@@ -1669,9 +1669,9 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertError(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(String.class, Integer.class)
-			o : Object
-			"""), XAnnotationsPackage.eINSTANCE.getXAnnotation(), Diagnostic.SYNTAX_DIAGNOSTIC,
+			method annotated(@ExampleAnnotation3(String.class, Integer.class) Object o) {}
+			"""), jbasePackage.getXJParameterizedTypeReference(),
+				Diagnostic.SYNTAX_DIAGNOSTIC,
 				"mismatched input ',' expecting ')'");
 	}
 
@@ -1762,7 +1762,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 			) {
 			\t
 			}
-			"""), "no viable alternative at input ';'\nmissing EOF at ')'");
+			"""), "extraneous input ';' expecting ')'");
 	}
 
 	@Test

@@ -119,7 +119,9 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 			varArgs = p.varArgs
 			parameterType = parameterType.addArrayTypeDimension
 		}
-		parameters += p.toParameter(p.name, parameterType)
+		parameters += p.toParameter(p.name, parameterType) => [
+			translateAnnotations(p.sourceAnnotations)
+		]
 	}
 
 	def name(Resource res) {
@@ -138,4 +140,3 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 		this.jvmTypesBuilder = jvmTypesBuilder
 	}
 }
-
