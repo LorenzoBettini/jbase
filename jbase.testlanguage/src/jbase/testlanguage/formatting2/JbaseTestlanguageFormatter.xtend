@@ -14,26 +14,7 @@ import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
 
 class JbaseTestlanguageFormatter extends JbaseFormatter {
 
-	override void format(Object expr, extension IFormattableDocument document) {
-		// you could use dispatch methods, but that will generate many other
-		// if cases for inherited dispatch methods that will never be executed during the
-		// tests and I prefer to have full control on code coverage.
-		if (expr instanceof AnonymousClassBody) {
-			_format(expr, document)
-		} else if (expr instanceof JbaseTestLanguageModel) {
-			_format(expr, document);
-		} else if (expr instanceof Property) {
-			_format(expr, document);
-		} else if (expr instanceof OpMethod) {
-			_format(expr, document);
-		} else if (expr instanceof Operation) {
-			_format(expr, document);
-		} else {
-			super.format(expr, document)
-		}
-	}	
-
-	def void _format(AnonymousClassBody body, extension IFormattableDocument document) {
+	def dispatch void format(AnonymousClassBody body, extension IFormattableDocument document) {
 		for (property : body.properties) {
 			format(property, document)
 			property.append[newLine]
@@ -44,7 +25,7 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 		}
 	}
 
-	def void _format(JbaseTestLanguageModel model, extension IFormattableDocument document) {
+	def dispatch void format(JbaseTestLanguageModel model, extension IFormattableDocument document) {
 		val importSection = model.getImportSection()
 		if (importSection !== null) {
 			// to avoid a useless newline at the beginning of the program
@@ -70,17 +51,17 @@ class JbaseTestlanguageFormatter extends JbaseFormatter {
 		formatExpressions(model.block.expressions, document, false);
 	}
 
-	def void _format(Property property, extension IFormattableDocument document) {
+	def dispatch void format(Property property, extension IFormattableDocument document) {
 		property.regionFor.keyword(":").surround[noSpace]
 		format(property.type, document);
 	}
 
-	def void _format(OpMethod operation, extension IFormattableDocument document) {
+	def dispatch void format(OpMethod operation, extension IFormattableDocument document) {
 		operation.regionFor.keyword("method").append[oneSpace]
 		operation.formatAbstractOperation(document)
 	}
 
-	def void _format(Operation operation, extension IFormattableDocument document) {
+	def dispatch void format(Operation operation, extension IFormattableDocument document) {
 		operation.regionFor.keyword("op").append[oneSpace]
 		operation.formatAbstractOperation(document)
 	}
