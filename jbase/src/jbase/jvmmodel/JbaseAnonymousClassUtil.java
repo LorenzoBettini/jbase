@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import jbase.jbase.XJAnonymousClass;
 
 /**
- * @author Jan Koehnlein - Initial contribution and API
+ * Inspired by org.eclipse.xtend.core.jvmmodel.AnonymousClassUtil
  */
 public class JbaseAnonymousClassUtil {
 
