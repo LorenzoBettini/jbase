@@ -89,6 +89,7 @@ import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJRecordPattern;
@@ -472,7 +473,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		var functionType = expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
 		var parameters = closure.getDeclaredFormalParameters();
-		if (parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
+		var jbaseParameters = parameters.stream().map(XJJvmFormalParameter.class::cast).toList();
+		var mixesVarAndOtherParameters = jbaseParameters.stream().anyMatch(XJJvmFormalParameter::isVar)
+			&& jbaseParameters.stream().anyMatch(parameter -> !parameter.isVar());
+		if (mixesVarAndOtherParameters
+				|| parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
 				&& parameters.stream().anyMatch(parameter -> parameter.getParameterType() != null)) {
 			error("Cannot mix 'var' and explicitly typed lambda parameters",
 				closure, null, INVALID_LAMBDA);
@@ -488,14 +493,25 @@ public class JbaseValidator extends AbstractJbaseValidator {
 					parameters.get(i), null, INVALID_LAMBDA);
 			}
 		}
-		var body = closure.getExpression();
+		checkJavaLambdaBody(closure, functionType.getReturnType().isPrimitiveVoid());
+	}
+
+	/**
+	 * Checks that a value block returns on every path and a void expression body can discard
+	 * its result according to Java's statement-expression rules.
+	 *
+	 * @param closure the lambda whose body is validated
+	 * @param returnsVoid whether the functional interface method returns void
+	 */
+	private void checkJavaLambdaBody(final XClosure closure, final boolean returnsVoid) {
+		final var body = closure.getExpression();
 		if (body instanceof XBlockExpression
-				&& !functionType.getReturnType().isPrimitiveVoid()
+				&& !returnsVoid
 				&& !earlyExitComputer.isEarlyExit(body)) {
 			errorMissingReturnStatement(body);
 		}
 		if (!(body instanceof XBlockExpression)
-				&& functionType.getReturnType().isPrimitiveVoid()
+				&& returnsVoid
 				&& !isStatementExpression(body)) {
 			error("A void lambda body must be a statement expression", closure, null, INVALID_LAMBDA);
 		}
@@ -714,6 +730,10 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	private final void checkBranchingStatementInternal(final XJBranchingStatement st,
 			final String errorDetails, final String instruction,
 			final Class<? extends EObject>... validContainers) {
+		if (st.getLabel() != null) {
+			checkLabeledBranchingStatement(st, instruction);
+			return;
+		}
 		var container = st.eContainer();
 		while (container != null) {
 			if (container instanceof XClosure || container instanceof XJAnonymousClassBody) {
@@ -734,6 +754,61 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		error(instruction + " cannot be used outside of " + errorDetails,
 			st, null, INVALID_BRANCHING_STATEMENT);
+	}
+
+	/**
+	 * Checks that a labeled branch resolves to an enclosing label and obeys Java's jump rules.
+	 *
+	 * @param statement the labeled {@code break} or {@code continue}
+	 * @param instruction the branch keyword used in diagnostics
+	 */
+	private void checkLabeledBranchingStatement(final XJBranchingStatement statement,
+			final String instruction) {
+		final var label = findEnclosingLabel(statement, statement.getLabel());
+		if (label == null) {
+			error(instruction + " cannot be used with a non-enclosing label "
+					+ statement.getLabel(), statement, null, INVALID_BRANCHING_STATEMENT);
+			return;
+		}
+		if (statement instanceof XJContinueStatement
+				&& !(label.getStatement() instanceof XAbstractWhileExpression
+					|| label.getStatement() instanceof XBasicForLoopExpression
+					|| label.getStatement() instanceof XForLoopExpression)) {
+			error("continue label must label a loop", statement, null,
+				INVALID_BRANCHING_STATEMENT);
+			return;
+		}
+		// A branch cannot leave a switch expression, even when its label encloses that switch.
+		for (var container = statement.eContainer(); container != label;
+				container = container.eContainer()) {
+			if (container instanceof XJSwitchExpression expression
+					&& JbaseSwitches.isExpression(expression)) {
+				error("Cannot jump out of a switch expression", statement, null,
+					JbaseIssueCodes.INVALID_SWITCH);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Finds the matching label without searching across lambda or anonymous-class boundaries.
+	 *
+	 * @param statement the branch whose enclosing labels are searched
+	 * @param name the requested label name
+	 * @return the nearest matching enclosing label, or {@code null} if none is visible
+	 */
+	private XJLabeledStatement findEnclosingLabel(final XJBranchingStatement statement,
+			final String name) {
+		for (var container = statement.eContainer(); container != null;
+				container = container.eContainer()) {
+			if (container instanceof XJLabeledStatement label && name.equals(label.getName())) {
+				return label;
+			}
+			if (container instanceof XClosure || container instanceof XJAnonymousClassBody) {
+				return null;
+			}
+		}
+		return null;
 	}
 
 	@Check

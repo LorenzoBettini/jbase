@@ -69,6 +69,15 @@ public class JbaseBreakStatementDetectorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testLabeledBreakIsPossible() throws Exception {
+		assertIsPossibleBreakStatement("""
+			exit: {
+				break exit;
+			}
+			""", true);
+	}
+
+	@Test
 	public void testBreakInSingleThenBranch() throws Exception {
 		assertIsPossibleBreakStatement("""
 			if (true)
@@ -83,6 +92,22 @@ public class JbaseBreakStatementDetectorTest extends JbaseAbstractTest {
 			else
 				break;
 			""", true);
+	}
+
+	@Test
+	public void testNoBreakInEitherIfBranch() throws Exception {
+		assertIsPossibleBreakStatement("""
+			if (true) continue;
+			else continue;
+			""", false);
+	}
+
+	@Test
+	public void testNoBreakInSingleThenBranch() throws Exception {
+		assertIsPossibleBreakStatement("""
+			if (true)
+				continue;
+			""", false);
 	}
 
 	@Test
@@ -156,6 +181,71 @@ public class JbaseBreakStatementDetectorTest extends JbaseAbstractTest {
 					break;
 			}
 			""", false);
+	}
+
+	@Test
+	public void testBreakFromInnerLoopToOuterLabel() throws Exception {
+			final var labeled = parseHelper.parse("""
+				outer: while (true) {
+					while (true) {
+						break outer;
+					}
+				}
+				""");
+			assertTrue(detector.containsPossibleBreakStatement(
+				((jbase.jbase.XJLabeledStatement) labeled).getStatement()));
+	}
+
+	@Test
+	public void testBreakFromNestedLabelToOuterLoop() throws Exception {
+		final var labeled = parseHelper.parse("""
+			outer: while (true) {
+				inner: {
+					break outer;
+				}
+			}
+			""");
+		assertTrue(detector.containsPossibleBreakStatement(
+			((jbase.jbase.XJLabeledStatement) labeled).getStatement()));
+	}
+
+	@Test
+	public void testBreakToNestedLabelDoesNotExitLoop() throws Exception {
+			assertContainsBreakStatement("""
+				while (true) {
+					inner: {
+						break inner;
+					}
+				}
+				""", false);
+	}
+
+	@Test
+	public void testBreakToMissingLabelDoesNotExitLoop() throws Exception {
+		assertContainsBreakStatement("""
+				while (true) {
+					break missing;
+				}
+				""", false);
+	}
+
+	@Test
+	public void testLabeledBreakAcrossLambdaDoesNotExitLoop() throws Exception {
+		final var labeled = parseHelper.parse("""
+				outer: while (true) {
+					java.lang.Runnable action = () -> {
+						break outer;
+					};
+				}
+				""");
+		assertFalse(detector.containsPossibleBreakStatement(
+				((jbase.jbase.XJLabeledStatement) labeled).getStatement()));
+	}
+
+	@Test
+	public void testLoopWithIncompleteBodyHasNoBreak() throws Exception {
+		assertFalse(detector.containsPossibleBreakStatement(
+				parseHelper.parse("while (true)")));
 	}
 
 	@Test

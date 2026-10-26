@@ -4,35 +4,59 @@
     editorDirectory="/jbase.editor/src" modelPluginID="jbase" forceOverwrite="true"
     modelName="Jbase" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
     complianceLevel="5.0" copyrightFields="false" editPluginID="jbase.edit" editorPluginID="jbase.editor"
-    runtimeVersion="2.10" usedGenPackages="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel#//types ../../../org.eclipse.xtext.xbase/model/Xbase.genmodel#//xbase">
+    runtimeVersion="2.10" usedGenPackages="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel#//types ../../../org.eclipse.xtext.xbase/model/Xbase.genmodel#//xbase platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel#//xAnnotations">
   <genPackages prefix="Jbase" basePackage="jbase" disposableProviderFactory="true"
       fileExtensions="jbase" ecorePackage="Jbase.ecore#/">
     <genClasses ecoreClass="Jbase.ecore#//XJJvmFormalParameter">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/final"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/var"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/varArgs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJJvmFormalParameter/sourceAnnotations"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJAssignment"/>
     <genClasses ecoreClass="Jbase.ecore#//XJVariableDeclaration">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJVariableDeclaration/final"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJVariableDeclaration/sourceAnnotations"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJVariableDeclaration/additionalVariables"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJAdditionalXVariableDeclaration"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJParameterizedTypeReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJParameterizedTypeReference/sourceAnnotations"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJInnerTypeReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJInnerTypeReference/sourceAnnotations"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJGenericArrayTypeReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJGenericArrayTypeReference/sourceAnnotations"/>
+    </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJWildcardTypeReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJWildcardTypeReference/sourceAnnotations"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJArrayAccess">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayAccess/indexes"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJArrayConstructorCall">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/sourceAnnotations"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/dimensions"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayConstructorCall/arrayLiteral"/>
     </genClasses>
-    <genClasses ecoreClass="Jbase.ecore#//XJArrayDimension"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJArrayDimension">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayDimension/sourceAnnotations"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJArrayLiteral"/>
     <genClasses ecoreClass="Jbase.ecore#//XJArrayAccessExpression">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJArrayAccessExpression/array"/>
     </genClasses>
-    <genClasses ecoreClass="Jbase.ecore#//XJBranchingStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJBranchingStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJBranchingStatement/label"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJContinueStatement"/>
     <genClasses ecoreClass="Jbase.ecore#//XJBreakStatement"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJLabeledStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJLabeledStatement/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJLabeledStatement/statement"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJCharLiteral"/>
     <genClasses ecoreClass="Jbase.ecore#//XJPrefixOperation"/>
     <genClasses ecoreClass="Jbase.ecore#//XJConditionalExpression"/>
@@ -55,6 +79,7 @@
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJConstructorCall">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJConstructorCall/explicitTypeArguments"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJConstructorCall/sourceAnnotations"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJMethodReference">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJMethodReference/receiver"/>

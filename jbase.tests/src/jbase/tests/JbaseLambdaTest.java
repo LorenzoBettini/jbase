@@ -132,7 +132,8 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 		assertLambdaError("var identity = (var n) -> n;", JbaseIssueCodes.INVALID_LAMBDA);
 		assertHasErrors("java.util.function.IntUnaryOperator f = (final var n) -> ++n;");
 		assertHasErrors("java.util.function.Function<String, Integer> f = (var s) -> s;");
-		for (final var parameters : new String[] { "(var x, y)", "(x, var y)" }) {
+		for (final var parameters : new String[] {
+				"(var x, y)", "(x, var y)", "(x, int y)", "(int x, y)" }) {
 			final var model = modelParser.parse("java.util.function.IntBinaryOperator f = "
 				+ parameters + " -> 1;");
 			assertTrue(validationTestHelper.validate(model).stream()

@@ -56,6 +56,7 @@ import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
@@ -111,6 +112,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			case XJArrayConstructorCall call -> computeJbaseTypes(call, state);
 			case XJArrayAccessExpression access -> computeJbaseTypes(access, state);
 			case XJBranchingStatement statement -> state.acceptActualType(getPrimitiveVoid(state));
+			case XJLabeledStatement statement -> computeJbaseTypes(statement, state);
 			case XJAssertStatement statement -> computeJbaseTypes(statement, state);
 			case XJCharLiteral literal -> computeCharLiteralTypes(state);
 			case XJVariableDeclaration declaration -> computeJbaseTypes(declaration, state);
@@ -581,6 +583,19 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		if (statement.getMessage() != null) {
 			state.withNonVoidExpectation().computeTypes(statement.getMessage());
 		}
+		state.acceptActualType(getPrimitiveVoid(state));
+	}
+
+	/**
+	 * Computes a labeled statement in its own scope and gives it the statement type {@code void}.
+	 *
+	 * @param statement the labeled statement to type
+	 * @param state the current type-computation state
+	 */
+	private void computeJbaseTypes(final XJLabeledStatement statement,
+			final ITypeComputationState state) {
+		state.withinScope(statement);
+		state.withoutExpectation().computeTypes(statement.getStatement());
 		state.acceptActualType(getPrimitiveVoid(state));
 	}
 

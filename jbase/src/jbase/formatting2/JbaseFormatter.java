@@ -12,11 +12,13 @@ import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJAssignment;
+import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJSemicolonStatement;
@@ -41,6 +43,7 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys;
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE;
@@ -69,6 +72,18 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	protected void _format(final XJJvmFormalParameter param,
 			final IFormattableDocument document) {
 		super._format(param, document);
+		formatSourceAnnotations(param.getSourceAnnotations(), document);
+		if (!param.getSourceAnnotations().isEmpty()) {
+			if (param.isFinal()) {
+				document.prepend(regionFor(param)
+						.feature(JbasePackage.eINSTANCE.getXJJvmFormalParameter_Final()),
+						this::oneSpace);
+			} else if (param.isVar()) {
+				document.prepend(regionFor(param).keyword("var"), this::oneSpace);
+			} else {
+				document.prepend(param.getParameterType(), this::oneSpace);
+			}
+		}
 		document.append(regionFor(param).keyword("var"), this::oneSpace);
 		document.append(regionFor(param)
 				.feature(JbasePackage.eINSTANCE.getXJJvmFormalParameter_Final()), this::oneSpace);
@@ -76,6 +91,16 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 
 	protected void _format(final XJVariableDeclaration expr,
 			final IFormattableDocument document) {
+		formatSourceAnnotations(expr.getSourceAnnotations(), document);
+		if (!expr.getSourceAnnotations().isEmpty()) {
+			if (expr.isFinal()) {
+				document.prepend(regionFor(expr).keyword(FINAL), this::oneSpace);
+			} else if (expr.getType() == null) {
+				document.prepend(regionFor(expr).keyword("var"), this::oneSpace);
+			} else {
+				document.prepend(expr.getType(), this::oneSpace);
+			}
+		}
 		document.append(regionFor(expr).keyword(FINAL), this::oneSpace);
 		document.append(regionFor(expr).keyword("var"), this::oneSpace);
 		document.append(expr.getType(), this::oneSpace);
@@ -88,6 +113,19 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 			document.append(document.prepend(immediatelyPreceding(additionalVariable).keyword(","),
 					this::noSpace), this::oneSpace);
 			document.surround(regionFor(additionalVariable).keyword("="), this::oneSpace);
+		}
+	}
+
+	/**
+	 * Formats source annotations before the declaration while preserving their normal formatting.
+	 *
+	 * @param annotations the annotations attached to the source declaration
+	 * @param document the document receiving formatting constraints
+	 */
+	private void formatSourceAnnotations(final Iterable<XAnnotation> annotations,
+			final IFormattableDocument document) {
+		for (final var annotation : annotations) {
+			format(annotation, document);
 		}
 	}
 
@@ -151,11 +189,43 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	}
 
 	protected void _format(final XJBreakStatement expr, final IFormattableDocument document) {
-		document.append(regionFor(expr).keyword("break"), this::noSpace);
+		formatBranchingStatement(expr, document, "break");
 	}
 
 	protected void _format(final XJContinueStatement expr, final IFormattableDocument document) {
-		document.append(regionFor(expr).keyword("continue"), this::noSpace);
+		formatBranchingStatement(expr, document, "continue");
+	}
+
+	/**
+	 * Formats a branch keyword and its optional label with Java's required spacing.
+	 *
+	 * @param expression the branch statement to format
+	 * @param document the document receiving formatting constraints
+	 * @param keyword the {@code break} or {@code continue} keyword
+	 */
+	private void formatBranchingStatement(final XJBranchingStatement expression,
+			final IFormattableDocument document, final String keyword) {
+		document.append(regionFor(expression).keyword(keyword),
+				expression.getLabel() == null ? this::noSpace : this::oneSpace);
+		if (expression.getLabel() != null) {
+			document.append(regionFor(expression)
+					.feature(jbase.jbase.JbasePackage.Literals.XJ_BRANCHING_STATEMENT__LABEL),
+					this::noSpace);
+		}
+	}
+
+	/**
+	 * Formats the label and colon before formatting the statement it labels.
+	 *
+	 * @param expr the labeled statement to format
+	 * @param document the document receiving formatting constraints
+	 */
+	protected void _format(final XJLabeledStatement expr, final IFormattableDocument document) {
+		document.append(regionFor(expr).feature(
+				jbase.jbase.JbasePackage.Literals.XJ_LABELED_STATEMENT__NAME), this::noSpace);
+		document.append(document.prepend(regionFor(expr).keyword(":"), this::noSpace),
+				this::oneSpace);
+		format(expr.getStatement(), document);
 	}
 
 	protected void _format(final XJAssertStatement expr, final IFormattableDocument document) {

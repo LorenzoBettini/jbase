@@ -1,15 +1,20 @@
 package jbase.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.inject.Inject;
 import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
+import jbase.jbase.XJJvmFormalParameter;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.eclipse.xtext.xbase.XCatchClause;
+import org.eclipse.xtext.xbase.XClosure;
 
 /**
  * For compilation tests we use JbaseTestlanguage since we test also
@@ -3244,6 +3249,80 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			  }
 			}
 			""");
+	}
+
+	@Test
+	public void testSourceAnnotationsOnVariablesParametersAndTypeUses() throws Exception {
+		compilationTestHelper.compile("""
+			import java.io.IOException;
+			import java.io.StringReader;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.Map.Entry;
+			import java.util.function.Function;
+			import jbase.tests.util.SourceAnnotation;
+
+			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
+
+			@SourceAnnotation int local = 1;
+			@SourceAnnotation final String text = "text";
+			List<@SourceAnnotation String> values = List.of(text);
+			List<? extends @SourceAnnotation String> bounded = values;
+			List<@SourceAnnotation ? extends String> wildcard = null;
+			Map.@SourceAnnotation Entry<String, String> entry = null;
+			Map.@SourceAnnotation Entry rawEntry = null;
+			String @SourceAnnotation [] names = new String[0];
+			Object object = "x";
+			String cast = (@SourceAnnotation String) object;
+			String created = new @SourceAnnotation String("x");
+			Object array = new String @SourceAnnotation [1];
+			Function<String, Integer> length = (@SourceAnnotation var value) -> value.length();
+			for (@SourceAnnotation String value : values) {
+				System.out.println(value);
+			}
+			try (@SourceAnnotation var reader = new StringReader("")) {
+				reader.read();
+			} catch (@SourceAnnotation IOException exception) {
+				System.out.println(exception.getMessage());
+			}
+			try {
+				throw new IOException("unused");
+			} catch (@SourceAnnotation IOException ignored) {}
+			try {
+				throw new IOException("unused multi-catch");
+			} catch (@SourceAnnotation IOException | RuntimeException ignoredMulti) {}
+			""", result -> {
+				assertNoValidationErrors(result);
+				final var model = result.getResourceSet().getResources().getFirst().getContents()
+					.getFirst();
+				final var closure = EcoreUtil2.getAllContentsOfType(model, XClosure.class)
+					.getFirst();
+				assertEquals(1, ((XJJvmFormalParameter) closure.getDeclaredFormalParameters()
+					.getFirst()).getSourceAnnotations().size());
+				final var catchClause = EcoreUtil2.getAllContentsOfType(model, XCatchClause.class)
+					.getFirst();
+				assertEquals(1, ((XJJvmFormalParameter) catchClause.getDeclaredParam())
+					.getSourceAnnotations().size());
+				assertEquals(result.getSingleGeneratedCode(), 19,
+					result.getSingleGeneratedCode().split("@SourceAnnotation", -1).length - 1);
+				assertGeneratedJavaCodeCompiles(result);
+			});
+	}
+
+	@Test
+	public void lambdaTargetingVarargsMethodPreservesVarargsParameter() throws Exception {
+		compilationTestHelper.compile("""
+			jbase.tests.util.VarargsConsumer inferred =
+				(prefix, values) -> System.out.println(prefix + values.length);
+			jbase.tests.util.VarargsConsumer explicit =
+				(String prefix, String[] values) -> System.out.println(prefix + values.length);
+			""", result -> {
+				assertNoValidationErrors(result);
+				final var generated = result.getSingleGeneratedCode();
+				assertTrue(generated, generated.contains("(String prefix,String... values) ->"));
+				assertTrue(generated, generated.contains("(String prefix,String[] values) ->"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
 	}
 
 	@Test

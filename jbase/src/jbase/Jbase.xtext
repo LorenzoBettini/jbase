@@ -33,17 +33,54 @@ XImportDeclaration returns xtype::XImportDeclaration:
 
 @Override 
 JvmTypeReference returns types::JvmTypeReference:
-	JvmParameterizedTypeReference =>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)* 
+	JvmParameterizedTypeReference
+	(
+		=>({XJGenericArrayTypeReference.componentType=current}
+			sourceAnnotations+=XAnnotation+ ArrayBrackets)
+	|	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)
+	)*
 	// | XFunctionTypeRef;
 ;
+
+@Override
+JvmParameterizedTypeReference returns types::JvmParameterizedTypeReference:
+	({XJParameterizedTypeReference} sourceAnnotations+=XAnnotation+
+	| {types::JvmParameterizedTypeReference})
+	type=[types::JvmType|QualifiedName]
+	(=>'<' arguments+=JvmArgumentTypeReference (',' arguments+=JvmArgumentTypeReference)* '>')?
+	(
+			=>({XJInnerTypeReference.outer=current} '.')
+				sourceAnnotations+=XAnnotation+ type=[types::JvmType|ValidID]
+				(=>'<' arguments+=JvmArgumentTypeReference
+					(',' arguments+=JvmArgumentTypeReference)* '>')?
+		|	=>({types::JvmInnerTypeReference.outer=current} '.')
+				type=[types::JvmType|ValidID]
+				(=>'<' arguments+=JvmArgumentTypeReference
+					(',' arguments+=JvmArgumentTypeReference)* '>')?
+	)*;
+
+@Override
+JvmWildcardTypeReference returns types::JvmWildcardTypeReference:
+	({XJWildcardTypeReference} sourceAnnotations+=XAnnotation+ '?'
+	| {types::JvmWildcardTypeReference} '?')
+	(
+		constraints+=JvmUpperBound (constraints+=JvmUpperBoundAnded)*
+	|	constraints+=JvmLowerBound (constraints+=JvmLowerBoundAnded)*
+	)?;
+
+@Override
+JvmArgumentTypeReference returns types::JvmTypeReference:
+	=>JvmWildcardTypeReference | JvmTypeReference;
 
 // customized with 'final' specification and varargs
 @Override 
 FullJvmFormalParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} final?='final'? parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
+	parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
 
 XJSingleStatement returns XExpression:
 	// Commit on the switch keyword, including incomplete statements during editing.
+	=>XJLabeledStatement |
 	->XSwitchExpression |
 	XJSemicolonStatement |
 	XIfExpression |
@@ -67,7 +104,8 @@ XJSemicolonStatement returns XExpression:
 	{XJSemicolonStatement}
 	(=>expression=XJYieldStatement |
 		=>expression=XJAssertStatement |
-		expression=(XJBranchingStatement | XExpressionOrVarDeclaration |
+		=>expression=XJBranchingStatement |
+		expression=(XExpressionOrVarDeclaration |
 			XDoWhileExpression | XReturnExpression | XThrowExpression))
 	->semicolon=';'?
 ;
@@ -82,8 +120,12 @@ XJEmptyStatement returns XExpression:
 ;
 
 XJBranchingStatement returns XExpression:
-	{XJContinueStatement} "continue" |
-	{XJBreakStatement} "break"
+	{XJContinueStatement} "continue" (=>label=ID)? |
+	{XJBreakStatement} "break" (=>label=ID)?
+;
+
+XJLabeledStatement returns XExpression:
+	{XJLabeledStatement} name=ID ':' statement=XJStatementOrBlock
 ;
 
 /* 
@@ -107,6 +149,7 @@ XBlockExpression returns XExpression:
 @Override 
 XVariableDeclaration returns XVariableDeclaration:
 	=>({XJVariableDeclaration}
+	(=>sourceAnnotations+=XAnnotation)*
 	final?='final'?
 	(=>'var' | type=JvmTypeReference) name=ValidID) ('=' right=XExpression)?
 	(=>',' additionalVariables+=XJAdditionalXVariableDeclaration)*;
@@ -144,26 +187,22 @@ XAssignment returns XExpression :
 XClosure returns XExpression:
 	=>({XClosure}
 		(declaredFormalParameters+=XJInferredLambdaParameter |
-			'(' (
-				(declaredFormalParameters+=XJLambdaParameter
-					(',' declaredFormalParameters+=XJLambdaParameter)*) |
-				(declaredFormalParameters+=XJInferredLambdaParameter
-					(',' declaredFormalParameters+=XJInferredLambdaParameter)*)
-			)? ')')
+			'(' (declaredFormalParameters+=XJLambdaParameter
+				(',' declaredFormalParameters+=XJLambdaParameter)*)? ')')
 		explicitSyntax?='->')
 		expression=XJLambdaBody
 ;
 
-// A declared parameter with no written type; XClosure.explicitSyntax still stays true.
-XJInferredLambdaParameter returns types::JvmFormalParameter:
-	{types::JvmFormalParameter} name=ValidID
+XJInferredLambdaParameter returns XJJvmFormalParameter:
+	{XJJvmFormalParameter} name=ValidID
 ;
 
-// Leave var's parameterType unset so Xbase infers it from the target interface.
-// Unlike an ordinary local var declaration, this does not infer a standalone initializer type.
+// Leave parameterType unset for inferred parameters and var parameters.
 XJLambdaParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} final?='final'?
-	(=>'var' | parameterType=XJLambdaParameterType) name=ValidID
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
+	(=>(var?='var' name=ValidID)
+	| parameterType=XJLambdaParameterType name=ValidID
+	| name=ValidID)
 ;
 
 // A variable arity lambda parameter has the same type as an array parameter.
@@ -223,7 +262,7 @@ XJAnonymousClassBody:
 
 XJPlainConstructorCall returns XJConstructorCall:
 	{XJConstructorCall}
-	'new' constructor=[types::JvmConstructor|QualifiedName]
+	'new' sourceAnnotations+=XAnnotation* constructor=[types::JvmConstructor|QualifiedName]
 	(=>explicitTypeArguments?='<' (typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)*)? '>')?
 	(=>explicitConstructorCall?='(' 
 		(
@@ -239,6 +278,7 @@ XJPlainConstructorCall returns XJConstructorCall:
 XJArrayConstructorCall returns XExpression:
 	=>({XJArrayConstructorCall}
 	'new'
+	sourceAnnotations+=XAnnotation*
 	type=[types::JvmType|QualifiedName] dimensions+=XJArrayDimension) 
 	// getting here is enough to tell it's an array constructor call
 	(indexes+=XExpression)? ']'
@@ -250,7 +290,7 @@ XJArrayConstructorCall returns XExpression:
 // need to find the corresponding node (and offset) with NodeModelUtils
 // in order to associate dimensions with indexes
 XJArrayDimension:
-	{XJArrayDimension} '['
+	{XJArrayDimension} sourceAnnotations+=XAnnotation* '['
 ;
 
 @Override 
@@ -320,17 +360,33 @@ XJTypedMethodReference returns XExpression:
 // Type arguments after :: belong to the executable and are parsed by the enclosing rule.
 XJReferenceType returns types::JvmTypeReference:
 	=>XJParameterizedReferenceType
-	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)*
+	(
+		=>({XJGenericArrayTypeReference.componentType=current}
+			sourceAnnotations+=XAnnotation+ ArrayBrackets)
+	|	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)
+	)*
 	|
 	JvmParameterizedTypeReference
-	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)+
+	(
+		=>({XJGenericArrayTypeReference.componentType=current}
+			sourceAnnotations+=XAnnotation+ ArrayBrackets)
+	|	=>({types::JvmGenericArrayTypeReference.componentType=current} ArrayBrackets)
+	)+
 ;
 
 XJParameterizedReferenceType returns types::JvmParameterizedTypeReference:
-	{types::JvmParameterizedTypeReference} type=[types::JvmType|QualifiedName]
+	({XJParameterizedTypeReference} sourceAnnotations+=XAnnotation+
+	| {types::JvmParameterizedTypeReference})
+	type=[types::JvmType|QualifiedName]
 	'<' arguments+=JvmArgumentTypeReference (',' arguments+=JvmArgumentTypeReference)* '>'
-	(=>({types::JvmInnerTypeReference.outer=current} '.') type=[types::JvmType|ValidID]
-		('<' arguments+=JvmArgumentTypeReference (',' arguments+=JvmArgumentTypeReference)* '>')?)*
+	(
+		=>({XJInnerTypeReference.outer=current} '.')
+			sourceAnnotations+=XAnnotation+ type=[types::JvmType|ValidID]
+			('<' arguments+=JvmArgumentTypeReference (',' arguments+=JvmArgumentTypeReference)* '>')?
+	|	=>({types::JvmInnerTypeReference.outer=current} '.')
+			type=[types::JvmType|ValidID]
+			('<' arguments+=JvmArgumentTypeReference (',' arguments+=JvmArgumentTypeReference)* '>')?
+	)*
 ;
 
 // Enhanced-for parameters require an explicit type or the contextual keyword var.
@@ -342,7 +398,7 @@ XForLoopExpression returns XExpression:
 
 // Only enhanced-for parameters may infer their type from the iterable.
 XJForLoopParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} final?='final'?
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	(=>'var' | parameterType=JvmTypeReference) name=ValidID;
 
 @Override 
@@ -450,7 +506,7 @@ XJTryWithResourcesStatement returns XExpression:
  * try-with-resources
  */
 XJTryWithResourcesVariableDeclaration:
-	{XJTryWithResourcesVariableDeclaration}
+	{XJTryWithResourcesVariableDeclaration} (=>sourceAnnotations+=XAnnotation)*
 	final?='final'?
 	(=>'var' | type=JvmTypeReference) name=ValidID '=' (=>right=XExpression)?
 	semicolon=';'?
@@ -482,7 +538,8 @@ XTryCatchFinallyExpression returns XExpression:
 	);
 
 JbaseCatchFormalParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} final?='final'? parameterType=JbaseCatchTypeReference name=ValidID;
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
+	parameterType=JbaseCatchTypeReference name=ValidID;
 
 JbaseCatchTypeReference returns types::JvmTypeReference:
 	JvmTypeReference
@@ -644,6 +701,10 @@ OpUnary:
 	"!" | "-" | "+" | "~";
 
 // customization of multiple values for annotations to use the Java array literal syntax
+@Override
+XAnnotationOrExpression returns XExpression:
+	XAnnotation | =>XExpression;
+
 @Override 
 XAnnotationElementValueOrCommaList returns XExpression:
 	  =>({XJArrayLiteral} '{') (elements+=XAnnotationOrExpression (',' elements+=XAnnotationOrExpression )*)? '}'
