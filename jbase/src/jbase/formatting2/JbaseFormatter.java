@@ -176,7 +176,8 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	protected void _format(final XCastedExpression expr, final IFormattableDocument document) {
 		format(expr.getType(), document);
 		format(expr.getTarget(), document);
-		handleOpenCloseParenthesis(expr, "(", ")", document);
+		document.append(regionFor(expr).keyword("("), this::noSpace);
+		document.prepend(regionFor(expr).keyword(")"), this::noSpace);
 		document.append(regionFor(expr).keyword(")"), this::oneSpace);
 	}
 

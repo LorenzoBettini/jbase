@@ -7,6 +7,7 @@ import jbase.jbase.XJInnerTypeReference;
 import jbase.jbase.XJParameterizedTypeReference;
 import jbase.jbase.XJWildcardTypeReference;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference;
 import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.xbase.compiler.IAppendable;
@@ -77,6 +78,15 @@ public class JbaseTypeReferenceSerializer extends TypeReferenceSerializer {
 				appendAnnotations(annotated.getSourceAnnotations(), appendable);
 				super.serialize(reference, context, appendable, typeReference,
 					keepLocalTypeParameters, keepWildcards, useTypeParameters);
+			}
+			case JvmMultiTypeReference intersection -> {
+				for (var index = 0; index < intersection.getReferences().size(); index++) {
+					if (index > 0) {
+						appendable.append(" & ");
+					}
+					serialize(intersection.getReferences().get(index), context, appendable,
+						typeReference, keepLocalTypeParameters, keepWildcards, useTypeParameters);
+				}
 			}
 			case null, default -> super.serialize(reference, context, appendable, typeReference,
 				keepLocalTypeParameters, keepWildcards, useTypeParameters);

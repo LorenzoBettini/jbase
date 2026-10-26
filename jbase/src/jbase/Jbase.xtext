@@ -299,11 +299,19 @@ XJArrayDimension:
 
 @Override 
 XCastedExpression returns XExpression:
-	// Keep unary precedence for ordinary casts, while allowing a lambda target.
+	// Keep unary precedence for casts, including intersection casts of lambdas.
+	=>({XCastedExpression} '(' type=XJIntersectionTypeReference ')'
+		(=>target=XClosure | target=XUnaryOperation))
+	|
 	=>({XCastedExpression} '(' type=JvmTypeReference ')'
 		(=>target=XClosure | target=XUnaryOperation))
 	|
 	XPostfixOperation
+;
+
+XJIntersectionTypeReference returns types::JvmMultiTypeReference:
+	{types::JvmMultiTypeReference}
+	references+=JvmTypeReference ('&' references+=JvmTypeReference)+
 ;
 
 @Override 

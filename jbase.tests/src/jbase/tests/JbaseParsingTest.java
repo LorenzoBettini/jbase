@@ -12,6 +12,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBooleanLiteral;
@@ -476,6 +477,21 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 			final var casted = getCasted(expression);
 			assertEquals("int", casted.getType().getSimpleName());
 			assertTrue(casted.getTarget() instanceof XNumberLiteral);
+		});
+	}
+
+	@Test
+	public void testIntersectionCastExpression() throws Exception {
+		assertLastExpression("""
+			(Runnable & java.io.Serializable) () -> {};
+			""", expression -> {
+			final var casted = getCasted(expression);
+			final var type = (JvmMultiTypeReference) casted.getType();
+			assertEquals(2, type.getReferences().size());
+			assertEquals("Runnable", type.getReferences().get(0).getSimpleName());
+			assertEquals("java.io.Serializable",
+				type.getReferences().get(1).getIdentifier());
+			assertTrue(casted.getTarget() instanceof org.eclipse.xtext.xbase.XClosure);
 		});
 	}
 
