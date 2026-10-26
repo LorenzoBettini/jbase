@@ -75,7 +75,7 @@ JvmArgumentTypeReference returns types::JvmTypeReference:
 // customized with 'final' specification and varargs
 @Override 
 FullJvmFormalParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation+)? final?='final'?
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
 
 XJSingleStatement returns XExpression:
@@ -149,7 +149,7 @@ XBlockExpression returns XExpression:
 @Override 
 XVariableDeclaration returns XVariableDeclaration:
 	=>({XJVariableDeclaration}
-	(=>sourceAnnotations+=XAnnotation+)?
+	(=>sourceAnnotations+=XAnnotation)*
 	final?='final'?
 	(=>'var' | type=JvmTypeReference) name=ValidID) ('=' right=XExpression)?
 	(=>',' additionalVariables+=XJAdditionalXVariableDeclaration)*;
@@ -199,7 +199,7 @@ XJInferredLambdaParameter returns XJJvmFormalParameter:
 
 // Leave parameterType unset for inferred parameters and var parameters.
 XJLambdaParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation+)? final?='final'?
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	(=>(var?='var' name=ValidID)
 	| parameterType=XJLambdaParameterType name=ValidID
 	| name=ValidID)
@@ -398,7 +398,7 @@ XForLoopExpression returns XExpression:
 
 // Only enhanced-for parameters may infer their type from the iterable.
 XJForLoopParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation+)? final?='final'?
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	(=>'var' | parameterType=JvmTypeReference) name=ValidID;
 
 @Override 
@@ -506,7 +506,7 @@ XJTryWithResourcesStatement returns XExpression:
  * try-with-resources
  */
 XJTryWithResourcesVariableDeclaration:
-	{XJTryWithResourcesVariableDeclaration} (=>sourceAnnotations+=XAnnotation+)?
+	{XJTryWithResourcesVariableDeclaration} (=>sourceAnnotations+=XAnnotation)*
 	final?='final'?
 	(=>'var' | type=JvmTypeReference) name=ValidID '=' (=>right=XExpression)?
 	semicolon=';'?
@@ -538,7 +538,7 @@ XTryCatchFinallyExpression returns XExpression:
 	);
 
 JbaseCatchFormalParameter returns XJJvmFormalParameter:
-	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation+)? final?='final'?
+	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	parameterType=JbaseCatchTypeReference name=ValidID;
 
 JbaseCatchTypeReference returns types::JvmTypeReference:
