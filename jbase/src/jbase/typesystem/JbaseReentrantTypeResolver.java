@@ -7,6 +7,7 @@ import org.eclipse.xtext.common.types.JvmAnnotationType;
 import org.eclipse.xtext.common.types.JvmConstructor;
 import org.eclipse.xtext.common.types.JvmDeclaredType;
 import org.eclipse.xtext.common.types.JvmFeature;
+import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmTypeReference;
@@ -139,7 +140,7 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 			constructor = TypesFactory.eINSTANCE.createJvmConstructor();
 		} else {
 			// Resolve lazy parameter names before copying the executable signature.
-			original.getParameters().forEach(parameter -> parameter.getName());
+			original.getParameters().forEach(JvmFormalParameter::getName);
 			constructor = (JvmConstructor) copier.copy(original);
 			copier.copyReferences();
 		}
