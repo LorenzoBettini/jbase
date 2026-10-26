@@ -220,17 +220,19 @@ System.out.println(point.getX() + ", " + point.getY());
 See [Anonymous classes](docs/ANONYMOUS_CLASSES.md) for the grammar and inferrer
 extension contract. General Java member declaration syntax remains outside Jbase.
 
-### [ ] Qualified inner-class creation
+### [x] Qualified inner-class creation
 
 Assume an external Java class `Outer` with a public non-static member class `Inner`:
 
 ```java
 Outer outer = new Outer();
-Object inner = outer.new Inner();
+Outer.Inner inner = outer.new Inner();
 ```
 
-The `.new` form has syntax errors. Ordinary constructors and qualified names of
-static nested classes are supported.
+Jbase resolves the member-class constructor from the qualifier's type and emits
+Java's qualified creation syntax. Ordinary constructors and qualified names of
+static nested classes continue to use their existing syntax. See the
+[qualified inner-class creation guide](docs/QUALIFIED_INNER_CLASS_CREATION.md).
 
 ### [ ] Explicit method and constructor type arguments
 

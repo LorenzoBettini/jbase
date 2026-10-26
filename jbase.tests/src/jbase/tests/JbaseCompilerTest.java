@@ -3326,6 +3326,20 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testQualifiedInnerClassCreation() throws Exception {
+		compilationTestHelper.compile("""
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
+			Outer outer = new Outer();
+			var inner = outer.new Inner();
+			System.out.println(inner.value());
+			""", result -> {
+				assertNoValidationErrors(result);
+				assertTrue(result.getSingleGeneratedCode().contains("outer.new Inner()"));
+				assertGeneratedJavaCodeCompiles(result);
+			});
+	}
+
+	@Test
 	public void testLoopsWithConditionAlwaysTrue() throws Exception {
 		checkCompilation("""
 			int d = 1;

@@ -49,6 +49,14 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testQualifiedInnerClassCreation() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("Object value=outer.new Inner();");
+			request.setExpectation("Object value = outer.new Inner();\n");
+		});
+	}
+
+	@Test
 	public void testEnhancedSwitch() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("""

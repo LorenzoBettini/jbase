@@ -59,6 +59,15 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testQualifiedInnerClassCreation() throws Exception {
+		assertLastExpression("var value = outer.new Inner();", expression -> {
+			final var creation = (jbase.jbase.XJConstructorCall)
+				getVariableDeclarationRight(expression);
+			assertTrue(creation.getQualifier() instanceof XFeatureCall);
+		});
+	}
+
+	@Test
 	public void testAssignmentLeft() throws Exception {
 		assertLastExpression("""
 			i = 1;

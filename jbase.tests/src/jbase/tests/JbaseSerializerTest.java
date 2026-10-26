@@ -1,6 +1,9 @@
 package jbase.tests;
 
 import static org.junit.Assert.*;
+
+import java.lang.reflect.Proxy;
+
 import com.google.inject.Inject;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import jbase.jbase.XJSwitchExpression;
@@ -9,10 +12,12 @@ import jbase.jbase.XJInnerTypeReference;
 import jbase.jbase.XJParameterizedTypeReference;
 import jbase.jbase.XJWildcardTypeReference;
 import jbase.compiler.JbaseTypeReferenceSerializer;
+import jbase.scoping.JbaseAnonymousClassConstructorScopes;
 import org.apache.log4j.Level;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.serializer.impl.Serializer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
@@ -20,7 +25,11 @@ import org.eclipse.xtext.testing.logging.LoggingTester;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.compiler.StringBuilderBasedAppendable;
 import org.eclipse.xtext.common.types.JvmTypeReference;
+import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.resource.BatchLinkableResource;
+import org.eclipse.xtext.xbase.scoping.batch.IFeatureScopeSession;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.IResolvedTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,6 +49,12 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 
 	@Inject
 	private JbaseTypeReferenceSerializer typeReferenceSerializer;
+
+	@Inject
+	private IBatchTypeResolver typeResolver;
+
+	@Inject
+	private JbaseAnonymousClassConstructorScopes constructorScopes;
 
 	@Test
 	public void annotationAwareTypeReferencesWithoutAnnotationsUseDefaultSerialization()
@@ -111,6 +126,54 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			Runnable task = new Runnable() { method run(): void {} };
 			Object empty = new Object() {};
 			""");
+	}
+
+	@Test
+	public void testQualifiedInnerClassCreation() throws Exception {
+		assertSerialize("""
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
+			Outer outer = new Outer();
+			var inner = outer.new Inner();
+			""");
+	}
+
+	@Test
+	public void testQualifiedInnerClassCreationWithoutNodeModel() throws Exception {
+		final var source = "jbase.tests.util.QualifiedInnerFixtures.Outer outer = "
+			+ "new jbase.tests.util.QualifiedInnerFixtures.Outer(); "
+			+ "var inner = outer.new Inner();";
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var originalCall = EcoreUtil2.getAllContentsOfType(parsed,
+				jbase.jbase.XJConstructorCall.class).stream()
+			.filter(call -> call.getQualifier() != null)
+			.findFirst()
+			.orElseThrow();
+		final var originalResolvedTypes = typeResolver.resolveTypes(parsed);
+		final var qualifierType = originalResolvedTypes.getActualType(originalCall.getQualifier());
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		final var qualifiedCall = EcoreUtil2.getAllContentsOfType(copy,
+				jbase.jbase.XJConstructorCall.class).stream()
+			.filter(call -> call.getQualifier() != null)
+			.findFirst()
+			.orElseThrow();
+		final var session = (IFeatureScopeSession) Proxy.newProxyInstance(
+			IFeatureScopeSession.class.getClassLoader(),
+			new Class<?>[] { IFeatureScopeSession.class },
+			(proxy, method, arguments) -> method.getReturnType() == boolean.class ? true : null);
+		final var noNodeResolvedTypes = (IResolvedTypes) Proxy.newProxyInstance(
+			IResolvedTypes.class.getClassLoader(),
+			new Class<?>[] { IResolvedTypes.class },
+			(proxy, method, arguments) ->
+				method.getName().equals("getActualType") ? qualifierType : null);
+		final var scope = constructorScopes.createConstructorScope(qualifiedCall,
+			XbasePackage.Literals.XCONSTRUCTOR_CALL__CONSTRUCTOR, session, noNodeResolvedTypes);
+		assertTrue(scope.getElements(QualifiedName.create("Inner")).iterator().hasNext());
+		assertEquals(source.replaceAll("\\s+", ""), serializer.serialize(copy).replaceAll("\\s+", ""));
 	}
 
 	@Test
