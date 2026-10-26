@@ -14,6 +14,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.JvmVisibility;
 import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.TypesPackage;
+import org.eclipse.xtext.common.types.util.TypeReferences;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
@@ -46,6 +47,8 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 	private JbaseAnonymousClassUtil anonymousClassUtil;
 	@Inject
 	private JvmTypesBuilder typesBuilder;
+	@Inject
+	private TypeReferences typeReferences;
 	@Inject
 	private IJvmModelAssociator associator;
 	@Inject
@@ -124,7 +127,7 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 		parameterized.setType(type);
 		typesBuilder.associate(call, parameterized);
 		for (final var parameter : local.getTypeParameters()) {
-			parameterized.getArguments().add(typesBuilder.newTypeRef(parameter));
+			parameterized.getArguments().add(typeReferences.createTypeRef(parameter));
 		}
 		return parameterized;
 	}
@@ -135,7 +138,8 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 			final ResolvedTypes resolvedTypes, final IFeatureScopeSession session) {
 		if (requiresDefaultConstructor(type)) {
 			if (type != null) {
-				local.getSuperTypes().add(0, typesBuilder.newTypeRef(local, Object.class));
+				local.getSuperTypes().add(0,
+					typeReferences.getTypeForName(Object.class, local));
 			}
 			addConstructor(anonymous, local, null, true, copier);
 			return;
