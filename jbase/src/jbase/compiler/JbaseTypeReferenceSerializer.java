@@ -69,7 +69,7 @@ public class JbaseTypeReferenceSerializer extends TypeReferenceSerializer {
 				final var separator = Math.max(simpleName.lastIndexOf('.'),
 					simpleName.lastIndexOf('$'));
 				appendable.append(simpleName.substring(separator + 1));
-				serializeTypeArguments(annotated, context, appendable, typeReference,
+				serializeAnnotatedTypeArguments(annotated, context, appendable, typeReference,
 					keepLocalTypeParameters, keepWildcards);
 			}
 			case XJWildcardTypeReference annotated
@@ -93,7 +93,7 @@ public class JbaseTypeReferenceSerializer extends TypeReferenceSerializer {
 	 * @param keepLocalTypeParameters whether local type parameters are retained
 	 * @param keepWildcards whether wildcard types are retained
 	 */
-	private void serializeTypeArguments(final JvmParameterizedTypeReference reference,
+	private void serializeAnnotatedTypeArguments(final JvmParameterizedTypeReference reference,
 			final EObject context, final IAppendable appendable, final boolean typeReference,
 			final boolean keepLocalTypeParameters, final boolean keepWildcards) {
 		if (!reference.getArguments().isEmpty()) {

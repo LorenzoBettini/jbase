@@ -1,5 +1,6 @@
 package jbase.controlflow;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.xbase.XAbstractWhileExpression;
 import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBlockExpression;
@@ -119,10 +120,7 @@ public class JbaseBreakStatementDetector {
 				targetIsBetweenBranchAndLabel = true;
 			}
 			if (statement.getLabel() == null
-					&& (parent instanceof XAbstractWhileExpression
-						|| parent instanceof XBasicForLoopExpression
-						|| parent instanceof XForLoopExpression
-						|| parent instanceof XSwitchExpression)) {
+					&& isUnlabeledBreakTarget(parent)) {
 				return false;
 			}
 			if (parent instanceof XClosure || parent instanceof XJAnonymousClassBody) {
@@ -134,5 +132,18 @@ public class JbaseBreakStatementDetector {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Identifies statements that capture an unlabeled break before it reaches an outer loop.
+	 *
+	 * @param expression the enclosing model element
+	 * @return whether an unlabeled break exits this element
+	 */
+	private boolean isUnlabeledBreakTarget(final EObject expression) {
+		return expression instanceof XAbstractWhileExpression
+			|| expression instanceof XBasicForLoopExpression
+			|| expression instanceof XForLoopExpression
+			|| expression instanceof XSwitchExpression;
 	}
 }
