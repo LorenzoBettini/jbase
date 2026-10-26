@@ -256,6 +256,14 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		compileBranchingStatement(st, b, "continue");
 	}
 
+	/**
+	 * Finds the basic {@code for} loop whose updates must run before a lowered-loop continue.
+	 * An explicit label targets only the loop directly wrapped by that label; lookup stops at
+	 * lambda and anonymous-class boundaries because branches cannot cross them.
+	 *
+	 * @param statement the continue statement to resolve
+	 * @return its basic-for target, or {@code null} when it targets another construct
+	 */
 	protected XBasicForLoopExpression getContinueTarget(final XJContinueStatement statement) {
 		if (statement.getLabel() == null) {
 			return EcoreUtil2.getContainerOfType(statement, XBasicForLoopExpression.class);
@@ -272,6 +280,14 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		return null;
 	}
 
+	/**
+	 * Emits a label on its statement, except when a basic {@code for} is lowered; in that case
+	 * the label is emitted on the generated {@code while} so labeled continues still target it.
+	 *
+	 * @param statement the labeled statement to compile
+	 * @param appendable the output receiving generated Java
+	 * @param isReferenced whether the statement's value is used
+	 */
 	private void compileLabeledStatement(final XJLabeledStatement statement,
 			final ITreeAppendable appendable, final boolean isReferenced) {
 		if (statement.getStatement() instanceof XBasicForLoopExpression loop
@@ -291,6 +307,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			append(Joiner.on("").join(e.getArrayDimensions())).append(".class");
 	}
 
+	/**
+	 * Emits a labeled or unlabeled {@code break} or {@code continue} statement.
+	 *
+	 * @param statement the branching statement to compile
+	 * @param appendable the output receiving generated Java
+	 * @param instruction either {@code break} or {@code continue}
+	 */
 	private void compileBranchingStatement(final XJBranchingStatement statement,
 			final ITreeAppendable appendable, final String instruction) {
 		appendable.newLine().append(instruction);
@@ -817,6 +840,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		final var labeledStatement = EcoreUtil2.getContainerOfType(
 			expr, XJLabeledStatement.class);
 		if (labeledStatement != null && labeledStatement.getStatement() == expr) {
+			// The source label must remain attached to the loop after this for is lowered.
 			loopAppendable.append(labeledStatement.getName()).append(": ");
 		}
 		loopAppendable.append("while (");
@@ -1232,6 +1256,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void appendConstructedTypeName(final XConstructorCall call,
 			final ITreeAppendable appendable) {
+		// The superclass emits the constructor type here, after "new".
 		appendSourceAnnotations(((XJConstructorCall) call).getSourceAnnotations(), appendable);
 		super.appendConstructedTypeName(call, appendable);
 	}
@@ -1240,11 +1265,19 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	protected void appendCatchClauseParameter(final XCatchClause clause,
 			final JvmTypeReference parameterType, final String parameterName,
 			final ITreeAppendable appendable) {
+		// Keep annotations attached to the source catch parameter declaration.
 		appendSourceAnnotations(
 			((XJJvmFormalParameter) clause.getDeclaredParam()).getSourceAnnotations(), appendable);
 		super.appendCatchClauseParameter(clause, parameterType, parameterName, appendable);
 	}
 
+	/**
+	 * Preserves annotated catch aliases even when their variable is unused.
+	 *
+	 * <p>Xbase lowers catches to type checks and normally omits an unused alias. An annotation
+	 * belongs to the source declaration, so an annotated unused parameter needs its alias
+	 * emitted; other catches retain Xbase's standard lowering.
+	 */
 	@Override
 	protected void appendCatchClause(final XCatchClause clause,
 			final boolean ignoredParentIsReferenced,
@@ -1287,6 +1320,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		closeBlock(appendable);
 	}
 
+	/**
+	 * Emits lambda parameter annotations and explicit Jbase parameter types.
+	 *
+	 * <p>The native-lambda path writes parameter declarations directly instead of using
+	 * {@code appendClosureParameter}, so this method mirrors Xbase's lambda emission while
+	 * preserving source annotations and its varargs and scope handling.
+	 */
 	@Override
 	protected ITreeAppendable toLambda(final XClosure closure, final ITreeAppendable appendable,
 			final LightweightTypeReference type, final JvmOperation operation,
@@ -1340,6 +1380,12 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		return appendable;
 	}
 
+	/**
+	 * Emits each source annotation through the regular expression compiler.
+	 *
+	 * @param annotations annotations to emit
+	 * @param appendable the output receiving the annotations
+	 */
 	void appendSourceAnnotations(final Iterable<XAnnotation> annotations,
 			final ITreeAppendable appendable) {
 		for (final var annotation : annotations) {
@@ -1349,7 +1395,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	/**
-	 * Overridden because our parameters, like in Java, can be final or non final by default 
+	 * Emits for-loop parameter annotations and modifiers before its declared or inferred type.
 	 */
 	@Override
 	protected void appendForLoopParameter(XForLoopExpression expr, ITreeAppendable appendable) {
