@@ -40,6 +40,29 @@ additional fields and methods. Declaring `Object point` instead exposes only
 `Object` members. Fields use the host language's visibility and initialization
 rules; the test language does not add field-initializer syntax.
 
+## Domainmodel example
+
+The Domainmodel example supports anonymous classes using its usual properties
+and `op` declarations. Properties generate private fields and public getters and
+setters; explicit accessors replace generated ones, just as in an entity.
+
+```java
+entity Example {
+    op calculate(int input):int {
+        var counter = new Object() {
+            value : int
+            op getValue():int { return this.value + input; }
+        };
+        counter.setValue(40);
+        return counter.getValue();
+    }
+}
+```
+
+Anonymous operations can implement interfaces, override superclass methods,
+and contain further anonymous classes. Captured parameters and local variables
+follow Jbase's final or effectively final rules.
+
 ## Inferrer integration
 
 Use `DefaultJbaseRuntimeModule` for the Jbase runtime bindings. Inject
