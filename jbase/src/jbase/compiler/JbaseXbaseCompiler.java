@@ -13,6 +13,7 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
+import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmOperation;
 import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.common.types.JvmType;
@@ -30,6 +31,7 @@ import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
 import org.eclipse.xtext.xbase.XCatchClause;
+import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
@@ -155,6 +157,40 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			}
 		}
 		return super.compile(expression, appendable, returnType, exceptions);
+	}
+
+	@Override
+	protected void _toJavaExpression(final XCastedExpression expression,
+			final ITreeAppendable appendable) {
+		if (expression.getType() instanceof JvmMultiTypeReference
+				&& expression.getTarget() instanceof XClosure) {
+			appendable.append("((");
+			serialize(expression.getType(), expression, appendable);
+			appendable.append(") ");
+			if (expression.getTarget() instanceof XJMethodReference) {
+				internalToConvertedExpression(expression.getTarget(), appendable);
+			} else {
+				final var closure = (XClosure) expression.getTarget();
+				final var type = getLightweightType(closure);
+				final var operation = java.util.Objects.requireNonNull(
+					findImplementingOperation(type),
+					"Intersection cast closure has no functional-interface target");
+				toLambda(closure, appendable.trace(closure, false), type, operation, false);
+			}
+			appendable.append(")");
+		} else {
+			super._toJavaExpression(expression, appendable);
+		}
+	}
+
+	@Override
+	protected void _toJavaStatement(final XCastedExpression expression,
+			final ITreeAppendable appendable, final boolean isReferenced) {
+		if (expression.getType() instanceof JvmMultiTypeReference
+				&& expression.getTarget() instanceof XClosure) {
+			return;
+		}
+		super._toJavaStatement(expression, appendable, isReferenced);
 	}
 
 	@Override

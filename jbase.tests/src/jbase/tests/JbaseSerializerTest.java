@@ -166,6 +166,13 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testIntersectionCastSerialization() throws Exception {
+		assertSerialize("""
+			Object task = (Runnable & java.io.Serializable) () -> {};
+			""");
+	}
+
+	@Test
 	public void testQualifiedInnerClassCreationWithoutNodeModel() throws Exception {
 		final var source = "jbase.tests.util.QualifiedInnerFixtures.Outer outer = "
 			+ "new jbase.tests.util.QualifiedInnerFixtures.Outer(); "

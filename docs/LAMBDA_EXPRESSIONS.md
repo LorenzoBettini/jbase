@@ -11,7 +11,7 @@ subtype and computation strategy; see [Method references](METHOD_REFERENCES.md).
 | Source | Responsibility |
 | --- | --- |
 | [Jbase.xtext](../jbase/src/jbase/Jbase.xtext) | Java lambda headers, parameters, bodies, and casts. |
-| [JbaseTypeComputer](../jbase/src/jbase/typesystem/JbaseTypeComputer.java) | Target expectations, raw functional interfaces, and delegation to Xbase's closure computation. |
+| [JbaseTypeComputer](../jbase/src/jbase/typesystem/JbaseTypeComputer.java) | Target expectations, intersection-cast functional bounds, raw functional interfaces, and delegation to Xbase's closure computation. |
 | [JbaseReentrantTypeResolver](../jbase/src/jbase/typesystem/JbaseReentrantTypeResolver.java) | Defers writable-local capture checks until all uses have been linked. |
 | [JbaseValidator](../jbase/src/jbase/validation/JbaseValidator.java) | Java target, parameter, body, capture, and branching rules. |
 | [JbaseInitializedVariableFinder](../jbase/src/jbase/validation/JbaseInitializedVariableFinder.java) | Definite-assignment checks at closure creation. |
@@ -94,7 +94,11 @@ Two cases need explicit treatment in `JbaseTypeComputer`:
   as an expectation for an `XClosure` target. Thus `(IntUnaryOperator) n -> n`
   provides the parameter type before computing the lambda. This also applies to
   the `XJMethodReference` subtype. The null-type guard preserves recovery for an
-  incomplete cast in the editor.
+  incomplete cast in the editor. An intersection cast is represented by Xtext's
+  `JvmMultiTypeReference`; Jbase selects its unique functional-interface bound for
+  lambda inference while preserving the full intersection as the cast expression's
+  type. The functional bound may appear in any position, and casts with zero or
+  multiple functional bounds remain invalid.
 * **Raw functional interfaces.** A raw interface is represented for computation
   with its type parameters replaced by their erased bounds. For raw `Consumer`,
   the lambda parameter is consequently `Object`, rather than an unconstrained
