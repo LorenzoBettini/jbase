@@ -180,6 +180,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			for (;;) {
 				break;
 			}
+			exit: {
+				break exit;
+			}
+			outer: for (int i = 0; i < 3; i += 1) {
+				if (i == 1) continue outer;
+				if (i == 2) break outer;
+			}
 			switch (count) {
 			case 0:
 			case 1:
@@ -481,6 +488,28 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    } while((count > 0));
 			    for (;;) {
 			      break;
+			    }
+			    exit:
+			    break exit;
+			    {
+			      int i = 0;
+			      boolean _while = (i < 3);
+			      outer: while (_while) {
+			        {
+			          if ((i == 1)) {
+			            int _i = i;
+			            i = (_i + 1);
+			            _while = (i < 3);
+			            continue outer;
+			          }
+			          if ((i == 2)) {
+			            break outer;
+			          }
+			        }
+			        int _i = i;
+			        i = (_i + 1);
+			        _while = (i < 3);
+			      }
 			    }
 			    switch (count) {
 			      case 0:

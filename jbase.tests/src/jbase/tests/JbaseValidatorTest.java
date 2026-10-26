@@ -289,6 +289,106 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testBreakToNonEnclosingLabel() throws Exception {
+		assertIssueCode(parseHelper.parse("break missing;"),
+			JbaseIssueCodes.INVALID_BRANCHING_STATEMENT);
+	}
+
+	@Test
+	public void testContinueToNonLoopLabel() throws Exception {
+		assertIssueCode(parseHelper.parse("""
+			scope: {
+				continue scope;
+			}
+			"""), JbaseIssueCodes.INVALID_BRANCHING_STATEMENT);
+	}
+
+	@Test
+	public void testBranchToLabelOutsideLambda() throws Exception {
+		assertIssueCode(parseHelper.parse("""
+			target: {
+				java.lang.Runnable action = () -> {
+					break target;
+				};
+			}
+			"""), JbaseIssueCodes.INVALID_BRANCHING_STATEMENT);
+	}
+
+	@Test
+	public void testBreakOutOfSwitchExpression() throws Exception {
+		assertIssueCode(parseHelper.parse("""
+			target: {
+				int value = switch (1) {
+					default -> {
+						break target;
+					}
+				};
+			}
+			"""), JbaseIssueCodes.INVALID_SWITCH);
+	}
+
+	@Test
+	public void testBreakToEnclosingLabeledSwitchStatement() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			target: {
+				switch (1) {
+					default -> {
+						break target;
+					}
+				}
+			}
+			"""));
+	}
+
+	@Test
+	public void testContinueToEnclosingLabeledWhileLoop() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			boolean keepGoing = false;
+			outer: while (keepGoing) continue outer;
+			"""));
+	}
+
+	@Test
+	public void testContinueToEnclosingLabeledBasicForLoop() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			outer: for (int i = 0; i < 1; i++) continue outer;
+			"""));
+	}
+
+	@Test
+	public void testContinueToEnclosingLabeledEnhancedForLoop() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			{
+				outer: for (var value : new int[] {1}) continue outer;
+			}
+			"""));
+	}
+
+	@Test
+	public void testBranchToOuterLabelAcrossInnerLabel() throws Exception {
+		validationTestHelper.assertNoErrors(parseHelper.parse("""
+			outer: {
+				inner: {
+					break outer;
+				}
+			}
+			"""));
+	}
+
+	@Test
+	public void testBranchToLabelOutsideAnonymousClass() throws Exception {
+		assertIssueCode(parseHelper.parse("""
+			target: {
+				var action = new Object() {
+					method run() {
+						break target;
+					}
+				};
+			}
+			"""), JbaseIssueCodes.INVALID_BRANCHING_STATEMENT);
+	}
+
+	@Test
 	public void testInvalidCharAssignment() throws Exception {
 		assertTypeMismatch(parseHelper.parse("""
 			char c = "c";
@@ -1776,6 +1876,12 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertError(o, jbasePackage.getXJContinueStatement(),
 				JbaseIssueCodes.INVALID_BRANCHING_STATEMENT,
 				"continue cannot be used outside of a loop");
+	}
+
+	private void assertIssueCode(final EObject object, final String code) {
+		final var issues = validationTestHelper.validate(object);
+		assertTrue("Expected issue " + code + " in " + issues,
+			issues.stream().anyMatch(issue -> code.equals(issue.getCode())));
 	}
 
 	private void assertInvalidBreakStatement(final EObject o) {

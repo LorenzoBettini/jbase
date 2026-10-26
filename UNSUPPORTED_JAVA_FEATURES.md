@@ -129,7 +129,7 @@ Runtime assertion status follows Java's `-ea` behavior. Covered by
 `JbaseAssertStatementTest`, `JbaseFormatterTest`, `JbaseSerializerTest`, and
 `AllJavaFeaturesTest`; see the [assert statement guide](docs/ASSERT_STATEMENTS.md).
 
-### [ ] Labeled statements, `break`, and `continue`
+### [x] Labeled statements, `break`, and `continue`
 
 ```java
 exit: { break exit; }
@@ -138,8 +138,13 @@ outer: for (int i = 0; i < 2; i++) {
 }
 ```
 
-Labels are not modeled. `XJBranchingStatement` accepts only bare `break` and
-`continue`. Unlabeled jumps are already supported.
+**Implemented:** Labeled statements and optional labels on `break` and `continue`
+are parsed and compiled. `continue` labels must target loops, branches cannot jump
+across lambda boundaries or out of switch expressions, and labeled continues preserve
+updates when a basic `for` is lowered to a `while`. Covered by
+`JbaseLabeledStatementTest`, `JbaseLabeledStatementCompilerTest`,
+`JbaseBreakStatementDetectorTest`, `JbaseBranchingStatementDetectorTest`, and
+`AllJavaFeaturesTest`; see the [labeled statements guide](docs/LABELED_STATEMENTS.md).
 
 ### [x] Multi-catch
 

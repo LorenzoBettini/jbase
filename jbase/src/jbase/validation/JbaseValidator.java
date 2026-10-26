@@ -89,6 +89,7 @@ import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJRecordPattern;
@@ -714,6 +715,10 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	private final void checkBranchingStatementInternal(final XJBranchingStatement st,
 			final String errorDetails, final String instruction,
 			final Class<? extends EObject>... validContainers) {
+		if (st.getLabel() != null) {
+			checkLabeledBranchingStatement(st, instruction);
+			return;
+		}
 		var container = st.eContainer();
 		while (container != null) {
 			if (container instanceof XClosure || container instanceof XJAnonymousClassBody) {
@@ -734,6 +739,47 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 		error(instruction + " cannot be used outside of " + errorDetails,
 			st, null, INVALID_BRANCHING_STATEMENT);
+	}
+
+	private void checkLabeledBranchingStatement(final XJBranchingStatement statement,
+			final String instruction) {
+		final var label = findEnclosingLabel(statement, statement.getLabel());
+		if (label == null) {
+			error(instruction + " cannot be used with a non-enclosing label "
+					+ statement.getLabel(), statement, null, INVALID_BRANCHING_STATEMENT);
+			return;
+		}
+		if (statement instanceof XJContinueStatement
+				&& !(label.getStatement() instanceof XAbstractWhileExpression
+					|| label.getStatement() instanceof XBasicForLoopExpression
+					|| label.getStatement() instanceof XForLoopExpression)) {
+			error("continue label must label a loop", statement, null,
+				INVALID_BRANCHING_STATEMENT);
+			return;
+		}
+		for (var container = statement.eContainer(); container != label;
+				container = container.eContainer()) {
+			if (container instanceof XJSwitchExpression expression
+					&& JbaseSwitches.isExpression(expression)) {
+				error("Cannot jump out of a switch expression", statement, null,
+					JbaseIssueCodes.INVALID_SWITCH);
+				return;
+			}
+		}
+	}
+
+	private XJLabeledStatement findEnclosingLabel(final XJBranchingStatement statement,
+			final String name) {
+		for (var container = statement.eContainer(); container != null;
+				container = container.eContainer()) {
+			if (container instanceof XJLabeledStatement label && name.equals(label.getName())) {
+				return label;
+			}
+			if (container instanceof XClosure || container instanceof XJAnonymousClassBody) {
+				return null;
+			}
+		}
+		return null;
 	}
 
 	@Check

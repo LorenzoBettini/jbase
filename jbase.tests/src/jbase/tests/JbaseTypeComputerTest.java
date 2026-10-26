@@ -437,6 +437,11 @@ public class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testLabeledStatement() throws Exception {
+		assertLastExpression("exit: {}", expression -> assertActualType(expression, "void"));
+	}
+
+	@Test
 	public void testClassObject() throws Exception {
 		assertLastExpression("""
 			String.class;
