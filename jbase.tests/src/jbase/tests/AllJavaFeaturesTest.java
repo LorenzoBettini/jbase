@@ -1,7 +1,5 @@
 package jbase.tests;
 
-import static org.junit.Assert.assertTrue;
-
 import com.google.inject.Inject;
 import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
@@ -33,7 +31,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
+			import java.util.function.Function;
 			import java.util.function.Supplier;
+			import jbase.tests.util.SourceAnnotation;
 			import jbase.testlanguage.tests.RecordPatternTypes.Point;
 			import jbase.testlanguage.tests.SealedTypes.Shape;
 			import jbase.testlanguage.tests.SealedTypes.Circle;
@@ -47,6 +47,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 				this.value = prefix;
 				return prefix + parts[0];
 			}
+
+			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
 
 			op sum(final int... values) : int {
 				int total = 0;
@@ -236,6 +238,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			};
 			task.run();
 			IntUnaryOperator identity = (final var n) -> n;
+			@SourceAnnotation final String annotatedValue = "text";
+			List<@SourceAnnotation String> annotatedValues = List.of(annotatedValue);
+			Function<String, Integer> annotatedLength =
+				(@SourceAnnotation var element) -> element.length();
+			for (@SourceAnnotation String annotatedElement : annotatedValues) {
+				System.out.println(annotatedLength.apply(annotatedElement));
+			}
 
 			// Static, bound, unbound, constructor and array constructor references.
 			IntUnaryOperator absolute = Math::abs;
@@ -284,6 +293,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.io.InputStream;
 			import java.util.ArrayList;
 			import java.util.List;
+			import java.util.function.Function;
 			import java.util.function.IntFunction;
 			import java.util.function.IntSupplier;
 			import java.util.function.IntUnaryOperator;
@@ -291,6 +301,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import java.util.function.ToIntFunction;
 			import jbase.testlanguage.tests.RecordPatternTypes;
 			import jbase.testlanguage.tests.SealedTypes;
+			import jbase.tests.util.SourceAnnotation;
 			import org.eclipse.xtext.xbase.lib.Exceptions;
 
 			@SuppressWarnings("all")
@@ -302,6 +313,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			  public String echo(final String prefix, String... parts) {
 			    this.value = prefix;
 			    return (prefix + parts[0]);
+			  }
+
+			  public void annotated(@SourceAnnotation List<@SourceAnnotation String> parameter) {
 			  }
 
 			  public static int sum(final int... values) {
@@ -592,6 +606,15 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      return n;
 			    };
 			    IntUnaryOperator identity = _function_4;
+			    @SourceAnnotation final String annotatedValue = "text";
+			    List<@SourceAnnotation String> annotatedValues = List.<String>of(annotatedValue);
+			    final Function<String, Integer> _function_5 = (@SourceAnnotation String element) -> {
+			      return Integer.valueOf(element.length());
+			    };
+			    Function<String, Integer> annotatedLength = _function_5;
+			    for (@SourceAnnotation String annotatedElement : annotatedValues) {
+			      System.out.println(annotatedLength.apply(annotatedElement));
+			    }
 			    IntUnaryOperator absolute = Math::abs;
 			    IntSupplier textLength = text::length;
 			    ToIntFunction<String> unboundLength = String::length;
@@ -655,37 +678,5 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			  }
 			}
 			""");
-	}
-
-	@Test
-	public void testSourceAnnotations() throws Exception {
-		compilationTestHelper.compile("""
-			import java.util.List;
-			import java.util.function.Function;
-			import jbase.tests.util.SourceAnnotation;
-
-			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
-			@SourceAnnotation final String value = "text";
-			List<@SourceAnnotation String> values = List.of(value);
-			Function<String, Integer> length =
-				(@SourceAnnotation var element) -> element.length();
-			for (@SourceAnnotation String element : values) {
-				System.out.println(length.apply(element));
-			}
-			""", result -> {
-				assertNoValidationErrors(result);
-				final var generated = result.getSingleGeneratedCode();
-				assertTrue(generated, generated.contains(
-					"annotated(@SourceAnnotation List<@SourceAnnotation String> parameter)"));
-				assertTrue(generated, generated.contains(
-					"@SourceAnnotation final String value = \"text\";"));
-				assertTrue(generated, generated.contains(
-					"List<@SourceAnnotation String> values ="));
-				assertTrue(generated, generated.contains(
-					"(@SourceAnnotation String element) ->"));
-				assertTrue(generated, generated.contains(
-					"for (@SourceAnnotation String element : values)"));
-				assertGeneratedJavaCodeCompiles(result);
-			});
 	}
 }
