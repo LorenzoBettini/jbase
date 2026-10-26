@@ -15,7 +15,13 @@ import com.google.inject.Inject;
 
 import jbase.jbase.XJAnonymousClass;
 
-/** Creates local type skeletons; the host language supplies the member inference. */
+/**
+ * Creates JVM model types for anonymous classes.
+ *
+ * <p>Xbase does not infer a local JVM type for Jbase's anonymous-class expression. The
+ * skeleton created here lets linking and generation treat the class body as a real type,
+ * while the host language's inferrer remains responsible for its members.
+ */
 public class JbaseAnonymousClassInferrer {
 	@Inject
 	private IJvmModelAssociator associator;
@@ -44,6 +50,8 @@ public class JbaseAnonymousClassInferrer {
 				container.getLocalClasses().add(type);
 				associator.associatePrimary(anonymous, type);
 				initializeMembers.accept(anonymous, type);
+				// The class body belongs to the new local type, but its constructor arguments
+				// are evaluated in the enclosing feature and may contain nested anonymous classes.
 				for (final var argument : anonymous.getConstructorCall().getArguments()) {
 					associator.associateLogicalContainer(argument, container);
 					inferLocalClasses(container, argument, initializeMembers);

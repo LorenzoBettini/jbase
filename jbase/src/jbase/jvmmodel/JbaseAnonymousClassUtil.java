@@ -28,6 +28,12 @@ import com.google.inject.Inject;
 import jbase.jbase.XJAnonymousClass;
 
 /**
+ * Resolves the declared base type of Jbase anonymous classes.
+ *
+ * <p>The same lookup is needed before constructor linking during type inference and after
+ * linking during code generation and serialization; keeping it here avoids those phases
+ * deriving the base type differently.
+ * 
  * Inspired by org.eclipse.xtend.core.jvmmodel.AnonymousClassUtil
  */
 public class JbaseAnonymousClassUtil {
@@ -50,8 +56,11 @@ public class JbaseAnonymousClassUtil {
 		IEObjectDescription description = null;
 		if (constructor != null) {
 			if (!constructor.eIsProxy()) {
+				// A linked constructor already identifies its declaring type's base type.
 				return getSuperType(anonymousClass);
 			}
+			// Read the written type name from the constructor cross-reference without resolving
+			// the constructor: resolving it here would re-enter the inference that needs this type.
 			final var fragment = EcoreUtil.getURI(constructor).fragment();
 			final var node = uriEncoder.getNode(call, fragment);
 			final var name = linkingHelper.getCrossRefNodeAsString(node, true);
@@ -60,6 +69,7 @@ public class JbaseAnonymousClassUtil {
 		}
 		if (description == null || !EcoreUtil2.isAssignableFrom(
 				TypesPackage.Literals.JVM_DECLARED_TYPE, description.getEClass())) {
+			// An unresolved or invalid base type still gives the anonymous type Java's Object base.
 			description = typeScope.getSingleElement(QualifiedName.create("java", "lang", "Object"));
 		}
 		if (description != null && EcoreUtil2.isAssignableFrom(

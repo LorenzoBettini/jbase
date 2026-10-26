@@ -24,7 +24,13 @@ import com.google.inject.Inject;
 import jbase.jbase.XJAnonymousClass;
 
 /**
- * @author Sebastian Zarnekow - Initial contribution and API
+ * Supplies constructor scopes for anonymous classes.
+ *
+ * <p>The constructor call in an anonymous expression also determines the synthetic type's
+ * base class. Its body needs the anonymous-class-specific {@code this} and {@code super}
+ * scope, rather than the ordinary constructor-call scope.
+ * 
+ * Inspired by org.eclipse.xtend.core.scoping.AnonymousClassConstructorScopes
  */
 public class JbaseAnonymousClassConstructorScopes extends ConstructorScopes {
 
@@ -37,6 +43,7 @@ public class JbaseAnonymousClassConstructorScopes extends ConstructorScopes {
 		if (context instanceof XConstructorCall) {
 			final var container = context.eContainer();
 			if (container instanceof XJAnonymousClass) {
+				// The inferred JVM type supplies this/super for the anonymous class body.
 				final var inferredType = Iterables.getFirst(Iterables.filter( // NOSONAR wrong interpretation of the nullability
 					associations.getJvmElements(container), JvmGenericType.class), null);
 				if (inferredType != null) { // NOSONAR wrong interpretation of the nullability

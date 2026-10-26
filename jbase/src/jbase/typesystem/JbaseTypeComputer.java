@@ -91,6 +91,8 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		final var state = patternVariables.enterScope(expression, originalState);
 		switch (expression) {
 			case XJConstructorCall call when call.eContainer() instanceof XJAnonymousClass ->
+				// Infer constructor type arguments against the declared base constructor rather
+				// than the synthetic anonymous type's copied parameters.
 				super._computeTypes(call, new JbaseAnonymousClassState(call,
 					(AbstractTypeComputationState) state));
 			case XJAnonymousClass anonymous -> {

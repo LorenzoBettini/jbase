@@ -19,6 +19,12 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jvmmodel.JbaseAnonymousClassUtil;
 
 /**
+ * Restores the correct constructor scope when serializing anonymous classes.
+ *
+ * <p>The anonymous class is represented by a synthetic JVM type, but the source constructor
+ * call names the constructor of its base type. Serialization therefore needs the same
+ * anonymous-class-specific scope used when the call was originally linked.
+ * 
  * Inspired by org.eclipse.xtend.core.serializer.XtendSerializerScopeProvider
  */
 public class JbaseSerializerScopeProvider extends SerializerScopeProvider {
@@ -32,6 +38,7 @@ public class JbaseSerializerScopeProvider extends SerializerScopeProvider {
 			final XJAnonymousClass anonymousClass = (XJAnonymousClass) context.eContainer();
 			final JvmType superType = anonymousClassUtil.getSuperType(anonymousClass);
 			if(superType != null) {
+				// Serialize against the source base type, not the inferred synthetic subclass.
 				return createAnonymousClassConstructorScope(context, superType);
 			}
 		}

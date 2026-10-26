@@ -18,7 +18,13 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jvmmodel.JbaseAnonymousClassUtil;
 import jbase.typesystem.JbaseSealedTypeResolver;
 
-/** Applies the JVM inheritance and member checks only to Jbase anonymous types. */
+/**
+ * Applies JVM inheritance and member checks to Jbase anonymous types.
+ *
+ * <p>Anonymous classes are inferred local JVM types, not declared source types, so the
+ * ordinary declared-type validation pass does not check them. This validator finds their
+ * associations and runs the applicable JVM checks together with Java-specific restrictions.
+ */
 public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 	@Inject
 	private IJvmModelAssociations associations;
@@ -36,6 +42,7 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 		if (object.eResource().getContents().getFirst() != object) {
 			return;
 		}
+		// Visit from the resource root so each inferred anonymous type is validated once.
 		final var processed = new HashSet<EObject>();
 		for (final var anonymous : EcoreUtil2.getAllContentsOfType(object, XJAnonymousClass.class)) {
 			for (final var inferred : associations.getJvmElements(anonymous)) {
@@ -49,6 +56,8 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 	@Override
 	protected void checkDuplicateAndOverriddenFunctions(final EObject source,
 			final JvmGenericType type) {
+		// The source is an anonymous-class expression; use its instantiated base type when
+		// resolving inherited operations for duplicate and override checks.
 		final var actual = typeResolver.resolveTypes(source)
 			.getActualType((XJAnonymousClass) source);
 		final var features = overrides.getResolvedFeatures(actual,
@@ -70,6 +79,7 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 				IssueCodes.INVALID_USE_OF_TYPE);
 		}
 		if (call.isExplicitTypeArguments() && call.getTypeArguments().isEmpty()) {
+			// Java's diamond form permits only members that override or implement a base method.
 			for (final var operation : overrides.getResolvedFeatures(resolved).getDeclaredOperations()) {
 				if (operation.getDeclaration().getVisibility()
 						!= JvmVisibility.PRIVATE
