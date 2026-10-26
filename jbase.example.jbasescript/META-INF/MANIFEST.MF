@@ -29,5 +29,6 @@ Export-Package: jbase.example.jbasescript,
  jbase.example.jbasescript.validation,
  jbase.example.jbasescript.formatting,
  jbase.example.jbasescript.jvmmodel,
- jbase.example.jbasescript.scoping
+ jbase.example.jbasescript.scoping,
+ jbase.example.jbasescript.formatting2
 Automatic-Module-Name: jbase.example.jbasescript
