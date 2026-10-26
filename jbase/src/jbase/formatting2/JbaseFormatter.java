@@ -43,6 +43,7 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys;
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE;
@@ -71,6 +72,18 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 	protected void _format(final XJJvmFormalParameter param,
 			final IFormattableDocument document) {
 		super._format(param, document);
+		formatSourceAnnotations(param.getSourceAnnotations(), document);
+		if (!param.getSourceAnnotations().isEmpty()) {
+			if (param.isFinal()) {
+				document.prepend(regionFor(param)
+						.feature(JbasePackage.eINSTANCE.getXJJvmFormalParameter_Final()),
+						this::oneSpace);
+			} else if (param.isVar()) {
+				document.prepend(regionFor(param).keyword("var"), this::oneSpace);
+			} else {
+				document.prepend(param.getParameterType(), this::oneSpace);
+			}
+		}
 		document.append(regionFor(param).keyword("var"), this::oneSpace);
 		document.append(regionFor(param)
 				.feature(JbasePackage.eINSTANCE.getXJJvmFormalParameter_Final()), this::oneSpace);
@@ -78,6 +91,16 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 
 	protected void _format(final XJVariableDeclaration expr,
 			final IFormattableDocument document) {
+		formatSourceAnnotations(expr.getSourceAnnotations(), document);
+		if (!expr.getSourceAnnotations().isEmpty()) {
+			if (expr.isFinal()) {
+				document.prepend(regionFor(expr).keyword(FINAL), this::oneSpace);
+			} else if (expr.getType() == null) {
+				document.prepend(regionFor(expr).keyword("var"), this::oneSpace);
+			} else {
+				document.prepend(expr.getType(), this::oneSpace);
+			}
+		}
 		document.append(regionFor(expr).keyword(FINAL), this::oneSpace);
 		document.append(regionFor(expr).keyword("var"), this::oneSpace);
 		document.append(expr.getType(), this::oneSpace);
@@ -90,6 +113,13 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 			document.append(document.prepend(immediatelyPreceding(additionalVariable).keyword(","),
 					this::noSpace), this::oneSpace);
 			document.surround(regionFor(additionalVariable).keyword("="), this::oneSpace);
+		}
+	}
+
+	private void formatSourceAnnotations(final Iterable<XAnnotation> annotations,
+			final IFormattableDocument document) {
+		for (final var annotation : annotations) {
+			format(annotation, document);
 		}
 	}
 

@@ -3,6 +3,7 @@
  */
 package jbase.compiler;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
@@ -13,6 +14,7 @@ import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmOperation;
+import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.TypesPackage;
@@ -27,6 +29,7 @@ import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
+import org.eclipse.xtext.xbase.XCatchClause;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
@@ -41,6 +44,7 @@ import org.eclipse.xtext.xbase.XTryCatchFinallyExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
+import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
 import org.eclipse.xtext.xbase.compiler.FeatureCallCompiler;
 import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
 import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
@@ -69,6 +73,7 @@ import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJComponentPattern;
 import jbase.jbase.XJConditionalExpression;
+import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJLabeledStatement;
@@ -520,18 +525,20 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected LightweightTypeReference appendVariableTypeAndName(
 			final XVariableDeclaration varDeclaration, final ITreeAppendable appendable) {
-		if (varDeclaration.getType() == null) {
-			final var type = getLightweightType(varDeclaration.getRight());
-			final var tracedAppendable = appendable.trace(varDeclaration);
-			final var customDeclaration = (XJVariableDeclaration) varDeclaration;
-			if (customDeclaration.isFinal()) {
-				tracedAppendable.append(FINAL_MODIFIER);
+		if (varDeclaration instanceof XJVariableDeclaration customDeclaration) {
+			appendSourceAnnotations(customDeclaration.getSourceAnnotations(), appendable);
+			if (varDeclaration.getType() == null) {
+				final var type = getLightweightType(varDeclaration.getRight());
+				final var tracedAppendable = appendable.trace(varDeclaration);
+				if (customDeclaration.isFinal()) {
+					tracedAppendable.append(FINAL_MODIFIER);
+				}
+				tracedAppendable.append("var ");
+				final var name = tracedAppendable.declareVariable(varDeclaration,
+					makeJavaIdentifier(varDeclaration.getName()));
+				tracedAppendable.append(name);
+				return type;
 			}
-			tracedAppendable.append("var ");
-			final var name = tracedAppendable.declareVariable(varDeclaration,
-				makeJavaIdentifier(varDeclaration.getName()));
-			tracedAppendable.append(name);
-			return type;
 		}
 		return super.appendVariableTypeAndName(varDeclaration, appendable);
 	}
@@ -599,6 +606,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			// assuming that no dimension expression has been specified
 			// (checked by the validator)
 			b.append("new ");
+			appendSourceAnnotations(call.getSourceAnnotations(), b);
 			b.append(call.getType());
 		}
 		compileArrayAccess(call, b);
@@ -1205,8 +1213,13 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			internalToJavaExpression(arrayLiteral, b);
 		} else {
 			Iterable<XExpression> dimensionsAndIndexes = modelUtil.arrayDimensionIndexAssociations(cons);
-			
+			final var dimensions = cons.getDimensions().iterator();
 			for (XExpression e : dimensionsAndIndexes) {
+				final var dimension = dimensions.next();
+				if (!dimension.getSourceAnnotations().isEmpty()) {
+					b.append(" ");
+				}
+				appendSourceAnnotations(dimension.getSourceAnnotations(), b);
 				b.append("[");
 				if (e != null) {
 					internalToJavaExpression(e, b);
@@ -1216,12 +1229,133 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 	}
 
+	@Override
+	protected void appendConstructedTypeName(final XConstructorCall call,
+			final ITreeAppendable appendable) {
+		appendSourceAnnotations(((XJConstructorCall) call).getSourceAnnotations(), appendable);
+		super.appendConstructedTypeName(call, appendable);
+	}
+
+	@Override
+	protected void appendCatchClauseParameter(final XCatchClause clause,
+			final JvmTypeReference parameterType, final String parameterName,
+			final ITreeAppendable appendable) {
+		appendSourceAnnotations(
+			((XJJvmFormalParameter) clause.getDeclaredParam()).getSourceAnnotations(), appendable);
+		super.appendCatchClauseParameter(clause, parameterType, parameterName, appendable);
+	}
+
+	@Override
+	protected void appendCatchClause(final XCatchClause clause,
+			final boolean ignoredParentIsReferenced,
+			final String parentVariable, final ITreeAppendable appendable) {
+		final var parameter = clause.getDeclaredParam();
+		final var sourceParameter = (XJJvmFormalParameter) parameter;
+		if (sourceParameter.getSourceAnnotations().isEmpty()
+				|| !XbaseUsageCrossReferencer.find(parameter, clause.getExpression()).isEmpty()) {
+			super.appendCatchClause(clause, ignoredParentIsReferenced, parentVariable, appendable);
+			return;
+		}
+
+		final var type = parameter.getParameterType();
+		final var name = appendable.declareVariable(parameter, makeJavaIdentifier(parameter.getName()));
+		appendable.append("if (");
+		var typeToUse = type;
+		if (type instanceof JvmSynonymTypeReference synonym) {
+			final var references = synonym.getReferences();
+			for (var index = 0; index < references.size(); index++) {
+				if (index > 0) {
+					appendable.append(" || ");
+				}
+				appendable.append(parentVariable).append(" instanceof ");
+				serialize(references.get(index), clause, appendable);
+			}
+			typeToUse = resolveSynonymType(synonym, clause);
+		} else {
+			appendable.append(parentVariable).append(" instanceof ");
+			serialize(type, clause, appendable);
+		}
+		appendable.append(") {");
+		appendable.increaseIndentation();
+		final var withDebugging = appendable.trace(clause, true);
+		final var parameterAppendable = withDebugging.trace(parameter);
+		appendCatchClauseParameter(clause, typeToUse, name, parameterAppendable.newLine());
+		withDebugging.append(" = (");
+		serialize(typeToUse, clause, withDebugging);
+		withDebugging.append(")").append(parentVariable).append(";");
+		internalToJavaStatement(clause.getExpression(), withDebugging, false);
+		closeBlock(appendable);
+	}
+
+	@Override
+	protected ITreeAppendable toLambda(final XClosure closure, final ITreeAppendable appendable,
+			final LightweightTypeReference type, final JvmOperation operation,
+			final boolean isReferenced) {
+		if (isReferenced) {
+			appendable.append("((").append(type).append(")");
+		}
+		appendable.openPseudoScope();
+		appendable.append("(");
+		final var parameters = closure.getFormalParameters();
+		final var declaredParameters = closure.getDeclaredFormalParameters();
+		final var isVarArgs = operation.isVarArgs();
+		try {
+			for (var index = 0; index < parameters.size(); index++) {
+				final var parameter = parameters.get(index);
+				final var parameterType = getClosureOperationParameterType(type, operation, index);
+				final var isLastVarArgsParameter = isVarArgs
+					&& index == parameters.size() - 1;
+				final var sourceParameter =
+					(XJJvmFormalParameter) declaredParameters.get(index);
+				appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
+				if (sourceParameter.getParameterType() != null) {
+					serialize(sourceParameter.getParameterType(), sourceParameter, appendable);
+				} else {
+					appendable.append(isLastVarArgsParameter
+						? parameterType.getComponentType() : parameterType);
+				}
+				if (isLastVarArgsParameter && sourceParameter.getParameterType() == null) {
+					appendable.append("...");
+				}
+				appendable.append(" ");
+				final var name = makeJavaIdentifier(parameter.getName());
+				final var varName = appendable.declareUniqueNameVariable(parameter, name);
+				appendable.append(varName);
+				if (index < parameters.size() - 1) {
+					appendable.append(",");
+				}
+			}
+			appendable.append(") -> {");
+			appendable.increaseIndentation();
+			final var returnType = getClosureOperationReturnType(type, operation);
+			compile(closure.getExpression(), appendable, returnType,
+				new HashSet<>(operation.getExceptions()));
+			closeBlock(appendable);
+		} finally {
+			appendable.closeScope();
+		}
+		if (isReferenced) {
+			appendable.append(")");
+		}
+		return appendable;
+	}
+
+	void appendSourceAnnotations(final Iterable<XAnnotation> annotations,
+			final ITreeAppendable appendable) {
+		for (final var annotation : annotations) {
+			_toJavaExpression(annotation, appendable);
+			appendable.append(" ");
+		}
+	}
+
 	/**
 	 * Overridden because our parameters, like in Java, can be final or non final by default 
 	 */
 	@Override
 	protected void appendForLoopParameter(XForLoopExpression expr, ITreeAppendable appendable) {
 		JvmFormalParameter declaredParam = expr.getDeclaredParam();
+		appendSourceAnnotations(((XJJvmFormalParameter) declaredParam).getSourceAnnotations(),
+			appendable);
 		if (((XJJvmFormalParameter) declaredParam).isFinal()) {
 			appendable.append(FINAL_MODIFIER);
 		}
