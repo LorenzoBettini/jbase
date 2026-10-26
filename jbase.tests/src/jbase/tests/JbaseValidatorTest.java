@@ -73,6 +73,21 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testQualifiedInnerCreationRejectsInvalidTypes() throws Exception {
+		final var parsed = parseHelper.parse("""
+			import jbase.tests.util.QualifiedInnerFixtures.Outer;
+			Outer outer = new Outer();
+			int number = 1;
+			outer.new MissingInner();
+			number.new Inner();
+			outer.new StaticNested();
+			outer.new Marker();
+			""");
+		assertTrue(validationTestHelper.validate(parsed).stream()
+			.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+	}
+
+	@Test
 	public void testTypeMismatchInArrayDimensionExpression() throws Exception {
 		final var expression = parseHelper.parse("""
 			{

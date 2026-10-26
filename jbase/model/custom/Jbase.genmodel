@@ -78,6 +78,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJWithSemicolon/semicolon"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJConstructorCall">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJConstructorCall/qualifier"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJConstructorCall/constructorTypeArguments"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJConstructorCall/explicitTypeArguments"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJConstructorCall/sourceAnnotations"/>
     </genClasses>
