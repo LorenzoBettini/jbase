@@ -16,12 +16,24 @@ import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Tests Java generation and continue-target resolution for labeled statements.
+ */
 @RunWith(XtextRunner.class)
 @InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
 public class JbaseLabeledStatementCompilerTest extends JbaseAbstractCompilerTest {
 
+	/**
+	 * Exposes the compiler's protected continue-target resolver to focused tests.
+	 */
 	public static class CompilerWithContinueTargetAccess extends JbaseXbaseCompiler {
 
+		/**
+		 * Resolves the loop updated by the given continue, if it is a basic-for target.
+		 *
+		 * @param statement the continue statement to resolve
+		 * @return the targeted basic-for loop, or {@code null} otherwise
+		 */
 		public XBasicForLoopExpression continueTarget(final XJContinueStatement statement) {
 			return getContinueTarget(statement);
 		}

@@ -745,6 +745,12 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			st, null, INVALID_BRANCHING_STATEMENT);
 	}
 
+	/**
+	 * Checks that a labeled branch resolves to an enclosing label and obeys Java's jump rules.
+	 *
+	 * @param statement the labeled {@code break} or {@code continue}
+	 * @param instruction the branch keyword used in diagnostics
+	 */
 	private void checkLabeledBranchingStatement(final XJBranchingStatement statement,
 			final String instruction) {
 		final var label = findEnclosingLabel(statement, statement.getLabel());
@@ -761,6 +767,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 				INVALID_BRANCHING_STATEMENT);
 			return;
 		}
+		// A branch cannot leave a switch expression, even when its label encloses that switch.
 		for (var container = statement.eContainer(); container != label;
 				container = container.eContainer()) {
 			if (container instanceof XJSwitchExpression expression
@@ -772,6 +779,13 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		}
 	}
 
+	/**
+	 * Finds the matching label without searching across lambda or anonymous-class boundaries.
+	 *
+	 * @param statement the branch whose enclosing labels are searched
+	 * @param name the requested label name
+	 * @return the nearest matching enclosing label, or {@code null} if none is visible
+	 */
 	private XJLabeledStatement findEnclosingLabel(final XJBranchingStatement statement,
 			final String name) {
 		for (var container = statement.eContainer(); container != null;

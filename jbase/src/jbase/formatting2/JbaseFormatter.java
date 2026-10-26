@@ -116,6 +116,12 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 		}
 	}
 
+	/**
+	 * Formats source annotations before the declaration while preserving their normal formatting.
+	 *
+	 * @param annotations the annotations attached to the source declaration
+	 * @param document the document receiving formatting constraints
+	 */
 	private void formatSourceAnnotations(final Iterable<XAnnotation> annotations,
 			final IFormattableDocument document) {
 		for (final var annotation : annotations) {
@@ -190,6 +196,13 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 		formatBranchingStatement(expr, document, "continue");
 	}
 
+	/**
+	 * Formats a branch keyword and its optional label with Java's required spacing.
+	 *
+	 * @param expression the branch statement to format
+	 * @param document the document receiving formatting constraints
+	 * @param keyword the {@code break} or {@code continue} keyword
+	 */
 	private void formatBranchingStatement(final XJBranchingStatement expression,
 			final IFormattableDocument document, final String keyword) {
 		document.append(regionFor(expression).keyword(keyword),
@@ -201,6 +214,12 @@ public class JbaseFormatter extends XbasePatchedFormatter {
 		}
 	}
 
+	/**
+	 * Formats the label and colon before formatting the statement it labels.
+	 *
+	 * @param expr the labeled statement to format
+	 * @param document the document receiving formatting constraints
+	 */
 	protected void _format(final XJLabeledStatement expr, final IFormattableDocument document) {
 		document.append(regionFor(expr).feature(
 				jbase.jbase.JbasePackage.Literals.XJ_LABELED_STATEMENT__NAME), this::noSpace);
