@@ -53,7 +53,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 	private JbaseGrammarAccess grammarAccess;
 
 	@Test
-	public void unicodeParserSupportsAllEntryPointsAndReparsing() throws Exception {
+	public void unicodeParserSupportsAllEntryPointsAndReparsing() {
 		final var expression = "v\\u0061lue + 1";
 		final ParserRule parserRule = grammarAccess.getXExpressionRule();
 		final var parseResult = parser.parse(new StringReader(expression));

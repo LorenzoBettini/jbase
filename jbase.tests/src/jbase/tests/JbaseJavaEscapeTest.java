@@ -180,7 +180,7 @@ public class JbaseJavaEscapeTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
-	public void everyParserEntryPointTranslatesAndReparsesOriginalSource() throws Exception {
+	public void everyParserEntryPointTranslatesAndReparsesOriginalSource() {
 		final var source = "int v\\u0061lue = 1;";
 		final var rule = grammarAccess.getGrammar().getRules().stream()
 				.filter(ParserRule.class::isInstance)
@@ -215,6 +215,7 @@ public class JbaseJavaEscapeTest extends JbaseAbstractCompilerTest {
 
 			@Override
 			public void close() {
+				// no-op
 			}
 		};
 		assertThrows(RuntimeException.class, () -> parser.parse(failingReader));
