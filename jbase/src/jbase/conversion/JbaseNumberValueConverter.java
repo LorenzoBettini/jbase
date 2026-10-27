@@ -12,7 +12,7 @@ public class JbaseNumberValueConverter extends AbstractValueConverter<String> {
 	/**
 	 * Converts Java binary, octal, and hexadecimal integer literals to Xbase model spelling.
 	 * Separators are removed for radix conversion, and Java long suffixes become
-	 * {@code #L}. Decimal literals and existing Xbase notation retain their source spelling.
+	 * {@code #L}. Decimal and hexadecimal floating-point literals retain their source spelling.
 	 *
 	 * @param string the complete numeric token
 	 * @param node the source node to associate with a conversion error
@@ -22,6 +22,9 @@ public class JbaseNumberValueConverter extends AbstractValueConverter<String> {
 	@Override
 	public String toValue(final String string, final INode node) {
 		final var value = string.replace("_", "");
+		if (isHexadecimalFloatingPoint(value)) {
+			return string;
+		}
 		final var radix = radix(value);
 		if (radix == 10) {
 			return string;
@@ -47,6 +50,11 @@ public class JbaseNumberValueConverter extends AbstractValueConverter<String> {
 			return 16;
 		}
 		return value.matches("0\\d+[lL]?") ? 8 : 10;
+	}
+
+	private boolean isHexadecimalFloatingPoint(final String value) {
+		return (value.startsWith("0x") || value.startsWith("0X"))
+			&& (value.contains("p") || value.contains("P"));
 	}
 
 	/**

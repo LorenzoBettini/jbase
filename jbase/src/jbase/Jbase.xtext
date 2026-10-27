@@ -757,13 +757,35 @@ XAnnotationElementValue returns XExpression :
 ValidID:
 	ID | 'var' | 'when' | 'yield';
 
-// Java radix prefixes and suffixes; Number retains Xbase's decimal/floating rules.
+// Java radix prefixes and suffixes; retain Xbase's decimal integer and exponent forms.
 @Override
 Number hidden():
-	BINARY | HEX | (INT | DECIMAL) ('.' (INT | DECIMAL))?;
+	BINARY | HEX_FLOAT | DECIMAL_FLOAT | HEX | INT | DECIMAL;
 
 terminal BINARY:
 	('0b' | '0B') ('0' | '1') ('_'* ('0' | '1'))* ('l' | 'L')?;
+
+terminal DECIMAL_FLOAT:
+	(
+		('0'..'9') ('_'* ('0'..'9'))* '.'
+			(('0'..'9') ('_'* ('0'..'9'))*)?
+		| '.' ('0'..'9') ('_'* ('0'..'9'))*
+	)
+	(('e' | 'E') ('+' | '-')? ('0'..'9') ('_'* ('0'..'9'))*)?
+	(('b' | 'B') ('i' | 'I' | 'd' | 'D') | 'l' | 'L' | 'd' | 'D' | 'f' | 'F')?;
+
+terminal HEX_FLOAT:
+	('0x' | '0X')
+	(
+		('0'..'9' | 'a'..'f' | 'A'..'F') ('_'* ('0'..'9' | 'a'..'f' | 'A'..'F'))*
+		('.' (('0'..'9' | 'a'..'f' | 'A'..'F')
+			('_'* ('0'..'9' | 'a'..'f' | 'A'..'F'))*)?
+		)?
+		| '.' ('0'..'9' | 'a'..'f' | 'A'..'F')
+			('_'* ('0'..'9' | 'a'..'f' | 'A'..'F'))*
+	)
+	('p' | 'P') ('+' | '-')? ('0'..'9') ('_'* ('0'..'9'))*
+	('f' | 'F' | 'd' | 'D')?;
 
 @Override
 terminal HEX:
