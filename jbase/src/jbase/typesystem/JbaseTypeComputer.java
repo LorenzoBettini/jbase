@@ -287,12 +287,9 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			final ITypeComputationState state) {
 		var linkingState = state;
 		if (featureCall instanceof XBinaryOperation operation
-				&& (operation.getLeftOperand() instanceof XJArrayAccessExpression
-					|| JbaseOperatorMapping.SHIFT_ASSIGNMENTS.contains(
-						operation.getConcreteSyntaxFeatureName()))
 				&& services.getOperatorMapping().getCompoundOperators()
 					.contains(QualifiedName.create(operation.getConcreteSyntaxFeatureName()))) {
-			// Retain the lvalue's type and index types before numeric operator promotion.
+			// Retain the lvalue's type before numeric operator promotion.
 			state.withNonVoidExpectation().computeTypes(operation.getLeftOperand());
 			linkingState = new JbaseCompoundAssignmentState(operation,
 				(AbstractTypeComputationState) state);
