@@ -3,7 +3,6 @@ package jbase.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -19,10 +18,10 @@ import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.conversion.ValueConverterException;
 import org.eclipse.xtext.parser.IParser;
 import org.eclipse.xtext.serializer.ISerializer;
-import org.eclipse.xtext.util.ReplaceRegion;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.util.ReplaceRegion;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.junit.Test;
@@ -34,8 +33,8 @@ import jbase.conversion.JavaUnicodeEscapeTranslator;
 import jbase.conversion.JbaseCharacterValueConverter;
 import jbase.conversion.JbaseIdentifierValueConverter;
 import jbase.conversion.JbaseStringValueConverter;
-import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 import jbase.jbase.XJCharLiteral;
+import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 
 @RunWith(XtextRunner.class)
 @InjectWith(Java21JbaseTestlanguageInjectorProvider.class)
