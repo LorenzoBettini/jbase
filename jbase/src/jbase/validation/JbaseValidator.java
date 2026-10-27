@@ -657,6 +657,16 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			return;
 		}
 		if (expression instanceof XAbstractFeatureCall call
+				&& call.getFeature() instanceof XVariableDeclaration variable
+				&& isBlankFinalLocal(variable)) {
+			var writes = XbaseUsageCrossReferencer.find(variable,
+					EcoreUtil.getRootContainer(expression)).stream()
+				.map(Setting::getEObject).filter(this::isLocalWrite).toList();
+			if (isEffectivelyFinal(variable, writes)) {
+				return;
+			}
+		}
+		if (expression instanceof XAbstractFeatureCall call
 				&& call.getFeature() instanceof JvmFormalParameter parameter) {
 			if (checkPatternVariableAssignment(parameter, expression, feature)) {
 				return;
@@ -916,6 +926,25 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			default -> throw new IllegalArgumentException("Unsupported try-with-resources entry: "
 				+ resource.eClass().getName());
 		};
+	}
+
+	@Override
+	@Check
+	public void checkVariableDeclaration(final XVariableDeclaration declaration) {
+		if (isBlankFinalLocal(declaration)) {
+			return;
+		}
+		super.checkVariableDeclaration(declaration);
+	}
+
+	private boolean isBlankFinalLocal(final XVariableDeclaration variable) {
+		if (variable.getRight() != null) {
+			return false;
+		}
+		if (variable instanceof XJAdditionalXVariableDeclaration) {
+			return !variable.isWriteable();
+		}
+		return variable instanceof XJVariableDeclaration declaration && declaration.isFinal();
 	}
 
 	@Check

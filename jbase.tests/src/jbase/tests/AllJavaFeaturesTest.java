@@ -64,6 +64,12 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Primitive types, literals, declarations, assignments and operators.
 			final boolean enabled = true;
+			final int blankFinal;
+			blankFinal = 1;
+			System.out.println(blankFinal);
+			final int initializedFinal = 0, blankFinalAdditional;
+			blankFinalAdditional = 2;
+			System.out.println(blankFinalAdditional);
 			assert enabled;
 			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
@@ -351,6 +357,13 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			  public static void main(String[] args) throws Throwable {
 			    final boolean enabled = true;
+			    final int blankFinal;
+			    blankFinal = 1;
+			    System.out.println(blankFinal);
+			    final int initializedFinal = 0;
+			    final int blankFinalAdditional;
+			    blankFinalAdditional = 2;
+			    System.out.println(blankFinalAdditional);
 			    assert enabled;
 			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);

@@ -1128,15 +1128,15 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	/**
-	 * Preserves blank locals used under closure nodes before delegating normal generation.
-	 * For {@code int n; n = 2; IntSupplier f = () -> n;}, a synthesized {@code n = 0}
-	 * initializer would make the real assignment a reassignment and invalidate the capture
-	 * in generated Java. The validator independently checks initialization and capture legality.
+	 * Preserves blank locals that cannot receive a synthetic initializer. Final locals must
+	 * remain blank so their permitted assignment stays their first Java assignment; captured
+	 * locals need the same treatment to preserve effective-final semantics.
 	 */
 	@Override
 	protected void _toJavaStatement(XVariableDeclaration varDeclaration,
 			ITreeAppendable b, boolean isReferenced) {
-		if (varDeclaration.getRight() == null && isCapturedLocal(varDeclaration)) {
+		if (varDeclaration.getRight() == null
+				&& (isBlankFinalLocal(varDeclaration) || isCapturedLocal(varDeclaration))) {
 			// A synthetic initializer would make the subsequent Java assignment
 			// a reassignment, preventing capture of an effectively final local.
 			b.newLine();
@@ -1158,6 +1158,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * reference subtype. This syntactic query controls preservation of a blank declaration;
 	 * JbaseValidator decides whether a use is an actual capture and is effectively final.
 	 */
+	private boolean isBlankFinalLocal(final XVariableDeclaration variable) {
+		return !variable.isWriteable();
+	}
+
 	private boolean isCapturedLocal(final XVariableDeclaration variable) {
 		return XbaseUsageCrossReferencer.find(variable, EcoreUtil.getRootContainer(variable))
 			.stream().anyMatch(reference -> {
