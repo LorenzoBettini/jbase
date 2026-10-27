@@ -738,7 +738,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	@Test
 	public void testUnusedField() throws Exception {
 		assertIssuesAsStrings(parseHelper.parse("""
-			i : int
+			property i : int
 			method move() : void {
 				i = 0;
 			}
@@ -1767,8 +1767,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		parseAndAssertNoErrors("""
 			import com.google.inject.Inject;
 
-			@Inject
-			o : Object
+			property @Inject o : Object
 
 			method @Inject m() {
 				return null;
@@ -1781,8 +1780,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertError(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation;
 
-			@ExampleAnnotation
-			o : Object
+			property @ExampleAnnotation o : Object
 			"""), XAnnotationsPackage.eINSTANCE.getXAnnotation(),
 				IssueCodes.ANNOTATIONS_MISSING_ATTRIBUTE_DEFINITION,
 				"The annotation must define the attribute 'value'");
@@ -1793,8 +1791,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		assertTypeMismatch(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation;
 
-			@ExampleAnnotation(value = "foo")
-			o : Object
+			property @ExampleAnnotation(value = "foo") o : Object
 			"""), XbasePackage.eINSTANCE.getXStringLiteral(), "Class<? extends ScenarioProcessor>",
 				"String");
 	}
@@ -1804,8 +1801,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertError(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation2;
 
-			@ExampleAnnotation2(value = Integer.parseInt("0"))
-			o : Object
+			property @ExampleAnnotation2(value = Integer.parseInt("0")) o : Object
 			"""), XbasePackage.eINSTANCE.getXMemberFeatureCall(),
 				IssueCodes.ANNOTATIONS_ILLEGAL_ATTRIBUTE,
 				"The value for an annotation attribute must be a constant expression");
@@ -1817,8 +1813,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 			import jbase.tests.util.ExampleAnnotation;
 			import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 
-			@ExampleAnnotation(value = TypeSystemSmokeTester)
-			o : Object
+			property @ExampleAnnotation(value = TypeSystemSmokeTester) o : Object
 			"""), XbasePackage.eINSTANCE.getXFeatureCall(),
 				IssueCodes.ANNOTATIONS_ILLEGAL_ATTRIBUTE,
 				"The value for an annotation attribute must be a constant expression");
@@ -1830,8 +1825,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 			import jbase.tests.util.ExampleAnnotation;
 			import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 
-			@ExampleAnnotation(value = TypeSystemSmokeTester.class)
-			o : Object
+			property @ExampleAnnotation(value = TypeSystemSmokeTester.class) o : Object
 			"""));
 	}
 
@@ -1840,8 +1834,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertNoErrors(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(value = String.class)
-			o : Object
+			property @ExampleAnnotation3(value = String.class) o : Object
 			"""));
 	}
 
@@ -1851,8 +1844,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertNoErrors(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(value = {String.class, Integer.class})
-			o : Object
+			property @ExampleAnnotation3(value = {String.class, Integer.class}) o : Object
 			"""));
 	}
 
@@ -1861,8 +1853,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertNoErrors(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(String.class)
-			o : Object
+			property @ExampleAnnotation3(String.class) o : Object
 			"""));
 	}
 
@@ -1871,8 +1862,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 		validationTestHelper.assertNoErrors(parseHelper.parse("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3({String.class, Integer.class})
-			o : Object
+			property @ExampleAnnotation3({String.class, Integer.class}) o : Object
 			"""));
 	}
 

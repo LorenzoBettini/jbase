@@ -122,7 +122,7 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	@Test
 	public void testAnonymousClasses() throws Exception {
 		assertSerialize("""
-			var value = new Object() { n: int method get(): int { return n; } };
+			var value = new Object() { property n: int method get(): int { return n; } };
 			Runnable task = new Runnable() { method run(): void {} };
 			Object empty = new Object() {};
 			""");
@@ -213,7 +213,7 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 
 	@Test
 	public void testAnonymousClassesWithoutNodeModel() throws Exception {
-		final var source = "var value = new Object() { n: int "
+		final var source = "var value = new Object() { property n: int "
 			+ "method get(): int { return n; } }; Object marker = new Object() {};";
 		final var parsed = parseHelper.parse(source);
 		validationTestHelper.assertNoErrors(parsed);

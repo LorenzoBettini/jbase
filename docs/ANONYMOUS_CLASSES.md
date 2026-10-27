@@ -23,8 +23,8 @@ The test language uses its existing properties followed by instance methods:
 
 ```java
 var point = new Object() {
-    x: int
-    y: int
+    property x: int
+    property y: int
     method getX(): int { return x; }
     method getY(): int { return this.y; }
 };
@@ -225,3 +225,15 @@ control-flow statements cannot target enclosing loops or switch expressions.
 Only the constructor forms already available in Jbase are supported. This does
 not add local class declarations or qualified inner-class creation. Other example
 languages must opt in through their own inferrers before using anonymous classes.
+
+The core implementation is in
+[JbaseAnonymousClassInferrer](../jbase/src/jbase/jvmmodel/JbaseAnonymousClassInferrer.java),
+[JbaseAnonymousClassUtil](../jbase/src/jbase/jvmmodel/JbaseAnonymousClassUtil.java),
+[JbaseAnonymousClassConstructorScopes](../jbase/src/jbase/scoping/JbaseAnonymousClassConstructorScopes.java),
+[JbaseReentrantTypeResolver](../jbase/src/jbase/typesystem/JbaseReentrantTypeResolver.java),
+[JbaseAnonymousClassValidator](../jbase/src/jbase/validation/JbaseAnonymousClassValidator.java),
+and [JbaseXbaseCompiler](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java).
+The Jbase regression tests are
+[JbaseAnonymousClassTest](../jbase.tests/src/jbase/tests/JbaseAnonymousClassTest.java),
+[JbaseAnonymousClassInfrastructureTest](../jbase.tests/src/jbase/tests/JbaseAnonymousClassInfrastructureTest.java),
+and [JbaseAnonymousClassRecoveryTest](../jbase.tests/src/jbase/tests/JbaseAnonymousClassRecoveryTest.java).

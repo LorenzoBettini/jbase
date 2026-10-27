@@ -29,10 +29,11 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Test
 	public void testAnonymousClasses() {
 		assertFormatted(request -> {
-			request.setToBeFormatted("var value=new Object(){n:int method get():int{return n;}};");
+			request.setToBeFormatted(
+				"var value=new Object(){property n:int method get():int{return n;}};");
 			request.setExpectation("""
 				var value = new Object() {
-					n:int
+					property n:int
 					method get() : int {
 						return n;
 					}

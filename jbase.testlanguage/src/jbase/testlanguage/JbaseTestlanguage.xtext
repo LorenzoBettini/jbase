@@ -11,8 +11,7 @@ import "http://www.Jbase.jbase" as jbase
 
 JbaseTestLanguageModel:
 	importSection=XImportSection?
-	(=>properties+=XJTestlanguageAnnotatedProperty
-	| =>properties+=XJTestlanguagePlainProperty)*
+	properties+=Property*
 	// correspond to Java fields
 	methods+=OpMethod* // correspond to Java methods
 	operations+=Operation* // correspond to Java static methods
@@ -20,39 +19,12 @@ JbaseTestLanguageModel:
 
 SpecialBlockExpression returns xbase::XBlockExpression:
 	{xbase::XBlockExpression}
-	(expressions+=XJTestlanguageStatementOrBlock)*;
-
-// The unbraced test-language root also parses fields as name: Type. Restrict labels
-// here to blocks and basic for loops, which cannot be confused with a type reference.
-XJTestlanguageStatementOrBlock returns xbase::XExpression:
-	=>XBlockExpression | XJTestlanguageSingleStatement;
-
-XJTestlanguageSingleStatement returns xbase::XExpression:
-	=>XJTestlanguageLabeledStatement |
-	->XSwitchExpression |
-	XJSemicolonStatement |
-	XIfExpression |
-	XForLoopExpression |
-	XBasicForLoopExpression |
-	XWhileExpression |
-	XJTryWithResourcesStatement |
-	XTryCatchFinallyExpression |
-	XSynchronizedExpression |
-	XJEmptyStatement;
-
-XJTestlanguageLabeledStatement returns xbase::XExpression:
-	{jbase::XJLabeledStatement} name=ID ':' statement=(XBlockExpression
-			| XBasicForLoopExpression | XWhileExpression);
+	(expressions+=XJStatementOrBlock)*;
 
 Property:
+	'property'
 	annotations+=XAnnotation*
 	name=ValidID ':' type=JvmTypeReference;
-
-XJTestlanguageAnnotatedProperty returns Property:
-	{Property} annotations+=XAnnotation+ name=ValidID ':' type=JvmTypeReference;
-
-XJTestlanguagePlainProperty returns Property:
-	{Property} name=ValidID ':' type=JvmTypeReference;
 
 OpMethod:
 	'method'
