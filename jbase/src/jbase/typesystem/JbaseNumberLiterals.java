@@ -36,7 +36,7 @@ public class JbaseNumberLiterals extends NumberLiterals {
 			return super.numberValue(literal, numberType);
 		}
 		final var value = literal.getValue().replace("_", "");
-		return numberType == Float.TYPE ? Float.valueOf(value) : Double.valueOf(value);
+		return numberType == Float.TYPE ? (Number) Float.valueOf(value) : Double.valueOf(value);
 	}
 
 	/**

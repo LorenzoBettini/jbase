@@ -18,6 +18,7 @@ import org.junit.Test;
 import com.google.inject.Inject;
 
 import jbase.conversion.JbaseNumberValueConverter;
+import jbase.typesystem.JbaseNumberLiterals;
 
 public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 
@@ -122,6 +123,15 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 		final var model = parser.parse("float value = 0x1p2;");
 		assertTrue(validationTestHelper.validate(model).stream()
 			.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+	}
+
+	@Test
+	public void hexadecimalFloatNumberValueRetainsFloatType() throws Exception {
+		final var model = parser.parse("float value = 0x1p2f;");
+		final var literal = EcoreUtil2.getAllContentsOfType(model, XNumberLiteral.class).getFirst();
+		final var value = new JbaseNumberLiterals().numberValue(literal, Float.TYPE);
+		assertEquals(Float.class, value.getClass());
+		assertEquals(Float.valueOf(4.0f), value);
 	}
 
 	@Test(expected = ValueConverterException.class)
