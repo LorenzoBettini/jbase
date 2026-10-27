@@ -312,7 +312,10 @@ final int ONE = 1;
 byte first = ONE;
 byte second = 1 + 2;
 char letter = 65 + 1;
-Byte boxed = 1Aeport type mismatches. Java assignment conversion allows representable
+Byte boxed = 1;
+```
+
+These report type mismatches. Java assignment conversion allows representable
 constant `int` expressions to narrow to `byte`, `short`, or `char`, and permits
 narrowing followed by boxing to `Byte`, `Short`, or `Character` in the applicable
 cases. Simple primitive literal narrowing such as `byte b = 1` and `char c = 65`
