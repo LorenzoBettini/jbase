@@ -211,11 +211,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	private boolean computeConstantNarrowing(final XAbstractFeatureCall expression,
 			final ITypeComputationState state) {
-		if (!(expression instanceof XBinaryOperation || expression instanceof XUnaryOperation
-				|| expression instanceof XFeatureCall)
-				|| expression instanceof XFeatureCall call
-					&& !call.getFeatureCallArguments().isEmpty()
-				|| !isConstantNarrowingAssignmentContext(expression)) {
+		if (!isConstantNarrowingCandidate(expression)) {
 			return false;
 		}
 		final var value = constantIntegralValue(expression, new IdentityHashMap<>(), state);
@@ -239,6 +235,13 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			}
 		}
 		return false;
+	}
+
+	private boolean isConstantNarrowingCandidate(final XAbstractFeatureCall expression) {
+		return (expression instanceof XBinaryOperation || expression instanceof XUnaryOperation
+				|| expression instanceof XFeatureCall call
+					&& call.getFeatureCallArguments().isEmpty())
+			&& isConstantNarrowingAssignmentContext(expression);
 	}
 
 	private boolean isConstantNarrowingAssignmentContext(final XExpression expression) {
