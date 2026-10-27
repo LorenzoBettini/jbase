@@ -136,7 +136,7 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 				computeJbaseTypes(declaration, state);
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
 			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
-			case XUnaryOperation operation -> _computeTypes(operation, state);
+			case XUnaryOperation operation -> computeJbaseTypes(operation, state);
 			case null, default -> super.computeTypes(expression, state);
 		}
 	}
@@ -166,7 +166,7 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		computeFeatureCall(featureCall, state);
 	}
 
-	protected void _computeTypes(final XUnaryOperation operation,
+	private void computeJbaseTypes(final XUnaryOperation operation,
 			final ITypeComputationState state) {
 		final var specialHandling = expressionHelper.specialHandling(operation,
 			new BaseCase() {
