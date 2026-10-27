@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import jbase.jbase.JbasePackage;
+import jbase.services.JbaseGrammarAccess;
 import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
@@ -38,30 +39,94 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.formatting2.IFormattableDocument;
+import org.eclipse.xtext.formatting2.IHiddenRegionFormatter;
 import org.eclipse.xtext.formatting2.regionaccess.ISemanticRegion;
 import org.eclipse.xtext.xbase.XCastedExpression;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
+import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
+import org.eclipse.xtext.xbase.XMemberFeatureCall;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
+import org.eclipse.xtext.xbase.annotations.formatting2.XbaseWithAnnotationsFormatter;
+import org.eclipse.xtext.xbase.formatting2.IndentOnceAutowrapFormatter;
+import org.eclipse.xtext.xbase.formatting2.ObjectEntry;
+import org.eclipse.xtext.xbase.formatting2.SeparatorRegions;
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatterPreferenceKeys;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 
 import static org.eclipse.xtext.xbase.XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE;
 
-public class JbaseFormatter extends XbasePatchedFormatter {
+public class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 
 	private static final String FINAL = "final";
 
+	@Inject
+	private JbaseGrammarAccess grammar;
 	@Inject
 	private JbaseModelUtil modelUtil;
 
 	@Override
 	public void format(final Object expr, final IFormattableDocument document) {
 		formatUsingPolymorphicDispatcher(expr, document);
+	}
+
+	@Override
+	protected void _format(final XFeatureCall expr, final IFormattableDocument format) {
+		formatFeatureCallTypeParameters(expr, format);
+		if (expr.isExplicitOperationCall()) {
+			final var open = format.prepend(
+					regionFor(expr).keyword(grammar.getXFeatureCallAccess()
+							.getExplicitOperationCallLeftParenthesisKeyword_3_0_0()),
+					IHiddenRegionFormatter::noSpace);
+			final var close = regionFor(expr).keyword(
+					grammar.getXFeatureCallAccess().getRightParenthesisKeyword_3_2());
+			formatFeatureCallParams(expr.getFeatureCallArguments(), open, close, format);
+		}
+	}
+
+	@Override
+	protected void _format(final XMemberFeatureCall expr, final IFormattableDocument format) {
+		EObject top = expr;
+		final var calls = new SeparatorRegions<XMemberFeatureCall, ISemanticRegion>(
+				regionForEObject(expr));
+		while (top instanceof XMemberFeatureCall memberCall) {
+			final var separator = regionFor(top).keyword(".");
+			calls.prependWithLeadingSeparator(memberCall, separator);
+			top = memberCall.getMemberCallTarget();
+		}
+		format.format(top);
+		final var indentOnce = new IndentOnceAutowrapFormatter(nextHiddenRegion(expr));
+		for (final ObjectEntry<XMemberFeatureCall, ISemanticRegion> entry : calls) {
+			final var call = entry.getObject();
+			final var operator = entry.getLeadingSeparator().getSeparator();
+			formatFeatureCallTypeParameters(call, format);
+			final ISemanticRegion feature = regionFor(call)
+					.feature(XABSTRACT_FEATURE_CALL__FEATURE);
+			final int autowrapLength = Math.min(entry.getRegion().getLength(),
+					feature.getLength() * 2);
+			final Procedure1<IHiddenRegionFormatter> noSpace = IHiddenRegionFormatter::noSpace;
+			final Procedure1<IHiddenRegionFormatter> autowrap = it -> {
+				it.noSpace();
+				it.autowrap(autowrapLength);
+				it.setOnAutowrap(indentOnce);
+			};
+			format.append(format.prepend(operator, noSpace), autowrap);
+			if (call.isExplicitOperationCall()) {
+				final var open = format.prepend(
+						regionFor(call).keyword(grammar.getXMemberFeatureCallAccess()
+								.getExplicitOperationCallLeftParenthesisKeyword_1_3_3_0_0()),
+						IHiddenRegionFormatter::noSpace);
+				final var close = regionFor(call).keyword(
+						grammar.getXMemberFeatureCallAccess()
+								.getRightParenthesisKeyword_1_3_3_2());
+				formatFeatureCallParams(call.getMemberCallArguments(), open, close, format);
+			}
+		}
 	}
 
 	protected void _format(final XJInstanceOfExpression expr,

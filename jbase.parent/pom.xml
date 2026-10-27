@@ -109,8 +109,7 @@
       **/jbase/internal/**,
       **/jbase/serializer/**,
       **/*LabelProvider.*,
-      **/*TreeProvider.*,
-      **/*XbasePatchedFormatter.*
+      **/*TreeProvider.*
     </sonar.exclusions>
 
     <!-- To make SonarQube detect JUnit tests in generated Java code from Xtend -->
@@ -164,7 +163,7 @@
     <!-- The return value of "parseByte" and "parseShort" must be used. We 
       just need to check whether they're parsable -->
     <sonar.issue.ignore.multicriteria.e7.ruleKey>squid:S2201</sonar.issue.ignore.multicriteria.e7.ruleKey>
-    <sonar.issue.ignore.multicriteria.e7.resourceKey>**/*PatchedTypeComputer.java</sonar.issue.ignore.multicriteria.e7.resourceKey>
+    <sonar.issue.ignore.multicriteria.e7.resourceKey>**/JbaseTypeComputer.java</sonar.issue.ignore.multicriteria.e7.resourceKey>
 
     <!-- I don't want parameterized tests, and I'm not switching to Jupiter just for that -->
     <sonar.issue.ignore.multicriteria.e8.ruleKey>java:S5976</sonar.issue.ignore.multicriteria.e8.ruleKey>
