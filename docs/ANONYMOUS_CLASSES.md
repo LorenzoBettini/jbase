@@ -23,8 +23,8 @@ The test language uses its existing properties followed by instance methods:
 
 ```java
 var point = new Object() {
-    x: int
-    y: int
+    property x: int
+    property y: int
     method getX(): int { return x; }
     method getY(): int { return this.y; }
 };

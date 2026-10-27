@@ -117,7 +117,7 @@ public class JbaseShiftAssignmentTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void fieldReceiverIsEvaluatedOnce() throws Exception {
 		final var source = """
-			value : int
+			property value : int
 			method receiver() { System.out.print("receiver "); return this; }
 			method testMe() {
 				value = 8;
@@ -134,8 +134,8 @@ public class JbaseShiftAssignmentTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void boxedLocalsAndFieldsKeepTheirLvalues() throws Exception {
 		final var source = """
-			value : Integer
-			small : byte
+			property value : Integer
+			property small : byte
 			method receiver() { System.out.print("receiver "); return this; }
 			method kind(byte n): String { return "byte"; }
 			method kind(int n): String { return "int"; }

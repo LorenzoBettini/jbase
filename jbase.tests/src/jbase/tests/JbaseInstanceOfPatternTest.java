@@ -363,7 +363,7 @@ public class JbaseInstanceOfPatternTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void fieldShadowingAndExpressionEvaluation() throws Exception {
 		assertExecuteMain("""
-			text: int
+			property text: int
 			method source(): Object {
 				this.text++;
 				return "hello";
