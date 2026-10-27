@@ -30,8 +30,8 @@ import org.eclipse.xtext.xbase.XBasicForLoopExpression;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCasePart;
-import org.eclipse.xtext.xbase.XCatchClause;
 import org.eclipse.xtext.xbase.XCastedExpression;
+import org.eclipse.xtext.xbase.XCatchClause;
 import org.eclipse.xtext.xbase.XClosure;
 import org.eclipse.xtext.xbase.XConstructorCall;
 import org.eclipse.xtext.xbase.XExpression;
@@ -61,13 +61,13 @@ import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.conversion.JbaseTextBlockValueConverter;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
-import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -79,8 +79,8 @@ import jbase.jbase.XJConditionalExpression;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
-import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJJvmFormalParameter;
+import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJRecordPattern;
@@ -108,7 +108,7 @@ import jbase.util.JbaseSwitches;
  *
  * @author Lorenzo Bettini
  */
-public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
+public class JbaseXbaseCompiler extends XbaseCompiler {
 
 	@Inject
 	private JbaseAnonymousClassUtil anonymousTypes;
