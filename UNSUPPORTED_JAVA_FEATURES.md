@@ -294,7 +294,7 @@ Java variable expressions. Even `(array)[0] = 2` fails when `array` has an array
 type. Ordinary `values[0] = 2`, multidimensional named-array assignment, and
 parenthesized compound assignment or increment such as `(n) += 1` and `(n)++` pass.
 
-### [ ] Blank final local variables
+### [x] Blank final local variables
 
 ```java
 final int value;
@@ -302,9 +302,10 @@ value = 1;
 System.out.println(value);
 ```
 
-Jbase reports both `Value must be initialized` and `Assignment to final variable`.
-Java permits a blank final local to be assigned once when definite assignment and
-unassignment rules are satisfied.
+Blank final locals can be assigned once, including assignments in mutually
+exclusive branches. Reads still require definite assignment, and repeated or
+looped assignments are rejected. See the [blank final locals guide](docs/BLANK_FINAL_LOCALS.md)
+and the `AllJavaFeaturesTest` showcase.
 
 ### [ ] Constant-expression narrowing and narrowing followed by boxing
 

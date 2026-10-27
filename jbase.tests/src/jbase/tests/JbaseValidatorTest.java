@@ -10,12 +10,15 @@ import jbase.tests.inputs.JbaseTestlanguageInputs;
 import jbase.validation.JbaseIssueCodes;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.diagnostics.Diagnostic;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.validation.Issue;
+import org.eclipse.xtext.xbase.XBlockExpression;
+import org.eclipse.xtext.xbase.XbaseFactory;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotationsPackage;
 import org.eclipse.xtext.xbase.validation.IssueCodes;
@@ -979,18 +982,89 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
-	public void testFinalVariableNotInitialized() throws Exception {
-		validationTestHelper.assertError(parseHelper.parse("""
+	public void testUnusedBlankFinalVariableIsAllowed() throws Exception {
+		assertErrorsAsStrings(parseHelper.parse("""
 			final int i;
-			"""), jbasePackage.getXJVariableDeclaration(), IssueCodes.MISSING_INITIALIZATION,
-				"Value must be initialized");
+			"""), "");
 	}
 
 	@Test
-	public void testFinalVariableNotInitialized2() throws Exception {
-		assertErrorsAsStrings(parseHelper.parse("""
+	public void testGenericVariableDeclarationStillRequiresInitialization() throws Exception {
+		final var model = parseHelper.parse("method test() {}");
+		final var block = EcoreUtil2.getAllContentsOfType(model, XBlockExpression.class)
+			.getFirst();
+		final var variable = XbaseFactory.eINSTANCE.createXVariableDeclaration();
+		variable.setName("value");
+		variable.setWriteable(false);
+		block.getExpressions().add(variable);
+		validationTestHelper.assertError(model, XbasePackage.Literals.XVARIABLE_DECLARATION,
+			IssueCodes.MISSING_INITIALIZATION, "Value must be initialized");
+	}
+
+	@Test
+	public void testBlankFinalVariableCanBeAssignedOnce() throws Exception {
+		parseAndAssertNoIssues("""
+			final int i;
+			i = 1;
+			System.out.println(i);
+			""");
+	}
+
+	@Test
+	public void testBlankFinalVariableCanBeAssignedInEitherBranch() throws Exception {
+		parseAndAssertNoIssues("""
+			final int i;
+			if (args.length == 0) {
+				i = 0;
+			} else {
+				i = 1;
+			}
+			System.out.println(i);
+			""");
+	}
+
+	@Test
+	public void testAdditionalBlankFinalVariableCanBeAssignedOnce() throws Exception {
+		parseAndAssertNoIssues("""
 			final int i = 0, j;
-			"""), "Value must be initialized");
+			j = 1;
+			System.out.println(i + j);
+			""");
+	}
+
+	@Test
+	public void testBlankFinalVariableCannotBeAssignedTwice() throws Exception {
+		validationTestHelper.assertError(parseHelper.parse("""
+			final int i;
+			i = 0;
+			i = 1;
+			System.out.println(i);
+			"""), XbasePackage.Literals.XABSTRACT_FEATURE_CALL,
+			IssueCodes.ASSIGNMENT_TO_FINAL, "Assignment to final variable");
+	}
+
+	@Test
+	public void testBlankFinalVariableMustBeDefinitelyAssignedBeforeRead() throws Exception {
+		validationTestHelper.assertError(parseHelper.parse("""
+			final int i;
+			if (args.length == 0) {
+				i = 0;
+			}
+			System.out.println(i);
+			"""), XbasePackage.Literals.XABSTRACT_FEATURE_CALL,
+			JbaseIssueCodes.NOT_INITIALIZED_VARIABLE,
+			"The local variable i may not have been initialized");
+	}
+
+	@Test
+	public void testBlankFinalVariableCannotBeAssignedInLoop() throws Exception {
+		validationTestHelper.assertError(parseHelper.parse("""
+			final int i;
+			while (args.length > 0) {
+				i = 1;
+			}
+			"""), XbasePackage.Literals.XABSTRACT_FEATURE_CALL,
+			IssueCodes.ASSIGNMENT_TO_FINAL, "Assignment to final variable");
 	}
 
 	@Test
