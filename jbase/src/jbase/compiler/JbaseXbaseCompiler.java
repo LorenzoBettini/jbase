@@ -1521,7 +1521,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	private void appendLambdaParameter(final JvmFormalParameter parameter,  // NOSONAR: better to have 8 parameters than to recompute information
 			final XJJvmFormalParameter sourceParameter, final ITreeAppendable appendable,
 			final LightweightTypeReference type, final JvmOperation operation, final int index,
-			final boolean isLastVarArgsParameter, final boolean isLastParameter) {
+			final boolean isLastVarArgsParameter, final boolean needsCommaAfterParameter) {
 		final var parameterType = getClosureOperationParameterType(type, operation, index);
 		appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
 		if (sourceParameter.getParameterType() != null) {
@@ -1541,7 +1541,7 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				dimension++) {
 			appendable.append("[]");
 		}
-		if (isLastParameter) {
+		if (needsCommaAfterParameter) {
 			appendable.append(",");
 		}
 	}
