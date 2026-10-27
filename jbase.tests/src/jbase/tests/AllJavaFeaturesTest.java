@@ -72,6 +72,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			assert enabled;
 			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
+			byte compoundNarrowing = 127;
+			compoundNarrowing += 1;
 			short medium = (short) 2;
 			short positive = +1;
 			char letter = 'a';
@@ -95,6 +97,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int octal = 077;
 			float fraction = 1.5f;
 			double decimal = 2.5e2;
+			double hexadecimalFloating = 0x1.8p1;
+			double hexadecimalIntegralSignificand = 0x1p2;
+			double leadingDot = .5;
+			double trailingDot = 1.;
+			double trailingDotExponent = 1.e2;
 			String text = "hello";
 			String multiline = \"\"\"
 				first line
@@ -378,6 +385,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    assert enabled;
 			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);
+			    byte compoundNarrowing = 127;
+			    compoundNarrowing += 1;
 			    short medium = ((short) 2);
 			    short positive = +1;
 			    char letter = 'a';
@@ -404,6 +413,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int octal = 0x3f;
 			    float fraction = 1.5f;
 			    double decimal = 2.5e2;
+			    double hexadecimalFloating = 0x1.8p1;
+			    double hexadecimalIntegralSignificand = 0x1p2;
+			    double leadingDot = .5;
+			    double trailingDot = 1.;
+			    double trailingDotExponent = 1.e2;
 			    String text = "hello";
 			    String multiline = \"\"\"
 			    first line

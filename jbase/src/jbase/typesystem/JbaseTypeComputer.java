@@ -31,6 +31,7 @@ import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
+import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 import org.eclipse.xtext.xbase.typesystem.LocalVariableCapturer;
 import org.eclipse.xtext.xbase.typesystem.computation.ClosureTypeComputer;
@@ -49,12 +50,12 @@ import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.eclipse.xtext.xbase.typesystem.references.UnboundTypeReference;
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
 import org.eclipse.xtext.xbase.validation.IssueCodes;
-import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 
 import com.google.inject.Inject;
 
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.JbasePackage;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
@@ -67,14 +68,12 @@ import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
-import jbase.jbase.XJLabeledStatement;
-import jbase.jbase.XJAdditionalXVariableDeclaration;
-import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJJvmFormalParameter;
+import jbase.jbase.XJLabeledStatement;
+import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJVariableDeclaration;
-import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.util.JbaseExpressionHelper;
 import jbase.util.JbaseExpressionHelper.BaseCase;
 import jbase.util.JbaseExpressionHelper.StepCase;
@@ -287,12 +286,9 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 			final ITypeComputationState state) {
 		var linkingState = state;
 		if (featureCall instanceof XBinaryOperation operation
-				&& (operation.getLeftOperand() instanceof XJArrayAccessExpression
-					|| JbaseOperatorMapping.SHIFT_ASSIGNMENTS.contains(
-						operation.getConcreteSyntaxFeatureName()))
 				&& services.getOperatorMapping().getCompoundOperators()
 					.contains(QualifiedName.create(operation.getConcreteSyntaxFeatureName()))) {
-			// Retain the lvalue's type and index types before numeric operator promotion.
+			// Retain the lvalue's type before numeric operator promotion.
 			state.withNonVoidExpectation().computeTypes(operation.getLeftOperand());
 			linkingState = new JbaseCompoundAssignmentState(operation,
 				(AbstractTypeComputationState) state);

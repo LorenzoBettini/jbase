@@ -19,6 +19,7 @@ import org.eclipse.xtext.xbase.scoping.batch.ConstructorScopes;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.eclipse.xtext.xbase.scoping.featurecalls.OperatorMapping;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputer;
+import org.eclipse.xtext.xbase.typesystem.computation.NumberLiterals;
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractRootedReentrantTypeResolver;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionArgumentFactory;
 
@@ -37,6 +38,7 @@ import jbase.scoping.JbaseImplicitlyImportedFeatures;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
 import jbase.serializer.JbaseSerializerScopeProvider;
 import jbase.typesystem.JbaseExpressionArgumentFactory;
+import jbase.typesystem.JbaseNumberLiterals;
 import jbase.typesystem.JbaseReentrantTypeResolver;
 import jbase.typesystem.JbaseSealedTypeResolver;
 import jbase.typesystem.JbaseTypeComputer;
@@ -88,6 +90,10 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 
 	public Class<? extends ExpressionArgumentFactory> bindExpressionArgumentFactory() {
 		return JbaseExpressionArgumentFactory.class;
+	}
+
+	public Class<? extends NumberLiterals> bindNumberLiterals() {
+		return JbaseNumberLiterals.class;
 	}
 
 	/** Defers writable-local capture errors until Jbase can inspect the complete linked write set. */

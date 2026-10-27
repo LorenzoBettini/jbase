@@ -719,7 +719,15 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 			&& operation.isReassignFirstArgument()
 			&& (operation.getLeftOperand() instanceof XJArrayAccessExpression
 				|| JbaseOperatorMapping.SHIFT_ASSIGNMENTS.contains(
-					operation.getConcreteSyntaxFeatureName()));
+					operation.getConcreteSyntaxFeatureName())
+				|| isNarrowNumericCompoundAssignment(operation));
+	}
+
+	private boolean isNarrowNumericCompoundAssignment(final XBinaryOperation operation) {
+		return switch (getLightweightType(operation.getLeftOperand()).getIdentifier()) {
+			case "byte", "short", "char" -> true;
+			default -> false;
+		};
 	}
 
 	private boolean containsNativeCompoundAssignment(final XExpression expression) {
