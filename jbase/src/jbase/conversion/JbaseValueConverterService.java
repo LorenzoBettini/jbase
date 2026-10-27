@@ -42,6 +42,7 @@ public class JbaseValueConverterService extends XbaseValueConverterService {
 		return textBlockValueConverter;
 	}
 
+	@Override
 	@ValueConverter(rule = "STRING")
 	public IValueConverter<String> STRING() {
 		return stringValueConverter;
@@ -52,6 +53,7 @@ public class JbaseValueConverterService extends XbaseValueConverterService {
 		return characterValueConverter;
 	}
 
+	@Override
 	@ValueConverter(rule = "ID")
 	public IValueConverter<String> ID() {
 		return identifierValueConverter;
