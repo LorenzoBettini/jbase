@@ -327,7 +327,7 @@ Covered by `JbaseTypeComputerTest`,
 `JbaseValidatorTest`, `JbaseCompilerTest`, and `AllJavaFeaturesTest`; see the
 [constant-expression narrowing guide](docs/CONSTANT_EXPRESSION_NARROWING.md).
 
-### [ ] Implicit narrowing in ordinary compound assignments
+### [x] Implicit narrowing in ordinary compound assignments
 
 ```java
 byte b = 1;
@@ -340,10 +340,11 @@ char c = 65;
 c += 1;
 ```
 
-Jbase reports type mismatches after numeric promotion. Java compound assignment
-implicitly converts the result back to the left operand's type. The completed
-array-element and shift-assignment items below do not cover these ordinary
-compound assignments to narrow numeric locals.
+Java compound assignment implicitly converts the result back to the left
+operand's type. Jbase supports this for ordinary narrow numeric locals as well
+as its previously supported array-element and shift assignments. Regression
+coverage is in `JbaseCompoundAssignmentTest`; see the
+[compound assignments guide](docs/COMPOUND_ASSIGNMENTS.md).
 
 ### [ ] Additional Java floating-point literal forms
 

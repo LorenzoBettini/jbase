@@ -72,6 +72,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			assert enabled;
 			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
+			byte compoundNarrowing = 127;
+			compoundNarrowing += 1;
 			short medium = (short) 2;
 			short positive = +1;
 			char letter = 'a';
@@ -378,6 +380,8 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    assert enabled;
 			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);
+			    byte compoundNarrowing = 127;
+			    compoundNarrowing += 1;
 			    short medium = ((short) 2);
 			    short positive = +1;
 			    char letter = 'a';
