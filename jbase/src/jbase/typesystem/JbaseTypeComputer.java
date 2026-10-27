@@ -1,5 +1,7 @@
 package jbase.typesystem;
 
+import java.util.IdentityHashMap;
+
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmGenericType;
@@ -7,6 +9,7 @@ import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmPrimitiveType;
 import org.eclipse.xtext.common.types.JvmTypeReference;
+import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -59,7 +62,9 @@ import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJLabeledStatement;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJMethodReference;
+import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJVariableDeclaration;
@@ -114,6 +119,8 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			case XJAssertStatement statement -> computeJbaseTypes(statement, state);
 			case XJCharLiteral literal -> computeCharLiteralTypes(state);
 			case XJVariableDeclaration declaration -> computeJbaseTypes(declaration, state);
+			case XJAdditionalXVariableDeclaration declaration ->
+				computeJbaseTypes(declaration, state);
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
 			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
 			case null, default -> super.computeTypes(expression, state);
@@ -230,24 +237,50 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			methodReferences.computeTypes(reference, state);
 			return;
 		}
-		for (var expectation : state.getExpectations()) {
-			var expectedType = expectation.getExpectedType();
-			if (expectedType != null && expectedType.isRawType()) {
-				// Java infers erased parameter types for a raw functional interface.
-				// Xbase would otherwise leave these parameters as unbound types.
-				var owner = state.getReferenceOwner();
-				var type = (JvmGenericType) expectedType.getRawTypeReference().getType();
-				var parameterized = owner.newParameterizedTypeReference(type);
-				for (var parameter : type.getTypeParameters()) {
-					parameterized.addTypeArgument(owner.newParameterizedTypeReference(parameter)
-						.getRawTypeReference());
+		final var originalParameterTypes = addDeclaratorDimensionsToClosureParameters(closure);
+		try {
+			for (var expectation : state.getExpectations()) {
+				var expectedType = expectation.getExpectedType();
+				if (expectedType != null && expectedType.isRawType()) {
+					// Java infers erased parameter types for a raw functional interface.
+					// Xbase would otherwise leave these parameters as unbound types.
+					var owner = state.getReferenceOwner();
+					var type = (JvmGenericType) expectedType.getRawTypeReference().getType();
+					var parameterized = owner.newParameterizedTypeReference(type);
+					for (var parameter : type.getTypeParameters()) {
+						parameterized.addTypeArgument(owner.newParameterizedTypeReference(parameter)
+							.getRawTypeReference());
+					}
+					super._computeTypes(closure, state.withExpectation(parameterized));
+					state.acceptActualType(parameterized);
+				} else {
+					new ClosureTypeComputer(closure, expectation, state).computeTypes();
 				}
-				super._computeTypes(closure, state.withExpectation(parameterized));
-				state.acceptActualType(parameterized);
-			} else {
-				new ClosureTypeComputer(closure, expectation, state).computeTypes();
 			}
+		} finally {
+			originalParameterTypes.forEach(XJJvmFormalParameter::setParameterType);
 		}
+	}
+
+	private IdentityHashMap<XJJvmFormalParameter, JvmTypeReference>
+			addDeclaratorDimensionsToClosureParameters(final XClosure closure) {
+		final var originalTypes = new IdentityHashMap<XJJvmFormalParameter, JvmTypeReference>();
+		for (final var formalParameter : closure.getDeclaredFormalParameters()) {
+			final var parameter = (XJJvmFormalParameter) formalParameter;
+			final var type = parameter.getParameterType();
+			if (type == null || parameter.getArrayDimensions().isEmpty()) {
+				continue;
+			}
+			originalTypes.put(parameter, type);
+			var arrayType = type;
+			for (var i = 0; i < parameter.getArrayDimensions().size(); i++) {
+				final var wrapper = TypesFactory.eINSTANCE.createJvmGenericArrayTypeReference();
+				wrapper.setComponentType(arrayType);
+				arrayType = wrapper;
+			}
+			parameter.setParameterType(arrayType);
+		}
+		return originalTypes;
 	}
 
 	@Override
@@ -469,13 +502,43 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final var type = inferLocalType(object.getRight(), state);
 			state.assignType(object, type, false);
 			state.acceptActualType(getPrimitiveVoid(state));
-		} else {
+		} else if (object.getArrayDimensions().isEmpty()) {
 			super._computeTypes(object, state);
+		} else {
+			computeDeclaredVariable(object, object.getType(),
+					object.getArrayDimensions().size(), state);
 		}
 		// and also compute types for possible additional declarations
 		for (var additional : object.getAdditionalVariables()) {
 			state.withoutExpectation().computeTypes(additional);
 		}
+	}
+
+	private void computeJbaseTypes(final XJAdditionalXVariableDeclaration object,
+			final ITypeComputationState state) {
+		if (object.getArrayDimensions().isEmpty()) {
+			super.computeTypes(object, state);
+			return;
+		}
+		final var declaration = (XJVariableDeclaration) object.eContainer();
+		computeDeclaredVariable(object, declaration.getType(),
+				declaration.getArrayDimensions().size() + object.getArrayDimensions().size(),
+				state);
+	}
+
+	private void computeDeclaredVariable(final XVariableDeclaration declaration,
+			final JvmTypeReference declaredType, final int dimensions,
+			final ITypeComputationState state) {
+		state.withinScope(declaration);
+		var type = state.getReferenceOwner().toLightweightTypeReference(declaredType);
+		for (var i = 0; i < dimensions; i++) {
+			type = state.getReferenceOwner().newArrayTypeReference(type);
+		}
+		if (declaration.getRight() != null) {
+			state.withExpectation(type).computeTypes(declaration.getRight());
+		}
+		state.assignType(declaration, type, false);
+		state.acceptActualType(getPrimitiveVoid(state));
 	}
 
 	private LightweightTypeReference inferLocalType(final XExpression initializer,

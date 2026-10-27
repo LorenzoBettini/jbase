@@ -817,6 +817,22 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testArrayDeclaratorsAndTrailingInitializerCommas() {
+		assertFormatted(expression -> {
+			expression.setExpectation("""
+				int values [ ] = {1, 2 ,};
+				int scalar = 1, more [ ] = {3,};
+				int[] constructed = new int[] {4, 5,};
+				""");
+			expression.setToBeFormatted("""
+				int values [ ] = { 1 , 2 , } ;
+				int scalar=1,more [ ]={3,};
+				int[] constructed=new int [ ] {4,5,};
+				""");
+		});
+	}
+
+	@Test
 	public void testBasicForLoop()  {
 		assertFormatted(expression -> {
 			expression.setExpectation("""

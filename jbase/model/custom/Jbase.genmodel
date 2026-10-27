@@ -12,14 +12,18 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/var"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/varArgs"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJJvmFormalParameter/sourceAnnotations"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJJvmFormalParameter/arrayDimensions"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJAssignment"/>
     <genClasses ecoreClass="Jbase.ecore#//XJVariableDeclaration">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJVariableDeclaration/final"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJVariableDeclaration/sourceAnnotations"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJVariableDeclaration/additionalVariables"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJVariableDeclaration/arrayDimensions"/>
     </genClasses>
-    <genClasses ecoreClass="Jbase.ecore#//XJAdditionalXVariableDeclaration"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJAdditionalXVariableDeclaration">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJAdditionalXVariableDeclaration/arrayDimensions"/>
+    </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJParameterizedTypeReference">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJParameterizedTypeReference/sourceAnnotations"/>
     </genClasses>

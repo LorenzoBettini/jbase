@@ -67,6 +67,7 @@ import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -638,8 +639,27 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				tracedAppendable.append(name);
 				return type;
 			}
+			if (!customDeclaration.getArrayDimensions().isEmpty()) {
+				super.appendVariableTypeAndName(varDeclaration, appendable);
+				appendArrayDeclaratorDimensions(customDeclaration.getArrayDimensions().size(),
+						appendable);
+				return getLightweightType((XExpression) varDeclaration);
+			}
+		}
+		if (varDeclaration instanceof XJAdditionalXVariableDeclaration additional
+				&& !additional.getArrayDimensions().isEmpty()) {
+			super.appendVariableTypeAndName(varDeclaration, appendable);
+			appendArrayDeclaratorDimensions(additional.getArrayDimensions().size(), appendable);
+			return getLightweightType((XExpression) varDeclaration);
 		}
 		return super.appendVariableTypeAndName(varDeclaration, appendable);
+	}
+
+	private void appendArrayDeclaratorDimensions(final int dimensions,
+			final ITreeAppendable appendable) {
+		for (var i = 0; i < dimensions; i++) {
+			appendable.append("[]");
+		}
 	}
 
 	@Override
@@ -1450,6 +1470,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				final var name = makeJavaIdentifier(parameter.getName());
 				final var varName = appendable.declareUniqueNameVariable(parameter, name);
 				appendable.append(varName);
+				for (var ignored : sourceParameter.getArrayDimensions()) {
+					appendable.append("[]");
+				}
 				if (index < parameters.size() - 1) {
 					appendable.append(",");
 				}

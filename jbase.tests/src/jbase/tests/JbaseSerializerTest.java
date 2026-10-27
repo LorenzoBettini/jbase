@@ -364,6 +364,17 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testArrayDeclaratorsAndTrailingInitializerCommas() throws Exception {
+			assertSerialize("""
+				int values[] = {1, 2,};
+				int scalar = 1, more[] = {3,};
+				java.util.function.Consumer<String[]> consumer =
+					(String items[]) -> System.out.println(items[0]);
+				int[] constructed = new int[] {4, 5,};
+				""");
+	}
+
+	@Test
 	public void testLambdas() throws Exception {
 		assertSerialize("""
 			java.util.function.Function<String, Integer> f = s -> s.length();
