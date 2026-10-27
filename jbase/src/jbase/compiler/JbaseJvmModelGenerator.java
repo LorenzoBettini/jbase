@@ -54,7 +54,9 @@ public class JbaseJvmModelGenerator extends JvmModelGenerator {
 			makeJavaIdentifier(parameter.getSimpleName()));
 		_treeAppendableUtil.traceSignificant(tracedAppendable, parameter).append(name);
 		if (originalParam instanceof XJJvmFormalParameter sourceParameter) {
-			for (var ignored : sourceParameter.getArrayDimensions()) {
+			final var size = sourceParameter.getArrayDimensions().size();
+			for (var dimension = 0; dimension < size;
+					dimension++) {
 				tracedAppendable.append("[]");
 			}
 		}

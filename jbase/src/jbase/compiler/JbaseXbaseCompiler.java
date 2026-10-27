@@ -1512,7 +1512,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				final var name = makeJavaIdentifier(parameter.getName());
 				final var varName = appendable.declareUniqueNameVariable(parameter, name);
 				appendable.append(varName);
-				for (var ignored : sourceParameter.getArrayDimensions()) {
+				final var size = sourceParameter.getArrayDimensions().size();
+				for (var dimension = 0; dimension < size;
+						dimension++) {
 					appendable.append("[]");
 				}
 				if (index < parameters.size() - 1) {

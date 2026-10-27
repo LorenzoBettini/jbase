@@ -487,7 +487,9 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		for (var i = 0; i < Math.min(parameters.size(), parameterTypes.size()); i++) {
 			var declaredType = parameters.get(i).getParameterType();
 			var expectedParameterType = parameterTypes.get(i);
-			for (var ignored : jbaseParameters.get(i).getArrayDimensions()) {
+			var arrayDimensions = jbaseParameters.get(i).getArrayDimensions();
+			final var size = arrayDimensions.size();
+			for (var dimension = 0; dimension < size; dimension++) {
 				if (expectedParameterType instanceof ArrayTypeReference arrayType) {
 					expectedParameterType = arrayType.getComponentType();
 				} else {
