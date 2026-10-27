@@ -215,7 +215,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 				|| expression instanceof XFeatureCall)
 				|| expression instanceof XFeatureCall call
 					&& !call.getFeatureCallArguments().isEmpty()
-				|| !isAssignmentConversionContext(expression)) {
+				|| !isConstantNarrowingAssignmentContext(expression)) {
 			return false;
 		}
 		final var value = constantIntegralValue(expression, new IdentityHashMap<>(), state);
@@ -224,26 +224,24 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		}
 		for (final var expectation : state.getExpectations()) {
 			final var expectedType = expectation.getExpectedType();
-			if (expectedType == null) {
-				continue;
+			if (expectedType != null) {
+				final var primitiveType = expectedType.isWrapper()
+					? expectedType.getPrimitiveIfWrapperType() : expectedType;
+				if (primitiveType.getType() instanceof JvmPrimitiveType type
+						&& isRepresentable(value, type.getIdentifier())) {
+					// Operators and operands still need normal linking and typing. Compute them
+					// with int as the expression type, then mark the assignment conversion valid.
+					computeFeatureCall(expression, state.withExpectation(getTypeForName(Integer.TYPE,
+						state)));
+					state.acceptActualType(expectedType, ConformanceFlags.CHECKED_SUCCESS);
+					return true;
+				}
 			}
-			final var primitiveType = expectedType.isWrapper()
-				? expectedType.getPrimitiveIfWrapperType() : expectedType;
-			if (!(primitiveType.getType() instanceof JvmPrimitiveType type)
-					|| !isRepresentable(value, type.getIdentifier())) {
-				continue;
-			}
-			// Operators and operands still need normal linking and typing. Compute them
-			// with int as the expression type, then mark the assignment conversion valid.
-			computeFeatureCall(expression, state.withExpectation(getTypeForName(Integer.TYPE,
-				state)));
-			state.acceptActualType(expectedType, ConformanceFlags.CHECKED_SUCCESS);
-			return true;
 		}
 		return false;
 	}
 
-	private boolean isAssignmentConversionContext(final XExpression expression) {
+	private boolean isConstantNarrowingAssignmentContext(final XExpression expression) {
 		return expression.eContainer() instanceof XVariableDeclaration
 			|| expression.eContainer() instanceof XAssignment;
 	}
