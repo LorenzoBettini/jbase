@@ -1,5 +1,8 @@
 package jbase.typesystem;
 
+import java.util.IdentityHashMap;
+import java.util.Objects;
+
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmGenericType;
@@ -7,11 +10,13 @@ import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmPrimitiveType;
 import org.eclipse.xtext.common.types.JvmTypeReference;
+import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.validation.EObjectDiagnosticImpl;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
+import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBlockExpression;
 import org.eclipse.xtext.xbase.XCastedExpression;
@@ -20,8 +25,10 @@ import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XForLoopExpression;
 import org.eclipse.xtext.xbase.XNullLiteral;
+import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XStringLiteral;
 import org.eclipse.xtext.xbase.XSwitchExpression;
+import org.eclipse.xtext.xbase.XUnaryOperation;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
@@ -59,7 +66,9 @@ import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJLabeledStatement;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJMethodReference;
+import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJVariableDeclaration;
@@ -114,6 +123,8 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			case XJAssertStatement statement -> computeJbaseTypes(statement, state);
 			case XJCharLiteral literal -> computeCharLiteralTypes(state);
 			case XJVariableDeclaration declaration -> computeJbaseTypes(declaration, state);
+			case XJAdditionalXVariableDeclaration declaration ->
+				computeJbaseTypes(declaration, state);
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
 			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
 			case null, default -> super.computeTypes(expression, state);
@@ -138,6 +149,32 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 
 	@Override
 	protected void _computeTypes(final XAbstractFeatureCall featureCall,
+			final ITypeComputationState state) {
+		if (computeConstantNarrowing(featureCall, state)) {
+			return;
+		}
+		computeFeatureCall(featureCall, state);
+	}
+
+	@Override
+	protected void _computeTypes(final XUnaryOperation operation,
+			final ITypeComputationState state) {
+		if (!isUnaryNumberLiteralTree(operation)
+				&& computeConstantNarrowing(operation, state)) {
+			return;
+		}
+		super._computeTypes(operation, state);
+	}
+
+	private boolean isUnaryNumberLiteralTree(final XExpression expression) {
+		if (expression instanceof XNumberLiteral) {
+			return true;
+		}
+		return expression instanceof XUnaryOperation unary
+			&& isUnaryNumberLiteralTree(unary.getOperand());
+	}
+
+	private void computeFeatureCall(final XAbstractFeatureCall featureCall,
 			final ITypeComputationState state) {
 		var linkingState = state;
 		if (featureCall instanceof XBinaryOperation operation
@@ -170,6 +207,185 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			}
 		}
 		best.applyToComputationState();
+	}
+
+	private boolean computeConstantNarrowing(final XAbstractFeatureCall expression,
+			final ITypeComputationState state) {
+		if (!isConstantNarrowingCandidate(expression)) {
+			return false;
+		}
+		final var value = constantIntegralValue(expression, new IdentityHashMap<>(), state);
+		if (value == null) {
+			return false;
+		}
+		for (final var expectation : state.getExpectations()) {
+			final var expectedType = expectation.getExpectedType();
+			if (expectedType != null) {
+				final var primitiveType = expectedType.isWrapper()
+					? expectedType.getPrimitiveIfWrapperType() : expectedType;
+				if (primitiveType.getType() instanceof JvmPrimitiveType type
+						&& isRepresentable(value, type.getIdentifier())) {
+					// Operators and operands still need normal linking and typing. Compute them
+					// with int as the expression type, then mark the assignment conversion valid.
+					computeFeatureCall(expression, state.withExpectation(getTypeForName(Integer.TYPE,
+						state)));
+					state.acceptActualType(expectedType, ConformanceFlags.CHECKED_SUCCESS);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isConstantNarrowingCandidate(final XAbstractFeatureCall expression) {
+		return (expression instanceof XBinaryOperation || expression instanceof XUnaryOperation
+				|| expression instanceof XFeatureCall call
+					&& call.getFeatureCallArguments().isEmpty())
+			&& isConstantNarrowingAssignmentContext(expression);
+	}
+
+	private boolean isConstantNarrowingAssignmentContext(final XExpression expression) {
+		return expression.eContainer() instanceof XVariableDeclaration
+			|| expression.eContainer() instanceof XAssignment;
+	}
+
+	private Integer constantIntegralValue(final XExpression expression,
+			final IdentityHashMap<XVariableDeclaration, Boolean> visited,
+			final ITypeComputationState state) {
+		if (expression == null) {
+			return null;
+		}
+		return switch (expression) {
+			case XNumberLiteral literal -> parseIntegerLiteral(literal.getValue());
+			case XJCharLiteral literal -> literal.getValue().length() == 1
+				? (int) literal.getValue().charAt(0) : null;
+			case XUnaryOperation unary -> unaryIntegralValue(unary, visited, state);
+			case XBinaryOperation binary -> binaryIntegralValue(binary, visited, state);
+			case XAbstractFeatureCall call -> variableIntegralValue(call, visited, state);
+			default -> null;
+		};
+	}
+
+	private Integer unaryIntegralValue(final XUnaryOperation unary,
+			final IdentityHashMap<XVariableDeclaration, Boolean> visited,
+			final ITypeComputationState state) {
+		final var operand = constantIntegralValue(unary.getOperand(), visited, state);
+		if (operand == null) {
+			return null;
+		}
+		final var operator = unary.getConcreteSyntaxFeatureName();
+		return switch (Objects.toString(operator, "")) {
+			case "+" -> operand;
+			case "-" -> -operand;
+			case "~" -> ~operand;
+			default -> null;
+		};
+	}
+
+	private Integer binaryIntegralValue(final XBinaryOperation binary,
+			final IdentityHashMap<XVariableDeclaration, Boolean> visited,
+			final ITypeComputationState state) {
+		final var left = constantIntegralValue(binary.getLeftOperand(), visited, state);
+		final var right = constantIntegralValue(binary.getRightOperand(), visited, state);
+		if (left == null || right == null) {
+			return null;
+		}
+		final var operator = binary.getConcreteSyntaxFeatureName();
+		try {
+			return switch (Objects.toString(operator, "")) {
+				case "+" -> left + right;
+				case "-" -> left - right;
+				case "*" -> left * right;
+				case "/" -> left / right;
+				case "%" -> left % right;
+				case "<<" -> left << right;
+				case ">>" -> left >> right;
+				case ">>>" -> left >>> right;
+				case "&" -> left & right;
+				case "|" -> left | right;
+				case "^" -> left ^ right;
+				default -> null;
+			};
+		} catch (ArithmeticException exception) {
+			return null;
+		}
+	}
+
+	private Integer variableIntegralValue(final XAbstractFeatureCall call,
+			final IdentityHashMap<XVariableDeclaration, Boolean> visited,
+			final ITypeComputationState state) {
+		if (!(call instanceof XFeatureCall featureCall)
+				|| !featureCall.getFeatureCallArguments().isEmpty()) {
+			return null;
+		}
+		final var candidates = state.getLinkingCandidates(call);
+		final var best = (IFeatureLinkingCandidate) getBestCandidate(candidates);
+		if (!(best.getFeature() instanceof XVariableDeclaration variable)
+				|| !isIntegralConstantVariable(variable)) {
+			return null;
+		}
+		return constantIntegralVariableValue(variable, visited, state);
+	}
+
+	private Integer constantIntegralVariableValue(final XVariableDeclaration variable,
+			final IdentityHashMap<XVariableDeclaration, Boolean> visited,
+			final ITypeComputationState state) {
+		if (visited.containsKey(variable)) {
+			return null;
+		}
+		visited.put(variable, Boolean.TRUE);
+		try {
+			return constantIntegralValue(variable.getRight(), visited, state);
+		} finally {
+			visited.remove(variable);
+		}
+	}
+
+	private boolean isIntegralConstantVariable(final XVariableDeclaration variable) {
+		if (variable.isWriteable() || variable.getRight() == null) {
+			return false;
+		}
+		if (variable.getType() == null) {
+			return true;
+		}
+		return switch (variable.getType().getIdentifier()) {
+			case "byte", "short", "char", "int" -> true;
+			default -> false;
+		};
+	}
+
+	private Integer parseIntegerLiteral(final String literal) {
+		if (literal == null) {
+			return null;
+		}
+		final var value = literal.replace("_", "");
+		if (value.endsWith("l") || value.endsWith("L")) {
+			return null;
+		}
+		var radix = 10;
+		var digits = value;
+		if (value.startsWith("0x") || value.startsWith("0X")) {
+			radix = 16;
+			digits = value.substring(2);
+		}
+		try {
+			final var parsed = Long.parseLong(digits, radix);
+			if (radix == 10) {
+				return parsed <= Integer.MAX_VALUE ? (int) parsed : null;
+			}
+			return parsed <= 0xFFFF_FFFFL ? (int) parsed : null;
+		} catch (NumberFormatException exception) {
+			return null;
+		}
+	}
+
+	private boolean isRepresentable(final int value, final String kind) {
+		return switch (kind) {
+			case "byte" -> value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE;
+			case "short" -> value >= Short.MIN_VALUE && value <= Short.MAX_VALUE;
+			case "char" -> value >= Character.MIN_VALUE && value <= Character.MAX_VALUE;
+			default -> false;
+		};
 	}
 
 	/**
@@ -230,24 +446,50 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			methodReferences.computeTypes(reference, state);
 			return;
 		}
-		for (var expectation : state.getExpectations()) {
-			var expectedType = expectation.getExpectedType();
-			if (expectedType != null && expectedType.isRawType()) {
-				// Java infers erased parameter types for a raw functional interface.
-				// Xbase would otherwise leave these parameters as unbound types.
-				var owner = state.getReferenceOwner();
-				var type = (JvmGenericType) expectedType.getRawTypeReference().getType();
-				var parameterized = owner.newParameterizedTypeReference(type);
-				for (var parameter : type.getTypeParameters()) {
-					parameterized.addTypeArgument(owner.newParameterizedTypeReference(parameter)
-						.getRawTypeReference());
+		final var originalParameterTypes = addDeclaratorDimensionsToClosureParameters(closure);
+		try {
+			for (var expectation : state.getExpectations()) {
+				var expectedType = expectation.getExpectedType();
+				if (expectedType != null && expectedType.isRawType()) {
+					// Java infers erased parameter types for a raw functional interface.
+					// Xbase would otherwise leave these parameters as unbound types.
+					var owner = state.getReferenceOwner();
+					var type = (JvmGenericType) expectedType.getRawTypeReference().getType();
+					var parameterized = owner.newParameterizedTypeReference(type);
+					for (var parameter : type.getTypeParameters()) {
+						parameterized.addTypeArgument(owner.newParameterizedTypeReference(parameter)
+							.getRawTypeReference());
+					}
+					super._computeTypes(closure, state.withExpectation(parameterized));
+					state.acceptActualType(parameterized);
+				} else {
+					new ClosureTypeComputer(closure, expectation, state).computeTypes();
 				}
-				super._computeTypes(closure, state.withExpectation(parameterized));
-				state.acceptActualType(parameterized);
-			} else {
-				new ClosureTypeComputer(closure, expectation, state).computeTypes();
 			}
+		} finally {
+			originalParameterTypes.forEach(XJJvmFormalParameter::setParameterType);
 		}
+	}
+
+	private IdentityHashMap<XJJvmFormalParameter, JvmTypeReference>
+			addDeclaratorDimensionsToClosureParameters(final XClosure closure) {
+		final var originalTypes = new IdentityHashMap<XJJvmFormalParameter, JvmTypeReference>();
+		for (final var formalParameter : closure.getDeclaredFormalParameters()) {
+			final var parameter = (XJJvmFormalParameter) formalParameter;
+			final var type = parameter.getParameterType();
+			if (type == null || parameter.getArrayDimensions().isEmpty()) {
+				continue;
+			}
+			originalTypes.put(parameter, type);
+			var arrayType = type;
+			for (var i = 0; i < parameter.getArrayDimensions().size(); i++) {
+				final var wrapper = TypesFactory.eINSTANCE.createJvmGenericArrayTypeReference();
+				wrapper.setComponentType(arrayType);
+				arrayType = wrapper;
+			}
+			parameter.setParameterType(arrayType);
+		}
+		return originalTypes;
 	}
 
 	@Override
@@ -469,13 +711,43 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 			final var type = inferLocalType(object.getRight(), state);
 			state.assignType(object, type, false);
 			state.acceptActualType(getPrimitiveVoid(state));
-		} else {
+		} else if (object.getArrayDimensions().isEmpty()) {
 			super._computeTypes(object, state);
+		} else {
+			computeDeclaredVariable(object, object.getType(),
+					object.getArrayDimensions().size(), state);
 		}
 		// and also compute types for possible additional declarations
 		for (var additional : object.getAdditionalVariables()) {
 			state.withoutExpectation().computeTypes(additional);
 		}
+	}
+
+	private void computeJbaseTypes(final XJAdditionalXVariableDeclaration object,
+			final ITypeComputationState state) {
+		if (object.getArrayDimensions().isEmpty()) {
+			super.computeTypes(object, state);
+			return;
+		}
+		final var declaration = (XJVariableDeclaration) object.eContainer();
+		computeDeclaredVariable(object, declaration.getType(),
+				declaration.getArrayDimensions().size() + object.getArrayDimensions().size(),
+				state);
+	}
+
+	private void computeDeclaredVariable(final XVariableDeclaration declaration,
+			final JvmTypeReference declaredType, final int dimensions,
+			final ITypeComputationState state) {
+		state.withinScope(declaration);
+		var type = state.getReferenceOwner().toLightweightTypeReference(declaredType);
+		for (var i = 0; i < dimensions; i++) {
+			type = state.getReferenceOwner().newArrayTypeReference(type);
+		}
+		if (declaration.getRight() != null) {
+			state.withExpectation(type).computeTypes(declaration.getRight());
+		}
+		state.assignType(declaration, type, false);
+		state.acceptActualType(getPrimitiveVoid(state));
 	}
 
 	private LightweightTypeReference inferLocalType(final XExpression initializer,

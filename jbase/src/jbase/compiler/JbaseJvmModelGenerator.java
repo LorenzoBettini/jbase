@@ -8,6 +8,7 @@ import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 
 import com.google.inject.Inject;
 
+import jbase.jbase.XJJvmFormalParameter;
 import jbase.util.JbaseModelUtil;
 
 /**
@@ -52,5 +53,12 @@ public class JbaseJvmModelGenerator extends JvmModelGenerator {
 		var name = tracedAppendable.declareVariable(parameter,
 			makeJavaIdentifier(parameter.getSimpleName()));
 		_treeAppendableUtil.traceSignificant(tracedAppendable, parameter).append(name);
+		if (originalParam instanceof XJJvmFormalParameter sourceParameter) {
+			final var size = sourceParameter.getArrayDimensions().size();
+			for (var dimension = 0; dimension < size;
+					dimension++) {
+				tracedAppendable.append("[]");
+			}
+		}
 	}
 }

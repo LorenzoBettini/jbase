@@ -260,9 +260,10 @@ Intersection cast types are represented with Xtext's `JvmMultiTypeReference`.
 Lambda and method-reference targets use the unique functional-interface bound for
 inference, while generated Java retains the complete intersection cast.
 
-### [ ] Array declarator dimensions and trailing initializer commas
+### [x] Array declarator dimensions and trailing initializer commas
 
-These independent forms fail:
+Java array dimensions may follow a declarator name, and array initializers may
+have a trailing comma:
 
 ```java
 int values[] = {1};
@@ -272,9 +273,9 @@ int[] withComma = {1, 2,};
 int[] constructed = new int[] {1, 2,};
 ```
 
-Dimensions must currently appear on the type rather than after the declarator
-name, and `XJArrayLiteral` requires an element after each comma. Java allows both
-array declarator styles and an optional trailing initializer comma.
+Covered by parsing, serialization, formatting, compilation and runtime tests;
+see the [array declarator guide](docs/ARRAY_DECLARATORS.md) and the
+`AllJavaFeaturesTest` showcase.
 
 ### [ ] Some legal assignment targets
 
@@ -293,7 +294,7 @@ Java variable expressions. Even `(array)[0] = 2` fails when `array` has an array
 type. Ordinary `values[0] = 2`, multidimensional named-array assignment, and
 parenthesized compound assignment or increment such as `(n) += 1` and `(n)++` pass.
 
-### [ ] Blank final local variables
+### [x] Blank final local variables
 
 ```java
 final int value;
@@ -301,11 +302,12 @@ value = 1;
 System.out.println(value);
 ```
 
-Jbase reports both `Value must be initialized` and `Assignment to final variable`.
-Java permits a blank final local to be assigned once when definite assignment and
-unassignment rules are satisfied.
+Blank final locals can be assigned once, including assignments in mutually
+exclusive branches. Reads still require definite assignment, and repeated or
+looped assignments are rejected. See the [blank final locals guide](docs/BLANK_FINAL_LOCALS.md)
+and the `AllJavaFeaturesTest` showcase.
 
-### [ ] Constant-expression narrowing and narrowing followed by boxing
+### [x] Constant-expression narrowing and narrowing followed by boxing
 
 ```java
 final int ONE = 1;
@@ -315,11 +317,15 @@ char letter = 65 + 1;
 Byte boxed = 1;
 ```
 
-These report type mismatches. Java assignment conversion allows representable
-constant `int` expressions to narrow to `byte`, `short`, or `char`, and permits
-narrowing followed by boxing to `Byte`, `Short`, or `Character` in the applicable
-cases. Simple primitive literal narrowing such as `byte b = 1` and `char c = 65`
-already works.
+**Implemented:** Representable constant integral expressions narrow to `byte`,
+`short`, or `char` in local variable initializers and assignment right-hand sides.
+Final local constants of those types or `int`, including inferred `final var`
+constants, can be referenced. The same assignment contexts support narrowing
+followed by boxing to `Byte`, `Short`, or `Character`. Out-of-range values and
+`long` expressions are rejected; narrowing is not applied to method arguments.
+Covered by `JbaseTypeComputerTest`,
+`JbaseValidatorTest`, `JbaseCompilerTest`, and `AllJavaFeaturesTest`; see the
+[constant-expression narrowing guide](docs/CONSTANT_EXPRESSION_NARROWING.md).
 
 ### [ ] Implicit narrowing in ordinary compound assignments
 
