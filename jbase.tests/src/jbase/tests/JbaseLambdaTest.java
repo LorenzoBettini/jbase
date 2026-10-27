@@ -449,7 +449,7 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void executeLexicalThisAndCapturedState() throws Exception {
 		assertExecuteMain("""
-			value : int
+			property value : int
 			method testMe() {
 				value = 3;
 				java.util.function.Supplier<Object> self = () -> this;

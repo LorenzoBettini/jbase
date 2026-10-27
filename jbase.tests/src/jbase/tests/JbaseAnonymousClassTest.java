@@ -77,8 +77,8 @@ public class JbaseAnonymousClassTest extends JbaseAbstractCompilerTest {
 	public void varRetainsAnonymousFieldsAndMethods() throws Exception {
 		final var source = """
 			var point = new Object() {
-				x: int
-				y: int
+				property x: int
+				property y: int
 				method getX(): int { return x; }
 				method getY(): int { return this.y; }
 			};
@@ -121,7 +121,7 @@ public class JbaseAnonymousClassTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void superclassVariableDoesNotExposeAnonymousMembers() throws Exception {
 		assertInvalid("Object value = new Object() { method extra(): int { return 1; } }; value.extra();");
-		assertInvalid("Object value = new Object() { x: int }; value.x = 1;");
+		assertInvalid("Object value = new Object() { property x: int }; value.x = 1;");
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class JbaseAnonymousClassTest extends JbaseAbstractCompilerTest {
 	public void constructorArgumentsAreImmediateAndMembersUseEnclosingInstance() throws Exception {
 		final var source = """
 			import jbase.tests.util.AnonymousClassFixtures.Base;
-			value: int
+			property value: int
 			method next(): int { System.out.println("argument"); return ++value; }
 			method testMe(): void {
 				var instance = new Base(next()) {
@@ -249,7 +249,7 @@ public class JbaseAnonymousClassTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void invalidMembersAndControlFlow() throws Exception {
-		assertInvalid("var value = new Object() { x: int x: int };");
+		assertInvalid("var value = new Object() { property x: int property x: int };");
 		assertInvalid("var value = new Object() { method toString(): int { return 1; } };");
 		assertInvalid("var value = new Object() { method get(): int { return 1; } method get(): int { return 2; } };");
 		assertInvalid("var value = new jbase.testlanguage.tests.SealedTypes.Shape() {};");

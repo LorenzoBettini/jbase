@@ -4,6 +4,7 @@
 package jbase.testlanguage.tests;
 
 import com.google.inject.Inject;
+import jbase.jbase.XJLabeledStatement;
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
@@ -25,5 +26,18 @@ public class JbaseTestlanguageParsingTest {
 			System.out.println("Hello World!");
 			""");
 		Assert.assertNotNull(result);
+	}
+
+	@Test
+	public void propertyKeywordDoesNotRestrictLabeledStatements() throws Exception {
+		final var result = parseHelper.parse("""
+			property value: int
+			label: if (true) {}
+			""");
+		Assert.assertTrue(result.eResource().getErrors().toString(),
+			result.eResource().getErrors().isEmpty());
+		Assert.assertEquals(1, result.getProperties().size());
+		Assert.assertTrue(result.getBlock().getExpressions().getFirst()
+			instanceof XJLabeledStatement);
 	}
 }

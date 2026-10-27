@@ -91,8 +91,7 @@ public class JbaseArrayClassLiteralTest extends JbaseAbstractCompilerTest {
 	public void annotationValuesPreserveDimensions() throws Exception {
 		checkCompilation("""
 			import jbase.tests.util.ExampleAnnotation3;
-			@ExampleAnnotation3(value = { int[][].class, String[][][].class })
-			o : Object
+			property @ExampleAnnotation3(value = { int[][].class, String[][][].class }) o : Object
 			""", """
 			package jbasetestlanguage;
 

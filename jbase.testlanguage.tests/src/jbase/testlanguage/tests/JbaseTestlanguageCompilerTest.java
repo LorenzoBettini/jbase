@@ -113,7 +113,7 @@ public class JbaseTestlanguageCompilerTest {
 	@Test
 	public void testMethodsAndFields() throws Exception {
 		checkCompilation("""
-			aString : String
+			property aString : String
 
 			method print() {
 				System.out.println(aString);
@@ -148,8 +148,8 @@ public class JbaseTestlanguageCompilerTest {
 		checkCompilation("""
 			import java.util.List;
 
-			aString : String
-			aList : List<String>
+			property aString : String
+			property aList : List<String>
 			""", """
 			package jbasetestlanguage;
 

@@ -2565,7 +2565,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void testAssignmentToFieldReference() throws Exception {
 		checkCompilation("""
-			aString : String
+			property aString : String
 			method m(String s) : void {
 				aString = s;
 			}
@@ -2637,7 +2637,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void testAssignmentAsCallArgument() throws Exception {
 		checkCompilation("""
-			aString : String
+			property aString : String
 			method m(String s) : void {
 				m(aString = s);
 				this.m(aString = s);
@@ -3197,8 +3197,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import com.google.inject.Inject;
 
-			@Inject
-			o : Object
+			property @Inject o : Object
 			""", """
 			package jbasetestlanguage;
 
@@ -3221,8 +3220,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 			import jbase.tests.util.ExampleAnnotation;
 			import org.eclipse.xtext.xbase.testing.typesystem.TypeSystemSmokeTester;
 
-			@ExampleAnnotation(value = TypeSystemSmokeTester.class)
-			o : Object
+			property @ExampleAnnotation(value = TypeSystemSmokeTester.class) o : Object
 			""", """
 			package jbasetestlanguage;
 
@@ -3245,8 +3243,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(value = String.class)
-			o : Object
+			property @ExampleAnnotation3(value = String.class) o : Object
 			""", """
 			package jbasetestlanguage;
 
@@ -3269,8 +3266,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(value = { String.class, Integer.class })
-			o : Object
+			property @ExampleAnnotation3(value = { String.class, Integer.class }) o : Object
 			""", """
 			package jbasetestlanguage;
 
@@ -3292,8 +3288,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3(String.class)
-			o : Object
+			property @ExampleAnnotation3(String.class) o : Object
 			""", """
 			package jbasetestlanguage;
 
@@ -3315,8 +3310,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			import jbase.tests.util.ExampleAnnotation3;
 
-			@ExampleAnnotation3({String.class, Integer.class})
-			o : Object
+			property @ExampleAnnotation3({String.class, Integer.class}) o : Object
 			""", """
 			package jbasetestlanguage;
 
