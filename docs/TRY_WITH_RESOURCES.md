@@ -25,3 +25,10 @@ types, finality, and separators.
 The implementation is in [Jbase.xtext](../jbase/src/jbase/Jbase.xtext),
 [JbaseValidator](../jbase/src/jbase/validation/JbaseValidator.java), and
 [JbaseXbaseCompiler](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java).
+
+[JbaseVarTest](../jbase.tests/src/jbase/tests/JbaseVarTest.java) checks
+resource inference, finality, resource types, serialization, compilation, and
+execution. [JbaseCompilerTest](../jbase.tests/src/jbase/tests/JbaseCompilerTest.java)
+checks generated Java and the written ordering of existing-variable and
+declared resources. [JbaseParsingTest](../jbase.tests/src/jbase/tests/JbaseParsingTest.java)
+also covers resource syntax and parser recovery.
