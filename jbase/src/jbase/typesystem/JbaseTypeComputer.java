@@ -39,6 +39,7 @@ import org.eclipse.xtext.xbase.typesystem.computation.IFeatureLinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ILinkingCandidate;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationResult;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
+import org.eclipse.xtext.xbase.typesystem.computation.ITypeExpectation;
 import org.eclipse.xtext.xbase.typesystem.conformance.ConformanceFlags;
 import org.eclipse.xtext.xbase.typesystem.internal.AbstractTypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.internal.ExpressionTypeComputationState;
@@ -48,6 +49,7 @@ import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.eclipse.xtext.xbase.typesystem.references.UnboundTypeReference;
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices;
 import org.eclipse.xtext.xbase.validation.IssueCodes;
+import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 
 import com.google.inject.Inject;
 
@@ -73,6 +75,9 @@ import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.scoping.featurecalls.JbaseOperatorMapping;
+import jbase.util.JbaseExpressionHelper;
+import jbase.util.JbaseExpressionHelper.BaseCase;
+import jbase.util.JbaseExpressionHelper.StepCase;
 import jbase.util.JbaseSwitches;
 import jbase.validation.JbaseIssueCodes;
 
@@ -83,11 +88,15 @@ import jbase.validation.JbaseIssueCodes;
  *
  * @author Lorenzo Bettini
  */
-public class JbaseTypeComputer extends PatchedTypeComputer {
+public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 
 	@Inject
 	private IJvmModelAssociations associations;
 
+	@Inject
+	private Primitives primitives;
+	@Inject
+	private JbaseExpressionHelper expressionHelper;
 	@Inject
 	private CommonTypeComputationServices services;
 	@Inject
@@ -127,6 +136,7 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 				computeJbaseTypes(declaration, state);
 			case XJClassObject classObject -> computeJbaseTypes(classObject, state);
 			case XJSemicolonStatement statement -> computeJbaseTypes(statement, state);
+			case XUnaryOperation operation -> computeJbaseTypes(operation, state);
 			case null, default -> super.computeTypes(expression, state);
 		}
 	}
@@ -156,14 +166,113 @@ public class JbaseTypeComputer extends PatchedTypeComputer {
 		computeFeatureCall(featureCall, state);
 	}
 
-	@Override
-	protected void _computeTypes(final XUnaryOperation operation,
+	private void computeJbaseTypes(final XUnaryOperation operation,
 			final ITypeComputationState state) {
+		final var specialHandling = expressionHelper.specialHandling(operation,
+			new BaseCase() {
+				@Override
+				public Boolean apply(final XUnaryOperation unary, final XNumberLiteral literal) {
+					if (unary.eContainer() instanceof XBinaryOperation) {
+						return false;
+					}
+					for (final ITypeExpectation expectation : state.getExpectations()) {
+						final var expectedType = expectation.getExpectedType();
+						if (checkConversionToPrimitive(literal, unary, expectedType)) {
+							state.withExpectation(expectedType).computeTypes(unary.getOperand());
+							state.acceptActualType(expectedType);
+							return true;
+						}
+					}
+					return false;
+				}
+			},
+			new StepCase() {
+				@Override
+				public void accept(final XUnaryOperation unary) {
+					// No additional type computation is needed for outer unary operations.
+				}
+			});
+		if (specialHandling) {
+			return;
+		}
 		if (!isUnaryNumberLiteralTree(operation)
 				&& computeConstantNarrowing(operation, state)) {
 			return;
 		}
 		super._computeTypes(operation, state);
+	}
+
+	@Override
+	protected void _computeTypes(final XNumberLiteral literal,
+			final ITypeComputationState state) {
+		if (literal.getValue() == null) {
+			state.acceptActualType(getTypeForName(Integer.TYPE, state));
+			return;
+		}
+		if (literal.eContainer() instanceof XBinaryOperation) {
+			super._computeTypes(literal, state);
+			return;
+		}
+		for (final ITypeExpectation expectation : state.getExpectations()) {
+			final var expectedType = expectation.getExpectedType();
+			final var primitiveType = getExpectedPrimitiveType(expectedType, literal);
+			if (primitiveType != null
+					&& checkConversionToPrimitive(literal, primitives.primitiveKind(primitiveType))) {
+				state.acceptActualType(expectedType);
+				return;
+			}
+		}
+		super._computeTypes(literal, state);
+	}
+
+	private boolean checkConversionToPrimitive(final XNumberLiteral literal,
+			final XUnaryOperation unary, final LightweightTypeReference expectedType) {
+		final var primitiveType = getExpectedPrimitiveType(expectedType, unary);
+		return primitiveType != null && checkConversionToPrimitive(
+			unary.getConcreteSyntaxFeatureName() + literal.getValue(),
+			primitives.primitiveKind(primitiveType));
+	}
+
+	private JvmPrimitiveType getExpectedPrimitiveType(final LightweightTypeReference expectedType,
+			final XExpression expression) {
+		if (expectedType == null
+				|| (expectedType.isWrapper() && !isAssignmentConversionContext(expression))) {
+			return null;
+		}
+		final var primitiveType = expectedType.isWrapper()
+			? expectedType.getPrimitiveIfWrapperType() : expectedType;
+		return primitiveType.getType() instanceof JvmPrimitiveType type ? type : null;
+	}
+
+	private boolean isAssignmentConversionContext(final XExpression expression) {
+		return expression.eContainer() instanceof XVariableDeclaration
+			|| expression.eContainer() instanceof XAssignment;
+	}
+
+	private boolean checkConversionToPrimitive(final XNumberLiteral literal,
+			final Primitives.Primitive kind) {
+		return checkConversionToPrimitive(literal.getValue(), kind);
+	}
+
+	private boolean checkConversionToPrimitive(final String value, final Primitives.Primitive kind) {
+		try {
+			switch (kind) {
+			case Byte:
+				Byte.parseByte(value);
+				break;
+			case Short:
+				Short.parseShort(value);
+				break;
+			case Char:
+				final int parsed = Integer.parseInt(value);
+				return parsed >= 0 && parsed <= Character.MAX_VALUE;
+			default:
+				return false;
+			}
+			return true;
+		} catch (final NumberFormatException exception) {
+			return false;
+		}
 	}
 
 	private boolean isUnaryNumberLiteralTree(final XExpression expression) {

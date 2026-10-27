@@ -44,8 +44,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			import jbase.testlanguage.tests.SealedTypes.Square;
 			import static java.lang.Math.abs;
 
-			@SuppressWarnings({"unused", "deprecation"})
-			value : Object
+			property @SuppressWarnings({"unused", "deprecation"}) value : Object
 
 			method @Deprecated echo(final String prefix, String... parts) : String {
 				this.value = prefix;
@@ -184,7 +183,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Anonymous bodies use the embedding test language's member syntax.
 			var pointObject = new Object() {
-				x: int
+				property x: int
 				method getX(): int { return x; }
 			};
 			pointObject.x = 30;

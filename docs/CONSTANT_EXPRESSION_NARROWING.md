@@ -42,3 +42,17 @@ assignedBox = ONE;
 
 Method invocation conversion is distinct from assignment conversion, so a
 constant expression is not narrowed to match a method parameter.
+
+## Implementation and tests
+
+[JbaseTypeComputer](../jbase/src/jbase/typesystem/JbaseTypeComputer.java)
+evaluates integral constant expressions in assignment contexts and checks
+representability. [JbaseValidator](../jbase/src/jbase/validation/JbaseValidator.java)
+validates the resulting assignment conversions, and
+[JbaseXbaseCompiler](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java)
+preserves narrowing followed by boxing in generated Java.
+[JbaseTypeComputerTest](../jbase.tests/src/jbase/tests/JbaseTypeComputerTest.java)
+checks inferred expression types and range boundaries.
+[JbaseValidatorTest](../jbase.tests/src/jbase/tests/JbaseValidatorTest.java)
+covers valid and invalid narrowing, boxing, integral operators, and the
+distinction from method-invocation conversion.
