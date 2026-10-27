@@ -386,13 +386,49 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void internalToConvertedExpression(final XExpression expression,
 			final ITreeAppendable appendable, final LightweightTypeReference expected) {
-		if (expression instanceof XSwitchExpression) {
+		if (isNarrowingThenBoxing(expression, expected)) {
+			internalToConvertedExpression(expression, appendable.trace(expression, true));
+		} else if (expression instanceof XSwitchExpression) {
 			// Java switch expressions are poly expressions. Their yields already carry
 			// the target conversion; converting the switch again can unbox twice.
 			internalToConvertedExpression(expression, appendable.trace(expression, true));
 		} else {
 			super.internalToConvertedExpression(expression, appendable, expected);
 		}
+	}
+
+	private boolean isNarrowingThenBoxing(final XExpression expression,
+			final LightweightTypeReference expected) {
+		return expected != null && expected.isWrapper()
+			&& isConstantNarrowingAssignment(expression, expected);
+	}
+
+	private boolean isConstantNarrowingAssignment(final XExpression expression,
+			final LightweightTypeReference expected) {
+		if (expected == null || !isAssignmentConversionContext(expression)) {
+			return false;
+		}
+		final var narrowedType = expected.isWrapper()
+			? expected.getPrimitiveIfWrapperType() : expected;
+		if (!Set.of("byte", "short", "char").contains(narrowedType.getIdentifier())) {
+			return false;
+		}
+		return "int".equals(getLightweightType(expression).getIdentifier());
+	}
+
+	private boolean isAssignmentConversionContext(final XExpression expression) {
+		return expression.eContainer() instanceof XVariableDeclaration
+			|| expression.eContainer() instanceof XAssignment;
+	}
+
+	private LightweightTypeReference getAssignmentTargetType(final XExpression expression) {
+		if (expression.eContainer() instanceof XVariableDeclaration declaration) {
+			return getLightweightType((JvmIdentifiableElement) declaration);
+		}
+		if (expression.eContainer() instanceof XAssignment assignment) {
+			return getLightweightType(assignment.getFeature());
+		}
+		return null;
 	}
 
 	@Override
@@ -1257,7 +1293,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			return false;
 		}
 		if (expr instanceof XUnaryOperation unaryOperation) {
-			return !expressionHelper.specialHandling(unaryOperation);
+			return !expressionHelper.specialHandling(unaryOperation)
+				&& !isConstantNarrowingAssignment(unaryOperation,
+					getAssignmentTargetType(unaryOperation));
 		} else if (expr instanceof XJClassObject ||
 			EcoreUtil2.getContainerOfType(expr, XJTryWithResourcesVariableDeclaration.class) != null) {
 			// there must be no intermediate expressions in the context of the

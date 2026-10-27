@@ -866,6 +866,144 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testConstantExpressionNarrowingAndBoxing() throws Exception {
+		parseAndAssertNoErrors("""
+			final int ONE = 1, TWO = 2;
+			final byte BYTE_CONSTANT = 1;
+			final short SHORT_CONSTANT = 2;
+			final char CHAR_CONSTANT = 65;
+			final var INFERRED = 3;
+			var inferredExpression = 1 + 2;
+			byte first = ONE;
+			byte secondConstant = TWO;
+			byte secondExpressionConstant = TWO + 0;
+			byte byteConstant = BYTE_CONSTANT;
+			byte shortConstant = SHORT_CONSTANT;
+			byte charConstant = CHAR_CONSTANT;
+			byte inferredConstant = INFERRED;
+			byte second = 1 + 2;
+			byte negated = -(ONE + 2);
+			char letter = 65 + 1;
+			byte characterConstant = 'a' + 1;
+			Byte boxedByte = 1;
+			Byte boxedConstant = ONE;
+			Byte boxedNegated = -(ONE + 2);
+			Short boxedShort = 1 + 2;
+			Character boxedCharacter = 65 + 1;
+			int notNarrowed = 1 + 2;
+			Object boxedToObject = 1 + 2;
+			byte maximum = 127;
+			short shortMaximum = 32767;
+			char characterMaximum = 65535;
+			byte assigned;
+			assigned = 1 + 2;
+			Byte assignedBox;
+			assignedBox = ONE;
+			""");
+	}
+
+	@Test
+	public void testConstantNarrowingIsNotUsedForMethodArguments() throws Exception {
+		final var issues = validationTestHelper.validate(parseHelper.parse("""
+			op acceptsByte(byte value) : void {}
+			acceptsByte(1 + 2);
+			op acceptsByteWrapper(Byte value) : void {}
+			acceptsByteWrapper(1);
+			"""));
+		assertEquals(2, issues.stream().filter(issue -> issue.getSeverity() == Severity.ERROR)
+			.count());
+	}
+
+	@Test
+	public void testNonConstantExpressionsAreNotNarrowed() throws Exception {
+		for (final var source : List.of(
+				"byte divisionByZero = 1 / 0;",
+				"byte comparison = 1 < 2;",
+				"byte longExpression = 1L + 0;",
+				"byte floatingExpression = 1.0 + 0;",
+				"byte lowercaseLongExpression = 1l + 0;",
+				"byte invalidUnary = 1 + !1;")) {
+			assertTrue(validationTestHelper.validate(parseHelper.parse(source)).stream()
+				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+		}
+	}
+
+	@Test
+	public void testConstantExpressionIntegerOperators() throws Exception {
+		parseAndAssertNoErrors("""
+			byte addition = 1 + 2;
+			byte subtraction = 3 - 2;
+			byte multiplication = 2 * 2;
+			byte division = 4 / 2;
+			byte remainder = 5 % 2;
+			byte leftShift = 1 << 2;
+			byte rightShift = 4 >> 1;
+			byte unsignedRightShift = 4 >>> 1;
+			byte and = 3 & 1;
+			byte or = 2 | 1;
+			byte xor = 3 ^ 1;
+			byte unaryPlus = 1 + +1;
+			byte unaryMinus = 1 + -1;
+			byte complement = 1 + ~0;
+			byte hexadecimal = 0x1 + 0;
+			byte hexadecimalSignExtended = 0xffff_ffff + 0;
+			byte uppercaseHexadecimal = 0X1 + 0;
+			byte binary = 0b1 + 0;
+			byte uppercaseBinary = 0B1 + 0;
+			byte octal = 01 + 0;
+			byte underscored = 1_0 + 0;
+			""");
+	}
+
+	@Test
+	public void testInvalidConstantExpressionNarrowingAndBoxing() throws Exception {
+		final var issues = validationTestHelper.validate(parseHelper.parse("""
+			op identity(int value) : int { return value; }
+			op parameterCase(int value) : int {
+				byte narrowed = value;
+				return narrowed;
+			}
+			byte tooLarge = 128;
+			short tooLargeShort = 32768;
+			char tooLargeChar = 65536;
+			char negativeChar = -1;
+			byte invalidCharacter = '12' + 0;
+			Byte boxedTooLarge = 128;
+			final int TOO_LARGE = 128;
+			byte throughConstant = TOO_LARGE;
+			int mutable = 1;
+			byte throughMutable = mutable;
+			final long LONG = 1L;
+			byte throughLong = LONG;
+			byte longLiteral = 1L;
+			byte throughMethod = identity(1);
+			byte throughMethodOperand = 1 + identity(1);
+			byte tooLargeDecimal = 2147483648;
+			byte tooLargeDecimalInExpression = 1 + 2147483648;
+			byte tooLargeHex = 0x1_0000_0000;
+			byte tooLargeHexInExpression = 1 + 0x1_0000_0000;
+			byte malformedHex = 0x8000000000000000;
+			byte malformedHexInExpression = 1 + 0x8000000000000000;
+			byte malformedOctalInExpression = 1 + 08;
+			byte tooLargeExpression = 127 + 1;
+			byte tooSmallExpression = 0 + -129;
+			short tooLargeShortExpression = 32767 + 1;
+			short tooSmallShortExpression = 0 + -32769;
+			char tooLargeCharExpression = 65535 + 1;
+			char negativeCharExpression = 0 + -1;
+			byte nonIntegral = 1 + "x";
+			byte nonLocalConstant = 1 + Integer.MAX_VALUE;
+			final int BLANK;
+			BLANK = 1;
+			byte throughBlank = BLANK;
+			final int CYCLIC = CYCLIC + 0;
+			byte throughCycle = CYCLIC;
+			"""));
+		assertTrue(issues.stream().filter(issue -> issue.getSeverity() == Severity.ERROR)
+			.count() >= 6);
+	}
+
+	@Test
 	public void testIntegerCannotBeAssignedToChar() throws Exception {
 		assertNumberLiteralTypeMismatch(parseHelper.parse("char c = 100000;"), "char", "int");
 	}

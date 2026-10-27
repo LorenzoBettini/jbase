@@ -1985,6 +1985,59 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void testConstantExpressionNarrowingAndBoxing() throws Exception {
+		checkCompilation("""
+			final int ONE = 1;
+			final var INFERRED = 3;
+			byte first = ONE;
+			byte inferredConstant = INFERRED;
+			byte second = 1 + 2;
+			byte negated = (-(ONE + 2));
+			char letter = 65 + 1;
+			Byte boxed = 1;
+			Byte boxedConstant = ONE;
+			Byte boxedNegated = (-(ONE + 2));
+			Short boxedShort = 1 + 2;
+			Character boxedCharacter = 65 + 1;
+			byte assigned;
+			assigned = 1 + 2;
+			Byte assignedBox;
+			assignedBox = ONE;
+			Byte assignedNegated;
+			assignedNegated = (-(ONE + 2));
+			System.out.println(-(ONE + 2));
+			""", """
+			package jbasetestlanguage;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    final int ONE = 1;
+			    final var INFERRED = 3;
+			    byte first = ONE;
+			    byte inferredConstant = INFERRED;
+			    byte second = (1 + 2);
+			    byte negated = (-(ONE + 2));
+			    char letter = (65 + 1);
+			    Byte boxed = 1;
+			    Byte boxedConstant = ONE;
+			    Byte boxedNegated = (-(ONE + 2));
+			    Short boxedShort = (1 + 2);
+			    Character boxedCharacter = (65 + 1);
+			    byte assigned = 0;
+			    assigned = (1 + 2);
+			    Byte assignedBox = null;
+			    assignedBox = ONE;
+			    Byte assignedNegated = null;
+			    assignedNegated = (-(ONE + 2));
+			    int _minus = (-(ONE + 2));
+			    System.out.println(_minus);
+			  }
+			}
+			""");
+	}
+
+	@Test
 	public void testNumberLiteralsInBinaryOperations() throws Exception {
 		// https://github.com/LorenzoBettini/javamm/issues/34
 		checkCompilation("""

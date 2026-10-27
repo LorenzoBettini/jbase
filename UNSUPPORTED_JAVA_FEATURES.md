@@ -307,7 +307,7 @@ exclusive branches. Reads still require definite assignment, and repeated or
 looped assignments are rejected. See the [blank final locals guide](docs/BLANK_FINAL_LOCALS.md)
 and the `AllJavaFeaturesTest` showcase.
 
-### [ ] Constant-expression narrowing and narrowing followed by boxing
+### [x] Constant-expression narrowing and narrowing followed by boxing
 
 ```java
 final int ONE = 1;
@@ -317,11 +317,15 @@ char letter = 65 + 1;
 Byte boxed = 1;
 ```
 
-These report type mismatches. Java assignment conversion allows representable
-constant `int` expressions to narrow to `byte`, `short`, or `char`, and permits
-narrowing followed by boxing to `Byte`, `Short`, or `Character` in the applicable
-cases. Simple primitive literal narrowing such as `byte b = 1` and `char c = 65`
-already works.
+**Implemented:** Representable constant integral expressions narrow to `byte`,
+`short`, or `char` in local variable initializers and assignment right-hand sides.
+Final local constants of those types or `int`, including inferred `final var`
+constants, can be referenced. The same assignment contexts support narrowing
+followed by boxing to `Byte`, `Short`, or `Character`. Out-of-range values and
+`long` expressions are rejected; narrowing is not applied to method arguments.
+Covered by `JbaseTypeComputerTest`,
+`JbaseValidatorTest`, `JbaseCompilerTest`, and `AllJavaFeaturesTest`; see the
+[constant-expression narrowing guide](docs/CONSTANT_EXPRESSION_NARROWING.md).
 
 ### [ ] Implicit narrowing in ordinary compound assignments
 
