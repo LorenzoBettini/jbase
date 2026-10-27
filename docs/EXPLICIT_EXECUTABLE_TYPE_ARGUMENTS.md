@@ -24,3 +24,20 @@ order for generic inference, while serialization and Java generation preserve
 their source positions. Qualified and anonymous constructor calls use the same
 ordering. Parsing, formatting, serialization, type computation and generated
 Java are covered by regression tests and the Java-features showcase.
+
+## Implementation and tests
+
+[Jbase.xtext](../jbase/src/jbase/Jbase.xtext) models executable arguments
+separately from class type arguments.
+[JbaseTypeComputer](../jbase/src/jbase/typesystem/JbaseTypeComputer.java)
+and [JbaseConstructorCallState](../jbase/src/jbase/typesystem/JbaseConstructorCallState.java)
+apply Java's executable-first constructor inference order.
+[JbaseXbaseCompiler](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java)
+emits method and constructor arguments in their source positions.
+[JbaseCompilerTest](../jbase.tests/src/jbase/tests/JbaseCompilerTest.java)
+checks generated Java and compilation for methods, constructors, qualified
+inner constructors, and anonymous constructor calls.
+[JbaseParsingTest](../jbase.tests/src/jbase/tests/JbaseParsingTest.java),
+[JbaseFormatterTest](../jbase.tests/src/jbase/tests/JbaseFormatterTest.java),
+and [JbaseSerializerTest](../jbase.tests/src/jbase/tests/JbaseSerializerTest.java)
+cover parsing, formatting, and serialization.
