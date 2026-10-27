@@ -27,7 +27,7 @@ public class JbaseWorkbenchTest extends AbstractWorkbenchTest {
 	@Test
 	public void testWorkbenchIntegration() throws Exception {
 		pluginProjectHelper.createTestFile("""
-			aString : String
+			property aString : String
 			op m(String s) : String {
 				char c = 'c';
 				return s;
