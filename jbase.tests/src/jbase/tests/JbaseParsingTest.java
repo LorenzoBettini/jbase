@@ -1,19 +1,31 @@
 package jbase.tests;
 
 import static org.junit.Assert.*;
+
+import com.google.inject.Inject;
+
+import java.io.StringReader;
+
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesStatement;
+import jbase.services.JbaseGrammarAccess;
 import jbase.util.JbaseNodeModelUtil;
+
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
-import org.eclipse.xtext.testing.InjectWith;
-import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.ParserRule;
+import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
+import org.eclipse.xtext.parser.IParser;
+import org.eclipse.xtext.testing.InjectWith;
+import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.util.ReplaceRegion;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XConstructorCall;
@@ -33,6 +45,36 @@ import org.junit.runner.RunWith;
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseInjectorProvider.class)
 public class JbaseParsingTest extends JbaseAbstractTest {
+
+	@Inject
+	private IParser parser;
+
+	@Inject
+	private JbaseGrammarAccess grammarAccess;
+
+	@Test
+	public void unicodeParserSupportsAllEntryPointsAndReparsing() throws Exception {
+		final var expression = "v\\u0061lue + 1";
+		final ParserRule parserRule = grammarAccess.getXExpressionRule();
+		final var parseResult = parser.parse(new StringReader(expression));
+		assertFalse(parseResult.getSyntaxErrors().iterator().hasNext());
+		assertFalse(parser.parse(parserRule, new StringReader(expression))
+				.getSyntaxErrors().iterator().hasNext());
+
+		final var statementRuleCall = EcoreUtil2.getAllContentsOfType(
+				grammarAccess.getGrammar(), RuleCall.class).stream()
+				.filter(ruleCall -> ruleCall.getRule() instanceof ParserRule)
+				.filter(ruleCall -> ruleCall.getRule().getName().equals("XJStatementOrBlock"))
+				.findFirst().orElseThrow();
+		assertFalse(parser.parse(statementRuleCall, new StringReader(expression + ";"), 0)
+				.getSyntaxErrors().iterator().hasNext());
+
+		final var reparsed = parser.reparse(parseResult,
+				new ReplaceRegion(expression.length() - 1, 1, "2"));
+		assertFalse(reparsed.getSyntaxErrors().iterator().hasNext());
+		assertEquals("2", EcoreUtil2.getAllContentsOfType(reparsed.getRootASTElement(),
+				XNumberLiteral.class).getFirst().getValue());
+	}
 
 	@Test
 	public void testAnonymousInterfaceRequiresAnInferrer() throws Exception {

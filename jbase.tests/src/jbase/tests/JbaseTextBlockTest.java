@@ -236,6 +236,11 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 		converter.toValue("\"\"\"\n\\u", null);
 	}
 
+	@Test(expected = ValueConverterException.class)
+	public void closingDelimiterBeforeTheEndIsRejectedByTheConverter() {
+		converter.toValue("\"\"\"\ncontent\"\"\"trailing", null);
+	}
+
 	@Test
 	public void converterSerializationPreservesSignificantWhitespace() {
 		for (final var value : List.of("", "  leading and trailing  ", "\n\n", "\r\n\t\f\b",

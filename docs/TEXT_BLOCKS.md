@@ -30,8 +30,10 @@ Compile generated code containing text blocks with Java 15 or later.
 ## Implementation
 
 `TEXT_BLOCK` is a separate terminal assigned to the existing `XStringLiteral.value`
-feature. `JbaseTextBlockValueConverter` supplies its actual string value, so existing
-Xbase typing, constant evaluation and annotation handling continue to work.
+feature. `JbaseUnicodeParser` translates Unicode escapes before tokenization;
+`JbaseTextBlockValueConverter` then normalizes indentation and supplies the actual
+string value, so existing Xbase typing, constant evaluation and annotation handling
+continue to work.
 
 `JbaseXbaseCompiler` retrieves the literal's raw token from the node model. It
 normalizes incidental whitespace while retaining ordinary escapes and emits a

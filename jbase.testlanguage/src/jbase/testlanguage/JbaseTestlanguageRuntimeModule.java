@@ -3,9 +3,17 @@
  */
 package jbase.testlanguage;
 
+import org.eclipse.xtext.parser.IParser;
+
+import jbase.testlanguage.parser.JbaseTestlanguageUnicodeParser;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class JbaseTestlanguageRuntimeModule extends AbstractJbaseTestlanguageRuntimeModule {
+
+	@Override
+	public Class<? extends IParser> bindIParser() {
+		return JbaseTestlanguageUnicodeParser.class;
+	}
 }

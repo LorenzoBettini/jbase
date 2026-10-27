@@ -360,7 +360,7 @@ Jbase supports hexadecimal floating-point literals and the additional decimal
 point forms shown above. Regression coverage is in `JbaseIntegerLiteralTest`;
 see the [floating-point literals guide](docs/FLOATING_POINT_LITERALS.md).
 
-### [ ] Java escape sequences and Unicode lexical translation
+### [x] Java escape sequences and Unicode lexical translation
 
 ```java
 String space = "\s";
@@ -371,15 +371,16 @@ int café = 1;
 int v\u0061lue = 1;
 ```
 
-Ordinary string and character converters reject Java's space and octal escapes;
-the multi-`u` Unicode escape also fails. Generation after converter errors can drop
-the backslash and change the value or emit an invalid character literal. Text-block
-escape handling is separate and already has focused tests.
+**Implemented:** Java Unicode escapes are translated once, before tokenization, including
+repeated `u` markers and escapes that introduce identifier characters or line terminators.
+The parser combines non-ASCII identifier characters with adjacent ASCII identifier tokens,
+and the identifier converter validates code points using Java identifier rules. Ordinary
+string and character literals interpret Java's standard, `\s`, and octal escapes. Malformed
+literal escapes are reported as conversion errors. Text blocks receive the same source-level
+translation before their existing indentation and escape handling.
 
-The inherited identifier lexer also rejects the shown non-ASCII identifier, and
-Unicode escapes are not translated throughout the source before tokenization as
-required by Java. `$` in identifiers is supported; these failures do not imply
-that every non-alphanumeric identifier is rejected.
+Covered by `JbaseJavaEscapeTest`, `JbaseTextBlockTest`, and `AllJavaFeaturesTest`;
+see the [Java escape sequences guide](docs/ESCAPE_SEQUENCES.md).
 
 ## Java features that are not related to expressions and statements
 

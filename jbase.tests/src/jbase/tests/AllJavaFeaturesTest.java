@@ -103,6 +103,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			double trailingDot = 1.;
 			double trailingDotExponent = 1.e2;
 			String text = "hello";
+			String escapedSpace = "\\s";
+			char octalCharacter = '\\141';
+			char unicodeCharacter = '\\uuuu0061';
+			String café = "café";
+			String v\\u0061lue = escapedSpace + octalCharacter + unicodeCharacter + café;
 			String multiline = \"\"\"
 				first line
 				  second line
@@ -419,6 +424,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    double trailingDot = 1.;
 			    double trailingDotExponent = 1.e2;
 			    String text = "hello";
+			    String escapedSpace = " ";
+			    char octalCharacter = 'a';
+			    char unicodeCharacter = 'a';
+			    String café = "caf\\u00E9";
+			    String value = (((escapedSpace + Character.valueOf(octalCharacter)) + Character.valueOf(unicodeCharacter)) + café);
 			    String multiline = \"\"\"
 			    first line
 			      second line

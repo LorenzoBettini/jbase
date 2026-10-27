@@ -5,7 +5,6 @@ package jbase.conversion;
 
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverter;
-import org.eclipse.xtext.conversion.impl.STRINGValueConverter;
 import org.eclipse.xtext.xbase.conversion.XbaseValueConverterService;
 
 import com.google.inject.Inject;
@@ -19,7 +18,13 @@ import com.google.inject.Inject;
 public class JbaseValueConverterService extends XbaseValueConverterService {
 
 	@Inject
-	private STRINGValueConverter stringValueConverter;
+	private JbaseStringValueConverter stringValueConverter;
+
+	@Inject
+	private JbaseCharacterValueConverter characterValueConverter;
+
+	@Inject
+	private JbaseIdentifierValueConverter identifierValueConverter;
 
 	@Inject
 	private JbaseTextBlockValueConverter textBlockValueConverter;
@@ -36,9 +41,20 @@ public class JbaseValueConverterService extends XbaseValueConverterService {
 	public IValueConverter<String> TEXT_BLOCK() {
 		return textBlockValueConverter;
 	}
-	
-	@ValueConverter(rule = "CHARACTER")
-	public IValueConverter<String> CHARACTER() {
+
+	@ValueConverter(rule = "STRING")
+	public IValueConverter<String> STRING() {
 		return stringValueConverter;
 	}
+
+	@ValueConverter(rule = "CHARACTER")
+	public IValueConverter<String> CHARACTER() {
+		return characterValueConverter;
+	}
+
+	@ValueConverter(rule = "ID")
+	public IValueConverter<String> ID() {
+		return identifierValueConverter;
+	}
+
 }
