@@ -57,6 +57,7 @@ import org.eclipse.xtext.xbase.XPostfixOperation;
 import org.eclipse.xtext.xbase.XReturnExpression;
 import org.eclipse.xtext.xbase.XSwitchExpression;
 import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.typesystem.references.ArrayTypeReference;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.controlflow.IEarlyExitComputer;
 import org.eclipse.xtext.xbase.jvmmodel.ILogicalContainerProvider;
@@ -485,10 +486,20 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		var parameterTypes = functionType.getParameterTypes();
 		for (var i = 0; i < Math.min(parameters.size(), parameterTypes.size()); i++) {
 			var declaredType = parameters.get(i).getParameterType();
+			var expectedParameterType = parameterTypes.get(i);
+			for (var ignored : jbaseParameters.get(i).getArrayDimensions()) {
+				if (expectedParameterType instanceof ArrayTypeReference arrayType) {
+					expectedParameterType = arrayType.getComponentType();
+				} else {
+					expectedParameterType = null;
+					break;
+				}
+			}
 			if (declaredType != null
 					&& expectedType.getTypeArguments().stream().noneMatch(type -> type.isWildcard())
-					&& !toLightweightTypeReference(declaredType).getIdentifier()
-						.equals(parameterTypes.get(i).getIdentifier())) {
+					&& (expectedParameterType == null
+						|| !toLightweightTypeReference(declaredType).getIdentifier()
+							.equals(expectedParameterType.getIdentifier()))) {
 				error("Lambda parameter type must match the functional interface parameter type",
 					parameters.get(i), null, INVALID_LAMBDA);
 			}
@@ -911,6 +922,11 @@ public class JbaseValidator extends AbstractJbaseValidator {
 	public void checkVarDeclaration(final XJVariableDeclaration declaration) {
 		if (declaration.getType() != null) {
 			return;
+		}
+		if (!declaration.getArrayDimensions().isEmpty()) {
+			error("'var' declarations cannot have array dimensions", declaration,
+				JBASE_PACKAGE.getXJVariableDeclaration_ArrayDimensions(),
+				INVALID_VAR_DECLARATION);
 		}
 		if (!declaration.getAdditionalVariables().isEmpty()) {
 			error("'var' is not allowed in a compound declaration", declaration,

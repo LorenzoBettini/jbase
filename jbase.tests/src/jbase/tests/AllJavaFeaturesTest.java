@@ -134,6 +134,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Arrays, constructors, generics, diamond inference and wildcards.
 			int[] numbers = {1, 2, 3};
+			int numbersAfterName[] = {4, 5,};
+			int scalar = 1, additional[] = {6,};
+			int[] constructedWithTrailingComma = new int[] {7, 8,};
 			int[] empty = {};
 			int[] sized = new int[limit];
 			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
@@ -454,6 +457,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    Class<int[][]> primitiveArrayType = int[][].class;
 			    Class<String[][][]> referenceArrayType = String[][][].class;;
 			    int[] numbers = { 1, 2, 3 };
+			    int numbersAfterName[] = { 4, 5 };
+			    int scalar = 1;
+			    int additional[] = { 6 };
+			    int[] constructedWithTrailingComma = new int[] { 7, 8 };
 			    int[] empty = {};
 			    int[] sized = new int[limit];
 			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };

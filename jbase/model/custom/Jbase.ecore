@@ -11,6 +11,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"
         eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJAssignment" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XAssignment #//XJArrayAccess"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration">
@@ -21,6 +23,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="additionalVariables" upperBound="-1"
         eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJParameterizedTypeReference"
       eSuperTypes="../../../org.eclipse.xtext.common.types/model/JavaVMTypes.ecore#//JvmParameterizedTypeReference">
@@ -46,7 +50,10 @@
         eType="ecore:EClass platform:/resource/org.eclipse.xtext.xbase/model/XAnnotations.ecore#//XAnnotation"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJAdditionalXVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJAdditionalXVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJArrayAccess">
     <eStructuralFeatures xsi:type="ecore:EReference" name="indexes" upperBound="-1"
         eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"

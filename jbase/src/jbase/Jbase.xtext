@@ -6,6 +6,7 @@ import "http://www.Jbase.jbase"
 import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
 import "http://www.eclipse.org/xtext/xbase/Xbase"
 import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 /**
  * The syntactic predicate on XBlockExpression is required to avoid
@@ -76,7 +77,8 @@ JvmArgumentTypeReference returns types::JvmTypeReference:
 @Override 
 FullJvmFormalParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
-	parameterType=JvmTypeReference varArgs?='...'? name=ValidID;
+	parameterType=JvmTypeReference varArgs?='...'? name=ValidID
+	arrayDimensions+=XJArrayDeclaratorDimension*;
 
 XJSingleStatement returns XExpression:
 	// Commit on the switch keyword, including incomplete statements during editing.
@@ -151,7 +153,8 @@ XVariableDeclaration returns XVariableDeclaration:
 	=>({XJVariableDeclaration}
 	(=>sourceAnnotations+=XAnnotation)*
 	final?='final'?
-	(=>'var' | type=JvmTypeReference) name=ValidID) ('=' right=XExpression)?
+	(=>'var' | type=JvmTypeReference) name=ValidID
+	arrayDimensions+=XJArrayDeclaratorDimension*) ('=' right=XExpression)?
 	(=>',' additionalVariables+=XJAdditionalXVariableDeclaration)*;
 	// the second predicate is to avoid ambiguities with for loops
 	// that already consider several variable declarations
@@ -160,7 +163,10 @@ XVariableDeclaration returns XVariableDeclaration:
 
 XJAdditionalXVariableDeclaration returns XVariableDeclaration:
 	{XJAdditionalXVariableDeclaration}
-	name=ValidID ('=' right=XExpression)?;
+	name=ValidID arrayDimensions+=XJArrayDeclaratorDimension* ('=' right=XExpression)?;
+
+XJArrayDeclaratorDimension returns ecore::EString:
+	'[' ']';
 
 @Override 
 XAssignment returns XExpression :
@@ -202,6 +208,7 @@ XJLambdaParameter returns XJJvmFormalParameter:
 	{XJJvmFormalParameter} (=>sourceAnnotations+=XAnnotation)* final?='final'?
 	(=>(var?='var' name=ValidID)
 	| parameterType=XJLambdaParameterType name=ValidID
+		arrayDimensions+=XJArrayDeclaratorDimension*
 	| name=ValidID)
 ;
 
@@ -622,7 +629,7 @@ XLiteral returns XExpression:
 // it is a subclass of XListLiteral, so that we will reuse
 // type computation and compiler from Xbase
 XJArrayLiteral returns XJArrayLiteral:
-	{XJArrayLiteral} '{' (elements+=XExpression (',' elements+=XExpression )*)? '}'
+	{XJArrayLiteral} '{' (elements+=XExpression (',' elements+=XExpression )* ','?)? '}'
 ;
 
 /*

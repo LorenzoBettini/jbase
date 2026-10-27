@@ -260,9 +260,10 @@ Intersection cast types are represented with Xtext's `JvmMultiTypeReference`.
 Lambda and method-reference targets use the unique functional-interface bound for
 inference, while generated Java retains the complete intersection cast.
 
-### [ ] Array declarator dimensions and trailing initializer commas
+### [x] Array declarator dimensions and trailing initializer commas
 
-These independent forms fail:
+Java array dimensions may follow a declarator name, and array initializers may
+have a trailing comma:
 
 ```java
 int values[] = {1};
@@ -272,9 +273,9 @@ int[] withComma = {1, 2,};
 int[] constructed = new int[] {1, 2,};
 ```
 
-Dimensions must currently appear on the type rather than after the declarator
-name, and `XJArrayLiteral` requires an element after each comma. Java allows both
-array declarator styles and an optional trailing initializer comma.
+Covered by parsing, serialization, formatting, compilation and runtime tests;
+see the [array declarator guide](docs/ARRAY_DECLARATORS.md) and the
+`AllJavaFeaturesTest` showcase.
 
 ### [ ] Some legal assignment targets
 

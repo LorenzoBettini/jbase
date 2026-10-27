@@ -30,7 +30,7 @@ public class XJAdditionalXVariableDeclarationImplCustom extends XJAdditionalXVar
 	 */
 	@Override
 	public JvmTypeReference getType() {
-		return getContainingVariableDeclaration().getType() ;
+		return getContainingVariableDeclaration().getType();
 	}
 
 	private XJVariableDeclaration getContainingVariableDeclaration() {
