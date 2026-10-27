@@ -463,50 +463,74 @@ public class JbaseValidator extends AbstractJbaseValidator {
 		if (closure instanceof XJMethodReference) {
 			return;
 		}
-		var expectedType = getExpectedType(closure);
-		var operation = expectedType == null ? null
+		final var expectedType = getExpectedType(closure);
+		final var operation = expectedType == null ? null
 			: getServices().getFunctionTypes().findImplementingOperation(expectedType);
-		if (operation == null || !expectedType.isInterfaceType()
-				|| !operation.getTypeParameters().isEmpty()) {
+		if (!hasJavaLambdaTarget(expectedType, operation)) {
 			error("A lambda expression requires a functional interface target type",
 				closure, null, INVALID_LAMBDA);
 			return;
 		}
-		var functionType = expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
-		var parameters = closure.getDeclaredFormalParameters();
-		var jbaseParameters = parameters.stream().map(XJJvmFormalParameter.class::cast).toList();
-		var mixesVarAndOtherParameters = jbaseParameters.stream().anyMatch(XJJvmFormalParameter::isVar)
-			&& jbaseParameters.stream().anyMatch(parameter -> !parameter.isVar());
-		if (mixesVarAndOtherParameters
-				|| parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
-				&& parameters.stream().anyMatch(parameter -> parameter.getParameterType() != null)) {
+		final var functionType =
+			expectedType.tryConvertToFunctionTypeReference(expectedType.isRawType());
+		checkLambdaParameterDeclarations(closure);
+		checkJavaLambdaParameterTypes(closure, expectedType, functionType.getParameterTypes());
+		checkJavaLambdaBody(closure, functionType.getReturnType().isPrimitiveVoid());
+	}
+
+	private boolean hasJavaLambdaTarget(final LightweightTypeReference expectedType,
+			final JvmOperation operation) {
+		return operation != null && expectedType.isInterfaceType()
+			&& operation.getTypeParameters().isEmpty();
+	}
+
+	private void checkLambdaParameterDeclarations(final XClosure closure) {
+		final var parameters = closure.getDeclaredFormalParameters();
+		final var jbaseParameters = parameters.stream().map(XJJvmFormalParameter.class::cast)
+			.toList();
+		final var mixesVarAndOtherParameters =
+			jbaseParameters.stream().anyMatch(XJJvmFormalParameter::isVar)
+				&& jbaseParameters.stream().anyMatch(parameter -> !parameter.isVar());
+		final var mixesImplicitAndExplicitParameters =
+			parameters.stream().anyMatch(parameter -> parameter.getParameterType() == null)
+				&& parameters.stream().anyMatch(parameter -> parameter.getParameterType() != null);
+		if (mixesVarAndOtherParameters || mixesImplicitAndExplicitParameters) {
 			error("Cannot mix 'var' and explicitly typed lambda parameters",
 				closure, null, INVALID_LAMBDA);
 		}
-		var parameterTypes = functionType.getParameterTypes();
+	}
+
+	private void checkJavaLambdaParameterTypes(final XClosure closure,
+			final LightweightTypeReference expectedType,
+			final List<? extends LightweightTypeReference> parameterTypes) {
+		if (expectedType.getTypeArguments().stream().anyMatch(type -> type.isWildcard())) {
+			return;
+		}
+		final var parameters = closure.getDeclaredFormalParameters();
 		for (var i = 0; i < Math.min(parameters.size(), parameterTypes.size()); i++) {
-			var declaredType = parameters.get(i).getParameterType();
-			var expectedParameterType = parameterTypes.get(i);
-			var arrayDimensions = jbaseParameters.get(i).getArrayDimensions();
-			final var size = arrayDimensions.size();
-			for (var dimension = 0; dimension < size; dimension++) {
-				if (expectedParameterType instanceof ArrayTypeReference arrayType) {
-					expectedParameterType = arrayType.getComponentType();
-				} else {
-					expectedParameterType = null;
-					break;
-				}
-			}
-			if (declaredType != null
-					&& expectedType.getTypeArguments().stream().noneMatch(type -> type.isWildcard())
-					&& (expectedParameterType == null
-						|| !toLightweightTypeReference(declaredType).getIdentifier()
-							.equals(expectedParameterType.getIdentifier()))) {
+			final var parameter = (XJJvmFormalParameter) parameters.get(i);
+			final var declaredType = parameter.getParameterType();
+			final var expectedParameterType = removeLambdaParameterDimensions(
+				parameterTypes.get(i), parameter.getArrayDimensions().size());
+			if (declaredType != null && (expectedParameterType == null
+					|| !toLightweightTypeReference(declaredType).getIdentifier()
+						.equals(expectedParameterType.getIdentifier()))) {
 				error("Lambda parameter type must match the functional interface parameter type",
-					parameters.get(i), null, INVALID_LAMBDA);
+					parameter, null, INVALID_LAMBDA);
 			}
 		}
-		checkJavaLambdaBody(closure, functionType.getReturnType().isPrimitiveVoid());
+	}
+
+	private LightweightTypeReference removeLambdaParameterDimensions(
+			LightweightTypeReference expectedParameterType, final int dimensions) {
+		for (var dimension = 0; dimension < dimensions; dimension++) {
+			if (expectedParameterType instanceof ArrayTypeReference arrayType) {
+				expectedParameterType = arrayType.getComponentType();
+			} else {
+				return null;
+			}
+		}
+		return expectedParameterType;
 	}
 
 	/**

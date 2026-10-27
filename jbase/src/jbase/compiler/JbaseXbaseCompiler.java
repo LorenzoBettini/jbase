@@ -1487,40 +1487,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 		appendable.openPseudoScope();
 		appendable.append("(");
-		final var parameters = closure.getFormalParameters();
-		final var declaredParameters = closure.getDeclaredFormalParameters();
-		final var isVarArgs = operation.isVarArgs();
 		try {
-			for (var index = 0; index < parameters.size(); index++) {
-				final var parameter = parameters.get(index);
-				final var parameterType = getClosureOperationParameterType(type, operation, index);
-				final var isLastVarArgsParameter = isVarArgs
-					&& index == parameters.size() - 1;
-				final var sourceParameter =
-					(XJJvmFormalParameter) declaredParameters.get(index);
-				appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
-				if (sourceParameter.getParameterType() != null) {
-					serialize(sourceParameter.getParameterType(), sourceParameter, appendable);
-				} else {
-					appendable.append(isLastVarArgsParameter
-						? parameterType.getComponentType() : parameterType);
-				}
-				if (isLastVarArgsParameter && sourceParameter.getParameterType() == null) {
-					appendable.append("...");
-				}
-				appendable.append(" ");
-				final var name = makeJavaIdentifier(parameter.getName());
-				final var varName = appendable.declareUniqueNameVariable(parameter, name);
-				appendable.append(varName);
-				final var size = sourceParameter.getArrayDimensions().size();
-				for (var dimension = 0; dimension < size;
-						dimension++) {
-					appendable.append("[]");
-				}
-				if (index < parameters.size() - 1) {
-					appendable.append(",");
-				}
-			}
+			appendLambdaParameters(closure, appendable, type, operation);
 			appendable.append(") -> {");
 			appendable.increaseIndentation();
 			final var returnType = getClosureOperationReturnType(type, operation);
@@ -1534,6 +1502,47 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			appendable.append(")");
 		}
 		return appendable;
+	}
+
+	private void appendLambdaParameters(final XClosure closure, final ITreeAppendable appendable,
+			final LightweightTypeReference type, final JvmOperation operation) {
+		final var parameters = closure.getFormalParameters();
+		final var declaredParameters = closure.getDeclaredFormalParameters();
+		final var isVarArgs = operation.isVarArgs();
+		for (var index = 0; index < parameters.size(); index++) {
+			appendLambdaParameter(parameters.get(index),
+				(XJJvmFormalParameter) declaredParameters.get(index), appendable, type, operation,
+				index, isVarArgs && index == parameters.size() - 1,
+				index < parameters.size() - 1);
+		}
+	}
+
+	private void appendLambdaParameter(final JvmFormalParameter parameter,
+			final XJJvmFormalParameter sourceParameter, final ITreeAppendable appendable,
+			final LightweightTypeReference type, final JvmOperation operation, final int index,
+			final boolean isLastVarArgsParameter, final boolean isLastParameter) {
+		final var parameterType = getClosureOperationParameterType(type, operation, index);
+		appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
+		if (sourceParameter.getParameterType() != null) {
+			serialize(sourceParameter.getParameterType(), sourceParameter, appendable);
+		} else {
+			appendable.append(isLastVarArgsParameter
+				? parameterType.getComponentType() : parameterType);
+		}
+		if (isLastVarArgsParameter && sourceParameter.getParameterType() == null) {
+			appendable.append("...");
+		}
+		appendable.append(" ");
+		final var name = makeJavaIdentifier(parameter.getName());
+		final var varName = appendable.declareUniqueNameVariable(parameter, name);
+		appendable.append(varName);
+		for (var dimension = 0; dimension < sourceParameter.getArrayDimensions().size();
+				dimension++) {
+			appendable.append("[]");
+		}
+		if (isLastParameter) {
+			appendable.append(",");
+		}
 	}
 
 	/**
