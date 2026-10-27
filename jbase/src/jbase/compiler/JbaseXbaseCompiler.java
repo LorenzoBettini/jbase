@@ -1509,15 +1509,16 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		final var parameters = closure.getFormalParameters();
 		final var declaredParameters = closure.getDeclaredFormalParameters();
 		final var isVarArgs = operation.isVarArgs();
-		for (var index = 0; index < parameters.size(); index++) {
+		final var size = parameters.size();
+		for (var index = 0; index < size; index++) {
 			appendLambdaParameter(parameters.get(index),
 				(XJJvmFormalParameter) declaredParameters.get(index), appendable, type, operation,
-				index, isVarArgs && index == parameters.size() - 1,
-				index < parameters.size() - 1);
+				index, isVarArgs && index == size - 1,
+				index < size - 1);
 		}
 	}
 
-	private void appendLambdaParameter(final JvmFormalParameter parameter,
+	private void appendLambdaParameter(final JvmFormalParameter parameter,  // NOSONAR: better to have 8 parameters than to recompute information
 			final XJJvmFormalParameter sourceParameter, final ITreeAppendable appendable,
 			final LightweightTypeReference type, final JvmOperation operation, final int index,
 			final boolean isLastVarArgsParameter, final boolean isLastParameter) {
