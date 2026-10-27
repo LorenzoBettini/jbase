@@ -64,12 +64,30 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Primitive types, literals, declarations, assignments and operators.
 			final boolean enabled = true;
+			final int blankFinal;
+			blankFinal = 1;
+			System.out.println(blankFinal);
+			final int initializedFinal = 0, blankFinalAdditional;
+			blankFinalAdditional = 2;
+			System.out.println(blankFinalAdditional);
 			assert enabled;
 			assert enabled : "Enable assertions with -ea";
 			byte small = (byte) 1;
 			short medium = (short) 2;
 			short positive = +1;
 			char letter = 'a';
+			final int ONE = 1;
+			byte narrowedConstant = ONE;
+			byte narrowedExpression = 1 + 2;
+			char narrowedCharacter = 65 + 1;
+			Byte boxedByte = 1;
+			Byte boxedConstant = ONE;
+			Short boxedShort = 1 + 2;
+			Character boxedCharacter = 65 + 1;
+			byte assignedNarrowing;
+			assignedNarrowing = 1 + 2;
+			Byte assignedBox;
+			assignedBox = ONE;
 			int count = 0, limit = 3;
 			int positiveCount = +count;
 			int promoted = +small;
@@ -134,6 +152,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			// Arrays, constructors, generics, diamond inference and wildcards.
 			int[] numbers = {1, 2, 3};
+			int numbersAfterName[] = {4, 5,};
+			int scalar = 1, additional[] = {6,};
+			int[] constructedWithTrailingComma = new int[] {7, 8,};
 			int[] empty = {};
 			int[] sized = new int[limit];
 			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
@@ -348,12 +369,31 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			  public static void main(String[] args) throws Throwable {
 			    final boolean enabled = true;
+			    final int blankFinal;
+			    blankFinal = 1;
+			    System.out.println(blankFinal);
+			    final int initializedFinal = 0;
+			    final int blankFinalAdditional;
+			    blankFinalAdditional = 2;
+			    System.out.println(blankFinalAdditional);
 			    assert enabled;
 			    assert enabled : "Enable assertions with -ea";
 			    byte small = ((byte) 1);
 			    short medium = ((short) 2);
 			    short positive = +1;
 			    char letter = 'a';
+			    final int ONE = 1;
+			    byte narrowedConstant = ONE;
+			    byte narrowedExpression = (1 + 2);
+			    char narrowedCharacter = (65 + 1);
+			    Byte boxedByte = 1;
+			    Byte boxedConstant = ONE;
+			    Short boxedShort = (1 + 2);
+			    Character boxedCharacter = (65 + 1);
+			    byte assignedNarrowing = 0;
+			    assignedNarrowing = (1 + 2);
+			    Byte assignedBox = null;
+			    assignedBox = ONE;
 			    int count = 0;
 			    int limit = 3;
 			    int _plus = (+count);
@@ -454,6 +494,10 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    Class<int[][]> primitiveArrayType = int[][].class;
 			    Class<String[][][]> referenceArrayType = String[][][].class;;
 			    int[] numbers = { 1, 2, 3 };
+			    int numbersAfterName[] = { 4, 5 };
+			    int scalar = 1;
+			    int additional[] = { 6 };
+			    int[] constructedWithTrailingComma = new int[] { 7, 8 };
 			    int[] empty = {};
 			    int[] sized = new int[limit];
 			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };

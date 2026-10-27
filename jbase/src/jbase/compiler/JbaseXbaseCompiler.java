@@ -67,6 +67,7 @@ import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
+import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAssertStatement;
 import jbase.jbase.XJBranchingStatement;
 import jbase.jbase.XJBreakStatement;
@@ -385,13 +386,49 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	@Override
 	protected void internalToConvertedExpression(final XExpression expression,
 			final ITreeAppendable appendable, final LightweightTypeReference expected) {
-		if (expression instanceof XSwitchExpression) {
+		if (isNarrowingThenBoxing(expression, expected)) {
+			internalToConvertedExpression(expression, appendable.trace(expression, true));
+		} else if (expression instanceof XSwitchExpression) {
 			// Java switch expressions are poly expressions. Their yields already carry
 			// the target conversion; converting the switch again can unbox twice.
 			internalToConvertedExpression(expression, appendable.trace(expression, true));
 		} else {
 			super.internalToConvertedExpression(expression, appendable, expected);
 		}
+	}
+
+	private boolean isNarrowingThenBoxing(final XExpression expression,
+			final LightweightTypeReference expected) {
+		return expected != null && expected.isWrapper()
+			&& isConstantNarrowingAssignment(expression, expected);
+	}
+
+	private boolean isConstantNarrowingAssignment(final XExpression expression,
+			final LightweightTypeReference expected) {
+		if (expected == null || !isAssignmentConversionContext(expression)) {
+			return false;
+		}
+		final var narrowedType = expected.isWrapper()
+			? expected.getPrimitiveIfWrapperType() : expected;
+		if (!Set.of("byte", "short", "char").contains(narrowedType.getIdentifier())) {
+			return false;
+		}
+		return "int".equals(getLightweightType(expression).getIdentifier());
+	}
+
+	private boolean isAssignmentConversionContext(final XExpression expression) {
+		return expression.eContainer() instanceof XVariableDeclaration
+			|| expression.eContainer() instanceof XAssignment;
+	}
+
+	private LightweightTypeReference getAssignmentTargetType(final XExpression expression) {
+		if (expression.eContainer() instanceof XVariableDeclaration declaration) {
+			return getLightweightType((JvmIdentifiableElement) declaration);
+		}
+		if (expression.eContainer() instanceof XAssignment assignment) {
+			return getLightweightType(assignment.getFeature());
+		}
+		return null;
 	}
 
 	@Override
@@ -638,8 +675,27 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 				tracedAppendable.append(name);
 				return type;
 			}
+			if (!customDeclaration.getArrayDimensions().isEmpty()) {
+				super.appendVariableTypeAndName(varDeclaration, appendable);
+				appendArrayDeclaratorDimensions(customDeclaration.getArrayDimensions().size(),
+						appendable);
+				return getLightweightType((XExpression) varDeclaration);
+			}
+		}
+		if (varDeclaration instanceof XJAdditionalXVariableDeclaration additional
+				&& !additional.getArrayDimensions().isEmpty()) {
+			super.appendVariableTypeAndName(varDeclaration, appendable);
+			appendArrayDeclaratorDimensions(additional.getArrayDimensions().size(), appendable);
+			return getLightweightType((XExpression) varDeclaration);
 		}
 		return super.appendVariableTypeAndName(varDeclaration, appendable);
+	}
+
+	private void appendArrayDeclaratorDimensions(final int dimensions,
+			final ITreeAppendable appendable) {
+		for (var i = 0; i < dimensions; i++) {
+			appendable.append("[]");
+		}
 	}
 
 	@Override
@@ -1108,15 +1164,15 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	}
 
 	/**
-	 * Preserves blank locals used under closure nodes before delegating normal generation.
-	 * For {@code int n; n = 2; IntSupplier f = () -> n;}, a synthesized {@code n = 0}
-	 * initializer would make the real assignment a reassignment and invalidate the capture
-	 * in generated Java. The validator independently checks initialization and capture legality.
+	 * Preserves blank locals that cannot receive a synthetic initializer. Final locals must
+	 * remain blank so their permitted assignment stays their first Java assignment; captured
+	 * locals need the same treatment to preserve effective-final semantics.
 	 */
 	@Override
 	protected void _toJavaStatement(XVariableDeclaration varDeclaration,
 			ITreeAppendable b, boolean isReferenced) {
-		if (varDeclaration.getRight() == null && isCapturedLocal(varDeclaration)) {
+		if (varDeclaration.getRight() == null
+				&& (isBlankFinalLocal(varDeclaration) || isCapturedLocal(varDeclaration))) {
 			// A synthetic initializer would make the subsequent Java assignment
 			// a reassignment, preventing capture of an effectively final local.
 			b.newLine();
@@ -1138,6 +1194,10 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 	 * reference subtype. This syntactic query controls preservation of a blank declaration;
 	 * JbaseValidator decides whether a use is an actual capture and is effectively final.
 	 */
+	private boolean isBlankFinalLocal(final XVariableDeclaration variable) {
+		return !variable.isWriteable();
+	}
+
 	private boolean isCapturedLocal(final XVariableDeclaration variable) {
 		return XbaseUsageCrossReferencer.find(variable, EcoreUtil.getRootContainer(variable))
 			.stream().anyMatch(reference -> {
@@ -1233,7 +1293,9 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			return false;
 		}
 		if (expr instanceof XUnaryOperation unaryOperation) {
-			return !expressionHelper.specialHandling(unaryOperation);
+			return !expressionHelper.specialHandling(unaryOperation)
+				&& !isConstantNarrowingAssignment(unaryOperation,
+					getAssignmentTargetType(unaryOperation));
 		} else if (expr instanceof XJClassObject ||
 			EcoreUtil2.getContainerOfType(expr, XJTryWithResourcesVariableDeclaration.class) != null) {
 			// there must be no intermediate expressions in the context of the
@@ -1425,35 +1487,8 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 		}
 		appendable.openPseudoScope();
 		appendable.append("(");
-		final var parameters = closure.getFormalParameters();
-		final var declaredParameters = closure.getDeclaredFormalParameters();
-		final var isVarArgs = operation.isVarArgs();
 		try {
-			for (var index = 0; index < parameters.size(); index++) {
-				final var parameter = parameters.get(index);
-				final var parameterType = getClosureOperationParameterType(type, operation, index);
-				final var isLastVarArgsParameter = isVarArgs
-					&& index == parameters.size() - 1;
-				final var sourceParameter =
-					(XJJvmFormalParameter) declaredParameters.get(index);
-				appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
-				if (sourceParameter.getParameterType() != null) {
-					serialize(sourceParameter.getParameterType(), sourceParameter, appendable);
-				} else {
-					appendable.append(isLastVarArgsParameter
-						? parameterType.getComponentType() : parameterType);
-				}
-				if (isLastVarArgsParameter && sourceParameter.getParameterType() == null) {
-					appendable.append("...");
-				}
-				appendable.append(" ");
-				final var name = makeJavaIdentifier(parameter.getName());
-				final var varName = appendable.declareUniqueNameVariable(parameter, name);
-				appendable.append(varName);
-				if (index < parameters.size() - 1) {
-					appendable.append(",");
-				}
-			}
+			appendLambdaParameters(closure, appendable, type, operation);
 			appendable.append(") -> {");
 			appendable.increaseIndentation();
 			final var returnType = getClosureOperationReturnType(type, operation);
@@ -1467,6 +1502,48 @@ public class JbaseXbaseCompiler extends PatchedXbaseCompiler {
 			appendable.append(")");
 		}
 		return appendable;
+	}
+
+	private void appendLambdaParameters(final XClosure closure, final ITreeAppendable appendable,
+			final LightweightTypeReference type, final JvmOperation operation) {
+		final var parameters = closure.getFormalParameters();
+		final var declaredParameters = closure.getDeclaredFormalParameters();
+		final var isVarArgs = operation.isVarArgs();
+		final var size = parameters.size();
+		for (var index = 0; index < size; index++) {
+			appendLambdaParameter(parameters.get(index),
+				(XJJvmFormalParameter) declaredParameters.get(index), appendable, type, operation,
+				index, isVarArgs && index == size - 1,
+				index < size - 1);
+		}
+	}
+
+	private void appendLambdaParameter(final JvmFormalParameter parameter,  // NOSONAR: better to have 8 parameters than to recompute information
+			final XJJvmFormalParameter sourceParameter, final ITreeAppendable appendable,
+			final LightweightTypeReference type, final JvmOperation operation, final int index,
+			final boolean isLastVarArgsParameter, final boolean needsCommaAfterParameter) {
+		final var parameterType = getClosureOperationParameterType(type, operation, index);
+		appendSourceAnnotations(sourceParameter.getSourceAnnotations(), appendable);
+		if (sourceParameter.getParameterType() != null) {
+			serialize(sourceParameter.getParameterType(), sourceParameter, appendable);
+		} else {
+			appendable.append(isLastVarArgsParameter
+				? parameterType.getComponentType() : parameterType);
+		}
+		if (isLastVarArgsParameter && sourceParameter.getParameterType() == null) {
+			appendable.append("...");
+		}
+		appendable.append(" ");
+		final var name = makeJavaIdentifier(parameter.getName());
+		final var varName = appendable.declareUniqueNameVariable(parameter, name);
+		appendable.append(varName);
+		for (var dimension = 0; dimension < sourceParameter.getArrayDimensions().size();
+				dimension++) {
+			appendable.append("[]");
+		}
+		if (needsCommaAfterParameter) {
+			appendable.append(",");
+		}
 	}
 
 	/**

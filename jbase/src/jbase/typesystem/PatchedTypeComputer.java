@@ -9,9 +9,11 @@ import org.eclipse.xtext.common.types.JvmPrimitiveType;
 import org.eclipse.xtext.common.types.util.Primitives;
 import org.eclipse.xtext.common.types.util.Primitives.Primitive;
 import org.eclipse.xtext.xbase.XBinaryOperation;
+import org.eclipse.xtext.xbase.XAssignment;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.XUnaryOperation;
+import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.annotations.typesystem.XbaseWithAnnotationsTypeComputer;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.computation.ITypeExpectation;
@@ -118,8 +120,8 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 		List<? extends ITypeExpectation> expectations = state.getExpectations();
 		for (ITypeExpectation typeExpectation : expectations) {
 			LightweightTypeReference expectedType = typeExpectation.getExpectedType();
-			if (expectedType != null
-					&& expectedType.getType() instanceof JvmPrimitiveType primitiveType) {
+			JvmPrimitiveType primitiveType = getExpectedPrimitiveType(expectedType, object);
+			if (primitiveType != null) {
 				Primitive kind = primitives.primitiveKind(primitiveType);
 				if (checkConversionToPrimitive(object, kind)) {
 					state.acceptActualType(expectedType);
@@ -133,9 +135,28 @@ public class PatchedTypeComputer extends XbaseWithAnnotationsTypeComputer {
 
 	private boolean checkConversionToPrimitive(XNumberLiteral lit, XUnaryOperation op,
 			LightweightTypeReference expectedType) {
-		return expectedType != null && expectedType.getType() instanceof JvmPrimitiveType primitiveType
-			&& checkConversionToPrimitive(op.getConcreteSyntaxFeatureName() + lit.getValue(),
-					primitives.primitiveKind(primitiveType));
+		JvmPrimitiveType primitiveType = getExpectedPrimitiveType(expectedType, op);
+		return primitiveType != null && checkConversionToPrimitive(
+			op.getConcreteSyntaxFeatureName() + lit.getValue(),
+			primitives.primitiveKind(primitiveType));
+	}
+
+	private JvmPrimitiveType getExpectedPrimitiveType(LightweightTypeReference expectedType,
+			XExpression expression) {
+		if (expectedType == null) {
+			return null;
+		}
+		if (expectedType.isWrapper() && !isAssignmentConversionContext(expression)) {
+			return null;
+		}
+		var primitiveType = expectedType.isWrapper()
+			? expectedType.getPrimitiveIfWrapperType() : expectedType;
+		return primitiveType.getType() instanceof JvmPrimitiveType type ? type : null;
+	}
+
+	private boolean isAssignmentConversionContext(XExpression expression) {
+		return expression.eContainer() instanceof XVariableDeclaration
+			|| expression.eContainer() instanceof XAssignment;
 	}
 
 	private boolean checkConversionToPrimitive(XNumberLiteral object, Primitive kind) {

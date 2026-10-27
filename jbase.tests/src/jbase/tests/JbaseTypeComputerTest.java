@@ -1,14 +1,21 @@
 package jbase.tests;
 
 import static org.junit.Assert.*;
+
+import java.util.IdentityHashMap;
+
 import com.google.inject.Inject;
+import jbase.jbase.JbaseFactory;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJVariableDeclaration;
 import jbase.tests.util.SimpleJvmModelTestInjectorProvider;
+import jbase.typesystem.JbaseTypeComputer;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.computation.ITypeComputationState;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +26,9 @@ public class JbaseTypeComputerTest extends JbaseAbstractTest {
 
 	@Inject
 	private IBatchTypeResolver typeResolver;
+
+	@Inject
+	private JbaseTypeComputer typeComputer;
 
 	@Test
 	public void testStringLiteral() throws Exception {
@@ -66,6 +76,55 @@ public class JbaseTypeComputerTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testConstantBinaryExpressionWithByteExpectation() throws Exception {
+		assertVarExpressionActualType("byte b = 1 + 2", "int");
+	}
+
+	@Test
+	public void testNumberLiteralWithByteWrapperExpectation() throws Exception {
+		assertVarExpressionActualType("Byte b = 1", "java.lang.Byte");
+	}
+
+	@Test
+	public void testConstantBinaryExpressionWithCharExpectation() throws Exception {
+		assertVarExpressionActualType("char c = 65 + 1", "int");
+	}
+
+	@Test
+	public void testConstantExpressionWithWrapperExpectation() throws Exception {
+		assertVarExpressionActualType("Character c = 65", "java.lang.Character");
+		assertVarExpressionActualType("Short s = 1 + 2", "int");
+		assertVarExpressionActualType("Character c = 65 + 1", "int");
+	}
+
+	@Test
+	public void testOutOfRangeConstantExpressionRetainsIntType() throws Exception {
+		assertVarExpressionActualType("byte b = 127 + 1", "int");
+	}
+
+	@Test
+	public void testConstantVariableCycleGuard() throws Exception {
+		final var variable = JbaseFactory.eINSTANCE.createXJVariableDeclaration();
+		final var visited = new IdentityHashMap<XVariableDeclaration, Boolean>();
+		final var evaluator = JbaseTypeComputer.class.getDeclaredMethod(
+			"constantIntegralVariableValue", XVariableDeclaration.class,
+			IdentityHashMap.class, ITypeComputationState.class);
+		evaluator.setAccessible(true);
+
+		assertNull(evaluator.invoke(typeComputer, variable, visited, null));
+		assertTrue(visited.isEmpty());
+
+		visited.put(variable, Boolean.TRUE);
+		assertNull(evaluator.invoke(typeComputer, variable, visited, null));
+		assertEquals(Boolean.TRUE, visited.get(variable));
+	}
+
+	@Test
+	public void testLongConstantDoesNotNarrow() throws Exception {
+		assertVarExpressionActualType("byte b = 1L", "long");
+	}
+
+	@Test
 	public void testNumberLiteralWithShortExpectation() throws Exception {
 		assertVarExpressionActualType("short b = 0", "short");
 	}
@@ -98,6 +157,12 @@ public class JbaseTypeComputerTest extends JbaseAbstractTest {
 	@Test
 	public void testNegativeUnaryOperationWithCharExpectation() throws Exception {
 		assertVarExpressionActualType("char b = -1", "int");
+	}
+
+	@Test
+	public void testMinimumNarrowingValues() throws Exception {
+		assertVarExpressionActualType("byte b = -128", "byte");
+		assertVarExpressionActualType("short s = -32768", "short");
 	}
 
 	@Test
