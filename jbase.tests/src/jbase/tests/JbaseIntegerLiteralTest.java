@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.conversion.ValueConverterException;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.serializer.ISerializer;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.junit.Test;
 
 import com.google.inject.Inject;
@@ -66,7 +68,16 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 			new Example("1_000", "int", 1000),
 			new Example("077.0", "double", 77.0),
 			new Example("077e1", "double", 770.0),
-			new Example("077f", "float", 77f));
+			new Example("077f", "float", 77f),
+			new Example("0x1.8p1", "double", 3.0),
+			new Example("0x1_0.8p1", "double", 33.0),
+			new Example("0x1p2", "double", 4.0),
+			new Example("0x.8p1f", "float", 1.0f),
+			new Example("0X1.8P1F", "float", 3.0f),
+			new Example("0x1p2D", "double", 4.0),
+			new Example(".5", "double", 0.5),
+			new Example("1.", "double", 1.0),
+			new Example("1.e2", "double", 100.0));
 		final var input = new StringBuilder();
 		for (var i = 0; i < examples.size(); i++) {
 			final var example = examples.get(i);
@@ -96,6 +107,7 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 	public void invalidRadixLiteralsAreRejected() throws Exception {
 		for (final var literal : List.of("08", "09L", "0b102", "0b_1", "0b1_",
 				"0x_FF", "0xFF_", "0x1_0000_0000", "0x1_0000_0000_0000_0000L",
+				"0x1p",
 				"0b1" + "0".repeat(32), "0b1" + "0".repeat(64) + "L",
 				"040000000000", "02000000000000000000000L")) {
 			final var type = literal.endsWith("L") ? "long" : "int";
@@ -103,6 +115,13 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 			assertTrue(literal, validationTestHelper.validate(model).stream()
 				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
 		}
+	}
+
+	@Test
+	public void unsuffixedHexadecimalFloatingPointLiteralIsNotAFloat() throws Exception {
+		final var model = parser.parse("float value = 0x1p2;");
+		assertTrue(validationTestHelper.validate(model).stream()
+			.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
 	}
 
 	@Test(expected = ValueConverterException.class)
@@ -115,5 +134,12 @@ public class JbaseIntegerLiteralTest extends JbaseAbstractCompilerTest {
 		final var value = converter.toValue("0xFF#L", null);
 		assertEquals("0xFF#L", value);
 		assertEquals("0xFFL", converter.toString(value));
+	}
+
+	@Test
+	public void hexadecimalFloatingPointModelValuePreservesPrefix() throws Exception {
+		final var model = parser.parse("double value = 0x1.8p1;");
+		final var literal = EcoreUtil2.getAllContentsOfType(model, XNumberLiteral.class).getFirst();
+		assertEquals("0x1.8p1", literal.getValue());
 	}
 }
