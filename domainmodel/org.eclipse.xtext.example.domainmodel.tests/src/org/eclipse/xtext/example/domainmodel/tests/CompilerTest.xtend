@@ -29,6 +29,48 @@ class CompilerTest {
 	@Inject extension CompilationTestHelper
 	@Inject extension ReflectExtensions
 
+	@Test def void testLocalClassesCaptureParametersAndReuseProperties() throws Exception {
+		'''
+			entity Foo {
+				op calculate(int input):int {
+					final var offset = 2;
+					class Counter implements java.util.function.IntSupplier {
+						value : int
+						op getAsInt():int { return this.value + input + offset; }
+					}
+					Counter counter = new Counter();
+					counter.setValue(37);
+					return counter.getAsInt();
+				}
+			}
+		'''.compile [
+			assertTrue(errorsAndWarnings.toString, errorsAndWarnings.empty)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate', 3))
+		]
+	}
+
+	@Test def void testLocalInheritanceAndNestedClasses() throws Exception {
+		'''
+			entity Foo {
+				op calculate(int input):int {
+					class Values extends java.util.ArrayList<String> {
+						op self():Values { return this; }
+						op result():int {
+							class Nested { op get():int { return input + 2; } }
+							return new Nested().get();
+						}
+					}
+					return new Values().self().result();
+				}
+			}
+		'''.compile [
+			assertTrue(errorsAndWarnings.toString, errorsAndWarnings.empty)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate', 40))
+		]
+	}
+
 	@Test def void testAnonymousInterfaceCapturesLocals() throws Exception {
 		'''
 			import java.util.function.IntUnaryOperator;

@@ -7,12 +7,28 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import jbase.formatting2.JbaseFormatter
 import jbase.testlanguage.jbaseTestlanguage.AbstractOperation
 import jbase.testlanguage.jbaseTestlanguage.AnonymousClassBody
+import jbase.testlanguage.jbaseTestlanguage.LocalClass
 import jbase.testlanguage.jbaseTestlanguage.OpMethod
 import jbase.testlanguage.jbaseTestlanguage.Operation
 import jbase.testlanguage.jbaseTestlanguage.Property
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
 
 class JbaseTestlanguageFormatter extends JbaseFormatter {
+
+	def dispatch void format(LocalClass declaration, extension IFormattableDocument document) {
+		declaration.regionFor.keyword("class").append[oneSpace]
+		declaration.regionFor.keyword("extends").surround[oneSpace]
+		declaration.regionFor.keyword("implements").surround[oneSpace]
+		declaration.regionFor.keywords(",").forEach[prepend[noSpace]; append[oneSpace]]
+		declaration.superType.format
+		declaration.interfaces.forEach[format]
+		val open = declaration.regionFor.keyword("{")
+		val close = declaration.regionFor.keyword("}")
+		open.prepend[oneSpace].append[newLine]
+		close.prepend[newLine]
+		interior(open, close)[indent]
+		declaration.body.format
+	}
 
 	def dispatch void format(AnonymousClassBody body, extension IFormattableDocument document) {
 		for (property : body.properties) {

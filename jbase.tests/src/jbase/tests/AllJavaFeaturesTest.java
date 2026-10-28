@@ -197,6 +197,11 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			System.out.println(pointObject.getX());
 			Runnable anonymousTask = new Runnable() { method run(): void {} };
 			anonymousTask.run();
+			class LocalCounter {
+				method value(): int { return offset; }
+			}
+			LocalCounter localCounter = new LocalCounter();
+			System.out.println(localCounter.value());
 
 			// Branches, all loop forms, break, continue and switch fall-through.
 			if (enabled) count = abs(-1);
@@ -553,6 +558,14 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			      }
 			    };
 			    anonymousTask.run();
+			    class LocalCounter {
+			      public int value() {
+			        return offset;
+			      }
+			    }
+			\s\s\s\s
+			    LocalCounter localCounter = new LocalCounter();
+			    System.out.println(localCounter.value());
 			    if (enabled) {
 			      count = Math.abs(-1);
 			    } else {

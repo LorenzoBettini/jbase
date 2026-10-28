@@ -25,6 +25,8 @@ import com.google.inject.Inject;
 import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJLocalClass;
+import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJCasePart;
 import jbase.jbase.XJMethodReference;
@@ -124,14 +126,10 @@ public class JbaseInitializedVariableFinder {
 				detectNotInitializedDispatch(anonymous.getConstructorCall(), initialized, acceptor);
 				// Constructor arguments execute here. Each member body runs later and starts with
 				// the locals initialized at class creation, but its writes cannot initialize them.
-				final var contents = anonymous.getBody().eAllContents();
-				while (contents.hasNext()) {
-					if (contents.next() instanceof XExpression body) {
-						detectNotInitializedDispatch(body, createCopy(initialized), acceptor);
-						contents.prune();
-					}
-				}
+				inspectClassBody(anonymous.getBody(), initialized, acceptor);
 			}
+			case XJLocalClass declaration ->
+				inspectClassBody(declaration.getBody(), initialized, acceptor);
 			case XClosure closure -> detectNotInitializedDispatch(closure.getExpression(),
 				createCopy(initialized), acceptor);
 			case XAbstractFeatureCall call -> inspectNotInitialized(call, initialized, acceptor);
@@ -144,6 +142,18 @@ public class JbaseInitializedVariableFinder {
 			case XSynchronizedExpression statement ->
 				inspectNotInitialized(statement, initialized, acceptor);
 			default -> inspectNotInitialized(e, initialized, acceptor);
+		}
+	}
+
+	/** Member bodies see a declaration-time snapshot and cannot initialize outer locals. */
+	private void inspectClassBody(final XJAnonymousClassBody body,
+			final InitializedVariables initialized, final NotInitializedAcceptor acceptor) {
+		final var contents = body.eAllContents();
+		while (contents.hasNext()) {
+			if (contents.next() instanceof XExpression expression) {
+				detectNotInitializedDispatch(expression, createCopy(initialized), acceptor);
+				contents.prune();
+			}
 		}
 	}
 

@@ -31,15 +31,16 @@ import org.eclipse.xtext.xtype.XComputedTypeReference;
 import com.google.inject.Inject;
 
 import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJLocalClass;
 import jbase.jvmmodel.JbaseAnonymousClassUtil;
 
 /**
- * Prepares and resolves the synthetic JVM types introduced by anonymous-class expressions.
+ * Prepares and resolves JVM types introduced by anonymous expressions and local declarations.
  *
  * <p>Xbase's resolver does not know that these expressions introduce local classes. This
- * resolver derives each synthetic type from its constructor's base type, prepares its
- * constructors and captured variables, and maps the inferred members back to the resolved
- * base type.
+ * resolver derives anonymous types from their constructor targets and prepares their
+ * constructors. Named local types retain the host's supertypes. Both forms capture the
+ * surrounding local scope before their member bodies are resolved.
  *
  * <p>Java permits capturing effectively final locals without an explicit final modifier.
  * Xbase's early writable-local diagnostic is deferred so that
@@ -96,7 +97,16 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 			final IFeatureScopeSession session, final JvmFeature feature,
 			final Map<JvmIdentifiableElement, ResolvedTypes> contexts) {
 		for (final var local : feature.getLocalClasses()) {
-			prepareAnonymousType(resolvedTypes, session, local, contexts);
+			if (associations.getPrimarySourceElement(local) instanceof XJLocalClass) {
+				// Xbase stores the capture provider on the last supertype. Preserve the
+				// host's actual reference rather than inferring it from a constructor call.
+				final var index = local.getSuperTypes().size() - 1;
+				final var reference = local.getSuperTypes().remove(index);
+				requestCapturedLocalVariables(reference, local, resolvedTypes, contexts,
+					capturing -> local.getSuperTypes().add(capturing));
+			} else {
+				prepareAnonymousType(resolvedTypes, session, local, contexts);
+			}
 		}
 	}
 
