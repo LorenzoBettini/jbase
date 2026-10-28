@@ -397,7 +397,11 @@ interface Marker {}
 Local declarations belong to Java's block language even though they are not
 statements in the narrow JLS grammar.
 
-Jbase, being only a Java expression and statement language, does not support local types. 
+Jbase, being only a Java expression and statement language, does not support local types.
+
+Similarly to what we've done with anonymous classes, although the syntax is responsibility of the embedding language, Jbase could provide reusable support for the inferrer, type system, validation (if feasible) and Java generation of local types.
+
+The testlanguage is used to test such a feature and then we add it also to the domainmodel example, updating the documentation on how to implement local types in a Jbase-based language, using the domainmodel example as a reference, as we've done for anonymous classes.
 
 ## Java 21 preview expression and statement features
 
