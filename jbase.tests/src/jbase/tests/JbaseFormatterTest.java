@@ -50,6 +50,24 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testLocalClasses() {
+		assertFormatted(request -> {
+			request.setToBeFormatted("class Local extends Object implements Runnable,java.io.Serializable{"
+				+ "property n:int method run():void{System.out.println(n);}}"
+				+ "Local value=new Local();");
+			request.setExpectation("""
+				class Local extends Object implements Runnable, java.io.Serializable {
+					property n:int
+					method run() : void {
+						System.out.println(n);
+					}
+				}
+				Local value = new Local();
+				""");
+		});
+	}
+
+	@Test
 	public void testQualifiedInnerClassCreation() {
 		assertFormatted(request -> {
 			request.setToBeFormatted("Object value=outer.new Inner();");

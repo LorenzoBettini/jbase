@@ -12,6 +12,15 @@ import org.junit.runner.RunWith;
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
+	public void testLocalClassMembersAndCaptures() throws Exception {
+		newBuilder().append("class Local { method value(): int { return 42; } } "
+			+ "Local instance = new Local(); instance.val").assertProposal("value");
+		newBuilder().append("int captured = 42; class Local { "
+			+ "method value(): int { return cap").assertProposal("captured");
+		newBuilder().append("{ class Local {} } <|>").assertNoProposalAtCursor("Local");
+	}
+
+	@Test
 	public void testSwitchPatternScopes() throws Exception {
 		newBuilder().append("Object value = null; switch (value) { case String text when text.len")
 			.assertProposal("length");

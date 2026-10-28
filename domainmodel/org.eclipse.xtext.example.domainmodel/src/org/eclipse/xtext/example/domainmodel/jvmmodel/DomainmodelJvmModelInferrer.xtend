@@ -11,6 +11,7 @@ package org.eclipse.xtext.example.domainmodel.jvmmodel
 import com.google.inject.Inject
 import jbase.jvmmodel.JbaseAnonymousClassInferrer
 import org.eclipse.xtext.example.domainmodel.domainmodel.AnonymousClassBody
+import org.eclipse.xtext.example.domainmodel.domainmodel.LocalClass
 import org.eclipse.xtext.example.domainmodel.domainmodel.Feature
 import org.eclipse.xtext.common.types.JvmAnnotationTarget
 import org.eclipse.xtext.common.types.JvmDeclaredType
@@ -86,10 +87,19 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 					]
 					members += method
 					// Attach the method before resolving anonymous members for accessor cleanup.
-					anonymousClasses.inferLocalClasses(method, f.body) [ source, type |
-						val body = source.body as AnonymousClassBody
-						type.inferFeatures(body.features)
-					]
+					anonymousClasses.inferLocalClasses(method, f.body, [ source, type |
+						type.inferFeatures((source.body as AnonymousClassBody).features)
+					], [ source, type |
+						val declaration = source as LocalClass
+						if (declaration.superType !== null)
+							type.superTypes += declaration.superType.cloneWithProxies
+						else
+							type.superTypes += typeRef(Object)
+						for (implemented : declaration.interfaces)
+							type.superTypes += implemented.cloneWithProxies
+						if (source.body !== null)
+							type.inferFeatures((source.body as AnonymousClassBody).features)
+					])
 				}
 			}
 		}
