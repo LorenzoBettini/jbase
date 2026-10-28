@@ -401,6 +401,8 @@ Jbase, being only a Java expression and statement language, does not support loc
 
 Similarly to what we've done with anonymous classes, although the syntax is responsibility of the embedding language, Jbase could provide reusable support for the inferrer, type system, validation (if feasible) and Java generation of local types.
 
+For local classes, Jbase cannot provide any syntax.
+
 The testlanguage is used to test such a feature and then we add it also to the domainmodel example, updating the documentation on how to implement local types in a Jbase-based language, using the domainmodel example as a reference, as we've done for anonymous classes.
 
 ## Java 21 preview expression and statement features
