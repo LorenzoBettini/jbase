@@ -191,4 +191,19 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="#//XJAnonymousClassBody" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJAnonymousClassBody"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJLocalClass" abstract="true" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Base for host-defined local class declarations. The host owns declaration syntax and JVM members; Jbase supplies lexical type scope, capture and Java generation. The body is a class boundary, just as for anonymous classes."/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The source-level simple name, visible from this declaration through the enclosing block."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="#//XJAnonymousClassBody" containment="true">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The host-defined members. This body establishes a class boundary for captures and control flow."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
 </ecore:EPackage>

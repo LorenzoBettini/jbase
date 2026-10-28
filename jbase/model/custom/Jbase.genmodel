@@ -127,5 +127,9 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJAnonymousClass/body"/>
     </genClasses>
     <genClasses ecoreClass="Jbase.ecore#//XJAnonymousClassBody"/>
+    <genClasses ecoreClass="Jbase.ecore#//XJLocalClass">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJLocalClass/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJLocalClass/body"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

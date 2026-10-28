@@ -383,27 +383,39 @@ that every non-alphanumeric identifier is rejected.
 
 ## Java features that are not related to expressions and statements
 
-### [ ] Local type declarations
+### [x] Reusable local class support
 
-Each of these independently valid block contents is rejected:
+Jbase supplies an extensible local-class AST base, JVM inference, lexical type
+scope, capture and inheritance validation, and native Java generation. Declaration
+and member syntax remain the embedding language's responsibility; Jbase itself
+adds no local class syntax.
+
+The test language and Domainmodel demonstrate named classes with their existing
+member syntax, optional superclasses and implemented interfaces. For example:
 
 ```java
-class Local {}
+class Local { method value(): int { return 42; } }
+Local local = new Local();
+System.out.println(local.value());
+```
+
+Covered by `JbaseLocalClassTest`, `JbaseFormatterTest`, `AllJavaFeaturesTest` and
+Domainmodel's compiler, parsing/serialization and formatter tests. See
+[Local classes](docs/LOCAL_CLASSES.md) for the Domainmodel integration walkthrough
+and the implementation and test class reference.
+
+### [ ] Other local type declarations
+
+Local enum, record and interface declarations remain unsupported:
+
+```java
 enum Choice { ONE }
 record Item(int value) {}
 interface Marker {}
 ```
 
-Local declarations belong to Java's block language even though they are not
-statements in the narrow JLS grammar.
-
-Jbase, being only a Java expression and statement language, does not support local types.
-
-Similarly to what we've done with anonymous classes, although the syntax is responsibility of the embedding language, Jbase could provide reusable support for the inferrer, type system, validation (if feasible) and Java generation of local types.
-
-For local classes, Jbase cannot provide any syntax.
-
-The testlanguage is used to test such a feature and then we add it also to the domainmodel example, updating the documentation on how to implement local types in a Jbase-based language, using the domainmodel example as a reference, as we've done for anonymous classes.
+These require separate host syntax, model inference and validation; named local
+class support does not implement them.
 
 ## Java 21 preview expression and statement features
 

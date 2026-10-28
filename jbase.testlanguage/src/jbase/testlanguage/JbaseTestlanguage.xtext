@@ -50,3 +50,15 @@ FeatureCallID:
 XJAnonymousClassBody returns jbase::XJAnonymousClassBody:
 	{AnonymousClassBody} properties+=Property* methods+=OpMethod*
 ;
+
+// Local declarations use the host's member syntax and are block contents.
+@Override
+XJStatementOrBlock returns xbase::XExpression:
+	LocalClass | =>XBlockExpression | XJSingleStatement;
+
+LocalClass returns jbase::XJLocalClass:
+	{LocalClass} 'class' name=ValidID
+	('extends' superType=JvmParameterizedTypeReference)?
+	('implements' interfaces+=JvmParameterizedTypeReference
+		(',' interfaces+=JvmParameterizedTypeReference)*)?
+	'{' body=XJAnonymousClassBody '}';

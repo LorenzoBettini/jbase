@@ -46,6 +46,37 @@ class DomainmodelParsingTest{
 	@Inject ISerializer serializer
 	@Inject TypeReferences typeReferences
 
+	@Test def void testLocalClassSerialization() {
+		val model = '''
+			entity Foo {
+				op calculate(int input):int {
+					class Local extends java.util.ArrayList<String> {
+						value : int
+						op self():Local { return this; }
+						op getValue():int { return this.value + input; }
+					}
+					Local local = new Local();
+					return local.self().getValue();
+				}
+			}
+		'''.parse
+		model.assertNoErrors
+		serializer.serialize(model).parse.assertNoErrors
+		EcoreUtil.resolveAll(model)
+		val copy = EcoreUtil.copy(model)
+		val resource = model.eResource
+		resource.contents.clear
+		resource.contents.add(copy)
+		serializer.serialize(copy).parse.assertNoErrors
+	}
+
+	@Test def void testLocalClassMissingMembersAndScope() {
+		"entity Foo { op test():void { class Local implements Runnable {} } }".parse.assertError(
+			JbasePackage.Literals.XJ_LOCAL_CLASS, IssueCodes.CLASS_MUST_BE_ABSTRACT)
+		"entity Foo { op test():void { new Local(); class Local {} } }".parse.assertError(
+			JbasePackage.Literals.XJ_CONSTRUCTOR_CALL, org.eclipse.xtext.diagnostics.Diagnostic.LINKING_DIAGNOSTIC)
+	}
+
 	@Test def void testAnonymousClassSerialization() {
 		val source = '''
 			entity Foo {

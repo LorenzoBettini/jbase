@@ -3,6 +3,8 @@ package jbase.testlanguage.jvmmodel
 import com.google.inject.Inject
 import jbase.jvmmodel.JbaseAnonymousClassInferrer
 import jbase.testlanguage.jbaseTestlanguage.AnonymousClassBody
+import jbase.testlanguage.jbaseTestlanguage.LocalClass
+import org.eclipse.xtext.common.types.JvmGenericType
 import org.eclipse.xtext.xbase.XExpression
 import org.eclipse.xtext.common.types.JvmFeature
 import jbase.jbase.XJJvmFormalParameter
@@ -99,17 +101,29 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 
 	private def void inferAnonymousClasses(JvmFeature container, XExpression expression,
 		JbaseTestLanguageModel model) {
-		anonymousClasses.inferLocalClasses(container, expression) [ source, type |
-			if (source.body instanceof AnonymousClassBody) {
-				val body = source.body as AnonymousClassBody
-				for (p : body.properties) {
-					type.members += p.toField(p.name, p.type) [ translateAnnotations(p.annotations) ]
-				}
-				for (method : body.methods) {
-					type.members += inferJavaMethod(method, model)
-				}
-			}
-		]
+		anonymousClasses.inferLocalClasses(container, expression, [ source, type |
+			inferClassMembers(type, source.body as AnonymousClassBody, model)
+		], [ source, type |
+			val declaration = source as LocalClass
+			if (declaration.superType !== null)
+				type.superTypes += declaration.superType.cloneWithProxies
+			else
+				type.superTypes += typeRef(Object)
+			for (implemented : declaration.interfaces)
+				type.superTypes += implemented.cloneWithProxies
+			inferClassMembers(type, source.body as AnonymousClassBody, model)
+		])
+	}
+
+	private def void inferClassMembers(JvmGenericType type, AnonymousClassBody body,
+		JbaseTestLanguageModel model) {
+		if (body === null) return;
+		for (p : body.properties) {
+			type.members += p.toField(p.name, p.type) [ translateAnnotations(p.annotations) ]
+		}
+		for (method : body.methods) {
+			type.members += inferJavaMethod(method, model)
+		}
 	}
 
 	protected def inferParameter(JvmOperation it, XJJvmFormalParameter p) {

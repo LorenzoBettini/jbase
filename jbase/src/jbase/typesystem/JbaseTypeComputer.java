@@ -57,6 +57,7 @@ import jbase.controlflow.JbaseBranchingStatementDetector;
 import jbase.jbase.JbasePackage;
 import jbase.jbase.XJAdditionalXVariableDeclaration;
 import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJLocalClass;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
 import jbase.jbase.XJArrayConstructorCall;
@@ -118,6 +119,14 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 					}
 				}
 				state.computeTypes(anonymous.getConstructorCall());
+			}
+			case XJLocalClass declaration -> {
+				for (final var inferred : associations.getJvmElements(declaration)) {
+					if (inferred instanceof JvmGenericType type) {
+						LocalVariableCapturer.captureLocalVariables(type, state);
+					}
+				}
+				state.acceptActualType(getPrimitiveVoid(state));
 			}
 			case XJInstanceOfExpression instanceOf -> {
 				super._computeTypes(instanceOf, state);

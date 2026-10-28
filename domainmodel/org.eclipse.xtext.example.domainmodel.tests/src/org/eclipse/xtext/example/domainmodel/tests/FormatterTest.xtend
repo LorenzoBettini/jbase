@@ -19,6 +19,24 @@ import org.junit.runner.RunWith
 @InjectWith(DomainmodelInjectorProvider)
 class FormatterTest extends AbstractFormatterTest {
 
+	@Test def void testLocalClass() {
+		'''
+			entity Foo{op calculate():int{class Local{value:int op getValue():int{return this.value;}}return new Local().getValue();}}
+		'''.assertFormattedTo('''
+			entity Foo {
+				op calculate():int {
+					class Local {
+						value:int
+						op getValue():int {
+							return this.value;
+						}
+					}
+					return new Local().getValue();
+				}
+			}
+		''')
+	}
+
 	@Test def void testAnonymousClass() {
 		'''
 			entity Foo { op create():Object {return new Object(){value:int op getValue():int{return this.value;}};} }

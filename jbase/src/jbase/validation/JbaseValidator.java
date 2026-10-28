@@ -597,7 +597,7 @@ public class JbaseValidator extends AbstractJbaseValidator {
 			.filter(this::isLocalWrite).toList();
 		if (!writes.isEmpty() && !isEffectivelyFinal(feature, writes)) {
 			error("Local variable " + feature.getSimpleName()
-				+ " must be final or effectively final when captured by a lambda or anonymous class",
+				+ " must be final or effectively final when captured by a lambda or class body",
 				call, XBASE_PACKAGE.getXAbstractFeatureCall_Feature(), NON_EFFECTIVELY_FINAL_CAPTURE);
 		}
 	}

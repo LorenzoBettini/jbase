@@ -222,8 +222,11 @@ final and definitely assigned at creation. Constructor arguments are evaluated
 immediately. Anonymous methods have their own `this` and `super`, and their
 control-flow statements cannot target enclosing loops or switch expressions.
 
-Only the constructor forms already available in Jbase are supported. This does
-not add local class declarations or qualified inner-class creation. Other example
+Only the constructor forms already available in Jbase are supported. This provides
+no declaration syntax itself. Host-defined named local classes are supported through
+an additional inferrer callback; see [Local classes](LOCAL_CLASSES.md).
+Qualified inner-class creation is described in
+[Qualified inner-class creation](QUALIFIED_INNER_CLASS_CREATION.md). Other example
 languages must opt in through their own inferrers before using anonymous classes.
 
 The core implementation is in

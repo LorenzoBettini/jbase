@@ -11,6 +11,7 @@ package org.eclipse.xtext.example.domainmodel.formatting2;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.example.domainmodel.domainmodel.AbstractElement;
 import org.eclipse.xtext.example.domainmodel.domainmodel.AnonymousClassBody;
+import org.eclipse.xtext.example.domainmodel.domainmodel.LocalClass;
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel;
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelPackage;
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity;
@@ -61,6 +62,26 @@ public class DomainmodelFormatter extends JbaseFormatter {
 			document.format(feature);
 			document.append(feature, it -> it.setNewLines(1, 1, 2));
 		}
+	}
+
+	/** Formats the host-owned local declaration header and reuses its member formatter. */
+	protected void _format(final LocalClass declaration, final IFormattableDocument document) {
+		document.append(regionFor(declaration).keyword("class"), this::oneSpace);
+		document.surround(regionFor(declaration).keyword("extends"), this::oneSpace);
+		document.surround(regionFor(declaration).keyword("implements"), this::oneSpace);
+		for (final var comma : regionFor(declaration).keywords(",")) {
+			document.append(document.prepend(comma, this::noSpace), this::oneSpace);
+		}
+		format(declaration.getSuperType(), document);
+		for (final var implemented : declaration.getInterfaces()) {
+			format(implemented, document);
+		}
+		final var open = regionFor(declaration).keyword("{");
+		final var close = regionFor(declaration).keyword("}");
+		document.append(document.prepend(open, this::oneSpace), this::newLine);
+		document.prepend(close, this::newLine);
+		document.interior(open, close, this::indent);
+		format(declaration.getBody(), document);
 	}
 
 	protected void _format(AnonymousClassBody body, IFormattableDocument document) {
