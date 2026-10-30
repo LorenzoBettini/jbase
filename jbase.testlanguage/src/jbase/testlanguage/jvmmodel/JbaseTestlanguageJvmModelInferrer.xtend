@@ -105,12 +105,10 @@ class JbaseTestlanguageJvmModelInferrer extends AbstractModelInferrer {
 			inferClassMembers(type, source.body as AnonymousClassBody, model)
 		], [ source, type |
 			val declaration = source as LocalClass
-			if (declaration.superType !== null)
-				type.superTypes += declaration.superType.cloneWithProxies
-			else
-				type.superTypes += typeRef(Object)
+			// Preserve the declared inheritance roles for JVM validation.
+			type.superClass = declaration.superType ?: typeRef(Object)
 			for (implemented : declaration.interfaces)
-				type.superTypes += implemented.cloneWithProxies
+				type.addSuperInterface(implemented)
 			inferClassMembers(type, source.body as AnonymousClassBody, model)
 		])
 	}

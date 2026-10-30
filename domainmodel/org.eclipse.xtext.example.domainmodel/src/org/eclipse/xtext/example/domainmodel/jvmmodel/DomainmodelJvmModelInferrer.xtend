@@ -41,6 +41,8 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 		accept(entity.toClass( entity.fullyQualifiedName )) [
 			documentation = entity.documentation
 			superClass = entity.superType
+			for (implemented : entity.interfaces)
+				addSuperInterface(implemented)
 
 			// let's add a default constructor
 			members += entity.toConstructor []
@@ -91,12 +93,10 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 						type.inferFeatures((source.body as AnonymousClassBody).features)
 					], [ source, type |
 						val declaration = source as LocalClass
-						if (declaration.superType !== null)
-							type.superTypes += declaration.superType.cloneWithProxies
-						else
-							type.superTypes += typeRef(Object)
+						// Preserve the declared inheritance roles for JVM validation.
+						type.superClass = declaration.superType ?: typeRef(Object)
 						for (implemented : declaration.interfaces)
-							type.superTypes += implemented.cloneWithProxies
+							type.addSuperInterface(implemented)
 						if (source.body !== null)
 							type.inferFeatures((source.body as AnonymousClassBody).features)
 					])

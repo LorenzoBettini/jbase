@@ -5,7 +5,7 @@ member syntax belong to the embedding language; plain Jbase introduces no class
 keyword or declaration rule. Local enums, records and interfaces are separate
 features and are not implemented by this support.
 
-The test language and Domainmodel opt in with `class` declarations, an optional
+The test language and Domainmodel opt in with `local` declarations, an optional
 `extends` clause and optional `implements` interfaces. Their existing anonymous
 body rules supply the members. For example, Domainmodel accepts:
 
@@ -13,7 +13,7 @@ body rules supply the members. For example, Domainmodel accepts:
 entity Example {
     op calculate(int input):int {
         final var offset = 2;
-        class Counter implements java.util.function.IntSupplier {
+        local Counter implements java.util.function.IntSupplier {
             value : int
             op getAsInt():int { return this.value + input + offset; }
         }
@@ -26,6 +26,23 @@ entity Example {
 
 Calling `calculate(3)` returns `42`. Properties have the same private fields and
 public accessors as entity properties; explicit accessors replace generated ones.
+The `local` keyword is deliberately different from Java's `class`; generated Java
+still uses `class`. It is reserved in these hosts; use another identifier name
+(or escape it as `^local`) for variables and methods. Domainmodel entities also
+accept an optional `implements` clause after `extends`, including multiple
+interfaces:
+
+```java
+entity Values extends java.util.ArrayList<String>
+    implements java.util.function.IntSupplier, java.lang.Cloneable {
+    op getAsInt():int { return size(); }
+}
+```
+
+Entity inference uses the same `superClass` and `addSuperInterface` builder APIs
+as local classes. Entity properties and operations may implement interface members,
+and missing implementations are reported by `JvmGenericTypeValidator`.
+
 The test language uses `property value: int` and `method getAsInt(): int { ... }`
 instead of Domainmodel's property and operation syntax.
 
@@ -50,7 +67,7 @@ XJStatementOrBlock returns xbase::XExpression:
     LocalClass | =>XBlockExpression | XJSingleStatement;
 
 LocalClass returns jbase::XJLocalClass:
-    {LocalClass} 'class' name=ValidID
+    {LocalClass} 'local' name=ValidID
     ('extends' superType=JvmParameterizedTypeReference)?
     ('implements' interfaces+=JvmParameterizedTypeReference
         (',' interfaces+=JvmParameterizedTypeReference)*)?
@@ -65,7 +82,7 @@ The host may choose another declaration keyword or header. Additional modifiers,
 type parameters, annotations and constructor syntax are host responsibilities.
 Do not put the declaration in `XPrimaryExpression`: a local class is a block
 content, not a value or a Java statement expression. The shared validator rejects
-unbraced uses such as `if (condition) class Local {}`.
+unbraced uses such as `if (condition) local Local {}`.
 
 Regenerate the language through its owning MWE2 workflow. For a manually managed
 host metamodel, define the concrete subtype and header features in Ecore and
@@ -87,12 +104,9 @@ anonymousClasses.inferLocalClasses(method, f.body, [ source, type |
     type.inferFeatures((source.body as AnonymousClassBody).features)
 ], [ source, type |
     val declaration = source as LocalClass
-    if (declaration.superType !== null)
-        type.superTypes += declaration.superType.cloneWithProxies
-    else
-        type.superTypes += typeRef(Object)
+    type.superClass = declaration.superType ?: typeRef(Object)
     for (implemented : declaration.interfaces)
-        type.superTypes += implemented.cloneWithProxies
+        type.addSuperInterface(implemented)
     if (source.body !== null)
         type.inferFeatures((source.body as AnonymousClassBody).features)
 ])
@@ -101,10 +115,14 @@ anonymousClasses.inferLocalClasses(method, f.body, [ source, type |
 The first callback initializes anonymous types; the second initializes named
 types. The helper has already attached and associated the supplied JVM type,
 assigned the source name and set package visibility. Populate this supplied type
-rather than creating another one. Copy source type references through
-`JvmTypesBuilder` so validation can locate the source of inheritance errors.
-Supply an Object superclass when there are only implemented interfaces. When no
-supertypes are supplied at all, the helper supplies Object itself.
+rather than creating another one. Use `JvmTypesBuilder.setSuperClass` (the Xtend
+`superClass` property) and `addSuperInterface` instead of appending to `superTypes`.
+Both methods clone references with proxies and preserve source associations. They
+also mark whether each reference is expected to be a class or an interface, so
+`JvmGenericTypeValidator` rejects an interface in `extends`, a class in
+`implements`, and duplicate interfaces at the source declaration. Supply an Object
+superclass when there are only implemented interfaces. When no supertypes are
+supplied at all, the helper supplies Object itself.
 
 If the host supplies no constructors, the helper creates a default constructor.
 Its superclass must have an accessible no-argument constructor. A host supporting
@@ -124,7 +142,7 @@ resolving cross references during pre-indexing.
 
 The host formats its own declaration header, braces and member body.
 `DomainmodelFormatter._format(LocalClass, IFormattableDocument)` formats the
-`class`, `extends` and `implements` header and delegates the body to the existing
+`local`, `extends` and `implements` header and delegates the body to the existing
 anonymous-body formatter. Use one newline after the final member to avoid
 conflicting constraints at the closing brace.
 
@@ -165,7 +183,9 @@ The shared implementation is in:
   declaration-order type lookup and filtering local names out of resource-wide lookup.
 - [`JbaseTypeComputer`](../jbase/src/jbase/typesystem/JbaseTypeComputer.java) and
   [`JbaseReentrantTypeResolver`](../jbase/src/jbase/typesystem/JbaseReentrantTypeResolver.java):
-  void declaration typing, capture snapshots and member inference.
+  void declaration typing, capture snapshots and member inference. The resolver
+  preserves class/interface markers when wrapping a local supertype for captures,
+  allowing JVM inheritance validation to inspect the wrapper.
 - [`JbaseAnonymousClassValidator`](../jbase/src/jbase/validation/JbaseAnonymousClassValidator.java),
   [`JbaseValidator`](../jbase/src/jbase/validation/JbaseValidator.java) and
   [`JbaseInitializedVariableFinder`](../jbase/src/jbase/validation/JbaseInitializedVariableFinder.java):
@@ -192,4 +212,12 @@ Domainmodel's
 [`CompilerTest`](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/CompilerTest.xtend),
 [`DomainmodelParsingTest`](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/DomainmodelParsingTest.xtend)
 and [`FormatterTest`](../domainmodel/org.eclipse.xtext.example.domainmodel.tests/src/org/eclipse/xtext/example/domainmodel/tests/FormatterTest.xtend)
-exercise the complete example integration.
+exercise the complete example integration, including entity superclass and
+interface generation, execution and serialization, inheritance-role diagnostics
+for entities and local classes, and formatting of both declaration headers.
+The test-language grammar, inferrer and formatter are
+[`JbaseTestlanguage.xtext`](../jbase.testlanguage/src/jbase/testlanguage/JbaseTestlanguage.xtext),
+[`JbaseTestlanguageJvmModelInferrer`](../jbase.testlanguage/src/jbase/testlanguage/jvmmodel/JbaseTestlanguageJvmModelInferrer.xtend)
+and [`JbaseTestlanguageFormatter`](../jbase.testlanguage/src/jbase/testlanguage/formatting2/JbaseTestlanguageFormatter.xtend).
+`JbaseLocalClassTest` also checks the expected class/interface roles and duplicate
+interfaces in this host.

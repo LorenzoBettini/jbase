@@ -21,6 +21,7 @@ import org.eclipse.xtext.xbase.XbaseFactory;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociator;
+import org.eclipse.xtext.xbase.validation.IssueCodes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,7 @@ import jbase.jvmmodel.JbaseAnonymousClassInferrer;
 import jbase.scoping.JbaseImportSectionNamespaceScopeProvider;
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel;
 import jbase.testlanguage.jbaseTestlanguage.JbaseTestlanguageFactory;
+import jbase.testlanguage.jbaseTestlanguage.JbaseTestlanguagePackage;
 import jbase.testlanguage.validation.JbaseTestlanguageValidator;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 import jbase.validation.JbaseIssueCodes;
@@ -63,7 +65,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void emptyClass() throws Exception {
-		checkCompilation("class Local {} Local value = new Local();", """
+		checkCompilation("local Local {} Local value = new Local();", """
 			package jbasetestlanguage;
 
 			@SuppressWarnings("all")
@@ -79,10 +81,24 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void inheritanceRolesAreValidated() throws Exception {
+		validationTestHelper.assertError(parser.parse("local Local extends java.io.Serializable {}"),
+			JbaseTestlanguagePackage.Literals.LOCAL_CLASS,
+			IssueCodes.CLASS_EXPECTED, "Superclass must be a class");
+		validationTestHelper.assertError(parser.parse("local Local implements Object {}"),
+			JbaseTestlanguagePackage.Literals.LOCAL_CLASS,
+			IssueCodes.INTERFACE_EXPECTED, "Implemented interface must be an interface");
+		validationTestHelper.assertError(parser.parse(
+			"local Local implements java.io.Serializable, java.io.Serializable {}"),
+			JbaseTestlanguagePackage.Literals.LOCAL_CLASS,
+			IssueCodes.DUPLICATE_INTERFACE, "Duplicate interface Serializable");
+	}
+
+	@Test
 	public void membersCaptureLocals() throws Exception {
 		checkCompilation("""
 			int offset = 40;
-			class Local {
+			local Local {
 				property value: int
 				method get(): int { return this.value + offset; }
 			}
@@ -95,7 +111,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	@Test
 	public void inheritanceAndSelfReferences() throws Exception {
 		checkCompilation("""
-			class Local extends java.util.ArrayList<String> {
+			local Local extends java.util.ArrayList<String> {
 				method self(): Local { return this; }
 				method first(): String { return super.get(0); }
 			}
@@ -109,9 +125,9 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	public void nestedClasses() throws Exception {
 		checkCompilation("""
 			int offset = 40;
-			class Outer {
+			local Outer {
 				method get(): int {
-					class Inner { method get(): int { return offset + 2; } }
+					local Inner { method get(): int { return offset + 2; } }
 					return new Inner().get();
 				}
 			}
@@ -121,8 +137,8 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void lexicalScope() throws Exception {
-		assertInvalid("Local value = new Local(); class Local {}");
-		assertInvalid("{ class Local {} } Local value = new Local();");
+		assertInvalid("Local value = new Local(); local Local {}");
+		assertInvalid("{ local Local {} } Local value = new Local();");
 	}
 
 	@Test
@@ -130,7 +146,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 		assertExecuteMain("""
 			method testMe(): void {
 				int offset = 40;
-				class Local implements java.util.function.IntSupplier {
+				local Local implements java.util.function.IntSupplier {
 					method getAsInt(): int { return offset + 2; }
 				}
 				var value = new Local();
@@ -145,7 +161,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	public void localClassesComposeWithAnonymousClassesAndLambdas() throws Exception {
 		checkCompilation("""
 			int offset = 40;
-			class Local {
+			local Local {
 				method get(): int {
 					var supplier = new java.util.function.IntSupplier() {
 						method getAsInt(): int { return offset + 2; }
@@ -154,12 +170,12 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 				}
 			}
 			java.util.function.IntSupplier lambda = () -> {
-				class InLambda extends Local {}
+				local InLambda extends Local {}
 				return new InLambda().get();
 			};
 			var anonymous = new Object() {
 				method get(): int {
-					class InAnonymous extends Local {}
+					local InAnonymous extends Local {}
 					return new InAnonymous().get();
 				}
 			};
@@ -171,9 +187,9 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	public void independentBlocksReuseNamesAndShadowImportedTypes() throws Exception {
 		checkCompilation("""
 			import java.util.ArrayList;
-			{ class Local {} Local value = new Local(); }
-			{ class Local {} Local value = new Local(); }
-			class ArrayList { method size(): int { return 42; } }
+			{ local Local {} Local value = new Local(); }
+			{ local Local {} Local value = new Local(); }
+			local ArrayList { method size(): int { return 42; } }
 			int result = new ArrayList().size();
 			""", null);
 	}
@@ -183,61 +199,62 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 		checkCompilation("""
 			int n;
 			if (System.nanoTime() > 0) n = 40; else n = 41;
-			class Local {
+			local Local {
 				method get(): int { return n; }
 				method blank(): int { int result; result = 2; return result; }
 			}
 			var anonymous = new Object() { method get(): int { return n; } };
 			int captured = anonymous.get();
 			for (int i = 0; i < 2; i++) {
-				class InLoop extends Local {}
+				local InLoop extends Local {}
 				int value = new InLoop().get();
 			}
 			int result = switch (1) {
 				default -> {
-					class InSwitch extends Local {}
+					local InSwitch extends Local {}
 					yield new InSwitch().get();
 				}
 			};
 			switch (result) {
-				default: class InColon extends Local {} System.out.println(new InColon().get());
+				default: local InColon extends Local {} System.out.println(new InColon().get());
 			}
 			""", null);
 	}
 
 	@Test
 	public void invalidDeclarationsAndCaptures() throws Exception {
-		assertInvalid("class Local {} class Local {}");
-		assertInvalid("class Local { method get(): void { class Local {} } }");
-		assertInvalid("class Local {} { class Local {} }");
-		assertInvalid("if (true) class Local {}");
-		assertInvalid("class Local extends String {}");
-		assertInvalid("method create(int input): Object { class Local {"
+		assertInvalid("local Local {} local Local {}");
+		assertInvalid("local Local { method get(): void { local Local {} } }");
+		assertInvalid("local Local {} { local Local {} }");
+		assertInvalid("if (true) local Local {}");
+		assertInvalid("local Local extends String {}");
+		assertInvalid("method create(int input): Object { local Local {"
 			+ "method get(): int { return input; } } input++; return new Local(); }");
-		assertInvalid("class Local extends java.util.AbstractList<String> {}");
-		assertInvalid("class Local implements Runnable {}");
-		assertInvalid("class Local extends java.io.FileInputStream {}");
-		assertInvalid("class Local extends jbase.testlanguage.tests.SealedTypes.Shape {}");
-		assertInvalid("int n = 1; class Local { method get(): int { return n; } } n++;");
-		assertInvalid("int n; class Local { method get(): int { return n; } } n = 1;");
-		assertInvalid("while (true) { class Local { method get(): void { break; } } }");
-		assertInvalid("outer: while (true) { class Local {"
+		assertInvalid("local Local extends java.util.AbstractList<String> {}");
+		assertInvalid("local Local implements Runnable {}");
+		assertInvalid("local Local extends java.io.FileInputStream {}");
+		assertInvalid("local Local extends jbase.testlanguage.tests.SealedTypes.Shape {}");
+		assertInvalid("int n = 1; local Local { method get(): int { return n; } } n++;");
+		assertInvalid("int n; local Local { method get(): int { return n; } } n = 1;");
+		assertInvalid("while (true) { local Local { method get(): void { break; } } }");
+		assertInvalid("outer: while (true) { local Local {"
 			+ "method get(): void { continue outer; } } }");
-		assertInvalid("int n = switch (1) { default -> { class Local {"
+		assertInvalid("int n = switch (1) { default -> { local Local {"
 			+ "method get(): int { yield 1; } } yield 2; } };");
-		assertInvalid("class");
-		assertInvalid("class Local {");
+		assertInvalid("local");
+		assertInvalid("local Local {");
+		assertInvalid("class Local {}");
 	}
 
 	@Test
 	public void captureDiagnosticsIdentifyTheActualRestriction() throws Exception {
 		validationTestHelper.assertError(parser.parse(
-			"int n = 1; class Local { method get(): int { return n; } } n++;"),
+			"int n = 1; local Local { method get(): int { return n; } } n++;"),
 			XbasePackage.Literals.XABSTRACT_FEATURE_CALL,
 			JbaseIssueCodes.NON_EFFECTIVELY_FINAL_CAPTURE,
 			"captured by a lambda or class body");
 		validationTestHelper.assertError(parser.parse(
-			"int n; class Local { method get(): int { return n; } } n = 1;"),
+			"int n; local Local { method get(): int { return n; } } n = 1;"),
 			XbasePackage.Literals.XABSTRACT_FEATURE_CALL,
 			JbaseIssueCodes.NOT_INITIALIZED_VARIABLE);
 	}
@@ -246,7 +263,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	public void serializationWithAndWithoutNodeModel() throws Exception {
 		final var model = parser.parse("""
 			int offset = 40;
-			class Local extends java.util.ArrayList<String> implements java.io.Serializable {
+			local Local extends java.util.ArrayList<String> implements java.io.Serializable {
 				method self(): Local { return this; }
 				method get(): int { return offset + 2; }
 			}
@@ -278,7 +295,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 		assertEquals(1, method.getLocalClasses().getFirst().getSuperTypes().size());
 		assertEquals(1, method.getLocalClasses().getFirst().getMembers().size());
 
-		final var model = parser.parse("class Local {} Local value = new Local();");
+		final var model = parser.parse("local Local {} Local value = new Local();");
 		final var local = EcoreUtil2.getAllContentsOfType(model, XJLocalClass.class).getFirst();
 		final var type = (JvmGenericType) associations.getPrimaryJvmElement(local);
 		final var field = TypesFactory.eINSTANCE.createJvmField();
@@ -291,7 +308,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void localNamesAreNotAvailableAcrossResources() throws Exception {
-		final var first = parser.parse("class Hidden {}");
+		final var first = parser.parse("local Hidden {}");
 		validationTestHelper.assertNoErrors(first);
 		final var second = parser.parse("Hidden value = new Hidden();",
 			URI.createURI("other.jbasetestlanguage"), first.eResource().getResourceSet());
@@ -301,7 +318,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 
 	@Test
 	public void defaultSkeletonAndIncompleteNames() throws Exception {
-		final var model = (JbaseTestLanguageModel) parser.parse("class Local {}");
+		final var model = (JbaseTestLanguageModel) parser.parse("local Local {}");
 		final var feature = TypesFactory.eINSTANCE.createJvmOperation();
 		inferrer.inferLocalClasses(feature, model.getBlock());
 		assertEquals(1, feature.getLocalClasses().size());
