@@ -3340,7 +3340,7 @@ public class JbaseCompilerTest extends JbaseAbstractCompilerTest {
 
 			method annotated(@SourceAnnotation List<@SourceAnnotation String> parameter): void {}
 
-			@SourceAnnotation int local = 1;
+			@SourceAnnotation int annotatedLocal = 1;
 			@SourceAnnotation final String text = "text";
 			List<@SourceAnnotation String> values = List.of(text);
 			List<? extends @SourceAnnotation String> bounded = values;

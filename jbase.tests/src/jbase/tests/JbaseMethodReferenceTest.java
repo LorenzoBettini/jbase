@@ -128,7 +128,7 @@ public class JbaseMethodReferenceTest extends JbaseAbstractCompilerTest {
 		final var source = """
 			import java.util.function.*;
 			method receiver(int[] calls): String { calls[0]++; return " hello "; }
-			method local(): java.util.function.IntSupplier { return this::hashCode; }
+			method supplier(): java.util.function.IntSupplier { return this::hashCode; }
 			method testMe() {
 				int[] calls = {0};
 				Supplier<String> once = receiver(calls)::trim;

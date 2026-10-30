@@ -52,11 +52,11 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	@Test
 	public void testLocalClasses() {
 		assertFormatted(request -> {
-			request.setToBeFormatted("class Local extends Object implements Runnable,java.io.Serializable{"
+			request.setToBeFormatted("local Local extends Object implements Runnable,java.io.Serializable{"
 				+ "property n:int method run():void{System.out.println(n);}}"
 				+ "Local value=new Local();");
 			request.setExpectation("""
-				class Local extends Object implements Runnable, java.io.Serializable {
+				local Local extends Object implements Runnable, java.io.Serializable {
 					property n:int
 					method run() : void {
 						System.out.println(n);
@@ -204,7 +204,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 				import java.util.Map.Entry;
 				import java.util.function.IntUnaryOperator;
 				method annotated(@SourceAnnotation String parameter):void{}
-				@SourceAnnotation int local=1;
+				@SourceAnnotation int annotatedLocal=1;
 				@SourceAnnotation var inferred=1;
 				@SourceAnnotation final String text="text";
 				java.util.List<@SourceAnnotation ? extends String> values=null;
@@ -221,7 +221,7 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 				method annotated(@SourceAnnotation String parameter) : void {
 				}
 
-				@SourceAnnotation int local = 1;
+				@SourceAnnotation int annotatedLocal = 1;
 				@SourceAnnotation var inferred = 1;
 				@SourceAnnotation final String text = "text";
 				java.util.List<@SourceAnnotation ? extends String> values = null;

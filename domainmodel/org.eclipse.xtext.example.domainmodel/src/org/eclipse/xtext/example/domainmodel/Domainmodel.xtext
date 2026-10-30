@@ -26,7 +26,9 @@ PackageDeclaration:
 	'}';
 
 Entity:
-	'entity' name=ValidID ('extends' superType=JvmParameterizedTypeReference)? '{'
+	'entity' name=ValidID ('extends' superType=JvmParameterizedTypeReference)?
+	('implements' interfaces+=JvmParameterizedTypeReference
+		(',' interfaces+=JvmParameterizedTypeReference)*)? '{'
 		features+=Feature*
 	'}';
 
@@ -51,7 +53,7 @@ XJStatementOrBlock returns xbase::XExpression:
 	LocalClass | =>XBlockExpression | XJSingleStatement;
 
 LocalClass returns jbase::XJLocalClass:
-	{LocalClass} 'class' name=ValidID
+	{LocalClass} 'local' name=ValidID
 	('extends' superType=JvmParameterizedTypeReference)?
 	('implements' interfaces+=JvmParameterizedTypeReference
 		(',' interfaces+=JvmParameterizedTypeReference)*)?

@@ -21,11 +21,11 @@ class FormatterTest extends AbstractFormatterTest {
 
 	@Test def void testLocalClass() {
 		'''
-			entity Foo{op calculate():int{class Local{value:int op getValue():int{return this.value;}}return new Local().getValue();}}
+			entity Foo{op calculate():int{local Local extends Object implements java.io.Serializable,Cloneable{value:int op getValue():int{return this.value;}}return new Local().getValue();}}
 		'''.assertFormattedTo('''
 			entity Foo {
 				op calculate():int {
-					class Local {
+					local Local extends Object implements java.io.Serializable, Cloneable {
 						value:int
 						op getValue():int {
 							return this.value;
@@ -33,6 +33,21 @@ class FormatterTest extends AbstractFormatterTest {
 					}
 					return new Local().getValue();
 				}
+			}
+		''')
+	}
+
+	@Test def void testEntityInterfaces() {
+		'''
+			entity Foo extends java.util.ArrayList<String> implements java.io.Serializable,Cloneable{}
+		'''.assertFormattedTo('''
+			entity Foo extends java.util.ArrayList<String> implements java.io.Serializable, Cloneable {
+			}
+		''')
+		'''
+			entity Foo implements java.io.Serializable{}
+		'''.assertFormattedTo('''
+			entity Foo implements java.io.Serializable {
 			}
 		''')
 	}

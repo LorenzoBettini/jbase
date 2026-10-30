@@ -14,6 +14,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.JvmVisibility;
 import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.TypesPackage;
+import org.eclipse.xtext.common.types.util.JvmTypeReferenceUtil;
 import org.eclipse.xtext.common.types.util.TypeReferences;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
 import org.eclipse.xtext.xbase.XConstructorCall;
@@ -103,7 +104,16 @@ public class JbaseReentrantTypeResolver extends LogicalContainerAwareReentrantTy
 				final var index = local.getSuperTypes().size() - 1;
 				final var reference = local.getSuperTypes().remove(index);
 				requestCapturedLocalVariables(reference, local, resolvedTypes, contexts,
-					capturing -> local.getSuperTypes().add(capturing));
+					capturing -> {
+						// JVM validation reads inheritance roles from the wrapper itself.
+						if (JvmTypeReferenceUtil.isExpectedAsClass(reference)) {
+							JvmTypeReferenceUtil.setExpectedAsClass(capturing);
+						}
+						if (JvmTypeReferenceUtil.isExpectedAsInterface(reference)) {
+							JvmTypeReferenceUtil.setExpectedAsInterface(capturing);
+						}
+						local.getSuperTypes().add(capturing);
+					});
 			} else {
 				prepareAnonymousType(resolvedTypes, session, local, contexts);
 			}
