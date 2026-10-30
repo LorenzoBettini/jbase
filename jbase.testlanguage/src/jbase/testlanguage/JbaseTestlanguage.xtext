@@ -57,7 +57,7 @@ XJStatementOrBlock returns xbase::XExpression:
 	LocalClass | =>XBlockExpression | XJSingleStatement;
 
 LocalClass returns jbase::XJLocalClass:
-	{LocalClass} 'class' name=ValidID
+	{LocalClass} 'local' name=ValidID
 	('extends' superType=JvmParameterizedTypeReference)?
 	('implements' interfaces+=JvmParameterizedTypeReference
 		(',' interfaces+=JvmParameterizedTypeReference)*)?

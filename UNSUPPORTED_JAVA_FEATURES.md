@@ -390,13 +390,15 @@ scope, capture and inheritance validation, and native Java generation. Declarati
 and member syntax remain the embedding language's responsibility; Jbase itself
 adds no local class syntax.
 
-The test language and Domainmodel demonstrate named classes with their existing
-member syntax, optional superclasses and implemented interfaces. For example:
+The test language and Domainmodel use `local` for named declarations, with their
+existing member syntax, optional superclasses and implemented interfaces. Their
+inferrers use `superClass` and `addSuperInterface` so JVM validation distinguishes
+classes from interfaces. Domainmodel entities also support `implements`. For example:
 
 ```java
-class Local { method value(): int { return 42; } }
-Local local = new Local();
-System.out.println(local.value());
+local Local { method value(): int { return 42; } }
+Local instance = new Local();
+System.out.println(instance.value());
 ```
 
 Covered by `JbaseLocalClassTest`, `JbaseFormatterTest`, `AllJavaFeaturesTest` and

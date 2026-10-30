@@ -197,7 +197,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			System.out.println(pointObject.getX());
 			Runnable anonymousTask = new Runnable() { method run(): void {} };
 			anonymousTask.run();
-			class LocalCounter {
+			local LocalCounter {
 				method value(): int { return offset; }
 			}
 			LocalCounter localCounter = new LocalCounter();

@@ -16,7 +16,7 @@ import jbase.testlanguage.jbaseTestlanguage.JbaseTestLanguageModel
 class JbaseTestlanguageFormatter extends JbaseFormatter {
 
 	def dispatch void format(LocalClass declaration, extension IFormattableDocument document) {
-		declaration.regionFor.keyword("class").append[oneSpace]
+		declaration.regionFor.keyword("local").append[oneSpace]
 		declaration.regionFor.keyword("extends").surround[oneSpace]
 		declaration.regionFor.keyword("implements").surround[oneSpace]
 		declaration.regionFor.keywords(",").forEach[prepend[noSpace]; append[oneSpace]]

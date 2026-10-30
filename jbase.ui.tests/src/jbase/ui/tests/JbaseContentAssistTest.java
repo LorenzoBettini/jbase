@@ -13,11 +13,11 @@ public class JbaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Test
 	public void testLocalClassMembersAndCaptures() throws Exception {
-		newBuilder().append("class Local { method value(): int { return 42; } } "
+		newBuilder().append("local Local { method value(): int { return 42; } } "
 			+ "Local instance = new Local(); instance.val").assertProposal("value");
-		newBuilder().append("int captured = 42; class Local { "
+		newBuilder().append("int captured = 42; local Local { "
 			+ "method value(): int { return cap").assertProposal("captured");
-		newBuilder().append("{ class Local {} } <|>").assertNoProposalAtCursor("Local");
+		newBuilder().append("{ local Local {} } <|>").assertNoProposalAtCursor("Local");
 	}
 
 	@Test

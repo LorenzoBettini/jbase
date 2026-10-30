@@ -390,7 +390,7 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 	public void testSourceAnnotationsWithoutNodeModel() throws Exception {
 		final var source = """
 			method annotated(@jbase.tests.util.SourceAnnotation String parameter): void {}
-			@jbase.tests.util.SourceAnnotation int local = 1;
+			@jbase.tests.util.SourceAnnotation int annotatedLocal = 1;
 			final @jbase.tests.util.SourceAnnotation String text = "text";
 			java.util.List<@jbase.tests.util.SourceAnnotation String> values = null;
 			java.util.List<@jbase.tests.util.SourceAnnotation ? extends String> wildcard = null;
