@@ -11,6 +11,7 @@ package org.eclipse.xtext.example.domainmodel.jvmmodel
 import com.google.inject.Inject
 import jbase.jvmmodel.JbaseAnonymousClassInferrer
 import org.eclipse.xtext.example.domainmodel.domainmodel.AnonymousClassBody
+import org.eclipse.xtext.example.domainmodel.domainmodel.LocalClass
 import org.eclipse.xtext.example.domainmodel.domainmodel.Feature
 import org.eclipse.xtext.common.types.JvmAnnotationTarget
 import org.eclipse.xtext.common.types.JvmDeclaredType
@@ -40,6 +41,8 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 		accept(entity.toClass( entity.fullyQualifiedName )) [
 			documentation = entity.documentation
 			superClass = entity.superType
+			for (implemented : entity.interfaces)
+				addSuperInterface(implemented)
 
 			// let's add a default constructor
 			members += entity.toConstructor []
@@ -86,10 +89,17 @@ class DomainmodelJvmModelInferrer extends AbstractModelInferrer {
 					]
 					members += method
 					// Attach the method before resolving anonymous members for accessor cleanup.
-					anonymousClasses.inferLocalClasses(method, f.body) [ source, type |
-						val body = source.body as AnonymousClassBody
-						type.inferFeatures(body.features)
-					]
+					anonymousClasses.inferLocalClasses(method, f.body, [ source, type |
+						type.inferFeatures((source.body as AnonymousClassBody).features)
+					], [ source, type |
+						val declaration = source as LocalClass
+						// Preserve the declared inheritance roles for JVM validation.
+						type.superClass = declaration.superType ?: typeRef(Object)
+						for (implemented : declaration.interfaces)
+							type.addSuperInterface(implemented)
+						if (source.body !== null)
+							type.inferFeatures((source.body as AnonymousClassBody).features)
+					])
 				}
 			}
 		}

@@ -383,21 +383,41 @@ that every non-alphanumeric identifier is rejected.
 
 ## Java features that are not related to expressions and statements
 
-### [ ] Local type declarations
+### [x] Reusable local class support
 
-Each of these independently valid block contents is rejected:
+Jbase supplies an extensible local-class AST base, JVM inference, lexical type
+scope, capture and inheritance validation, and native Java generation. Declaration
+and member syntax remain the embedding language's responsibility; Jbase itself
+adds no local class syntax.
+
+The test language and Domainmodel use `local` for named declarations, with their
+existing member syntax, optional superclasses and implemented interfaces. Their
+inferrers use `superClass` and `addSuperInterface` so JVM validation distinguishes
+classes from interfaces. Domainmodel entities also support `implements`. For example:
 
 ```java
-class Local {}
+local Local { method value(): int { return 42; } }
+Local instance = new Local();
+System.out.println(instance.value());
+```
+
+Covered by `JbaseLocalClassTest`, `JbaseFormatterTest`, `AllJavaFeaturesTest` and
+Domainmodel's compiler, parsing/serialization and formatter tests. See
+[Local classes](docs/LOCAL_CLASSES.md) for the Domainmodel integration walkthrough
+and the implementation and test class reference.
+
+### [ ] Other local type declarations
+
+Local enum, record and interface declarations remain unsupported:
+
+```java
 enum Choice { ONE }
 record Item(int value) {}
 interface Marker {}
 ```
 
-Local declarations belong to Java's block language even though they are not
-statements in the narrow JLS grammar.
-
-Jbase, being only a Java expression and statement language, does not support local types. 
+These require separate host syntax, model inference and validation; named local
+class support does not implement them.
 
 ## Java 21 preview expression and statement features
 
