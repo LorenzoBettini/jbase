@@ -227,7 +227,9 @@ We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which i
 
 ## Compiling From Sources
 
-To build Jbase locally, use Java 21 and the Maven wrapper (Maven 3.9.9). The build targets Xtext 2.42.0 and Eclipse 2026-03. From the repository root, run
+To build Jbase locally, use Java 21 and the Maven wrapper (Maven 3.9.9). The build uses the
+released `xtext-tycho-parent` 0.26.0 and targets Xtext 2.44.0, MWE2 2.27.0, and Eclipse 2026-09.
+From the repository root, run
 
 ```
 ./mvnw -f jbase.releng/pom.xml clean verify
