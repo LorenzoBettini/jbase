@@ -73,20 +73,7 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 			error("A local class must be declared directly in a block", source, null,
 				IssueCodes.INVALID_USE_OF_TYPE);
 		}
-		for (var child = (EObject) source; child != null
-				&& !(child instanceof XJAnonymousClassBody); child = child.eContainer()) {
-			if (child.eContainer() instanceof XBlockExpression block) {
-				final var preceding = block.getExpressions().subList(0,
-					block.getExpressions().indexOf(child));
-				for (final var previous : preceding) {
-					if (previous instanceof XJLocalClass declaration
-							&& Objects.equals(declaration.getName(), source.getName())) {
-						error("Duplicate local type " + source.getName(), source,
-							JbasePackage.Literals.XJ_LOCAL_CLASS__NAME, IssueCodes.DUPLICATE_TYPE);
-					}
-				}
-			}
-		}
+		checkDuplicateLocalClasses(source);
 		for (var enclosing = type.eContainer(); enclosing != null; enclosing = enclosing.eContainer()) {
 			if (enclosing instanceof JvmGenericType enclosingType
 					&& Objects.equals(enclosingType.getSimpleName(), source.getName())) {
@@ -100,6 +87,24 @@ public class JbaseAnonymousClassValidator extends JvmGenericTypeValidator {
 					owner.toLightweightTypeReference(superType)).isEmpty()) {
 				error("A local class cannot extend or implement a sealed type", source, null,
 					IssueCodes.INVALID_USE_OF_TYPE);
+			}
+		}
+	}
+
+	/** Reports earlier declarations with the same name in each enclosing block. */
+	private void checkDuplicateLocalClasses(final XJLocalClass source) {
+		for (var child = (EObject) source; child != null
+				&& !(child instanceof XJAnonymousClassBody); child = child.eContainer()) {
+			if (child.eContainer() instanceof XBlockExpression block) {
+				final var preceding = block.getExpressions().subList(0,
+					block.getExpressions().indexOf(child));
+				for (final var previous : preceding) {
+					if (previous instanceof XJLocalClass declaration
+							&& Objects.equals(declaration.getName(), source.getName())) {
+						error("Duplicate local type " + source.getName(), source,
+							JbasePackage.Literals.XJ_LOCAL_CLASS__NAME, IssueCodes.DUPLICATE_TYPE);
+					}
+				}
 			}
 		}
 	}
