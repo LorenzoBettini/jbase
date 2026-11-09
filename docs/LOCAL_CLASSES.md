@@ -179,6 +179,7 @@ The shared implementation is in:
 
 - [`JbaseAnonymousClassInferrer`](../jbase/src/jbase/jvmmodel/JbaseAnonymousClassInferrer.java):
   JVM skeletons, callbacks, default constructors and class-body traversal boundaries.
+  It resolves the default `Object` superclass through `TypeReferences` in the declaration context.
 - [`JbaseImportSectionNamespaceScopeProvider`](../jbase/src/jbase/scoping/JbaseImportSectionNamespaceScopeProvider.java):
   declaration-order type lookup and filtering local names out of resource-wide lookup.
   `localClasses` layers enclosing scopes, and `addVisibleLocalClasses` collects
