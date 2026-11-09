@@ -197,6 +197,8 @@ The shared implementation is in:
   for earlier declarations with the same name in enclosing blocks.
 - [`JbaseXbaseCompiler`](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java):
   native local declaration emission using the JVM model generator.
+- [`JbaseJvmModelGenerator`](../jbase/src/jbase/compiler/JbaseJvmModelGenerator.java):
+  ends local declarations without indenting the blank line before the next statement.
 
 The host integration is in Domainmodel's
 [`Domainmodel.xtext`](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/Domainmodel.xtext),
@@ -207,6 +209,8 @@ and [`DomainmodelFormatter`](../domainmodel/org.eclipse.xtext.example.domainmode
 checks parsing, diagnostics, exact Java, Java compilation, execution, local class
 identity, lexical scope, inheritance, captures, mixed nesting, host constructors
 and serialization with and without node models.
+[`JbaseJvmModelGeneratorTest`](../jbase.tests/src/jbase/tests/JbaseJvmModelGeneratorTest.java)
+also checks the generator's class, interface and nested type paths.
 [`JbaseFormatterTest`](../jbase.tests/src/jbase/tests/JbaseFormatterTest.java)
 checks local declaration formatting, and
 [`AllJavaFeaturesTest`](../jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java)

@@ -573,7 +573,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			        return offset;
 			      }
 			    }
-			\s\s\s\s
+
 			    LocalCounter localCounter = new LocalCounter();
 			    System.out.println(localCounter.value());
 			    if (enabled) {
