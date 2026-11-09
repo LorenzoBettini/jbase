@@ -1,28 +1,85 @@
 package jbase.compiler;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.common.types.JvmDeclaredType;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.common.types.JvmFeature;
 import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmType;
+import org.eclipse.xtext.generator.trace.ITraceURIConverter;
+import org.eclipse.xtext.resource.ILocationInFileProvider;
 import org.eclipse.xtext.xbase.compiler.GeneratorConfig;
+import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
+import org.eclipse.xtext.xbase.compiler.ImportManager;
 import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
+import org.eclipse.xtext.xbase.compiler.output.TreeAppendable;
+import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 
 import com.google.inject.Inject;
 
+import jbase.jbase.XJAnonymousClass;
+import jbase.jbase.XJLocalClass;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.util.JbaseModelUtil;
 
 /**
- * All parameters are NOT final by default.
+ * Generates Jbase JVM types, including local and anonymous class bodies, and preserves
+ * source-declared parameter modifiers.
  *
  * @author Lorenzo Bettini
  */
-public class JbaseJvmModelGenerator extends JvmModelGenerator {
+public class JbaseJvmModelGenerator extends JvmModelGenerator implements JbaseClassBodyEmitter {
 
 	@Inject
 	private JbaseModelUtil modelUtil;
+
+	@Inject
+	private IJvmModelAssociations associations;
+
+	@Inject
+	private IGeneratorConfigProvider generatorConfigs;
+
+	/** Creates an appendable whose trace children retain access to class-body emission. */
+	@Override
+	protected TreeAppendable createAppendable(final ImportManager importManager,
+			final ITraceURIConverter converter,
+			final ILocationInFileProvider locationProvider,
+			final IJvmModelAssociations jvmModelAssociations, final EObject source,
+			final String indentation, final String lineSeparator) {
+		return new JbaseClassAwareTreeAppendable(this, importManager, converter,
+			locationProvider, jvmModelAssociations, source, indentation, lineSeparator);
+	}
+
+	/**
+	 * Generates a named local class in its enclosing block. Its scope gives member bodies
+	 * their own {@code this} and {@code super} without changing the enclosing expression.
+	 */
+	@Override
+	public void generateLocalClass(final XJLocalClass declaration,
+			final ITreeAppendable appendable) {
+		final var type = (JvmGenericType) associations.getPrimaryJvmElement(declaration);
+		final var config = generatorConfigs.get(declaration);
+		appendable.newLine().openScope();
+		assignThisAndSuper(appendable, type, config);
+		generateBody(type, appendable, config);
+		appendable.closeScope();
+	}
+
+	/**
+	 * Generates the body of an anonymous creation after the compiler emits its constructor
+	 * call. Members use the inferred JVM type and the base type's {@code this}/{@code super}.
+	 */
+	@Override
+	public void generateAnonymousClassBody(final XJAnonymousClass anonymous,
+			final JvmDeclaredType type, final ITreeAppendable appendable) {
+		appendable.append(" ").openScope();
+		final var config = generatorConfigs.get(anonymous);
+		assignThisAndSuper(appendable, type, config);
+		generateMembersInBody(type, appendable, config);
+		appendable.closeScope();
+	}
 
 	/**
 	 * Mirrors Xtext's generic type generation, ending local class declarations without

@@ -12,7 +12,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
-import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmOperation;
@@ -49,11 +48,8 @@ import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.XbasePackage;
 import org.eclipse.xtext.xbase.annotations.xAnnotations.XAnnotation;
 import org.eclipse.xtext.xbase.compiler.FeatureCallCompiler;
-import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
-import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
-import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.eclipse.xtext.xbase.util.XbaseUsageCrossReferencer;
@@ -113,14 +109,7 @@ import jbase.util.JbaseSwitches;
  */
 public class JbaseXbaseCompiler extends XbaseCompiler {
 	@Inject
-	private IJvmModelAssociations associations;
-
-	@Inject
 	private JbaseAnonymousClassUtil anonymousTypes;
-	@Inject
-	private JvmModelGenerator modelGenerator;
-	@Inject
-	private IGeneratorConfigProvider generatorConfigs;
 	
 	private static final String INSTANCEOF_OPERATOR = " instanceof ";
 
@@ -220,13 +209,7 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 			final ITreeAppendable appendable, final boolean isReferenced) {
 		switch (obj) {
 			case XJLocalClass declaration -> {
-				final var type = (JvmGenericType) associations.getPrimaryJvmElement(declaration);
-				final var config = generatorConfigs.get(declaration);
-				// The declaration stays at its source position; members get their own this/super.
-				appendable.newLine().openScope();
-				modelGenerator.assignThisAndSuper(appendable, type, config);
-				modelGenerator.generateBody(type, appendable, config);
-				appendable.closeScope();
+				classBodyAppendable(appendable).generateLocalClass(declaration);
 			}
 			case XJAnonymousClass anonymous -> {
 				internalToJavaStatement(anonymous.getConstructorCall(), appendable, isReferenced);
@@ -501,12 +484,17 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 		appendExplicitTypeArguments(anonymous, appendable);
 		appendConstructorArguments(call, appendable);
 		final var type = call.getConstructor().getDeclaringType();
-		appendable.append(" ").openScope();
-		final var config = generatorConfigs.get(anonymous);
-		// Generate members from the inferred JVM type, while retaining the base type's this/super.
-		modelGenerator.assignThisAndSuper(appendable, type, config);
-		modelGenerator.generateMembersInBody(type, appendable, config);
-		appendable.closeScope();
+		classBodyAppendable(appendable).generateAnonymousClassBody(anonymous, type);
+	}
+
+	/** Requires the appendable supplied by the Jbase generator for class emission. */
+	private JbaseClassAwareTreeAppendable classBodyAppendable(
+			final ITreeAppendable appendable) {
+		if (appendable instanceof JbaseClassAwareTreeAppendable classAppendable) {
+			return classAppendable;
+		}
+		throw new IllegalStateException(
+			"Jbase class generation requires a JbaseClassAwareTreeAppendable");
 	}
 
 	private void compileQualifiedConstructorCall(final XJConstructorCall call,

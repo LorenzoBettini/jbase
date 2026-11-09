@@ -196,9 +196,15 @@ The shared implementation is in:
   enclosing type and sealed supertype checks; `checkDuplicateLocalClasses` looks
   for earlier declarations with the same name in enclosing blocks.
 - [`JbaseXbaseCompiler`](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java):
-  native local declaration emission using the JVM model generator.
+  requests local declarations at their source positions through the class-aware
+  appendable, without injecting the JVM model generator.
 - [`JbaseJvmModelGenerator`](../jbase/src/jbase/compiler/JbaseJvmModelGenerator.java):
-  ends local declarations without indenting the blank line before the next statement.
+  emits local declarations, assigns their `this`/`super` scope, and ends them
+  without indenting the blank line before the next statement.
+- [`JbaseClassAwareTreeAppendable`](../jbase/src/jbase/compiler/JbaseClassAwareTreeAppendable.java):
+  carries the generator's class-body callback through traced appendables.
+  [`JbaseClassBodyEmitter`](../jbase/src/jbase/compiler/JbaseClassBodyEmitter.java)
+  defines the two class-emission requests.
 
 The host integration is in Domainmodel's
 [`Domainmodel.xtext`](../domainmodel/org.eclipse.xtext.example.domainmodel/src/org/eclipse/xtext/example/domainmodel/Domainmodel.xtext),

@@ -1,21 +1,31 @@
 package jbase.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.lang.reflect.Proxy;
 
 import com.google.inject.Inject;
 import com.google.inject.MembersInjector;
 import jbase.compiler.JbaseJvmModelGenerator;
+import jbase.compiler.JbaseXbaseCompiler;
+import jbase.jbase.XJLocalClass;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.testlanguage.jvmmodel.JbaseTestlanguageJvmModelInferrer;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmOperation;
 import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.testing.util.ParseHelper;
 import org.eclipse.xtext.xbase.compiler.GeneratorConfig;
+import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
 import org.eclipse.xtext.xbase.jvmmodel.JvmModelAssociator;
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder;
 import org.junit.Test;
@@ -49,6 +59,34 @@ public class JbaseJvmModelGeneratorTest extends JbaseAbstractCompilerTest {
 
 	@Inject
 	private JbaseJvmModelGenerator generator;
+
+	@Inject
+	private JbaseXbaseCompiler compiler;
+
+	@Inject
+	private ParseHelper<EObject> parser;
+
+	@Test
+	public void classCompilationRequiresGeneratorAppendable() throws Exception {
+		final var appendable = (ITreeAppendable) Proxy.newProxyInstance(
+			ITreeAppendable.class.getClassLoader(), new Class<?>[] { ITreeAppendable.class },
+			(proxy, method, args) -> {
+				if (method.getName().equals("trace")) {
+					return proxy;
+				}
+				throw new AssertionError("Unexpected appendable call: " + method.getName());
+			});
+		final var model = parser.parse("local Local {}");
+		final var declaration = EcoreUtil2.getAllContentsOfType(model, XJLocalClass.class)
+			.getFirst();
+		try {
+			compiler.toJavaStatement(declaration, appendable, false);
+			fail("Expected a class-aware appendable error");
+		} catch (final IllegalStateException error) {
+			assertEquals("Jbase class generation requires a JbaseClassAwareTreeAppendable",
+				error.getMessage());
+		}
+	}
 
 	@Test
 	public void genericInterfaceAndNestedTypes() {
