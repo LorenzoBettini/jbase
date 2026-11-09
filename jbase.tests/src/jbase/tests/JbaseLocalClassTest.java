@@ -73,7 +73,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 			  public static void main(String[] args) throws Throwable {
 			    class Local {
 			    }
-			\s\s\s\s
+
 			    Local value = new Local();
 			  }
 			}

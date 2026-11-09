@@ -1,7 +1,10 @@
 package jbase.compiler;
 
 import org.eclipse.xtext.common.types.JvmFormalParameter;
+import org.eclipse.xtext.common.types.JvmFeature;
 import org.eclipse.xtext.common.types.JvmGenericArrayTypeReference;
+import org.eclipse.xtext.common.types.JvmGenericType;
+import org.eclipse.xtext.common.types.JvmType;
 import org.eclipse.xtext.xbase.compiler.GeneratorConfig;
 import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
@@ -20,6 +23,37 @@ public class JbaseJvmModelGenerator extends JvmModelGenerator {
 
 	@Inject
 	private JbaseModelUtil modelUtil;
+
+	/**
+	 * Mirrors Xtext's generic type generation, ending local class declarations without
+	 * indentation on the following blank line. The enclosing block emits its own newline
+	 * before the next statement.
+	 */
+	@Override
+	protected ITreeAppendable _generateBody(final JvmGenericType type,
+			final ITreeAppendable appendable, final GeneratorConfig config) {
+		generateJavaDoc(type, appendable, config);
+		final var child = appendable.trace(type);
+		generateAnnotations(type.getAnnotations(), child, true, config);
+		generateModifier(type, child, config);
+		child.append(type.isInterface() ? "interface " : "class ");
+		_treeAppendableUtil.traceSignificant(child, type)
+			.append(makeJavaIdentifier(type.getSimpleName()));
+		generateTypeParameterDeclaration(type, child, config);
+		if (type.getTypeParameters().isEmpty()) {
+			child.append(" ");
+		}
+		generateExtendsClause(type, child, config);
+		generateMembersInBody(type, child, config);
+		if (!type.isAnonymous() && !(type.eContainer() instanceof JvmType)) {
+			if (type.eContainer() instanceof JvmFeature) {
+				appendable.blankLine();
+			} else {
+				appendable.newLine();
+			}
+		}
+		return appendable;
+	}
 
 	/**
 	 * Copied from JvmModelGenerator but avoid generating "final" if the original parameter

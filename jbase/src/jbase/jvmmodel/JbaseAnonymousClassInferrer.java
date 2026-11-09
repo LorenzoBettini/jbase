@@ -34,21 +34,35 @@ public class JbaseAnonymousClassInferrer {
 		inferLocalClasses(container, expression, (source, type) -> { });
 	}
 
-	/** Call after assigning the feature body, during the inferrer's initialization phase. */
+	/**
+	 * Call after assigning the feature body, during the inferrer's initialization phase.
+	 *
+	 * @param container the JVM feature containing the expression
+	 * @param expression the expression to search for anonymous classes
+	 * @param initializeAnonymousClassMembers initializes each anonymous class's members
+	 */
 	public void inferLocalClasses(final JvmFeature container, final XExpression expression,
-			final BiConsumer<XJAnonymousClass, JvmGenericType> initializeMembers) {
-		inferLocalClasses(container, expression, initializeMembers, (source, type) -> { });
+			final BiConsumer<XJAnonymousClass, JvmGenericType> initializeAnonymousClassMembers) {
+		inferLocalClasses(container, expression, initializeAnonymousClassMembers,
+			(source, type) -> { });
 	}
 
 	/**
 	 * Registers anonymous and host-defined named classes in lexical traversal order.
-	 * The named callback supplies supertypes, modifiers and members using the host model.
+	 * {@code initializeAnonymousClassMembers} populates members of each anonymous class.
+	 * {@code initializeLocalClassMembers} supplies supertypes, modifiers and members of
+	 * each named local class using the host model.
 	 * A default Object superclass and constructor are supplied when omitted. Member bodies
 	 * must call this helper recursively, as they belong to their own JVM features.
+	 *
+	 * @param container the JVM feature containing the expression
+	 * @param expression the expression to search for local class declarations
+	 * @param initializeAnonymousClassMembers initializes each anonymous class's members
+	 * @param initializeLocalClassMembers initializes each named local class's members
 	 */
 	public void inferLocalClasses(final JvmFeature container, final XExpression expression,
-			final BiConsumer<XJAnonymousClass, JvmGenericType> initializeMembers,
-			final BiConsumer<XJLocalClass, JvmGenericType> initializeNamedMembers) {
+			final BiConsumer<XJAnonymousClass, JvmGenericType> initializeAnonymousClassMembers,
+			final BiConsumer<XJLocalClass, JvmGenericType> initializeLocalClassMembers) {
 		if (expression == null) {
 			return;
 		}
@@ -61,7 +75,7 @@ public class JbaseAnonymousClassInferrer {
 				type.setVisibility(JvmVisibility.DEFAULT);
 				container.getLocalClasses().add(type);
 				associator.associatePrimary(declaration, type);
-				initializeNamedMembers.accept(declaration, type);
+				initializeLocalClassMembers.accept(declaration, type);
 				if (type.getSuperTypes().isEmpty()) {
 					type.getSuperTypes().add(builder.newTypeRef(declaration, Object.class));
 				}
@@ -81,12 +95,13 @@ public class JbaseAnonymousClassInferrer {
 				type.getSuperTypes().add(builder.inferredType(anonymous));
 				container.getLocalClasses().add(type);
 				associator.associatePrimary(anonymous, type);
-				initializeMembers.accept(anonymous, type);
+				initializeAnonymousClassMembers.accept(anonymous, type);
 				// The class body belongs to the new local type, but its constructor arguments
 				// are evaluated in the enclosing feature and may contain nested anonymous classes.
 				for (final var argument : anonymous.getConstructorCall().getArguments()) {
 					associator.associateLogicalContainer(argument, container);
-					inferLocalClasses(container, argument, initializeMembers, initializeNamedMembers);
+					inferLocalClasses(container, argument, initializeAnonymousClassMembers,
+						initializeLocalClassMembers);
 				}
 				contents.prune();
 			}

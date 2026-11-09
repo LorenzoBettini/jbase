@@ -1,13 +1,21 @@
 package jbase.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.inject.Inject;
 import com.google.inject.MembersInjector;
+import jbase.compiler.JbaseJvmModelGenerator;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.testlanguage.jvmmodel.JbaseTestlanguageJvmModelInferrer;
 import jbase.testlanguage.tests.JbaseTestlanguageInjectorProvider;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.common.types.JvmOperation;
+import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
+import org.eclipse.xtext.xbase.compiler.GeneratorConfig;
 import org.eclipse.xtext.xbase.jvmmodel.JvmModelAssociator;
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder;
 import org.junit.Test;
@@ -38,6 +46,35 @@ public class JbaseJvmModelGeneratorTest extends JbaseAbstractCompilerTest {
 	 */
 	@Inject
 	private MembersInjector<JbaseTestlanguageJvmModelInferrer> inferrerInjector;
+
+	@Inject
+	private JbaseJvmModelGenerator generator;
+
+	@Test
+	public void genericInterfaceAndNestedTypes() {
+		final var types = TypesFactory.eINSTANCE;
+		final var parent = types.createJvmGenericType();
+		parent.setSimpleName("Outer");
+		final var nested = types.createJvmGenericType();
+		nested.setSimpleName("Inner");
+		nested.setInterface(true);
+		nested.getTypeParameters().add(types.createJvmTypeParameter());
+		nested.getTypeParameters().getFirst().setName("T");
+		parent.getMembers().add(nested);
+		final var resource = new ResourceImpl(URI.createURI("synthetic.jbase"));
+		new ResourceSetImpl().getResources().add(resource);
+		resource.getContents().add(parent);
+		final var java = generator.generateType(parent, new GeneratorConfig()).toString();
+		assertTrue(java.contains("class Outer"));
+		assertTrue(java.contains("interface Inner<T>"));
+
+		final var anonymous = types.createJvmGenericType();
+		anonymous.setSimpleName("Anonymous");
+		anonymous.setAnonymous(true);
+		resource.getContents().add(anonymous);
+		assertTrue(generator.generateType(anonymous, new GeneratorConfig()).toString()
+			.contains("class Anonymous"));
+	}
 
 	@Test
 	public void testArrayAssignElementFinalParameter() throws Exception {
