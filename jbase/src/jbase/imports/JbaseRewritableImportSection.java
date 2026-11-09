@@ -59,7 +59,7 @@ public class JbaseRewritableImportSection extends RewritableImportSection {
 
 	}
 
-	private String lineSeparator;
+	private final String lineSeparator;
 
 	/**
 	 * @param resource
