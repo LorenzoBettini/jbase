@@ -16,6 +16,7 @@ import org.eclipse.xtext.common.types.TypesPackage
 import org.eclipse.xtext.example.domainmodel.DomainmodelStandaloneSetup
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelFactory
+import org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelPackage
 import org.eclipse.xtext.example.domainmodel.domainmodel.DomainModel
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
 import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
@@ -45,6 +46,80 @@ class DomainmodelParsingTest{
 	@Inject extension IJvmModelAssociations
 	@Inject ISerializer serializer
 	@Inject TypeReferences typeReferences
+
+	@Test def void testLocalClassSerialization() {
+		val model = '''
+			entity Foo {
+				op calculate(int input):int {
+					local Local extends java.util.ArrayList<String> {
+						value : int
+						op self():Local { return this; }
+						op getValue():int { return this.value + input; }
+					}
+					Local value = new Local();
+					return value.self().getValue();
+				}
+			}
+		'''.parse
+		model.assertNoErrors
+		serializer.serialize(model).parse.assertNoErrors
+		EcoreUtil.resolveAll(model)
+		val copy = EcoreUtil.copy(model)
+		val resource = model.eResource
+		resource.contents.clear
+		resource.contents.add(copy)
+		serializer.serialize(copy).parse.assertNoErrors
+	}
+
+	@Test def void testLocalClassMissingMembersAndScope() {
+		"entity Foo { op test():void { local Local implements Runnable {} } }".parse.assertError(
+			JbasePackage.Literals.XJ_LOCAL_CLASS, IssueCodes.CLASS_MUST_BE_ABSTRACT)
+		"entity Foo { op test():void { new Local(); local Local {} } }".parse.assertError(
+			JbasePackage.Literals.XJ_CONSTRUCTOR_CALL, org.eclipse.xtext.diagnostics.Diagnostic.LINKING_DIAGNOSTIC)
+	}
+
+	@Test def void testInheritanceRolesAreValidated() {
+		"entity Foo extends java.io.Serializable {}".parse.assertError(
+			DomainmodelPackage.Literals.ENTITY, IssueCodes.CLASS_EXPECTED,
+			"Superclass must be a class")
+		"entity Foo implements Object {}".parse.assertError(
+			DomainmodelPackage.Literals.ENTITY, IssueCodes.INTERFACE_EXPECTED,
+			"Implemented interface must be an interface")
+		"entity Foo implements java.io.Serializable, java.io.Serializable {}".parse.assertError(
+			DomainmodelPackage.Literals.ENTITY, IssueCodes.DUPLICATE_INTERFACE,
+			"Duplicate interface Serializable")
+		"entity Foo implements Runnable {}".parse.assertError(
+			DomainmodelPackage.Literals.ENTITY, IssueCodes.CLASS_MUST_BE_ABSTRACT)
+		"entity Foo { op test():void { local Local extends java.io.Serializable {} } }"
+			.parse.assertError(DomainmodelPackage.Literals.LOCAL_CLASS, IssueCodes.CLASS_EXPECTED,
+				"Superclass must be a class")
+		"entity Foo { op test():void { local Local implements Object {} } }"
+			.parse.assertError(DomainmodelPackage.Literals.LOCAL_CLASS, IssueCodes.INTERFACE_EXPECTED,
+				"Implemented interface must be an interface")
+		"entity Foo { op test():void { local Local implements java.io.Serializable, java.io.Serializable {} } }"
+			.parse.assertError(DomainmodelPackage.Literals.LOCAL_CLASS, IssueCodes.DUPLICATE_INTERFACE,
+				"Duplicate interface Serializable")
+		val oldKeyword = "entity Foo { op test():void { class Local {} } }".parse
+		oldKeyword.assertError(oldKeyword.eClass,
+			org.eclipse.xtext.diagnostics.Diagnostic.SYNTAX_DIAGNOSTIC)
+	}
+
+	@Test def void testEntityInterfacesSerialization() {
+		val model = '''
+			entity Foo extends java.util.ArrayList<String>
+				implements java.util.function.IntSupplier, java.lang.Cloneable {
+				op getAsInt():int { return size(); }
+			}
+		'''.parse
+		model.assertNoErrors
+		serializer.serialize(model).parse.assertNoErrors
+		EcoreUtil.resolveAll(model)
+		val copy = EcoreUtil.copy(model)
+		val resource = model.eResource
+		resource.contents.clear
+		resource.contents.add(copy)
+		serializer.serialize(copy).parse.assertNoErrors
+	}
 
 	@Test def void testAnonymousClassSerialization() {
 		val source = '''

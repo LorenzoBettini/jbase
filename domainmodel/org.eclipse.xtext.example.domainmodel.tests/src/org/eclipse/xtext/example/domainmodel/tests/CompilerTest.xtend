@@ -29,6 +29,94 @@ class CompilerTest {
 	@Inject extension CompilationTestHelper
 	@Inject extension ReflectExtensions
 
+	@Test def void testEntitySuperclassAndInterfaces() throws Exception {
+		'''
+			entity Foo extends java.util.ArrayList<String>
+				implements java.util.function.IntSupplier, java.lang.Cloneable {
+				op getAsInt():int { return size() + 40; }
+			}
+		'''.compile [
+			assertTrue(errorsAndWarnings.toString, errorsAndWarnings.empty)
+			assertEquals('''
+				import java.util.ArrayList;
+				import java.util.function.IntSupplier;
+				import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+				import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+
+				@SuppressWarnings("all")
+				public class Foo extends ArrayList<String> implements IntSupplier, Cloneable {
+				  public Foo() {
+				  }
+
+				  public Foo(Procedure1<Foo> initializer) {
+				    initializer.apply(this);
+				  }
+
+				  public int getAsInt() {
+				    int _size = this.size();
+				    return (_size + 40);
+				  }
+
+				  @Override
+				  public String toString() {
+				    String result = new ToStringBuilder(this).addAllFields().toString();
+				    return result;
+				  }
+				}
+			'''.toString, singleGeneratedCode)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			val values = obj as java.util.List<String>
+			values.add("one")
+			values.add("two")
+			assertEquals(42, (obj as java.util.function.IntSupplier).asInt)
+			assertTrue(obj instanceof Cloneable)
+		]
+	}
+
+	@Test def void testLocalClassesCaptureParametersAndReuseProperties() throws Exception {
+		'''
+			entity Foo implements java.util.function.IntSupplier {
+				op getAsInt():int { return calculate(3); }
+				op calculate(int input):int {
+					final var offset = 2;
+					local Counter implements java.util.function.IntSupplier {
+						value : int
+						op getAsInt():int { return this.value + input + offset; }
+					}
+					Counter counter = new Counter();
+					counter.setValue(37);
+					return counter.getAsInt();
+				}
+			}
+		'''.compile [
+			assertTrue(errorsAndWarnings.toString, errorsAndWarnings.empty)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate', 3))
+			assertEquals(42, (obj as java.util.function.IntSupplier).asInt)
+		]
+	}
+
+	@Test def void testLocalInheritanceAndNestedClasses() throws Exception {
+		'''
+			entity Foo {
+				op calculate(int input):int {
+					local Values extends java.util.ArrayList<String> {
+						op self():Values { return this; }
+						op result():int {
+							local Nested { op get():int { return input + 2; } }
+							return new Nested().get();
+						}
+					}
+					return new Values().self().result();
+				}
+			}
+		'''.compile [
+			assertTrue(errorsAndWarnings.toString, errorsAndWarnings.empty)
+			val obj = compiledClass.getDeclaredConstructor().newInstance
+			assertEquals(42, obj.invoke('calculate', 40))
+		]
+	}
+
 	@Test def void testAnonymousInterfaceCapturesLocals() throws Exception {
 		'''
 			import java.util.function.IntUnaryOperator;

@@ -494,7 +494,7 @@ public class JbaseLambdaTest extends JbaseAbstractCompilerTest {
 			java.util.function.IntSupplier fail = () -> {
 				throw new IllegalStateException();
 			};
-			Runnable local = () -> {
+			Runnable action = () -> {
 				int n;
 				n = 1;
 				System.out.println(n);

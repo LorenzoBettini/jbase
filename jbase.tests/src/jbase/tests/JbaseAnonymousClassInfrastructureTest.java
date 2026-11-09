@@ -46,6 +46,8 @@ public class JbaseAnonymousClassInfrastructureTest extends JbaseAbstractTest {
 	@Inject
 	private IBatchTypeResolver resolver;
 	@Inject
+	private JbaseReentrantTypeResolver reentrantResolver;
+	@Inject
 	private TypeReferences references;
 
 	@Test
@@ -119,7 +121,7 @@ public class JbaseAnonymousClassInfrastructureTest extends JbaseAbstractTest {
 			IFeatureScopeSession.class,
 			JvmFeature.class, java.util.Map.class);
 		prepare.setAccessible(true);
-		prepare.invoke(new JbaseReentrantTypeResolver(), null, null, operation, null);
+		prepare.invoke(reentrantResolver, null, null, operation, null);
 		assertSame(superType, local.getSuperTypes().getFirst());
 		assertTrue(local.getMembers().isEmpty());
 	}

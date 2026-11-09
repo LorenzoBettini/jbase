@@ -12,6 +12,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
+import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmOperation;
@@ -52,6 +53,7 @@ import org.eclipse.xtext.xbase.compiler.IGeneratorConfigProvider;
 import org.eclipse.xtext.xbase.compiler.JvmModelGenerator;
 import org.eclipse.xtext.xbase.compiler.XbaseCompiler;
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable;
+import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 import org.eclipse.xtext.xbase.util.XbaseUsageCrossReferencer;
@@ -81,6 +83,7 @@ import jbase.jbase.XJContinueStatement;
 import jbase.jbase.XJInstanceOfExpression;
 import jbase.jbase.XJJvmFormalParameter;
 import jbase.jbase.XJLabeledStatement;
+import jbase.jbase.XJLocalClass;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJRecordPattern;
@@ -109,6 +112,8 @@ import jbase.util.JbaseSwitches;
  * @author Lorenzo Bettini
  */
 public class JbaseXbaseCompiler extends XbaseCompiler {
+	@Inject
+	private IJvmModelAssociations associations;
 
 	@Inject
 	private JbaseAnonymousClassUtil anonymousTypes;
@@ -214,6 +219,15 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	protected void doInternalToJavaStatement(final XExpression obj,
 			final ITreeAppendable appendable, final boolean isReferenced) {
 		switch (obj) {
+			case XJLocalClass declaration -> {
+				final var type = (JvmGenericType) associations.getPrimaryJvmElement(declaration);
+				final var config = generatorConfigs.get(declaration);
+				// The declaration stays at its source position; members get their own this/super.
+				appendable.newLine().openScope();
+				modelGenerator.assignThisAndSuper(appendable, type, config);
+				modelGenerator.generateBody(type, appendable, config);
+				appendable.closeScope();
+			}
 			case XJAnonymousClass anonymous -> {
 				internalToJavaStatement(anonymous.getConstructorCall(), appendable, isReferenced);
 			}
@@ -1197,20 +1211,24 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 		}
 	}
 
-	/**
-	 * Conservatively detects an external local used below any XClosure node, including the
-	 * reference subtype. This syntactic query controls preservation of a blank declaration;
-	 * JbaseValidator decides whether a use is an actual capture and is effectively final.
-	 */
+	/** Identifies explicit final declarations whose first assignment must remain in Java. */
 	private boolean isBlankFinalLocal(final XVariableDeclaration variable) {
 		return !variable.isWriteable();
 	}
 
+	/**
+	 * Conservatively detects an external local used in a closure or class body, including
+	 * method references. This syntactic query preserves blank declarations; JbaseValidator
+	 * decides whether a use is an actual capture and is effectively final.
+	 */
 	private boolean isCapturedLocal(final XVariableDeclaration variable) {
 		return XbaseUsageCrossReferencer.find(variable, EcoreUtil.getRootContainer(variable))
 			.stream().anyMatch(reference -> {
 				var closure = EcoreUtil2.getContainerOfType(reference.getEObject(), XClosure.class);
-				return closure != null && !EcoreUtil.isAncestor(closure, variable);
+				var body = EcoreUtil2.getContainerOfType(reference.getEObject(),
+					XJAnonymousClassBody.class);
+				return closure != null && !EcoreUtil.isAncestor(closure, variable)
+					|| body != null && !EcoreUtil.isAncestor(body, variable);
 			});
 	}
 
