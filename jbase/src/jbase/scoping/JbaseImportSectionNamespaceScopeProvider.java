@@ -45,20 +45,26 @@ public class JbaseImportSectionNamespaceScopeProvider extends XImportSectionName
 		final var outer = localClasses(context.eContainer(), parent);
 		final var descriptions = new ArrayList<IEObjectDescription>();
 		if (context.eContainer() instanceof XBlockExpression block) {
-			final var visible = block.getExpressions().subList(0,
-				block.getExpressions().indexOf(context) + 1);
-			for (final var expression : visible) {
-				if (expression instanceof XJLocalClass declaration) {
-					for (final var inferred : associations.getJvmElements(declaration)) {
-						if (inferred instanceof JvmGenericType type && type.getSimpleName() != null) {
-							descriptions.add(EObjectDescription.create(
-								QualifiedName.create(type.getSimpleName()), type));
-						}
+			addVisibleLocalClasses(block, context, descriptions);
+		}
+		return new SimpleScope(outer, descriptions);
+	}
+
+	/** Adds declarations up to and including the current expression in a block. */
+	private void addVisibleLocalClasses(final XBlockExpression block, final EObject context,
+			final ArrayList<IEObjectDescription> descriptions) {
+		final var visible = block.getExpressions().subList(0,
+			block.getExpressions().indexOf(context) + 1);
+		for (final var expression : visible) {
+			if (expression instanceof XJLocalClass declaration) {
+				for (final var inferred : associations.getJvmElements(declaration)) {
+					if (inferred instanceof JvmGenericType type && type.getSimpleName() != null) {
+						descriptions.add(EObjectDescription.create(
+							QualifiedName.create(type.getSimpleName()), type));
 					}
 				}
 			}
 		}
-		return new SimpleScope(outer, descriptions);
 	}
 
 	@Override

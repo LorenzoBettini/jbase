@@ -181,6 +181,8 @@ The shared implementation is in:
   JVM skeletons, callbacks, default constructors and class-body traversal boundaries.
 - [`JbaseImportSectionNamespaceScopeProvider`](../jbase/src/jbase/scoping/JbaseImportSectionNamespaceScopeProvider.java):
   declaration-order type lookup and filtering local names out of resource-wide lookup.
+  `localClasses` layers enclosing scopes, and `addVisibleLocalClasses` collects
+  declarations through the current expression in each block.
 - [`JbaseTypeComputer`](../jbase/src/jbase/typesystem/JbaseTypeComputer.java) and
   [`JbaseReentrantTypeResolver`](../jbase/src/jbase/typesystem/JbaseReentrantTypeResolver.java):
   void declaration typing, capture snapshots and member inference. The resolver
@@ -190,6 +192,9 @@ The shared implementation is in:
   [`JbaseValidator`](../jbase/src/jbase/validation/JbaseValidator.java) and
   [`JbaseInitializedVariableFinder`](../jbase/src/jbase/validation/JbaseInitializedVariableFinder.java):
   JVM checks, lexical restrictions, effectively final captures and definite assignment.
+  The anonymous class validator's `checkJavaLocalClass` applies local declaration,
+  enclosing type and sealed supertype checks; `checkDuplicateLocalClasses` looks
+  for earlier declarations with the same name in enclosing blocks.
 - [`JbaseXbaseCompiler`](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java):
   native local declaration emission using the JVM model generator.
 
