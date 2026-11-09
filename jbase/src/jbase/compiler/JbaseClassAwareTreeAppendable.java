@@ -22,7 +22,7 @@ import jbase.jbase.XJLocalClass;
 final class JbaseClassAwareTreeAppendable extends TreeAppendable {
 	private final JbaseClassBodyEmitter classBodies;
 
-	JbaseClassAwareTreeAppendable(final JbaseClassBodyEmitter classBodies,
+	JbaseClassAwareTreeAppendable(final JbaseClassBodyEmitter classBodies, // NOSONAR: we need so many parameters to pass through the superclass constructor
 			final ImportManager importManager, final ITraceURIConverter converter,
 			final ILocationInFileProvider locationProvider,
 			final IJvmModelAssociations associations, final EObject source,
