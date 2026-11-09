@@ -1,8 +1,8 @@
 package jbase.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.lang.reflect.Proxy;
 
@@ -79,13 +79,10 @@ public class JbaseJvmModelGeneratorTest extends JbaseAbstractCompilerTest {
 		final var model = parser.parse("local Local {}");
 		final var declaration = EcoreUtil2.getAllContentsOfType(model, XJLocalClass.class)
 			.getFirst();
-		try {
-			compiler.toJavaStatement(declaration, appendable, false);
-			fail("Expected a class-aware appendable error");
-		} catch (final IllegalStateException error) {
-			assertEquals("Jbase class generation requires a JbaseClassAwareTreeAppendable",
-				error.getMessage());
-		}
+		final var error = assertThrows(IllegalStateException.class,
+			() -> compiler.toJavaStatement(declaration, appendable, false));
+		assertEquals("Jbase class generation requires a JbaseClassAwareTreeAppendable",
+			error.getMessage());
 	}
 
 	@Test
