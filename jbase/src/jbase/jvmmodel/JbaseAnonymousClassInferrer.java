@@ -7,6 +7,7 @@ import org.eclipse.xtext.common.types.JvmFeature;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmVisibility;
 import org.eclipse.xtext.common.types.TypesFactory;
+import org.eclipse.xtext.common.types.util.TypeReferences;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociator;
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder;
@@ -28,6 +29,8 @@ public class JbaseAnonymousClassInferrer {
 	private IJvmModelAssociator associator;
 	@Inject
 	private JvmTypesBuilder builder;
+	@Inject
+	private TypeReferences typeReferences;
 
 	/** Registers classes whose bodies require no host-specific member initialization. */
 	public void inferLocalClasses(final JvmFeature container, final XExpression expression) {
@@ -77,7 +80,7 @@ public class JbaseAnonymousClassInferrer {
 				associator.associatePrimary(declaration, type);
 				initializeLocalClassMembers.accept(declaration, type);
 				if (type.getSuperTypes().isEmpty()) {
-					type.getSuperTypes().add(builder.newTypeRef(declaration, Object.class));
+					type.getSuperTypes().add(typeReferences.getTypeForName(Object.class, declaration));
 				}
 				if (!type.getDeclaredConstructors().iterator().hasNext()) {
 					type.getMembers().add(builder.toConstructor(declaration, constructor -> {

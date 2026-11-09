@@ -236,6 +236,12 @@ The core implementation is in
 [JbaseReentrantTypeResolver](../jbase/src/jbase/typesystem/JbaseReentrantTypeResolver.java),
 [JbaseAnonymousClassValidator](../jbase/src/jbase/validation/JbaseAnonymousClassValidator.java),
 and [JbaseXbaseCompiler](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java).
+The compiler emits anonymous constructor syntax and requests the body through
+[JbaseClassAwareTreeAppendable](../jbase/src/jbase/compiler/JbaseClassAwareTreeAppendable.java).
+[JbaseJvmModelGenerator](../jbase/src/jbase/compiler/JbaseJvmModelGenerator.java)
+then emits the inferred members with their `this`/`super` scope. The appendable
+retains the [class-body callback](../jbase/src/jbase/compiler/JbaseClassBodyEmitter.java)
+in traced children without injecting the generator into the compiler.
 The Jbase regression tests are
 [JbaseAnonymousClassTest](../jbase.tests/src/jbase/tests/JbaseAnonymousClassTest.java),
 [JbaseAnonymousClassInfrastructureTest](../jbase.tests/src/jbase/tests/JbaseAnonymousClassInfrastructureTest.java),
