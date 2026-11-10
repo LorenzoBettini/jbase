@@ -16,7 +16,6 @@ import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.util.JbaseNodeModelUtil;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.common.types.JvmMultiTypeReference;
 import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
