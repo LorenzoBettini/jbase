@@ -34,45 +34,55 @@ public final class JavaUnicodeIdentifierTokenSource implements TokenSource {
 			return first;
 		}
 
-		final var candidate = new StringBuilder(firstText);
-		var lastToken = first;
-		var escapedIdentifier = firstText.equals("^");
-		final var identifierText = firstText.startsWith("^")
-				? firstText.substring(1) : firstText;
-		if (escapedIdentifier) {
-			final var initial = readInitialSegment(first);
-			if (initial == null) {
-				return first;
-			}
-			candidate.append(initial.text());
-			lastToken = initial.lastToken();
-		} else if (!isIdentifier(identifierText)) {
-			if (!isSingleHighSurrogate(identifierText)) {
-				return first;
-			}
-			final var initial = readSurrogateSegment(first, true, false);
-			if (initial == null) {
-				return first;
-			}
-			candidate.setLength(0);
-			candidate.append(initial.text());
-			lastToken = initial.lastToken();
+		final var initial = readInitial(first, firstText);
+		if (initial == null) {
+			return first;
 		}
 
+		final var candidate = new StringBuilder(initial.text());
+		final var lastToken = appendIdentifierParts(candidate, initial.lastToken());
+		return maybeCombine(first, firstText, candidate, lastToken);
+	}
+
+	private Token maybeCombine(final Token first, final String firstText,
+			final CharSequence candidate, final Token lastToken) {
+		if (isPlainAsciiIdentifier(firstText, candidate)) {
+			return first;
+		}
+		return combinedIdentifier(first, lastToken, candidate.toString());
+	}
+
+	private boolean isPlainAsciiIdentifier(final String firstText,
+			final CharSequence candidate) {
+		return !firstText.equals("^") && !containsNonAscii(firstText)
+				&& !containsNonAscii(candidate);
+	}
+
+	private Token appendIdentifierParts(final StringBuilder candidate, final Token previous) {
+		var lastToken = previous;
 		while (true) {
 			final var next = readPartSegment(lastToken);
 			if (next == null) {
-				break;
+				return lastToken;
 			}
 			candidate.append(next.text());
 			lastToken = next.lastToken();
 		}
+	}
 
-		if (!escapedIdentifier && !containsNonAscii(identifierText)
-				&& !containsNonAscii(candidate)) {
-			return first;
+	private Segment readInitial(final Token first, final String firstText) {
+		if (firstText.equals("^")) {
+			final var initial = readInitialSegment(first);
+			return initial == null ? null
+					: new Segment(firstText + initial.text(), initial.lastToken());
 		}
-		return combinedIdentifier(first, lastToken, candidate.toString());
+		if (isIdentifier(firstText)) {
+			return new Segment(firstText, first);
+		}
+		if (!isSingleHighSurrogate(firstText)) {
+			return null;
+		}
+		return readSurrogateSegment(first, true, false);
 	}
 
 	@Override
