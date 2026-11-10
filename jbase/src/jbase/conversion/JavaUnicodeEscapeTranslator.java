@@ -5,7 +5,7 @@ import java.util.Arrays;
 /** Performs Java's source-level Unicode escape translation before tokenization. */
 public final class JavaUnicodeEscapeTranslator {
 	/** Translated source and the original offset of each translated character boundary. */
-	public record Translation(String text, int[] originalOffsets) {
+	public record Translation(String text, int[] originalOffsets) { // NOSONAR: we don't use equals and hashCode
 		/** Maps a boundary in translated source back to the original document. */
 		public int originalOffset(final int translatedOffset) {
 			return originalOffsets[translatedOffset];
