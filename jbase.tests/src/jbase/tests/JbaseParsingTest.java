@@ -72,6 +72,7 @@ public class JbaseParsingTest extends JbaseAbstractTest {
 		final var reparsed = parser.reparse(parseResult,
 				new ReplaceRegion(expression.length() - 1, 1, "2"));
 		assertFalse(reparsed.getSyntaxErrors().iterator().hasNext());
+		assertNotSame(parseResult.getRootNode(), reparsed.getRootNode());
 		assertEquals("2", EcoreUtil2.getAllContentsOfType(reparsed.getRootASTElement(),
 				XNumberLiteral.class).getFirst().getValue());
 	}

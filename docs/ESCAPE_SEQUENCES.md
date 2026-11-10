@@ -23,8 +23,11 @@ Unicode escape. `JbaseUnicodeParser` handles Jbase itself. For languages using
 Jbase, `JbaseGeneratorFragment2` generates a Unicode parser in `src-gen` and
 binds it in the generated base runtime module; no handwritten parser or binding
 is needed. Both parsers route their normal, parser-rule, and rule-call entry
-points through `JbaseUnicodeParserSupport`; incremental reparsing applies edits
-to the saved original source and translates the result once.
+points through `JbaseUnicodeParserSupport`; reparsing applies edits to the saved
+original source and then parses the whole source again. This bypasses Xtext's
+partial parsing helper and its lookahead transfer path. The former
+`PatchedLookAheadPreservingNodeModelBuilder` workaround is therefore no longer
+bound or needed.
 
 `JavaUnicodeIdentifierTokenSource.nextToken` joins adjacent lexer tokens only
 when their text forms a valid Java identifier by code point. This preserves
