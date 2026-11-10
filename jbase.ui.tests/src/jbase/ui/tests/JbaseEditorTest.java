@@ -47,6 +47,7 @@ public class JbaseEditorTest extends AbstractEditorTest {
 	@Test
 	public void testModificationInEditorDoesNotGenerateXtextReconcilerJobException() throws Exception {
 		// see https://github.com/LorenzoBettini/jbase/issues/131
+		// The PatchedLookAheadPreservingNodeModelBuilder is not needed anymore due to the custom parsing.
 		String testProgram = "System.out.println(\"\");";
 		IFile createTestFile = pluginProjectHelper.createTestFile(testProgram);
 		waitForBuild();

@@ -7,6 +7,7 @@ import org.eclipse.xtext.ui.testing.AbstractContentAssistTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseTestlanguageUiInjectorProvider.class)
 public class JbaseContentAssistTest extends AbstractContentAssistTest {
@@ -137,6 +138,46 @@ public class JbaseContentAssistTest extends AbstractContentAssistTest {
 	@Test
 	public void testVariableReferenceInVariableDeclaration() throws Exception {
 		newBuilder().append("int myVar = 0; int i = my").assertProposal("myVar");
+	}
+
+	@Test
+	public void testUnicodeVariableReferenceWithoutPrefix() throws Exception {
+		newBuilder().append("int café = 1; int value = ").assertProposal("café");
+	}
+
+	@Test
+	public void testUnicodeVariableAsExpression() throws Exception {
+		newBuilder().append("int café = 1; caf").assertProposal("café");
+	}
+
+	@Test
+	public void testUnicodeVariableReferenceWithPrefix() throws Exception {
+		newBuilder().append("int café = 1; int value = caf").assertProposal("café");
+	}
+
+	@Test
+	public void testEscapedUnicodeVariableReferenceWithoutPrefix() throws Exception {
+		newBuilder().append("int caf\\u00e9 = 1\\u003b int value = ")
+				.assertProposal("café");
+	}
+
+	@Test
+	public void testEscapedUnicodeVariableReferenceWithPrefix() throws Exception {
+		newBuilder().append("int caf\\u00e9 = 1\\u003b int value = caf")
+				.assertProposal("café");
+	}
+
+	@Test
+	public void testEscapedUnicodeVariableReferenceWithEscapedPrefix() throws Exception {
+		newBuilder().append("int caf\\u00e9 = 1\\u003b int value = caf\\u00e9")
+				.assertProposal("café");
+	}
+
+	@Test
+	public void testEscapedUnicodeProposalReplacesOriginalPrefix() throws Exception {
+		newBuilder().append("int caf\\u00e9 = 1\\u003b int value = caf\\u00e9")
+				.applyProposal("café")
+				.expectContent("int caf\\u00e9 = 1\\u003b int value = café");
 	}
 
 	@Test

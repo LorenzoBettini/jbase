@@ -14,4 +14,3 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.example.jbasescript.ide.contentassist.antlr.internal,
  jbase.example.jbasescript.ide.contentassist.antlr
 Automatic-Module-Name: jbase.example.jbasescript.ide
-

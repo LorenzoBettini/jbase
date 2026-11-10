@@ -1,6 +1,12 @@
 package jbase.tests;
 
 import static org.junit.Assert.*;
+
+import com.google.inject.Inject;
+
+import jbase.conversion.JbaseTextBlockValueConverter;
+
+
 import jbase.jbase.XJCharLiteral;
 import jbase.jbase.XJClassObject;
 import jbase.jbase.XJConstructorCall;
@@ -8,12 +14,13 @@ import jbase.jbase.XJPrefixOperation;
 import jbase.jbase.XJTryWithResourcesExistingResource;
 import jbase.jbase.XJTryWithResourcesStatement;
 import jbase.util.JbaseNodeModelUtil;
+
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.common.types.JvmMultiTypeReference;
+import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
-import org.eclipse.xtext.common.types.JvmMultiTypeReference;
-import org.eclipse.xtext.common.types.JvmSynonymTypeReference;
 import org.eclipse.xtext.xbase.XBinaryOperation;
 import org.eclipse.xtext.xbase.XBooleanLiteral;
 import org.eclipse.xtext.xbase.XConstructorCall;
@@ -33,6 +40,14 @@ import org.junit.runner.RunWith;
 @RunWith(XtextRunner.class)
 @InjectWith(JbaseInjectorProvider.class)
 public class JbaseParsingTest extends JbaseAbstractTest {
+	@Inject
+	private JbaseTextBlockValueConverter textBlockConverter;
+
+	@Test
+	public void defaultTextBlockConverterTranslatesUnicodeEscapes() {
+		assertEquals(JbaseTextBlockValueConverter.class, textBlockConverter.getClass());
+		assertEquals("A\n", textBlockConverter.toValue("\"\"\"\n  \\u0041\n  \"\"\"", null));
+	}
 
 	@Test
 	public void testAnonymousInterfaceRequiresAnInferrer() throws Exception {
