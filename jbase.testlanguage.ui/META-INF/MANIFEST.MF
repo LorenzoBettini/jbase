@@ -20,7 +20,8 @@ Require-Bundle: jbase.testlanguage;visibility:=reexport,
  org.eclipse.compare,
  jbase.ui;visibility:=reexport,
  org.eclipse.xtend.lib;bundle-version="2.14.0";resolution:=optional,
- jbase.testlanguage.ide
+ jbase.testlanguage.ide,
+ jbase.ide
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.testlanguage.ui.contentassist,

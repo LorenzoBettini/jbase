@@ -133,6 +133,10 @@ public class JbaseJavaEscapeTest extends JbaseAbstractCompilerTest {
 		assertNull(stringConverter.toValue(null, null));
 		assertNull(identifierConverter.toValue(null, null));
 		assertEquals("café", identifierConverter.toValue("café", null));
+		assertEquals("café", identifierConverter.toString("café"));
+		final var supplementaryIdentifier = new String(Character.toChars(0x10400));
+		assertEquals(supplementaryIdentifier,
+				identifierConverter.toString(supplementaryIdentifier));
 		assertEquals("name", identifierConverter.toValue("^name", null));
 		assertEquals("name", identifierConverter.toValue("^^name", null));
 		assertTrue(Character.isJavaIdentifierStart(0x10400));
@@ -177,6 +181,23 @@ public class JbaseJavaEscapeTest extends JbaseAbstractCompilerTest {
 		assertEquals("\\Z",
 			JavaUnicodeEscapeTranslator.translate("\\u005c\\u005a"));
 		assertEquals("", JavaUnicodeEscapeTranslator.translate(""));
+	}
+
+	@Test
+	public void unicodeTranslationMapsEditorOffsets() {
+		final var translation = JavaUnicodeEscapeTranslator.translateWithOffsets(
+				"caf\\u00e9 = 1\\u003b café");
+		assertEquals("café = 1; café", translation.text());
+		assertEquals(0, translation.originalOffset(0));
+		assertEquals(3, translation.originalOffset(3));
+		assertEquals(9, translation.originalOffset(4));
+		assertEquals(20, translation.originalOffset(10));
+		assertEquals(3, translation.translatedOffset(5));
+		assertEquals(4, translation.translatedOffset(9));
+		assertEquals(8, translation.translatedOffset(15));
+		assertEquals(10, translation.translatedOffset(20));
+		assertEquals(translation.text().length(),
+				translation.translatedOffset("caf\\u00e9 = 1\\u003b café".length()));
 	}
 
 	@Test

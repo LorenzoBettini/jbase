@@ -1,7 +1,22 @@
 package jbase.conversion;
 
+import java.util.Arrays;
+
 /** Performs Java's source-level Unicode escape translation before tokenization. */
 public final class JavaUnicodeEscapeTranslator {
+	/** Translated source and the original offset of each translated character boundary. */
+	public record Translation(String text, int[] originalOffsets) {
+		/** Maps a boundary in translated source back to the original document. */
+		public int originalOffset(final int translatedOffset) {
+			return originalOffsets[translatedOffset];
+		}
+
+		/** Maps an original boundary to the nearest translated boundary before it. */
+		public int translatedOffset(final int originalOffset) {
+			final var found = Arrays.binarySearch(originalOffsets, originalOffset);
+			return found >= 0 ? found : -found - 2;
+		}
+	}
 
 	private record UnicodeEscape(char character, int endIndex) {
 	}
@@ -14,7 +29,13 @@ public final class JavaUnicodeEscapeTranslator {
 	 * source so the lexer or literal converter can report them in context.
 	 */
 	public static String translate(final String source) {
+		return translateWithOffsets(source).text();
+	}
+
+	/** Translates escapes and records document offsets for editor features. */
+	public static Translation translateWithOffsets(final String source) {
 		final var result = new StringBuilder();
+		final var offsets = new int[source.length() + 1];
 		var backslashes = 0;
 		var wasUnicodeEscape = false;
 		var i = 0;
@@ -33,10 +54,11 @@ public final class JavaUnicodeEscapeTranslator {
 				i++;
 			}
 			result.append(character);
+			offsets[result.length()] = i;
 			backslashes = character == '\\' ? backslashes + 1 : 0;
 			wasUnicodeEscape = unicodeEscape;
 		}
-		return result.toString();
+		return new Translation(result.toString(), Arrays.copyOf(offsets, result.length() + 1));
 	}
 
 	private static boolean isUnicodeEscape(final String source, final int index,

@@ -31,9 +31,19 @@ when their text forms a valid Java identifier by code point. This preserves
 keyword tokens while allowing identifiers that mix ASCII and Unicode
 characters, including supplementary code points. The identifier value
 converter validates the resulting token before storing it in the model.
+`JbaseIdentifierValueConverter` also uses the combined Unicode tokens when
+validating proposal text for serialization.
+
+The generated content assist parser translates escapes and combines identifier
+tokens for follow-element calculation. `JbaseUnicodeContentAssistContextFactory`
+maps cursor and replacement offsets between the original editor text and the
+translated node model. `JbaseGeneratorFragment2` binds these components in each
+consumer's generated IDE and UI modules, so consuming languages need no manual
+content assist setup.
+
 String and character converters decode ordinary escapes after source-level
 translation. The text-block converter intentionally does not repeat that
 translation.
 
 Regression coverage is in `JbaseJavaEscapeTest`, `JbaseTextBlockTest`,
-`PureJbaseParsingTest`, and `AllJavaFeaturesTest`.
+`PureJbaseParsingTest`, `JbaseContentAssistTest`, and `AllJavaFeaturesTest`.
