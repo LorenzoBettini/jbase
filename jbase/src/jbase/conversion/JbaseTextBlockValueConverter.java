@@ -37,7 +37,6 @@ public class JbaseTextBlockValueConverter extends AbstractValueConverter<String>
 		throw new IllegalArgumentException("Unterminated text block");
 	}
 
-	/** Unicode translation precedes even line ending and indentation processing (JLS 3.3). */
 	/**
 	 * Computes a text block's value by normalizing its content and interpreting Java escapes.
 	 *
