@@ -19,10 +19,12 @@ before their existing indentation normalization and escape processing.
 
 `JavaUnicodeEscapeTranslator.translate` scans source characters before lexing,
 tracking contiguous backslashes and whether the previous character came from a
-Unicode escape. `JbaseUnicodeParser` and the compiler-test language's parser
-route their normal, parser-rule, and rule-call entry points through
-`JbaseUnicodeParserSupport`; incremental reparsing applies edits to the saved
-original source and translates the result once.
+Unicode escape. `JbaseUnicodeParser` handles Jbase itself. For languages using
+Jbase, `JbaseGeneratorFragment2` generates a Unicode parser in `src-gen` and
+binds it in the generated base runtime module; no handwritten parser or binding
+is needed. Both parsers route their normal, parser-rule, and rule-call entry
+points through `JbaseUnicodeParserSupport`; incremental reparsing applies edits
+to the saved original source and translates the result once.
 
 `JavaUnicodeIdentifierTokenSource.nextToken` joins adjacent lexer tokens only
 when their text forms a valid Java identifier by code point. This preserves
@@ -33,5 +35,5 @@ String and character converters decode ordinary escapes after source-level
 translation. The text-block converter intentionally does not repeat that
 translation.
 
-Regression coverage is in `JbaseJavaEscapeTest`, `JbaseTextBlockTest`, and
-`AllJavaFeaturesTest`.
+Regression coverage is in `JbaseJavaEscapeTest`, `JbaseTextBlockTest`,
+`PureJbaseParsingTest`, and `AllJavaFeaturesTest`.

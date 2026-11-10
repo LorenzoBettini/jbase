@@ -3,11 +3,15 @@
  */
 package jbase.example.purejbase.tests;
 
+import java.util.List;
+
 import com.google.inject.Inject;
 import jbase.example.purejbase.pureJbase.Model;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,5 +34,15 @@ public class PureJbaseParsingTest {
 				"Unexpected errors: "
 						+ String.join(", ", errors.stream().map(Object::toString).toList()),
 				errors.isEmpty());
+	}
+
+	@Test
+	public void parsesUnicodeEscapesWithoutCustomParserBindings() throws Exception {
+		final var result = parseHelper.parse("int caf\\u00e9 = 1\\u003b int value = café;");
+		final var errors = result.eResource().getErrors();
+		Assert.assertTrue(errors.toString(), errors.isEmpty());
+		Assert.assertEquals(List.of("café", "value"),
+				EcoreUtil2.getAllContentsOfType(result, XVariableDeclaration.class)
+						.stream().map(XVariableDeclaration::getName).toList());
 	}
 }
