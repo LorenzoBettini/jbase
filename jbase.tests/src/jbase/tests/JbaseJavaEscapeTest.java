@@ -3,6 +3,7 @@ package jbase.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -221,6 +222,7 @@ public class JbaseJavaEscapeTest extends JbaseAbstractCompilerTest {
 		final var updated = parser.reparse(initial,
 				new ReplaceRegion(source.lastIndexOf('1'), 1, "2"));
 		assertNoSyntaxErrors(updated);
+		assertNotSame(initial.getRootNode(), updated.getRootNode());
 		assertEquals("2", EcoreUtil2.getAllContentsOfType(updated.getRootASTElement(),
 				org.eclipse.xtext.xbase.XNumberLiteral.class).getFirst().getValue());
 	}

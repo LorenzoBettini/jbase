@@ -1,33 +1,48 @@
 # Java escape sequences and Unicode translation
 
-Jbase translates eligible Java Unicode escapes throughout a source file before
-tokenization. Repeated `u` markers are accepted, and the backslash eligibility
-rules prevent escaped backslashes from starting a Unicode escape. This makes
-Unicode escapes work in identifiers and in source syntax as well as in literals.
+Whole-source Java Unicode translation is **opt in** for DSLs using Jbase. When
+enabled, Jbase translates eligible Unicode escapes before tokenization. Repeated
+`u` markers are accepted, and backslash eligibility rules prevent escaped
+backslashes from starting a Unicode escape. This makes Unicode escapes work in
+identifiers and source syntax as well as in literals.
 
 String and character literals support Java's standard escapes, the `\s` space
-escape, and octal escapes. Unicode translation is already complete when literal
-converters interpret these escapes. The parser combines non-ASCII identifier
-characters with adjacent ASCII identifier tokens, and identifiers retain their
-original spelling in the model.
+escape, and octal escapes in both modes. With whole-source translation enabled,
+Unicode translation is already complete when literal converters interpret these
+escapes. The parser combines non-ASCII identifier characters with adjacent ASCII
+identifier tokens, and identifiers retain their original spelling in the model.
 
 Malformed ordinary literal escapes and invalid identifier code points are
-reported as conversion errors. Text blocks use the same source-level translation
-before their existing indentation normalization and escape processing.
+reported as conversion errors. Text blocks translate Unicode escapes before
+indentation normalization and escape processing in either mode.
+
+## Enabling whole-source translation
+
+`JbaseGeneratorFragment2` leaves whole-source translation disabled by default.
+To enable it for a DSL, set the parameter explicitly in its MWE2 workflow:
+
+```mwe2
+xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {
+	enableUnicodeSourceTranslation = true
+}
+```
+
+The Jbase test language enables it. PureJbase, Jbasescript, and `.jbase` use
+the default partial-reparse parser. Whole-source translation reparses the entire
+file after an edit, which can increase editor latency for large files containing
+many small methods. Ordinary Java literal escapes do not require this option.
 
 ## Implementation
 
 `JavaUnicodeEscapeTranslator.translate` scans source characters before lexing,
 tracking contiguous backslashes and whether the previous character came from a
-Unicode escape. `JbaseUnicodeParser` handles Jbase itself. For languages using
-Jbase, `JbaseGeneratorFragment2` generates a Unicode parser in `src-gen` and
-binds it in the generated base runtime module; no handwritten parser or binding
-is needed. Both parsers route their normal, parser-rule, and rule-call entry
-points through `JbaseUnicodeParserSupport`; reparsing applies edits to the saved
-original source and then parses the whole source again. This bypasses Xtext's
-partial parsing helper and its lookahead transfer path. The former
-`PatchedLookAheadPreservingNodeModelBuilder` workaround is therefore no longer
-bound or needed.
+Unicode escape. When enabled, `JbaseGeneratorFragment2` generates a Unicode
+parser in `src-gen` and binds it in the generated base runtime module. Its
+normal, parser-rule, and rule-call entry points use `JbaseUnicodeParserSupport`;
+reparsing applies edits to the saved original source and parses it again.
+Without the option, Xtext uses partial reparsing and
+`PatchedLookAheadPreservingNodeModelBuilder` safely transfers lookahead when a
+composite node changes into a leaf.
 
 `JavaUnicodeIdentifierTokenSource.nextToken` joins adjacent lexer tokens only
 when their text forms a valid Java identifier by code point. This preserves
@@ -37,16 +52,37 @@ converter validates the resulting token before storing it in the model.
 `JbaseIdentifierValueConverter` also uses the combined Unicode tokens when
 validating proposal text for serialization.
 
-The generated content assist parser translates escapes and combines identifier
-tokens for follow-element calculation. `JbaseUnicodeContentAssistContextFactory`
-maps cursor and replacement offsets between the original editor text and the
-translated node model. `JbaseGeneratorFragment2` binds these components in each
-consumer's generated IDE and UI modules, so consuming languages need no manual
-content assist setup.
+With the option enabled, the generated content assist parser translates escapes
+and combines identifier tokens for follow-element calculation.
+`JbaseUnicodeContentAssistContextFactory` maps cursor and replacement offsets
+between the original editor text and the translated node model. The generator
+binds these components in the DSL's IDE and UI modules.
 
-String and character converters decode ordinary escapes after source-level
-translation. The text-block converter intentionally does not repeat that
-translation.
+String and character converters decode ordinary escapes. The default text-block
+converter translates Unicode escapes locally; opted-in DSLs bind
+`JbasePretranslatedTextBlockValueConverter` so those escapes are not translated
+twice.
+
+## Parser benchmark
+
+[`ReparseBenchmarkTest`](../jbase.tests/src/jbase/tests/ReparseBenchmarkTest.java)
+compares the generated partial parser with the opted-in parser on the same test
+language grammar. It changes one character in a string literal in the middle
+of a file with many small methods. Each median follows 12 warmup edits and 30
+timed edits in the Tycho test JVM. The test checks tree reuse but has no timing
+threshold. Run it from the repository root with `-Dtest=ReparseBenchmarkTest`
+using the focused `jbase.tests` Maven command in `AGENTS.md`.
+
+| Methods | Source size | Partial parser median | Unicode parser median |
+| ---: | ---: | ---: | ---: |
+| 100 | 3.6 KB | 0.16 ms | 0.45 ms |
+| 1,000 | 37.8 KB | 0.97 ms | 3.51 ms |
+| 3,000 | 117.8 KB | 1.84 ms | 9.03 ms |
+
+These Java 25 measurements cover parsing only, with ASCII input and no editor linking,
+validation, or UI work. They are indicative; hardware and JVM warmup affect
+the exact timings.
 
 Regression coverage is in `JbaseJavaEscapeTest`, `JbaseTextBlockTest`,
-`PureJbaseParsingTest`, `JbaseContentAssistTest`, and `AllJavaFeaturesTest`.
+`PureJbaseParsingTest`, `PatchedLookAheadPreservingNodeModelBuilderTest`,
+`JbaseContentAssistTest`, and `AllJavaFeaturesTest`.

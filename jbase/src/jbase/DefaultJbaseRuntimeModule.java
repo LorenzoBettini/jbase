@@ -8,6 +8,7 @@ import org.eclipse.xtext.formatting2.FormatterPreferenceValuesProvider;
 import org.eclipse.xtext.formatting2.FormatterPreferences;
 import org.eclipse.xtext.formatting2.IFormatter2;
 import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.nodemodel.impl.NodeModelBuilder;
 import org.eclipse.xtext.preferences.IPreferenceValuesProvider;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.serializer.tokens.SerializerScopeProviderBinding;
@@ -38,6 +39,7 @@ import jbase.controlflow.JbaseEarlyExitComputer;
 import jbase.conversion.JbaseValueConverterService;
 import jbase.formatting2.JbaseFormatter;
 import jbase.imports.JbaseRewritableImportSection.JbaseRewritableImportSectionFactory;
+import jbase.internal.parser.PatchedLookAheadPreservingNodeModelBuilder;
 import jbase.scoping.JbaseAnonymousClassConstructorScopes;
 import jbase.scoping.JbaseImportSectionNamespaceScopeProvider;
 import jbase.scoping.JbaseImplicitlyImportedFeatures;
@@ -148,5 +150,10 @@ public class DefaultJbaseRuntimeModule extends DefaultXbaseWithAnnotationsRuntim
 
 	public void configureFormatterPreferences(Binder binder) {
 		binder.bind(IPreferenceValuesProvider.class).annotatedWith(FormatterPreferences.class).to(FormatterPreferenceValuesProvider.class);
+	}
+
+	@Override
+	public Class<? extends NodeModelBuilder> bindNodeModelBuilder() {
+		return PatchedLookAheadPreservingNodeModelBuilder.class;
 	}
 }

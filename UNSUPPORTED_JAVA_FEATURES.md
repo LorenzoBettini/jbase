@@ -371,13 +371,15 @@ int café = 1;
 int v\u0061lue = 1;
 ```
 
-**Implemented:** Java Unicode escapes are translated once, before tokenization, including
+**Implemented with opt in:** Java Unicode escapes can be translated once, before
+tokenization, including
 repeated `u` markers and escapes that introduce identifier characters or line terminators.
 The parser combines non-ASCII identifier characters with adjacent ASCII identifier tokens,
 and the identifier converter validates code points using Java identifier rules. Ordinary
 string and character literals interpret Java's standard, `\s`, and octal escapes. Malformed
-literal escapes are reported as conversion errors. Text blocks receive the same source-level
-translation before their existing indentation and escape handling.
+literal escapes are reported as conversion errors. Text blocks translate Unicode escapes
+before their existing indentation and escape handling in either mode. The test language
+opts in to whole-source translation; default DSLs keep partial reparsing.
 
 Covered by `JbaseJavaEscapeTest`, `JbaseTextBlockTest`, and `AllJavaFeaturesTest`;
 see the [Java escape sequences guide](docs/ESCAPE_SEQUENCES.md).

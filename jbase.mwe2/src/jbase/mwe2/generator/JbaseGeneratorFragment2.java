@@ -28,6 +28,13 @@ import com.google.inject.Inject;
  * @author Lorenzo Bettini
  */
 public class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
+	private boolean enableUnicodeSourceTranslation;
+
+	/** Enables whole-source Unicode translation for generated runtime and content assist parsers. */
+	public void setEnableUnicodeSourceTranslation(final boolean enableUnicodeSourceTranslation) {
+		this.enableUnicodeSourceTranslation = enableUnicodeSourceTranslation;
+	}
+
 	@Inject
 	private XbaseUsageDetector xbaseUsageDetector;
 
@@ -52,25 +59,31 @@ public class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 		ManifestAccess uiManifest = getProjectConfig().getEclipsePlugin().getManifest();
 		if (uiManifest != null) {
 			uiManifest.getRequiredBundles().add("jbase.ui");
-			uiManifest.getRequiredBundles().add("jbase.ide");
+			if (enableUnicodeSourceTranslation) {
+				uiManifest.getRequiredBundles().add("jbase.ide");
+			}
 		}
 		ManifestAccess ideManifest = getProjectConfig().getGenericIde().getManifest();
 		if (ideManifest != null) {
 			ideManifest.getRequiredBundles().add("jbase");
-			ideManifest.getRequiredBundles().add("jbase.ide");
+			if (enableUnicodeSourceTranslation) {
+				ideManifest.getRequiredBundles().add("jbase.ide");
+			}
 		}
 		super.generate();
-		generateUnicodeParser();
-		generateUnicodeContentAssistParser();
-		new GuiceModuleAccess.BindingFactory()
-				.addTypeToType(TypeReference.typeRef(
-						"org.eclipse.xtext.ide.editor.contentassist.antlr.IContentAssistParser"),
-						unicodeContentAssistParserType())
-				.addTypeToType(TypeReference.typeRef(
-						"org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory"),
-						TypeReference.typeRef(
+		if (enableUnicodeSourceTranslation) {
+			generateUnicodeParser();
+			generateUnicodeContentAssistParser();
+			new GuiceModuleAccess.BindingFactory()
+					.addTypeToType(TypeReference.typeRef(
+							"org.eclipse.xtext.ide.editor.contentassist.antlr.IContentAssistParser"),
+							unicodeContentAssistParserType())
+					.addTypeToType(TypeReference.typeRef(
+							"org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory"),
+							TypeReference.typeRef(
 								"jbase.ide.contentassist.JbaseUnicodeContentAssistContextFactory"))
-				.contributeTo(getLanguage().getIdeGenModule());
+					.contributeTo(getLanguage().getIdeGenModule());
+		}
 	}
 
 	/** Generates the parser subclass that translates Java Unicode escapes for this language. */
@@ -202,9 +215,15 @@ public class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 		super.contributeRuntimeGuiceBindings();
 		getLanguage().getRuntimeGenModule()
 			.setSuperClass(TypeReference.typeRef("jbase.DefaultJbaseRuntimeModule"));
-		new GuiceModuleAccess.BindingFactory()
-				.addTypeToType(TypeReference.typeRef(IParser.class), unicodeParserType())
-				.contributeTo(getLanguage().getRuntimeGenModule());
+		if (enableUnicodeSourceTranslation) {
+			new GuiceModuleAccess.BindingFactory()
+					.addTypeToType(TypeReference.typeRef(IParser.class), unicodeParserType())
+					.addTypeToType(TypeReference.typeRef(
+							"jbase.conversion.JbaseTextBlockValueConverter"),
+							TypeReference.typeRef(
+								"jbase.conversion.JbasePretranslatedTextBlockValueConverter"))
+					.contributeTo(getLanguage().getRuntimeGenModule());
+		}
 	}
 
 	@Override
@@ -212,14 +231,16 @@ public class JbaseGeneratorFragment2 extends XbaseGeneratorFragment2 {
 		super.contributeEclipsePluginGuiceBindings();
 		getLanguage().getEclipsePluginGenModule()
 			.setSuperClass(TypeReference.typeRef("jbase.ui.DefaultJbaseUiModule"));
-		new GuiceModuleAccess.BindingFactory()
-				.addTypeToType(TypeReference.typeRef(
-						"org.eclipse.xtext.ide.editor.contentassist.antlr.IContentAssistParser"),
-						unicodeContentAssistParserType())
-				.addTypeToType(TypeReference.typeRef(
-						"org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory"),
-						TypeReference.typeRef(
+		if (enableUnicodeSourceTranslation) {
+			new GuiceModuleAccess.BindingFactory()
+					.addTypeToType(TypeReference.typeRef(
+							"org.eclipse.xtext.ide.editor.contentassist.antlr.IContentAssistParser"),
+							unicodeContentAssistParserType())
+					.addTypeToType(TypeReference.typeRef(
+							"org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory"),
+							TypeReference.typeRef(
 								"jbase.ide.contentassist.JbaseUnicodeContentAssistContextFactory"))
-				.contributeTo(getLanguage().getEclipsePluginGenModule());
+					.contributeTo(getLanguage().getEclipsePluginGenModule());
+		}
 	}
 }

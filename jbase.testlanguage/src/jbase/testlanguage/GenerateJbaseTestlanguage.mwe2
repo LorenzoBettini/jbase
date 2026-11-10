@@ -36,6 +36,7 @@ Workflow {
 			// enable Jbase
 			referencedResource = "platform:/resource/jbase/model/custom/Jbase.genmodel"
 			xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {
+				enableUnicodeSourceTranslation = true
 			}
 
 			junitSupport = {

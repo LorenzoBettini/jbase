@@ -3,15 +3,18 @@
  */
 package jbase.example.purejbase.tests;
 
-import java.util.List;
-
 import com.google.inject.Inject;
+import jbase.conversion.JbaseTextBlockValueConverter;
 import jbase.example.purejbase.pureJbase.Model;
+import jbase.example.purejbase.parser.antlr.PureJbaseParser;
+import jbase.jbase.XJCharLiteral;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.nodemodel.impl.NodeModelBuilder;
+import org.eclipse.xtext.parser.IParser;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.testing.util.ParseHelper;
-import org.eclipse.xtext.xbase.XVariableDeclaration;
+import org.eclipse.xtext.xbase.XStringLiteral;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +25,15 @@ public class PureJbaseParsingTest {
 
 	@Inject
 	private ParseHelper<Model> parseHelper;
+
+	@Inject
+	private IParser parser;
+
+	@Inject
+	private NodeModelBuilder nodeModelBuilder;
+
+	@Inject
+	private JbaseTextBlockValueConverter textBlockConverter;
 
 	@Test
 	public void loadModel() throws Exception {
@@ -37,12 +49,29 @@ public class PureJbaseParsingTest {
 	}
 
 	@Test
-	public void parsesUnicodeEscapesWithoutCustomParserBindings() throws Exception {
-		final var result = parseHelper.parse("int caf\\u00e9 = 1\\u003b int value = café;");
+	public void usesDefaultPartialParserAndPreservesTextBlockEscapes() throws Exception {
+		Assert.assertEquals(PureJbaseParser.class, parser.getClass());
+		Assert.assertEquals("jbase.internal.parser.PatchedLookAheadPreservingNodeModelBuilder",
+				nodeModelBuilder.getClass().getName());
+		Assert.assertEquals(JbaseTextBlockValueConverter.class, textBlockConverter.getClass());
+		final var result = parseHelper.parse("String text = \"\"\"\n  \\u0041\n  \"\"\";");
 		final var errors = result.eResource().getErrors();
 		Assert.assertTrue(errors.toString(), errors.isEmpty());
-		Assert.assertEquals(List.of("café", "value"),
-				EcoreUtil2.getAllContentsOfType(result, XVariableDeclaration.class)
-						.stream().map(XVariableDeclaration::getName).toList());
+		Assert.assertEquals("A\n",
+				EcoreUtil2.getAllContentsOfType(result, XStringLiteral.class)
+						.getFirst().getValue());
+		Assert.assertFalse(parseHelper.parse("int value = 1\\u003b int other = 2;")
+				.eResource().getErrors().isEmpty());
+	}
+
+	@Test
+	public void ordinaryJavaLiteralEscapesWorkWithoutWholeSourceTranslation() throws Exception {
+		final var result = parseHelper.parse("String space = \"\\s\"; char octal = '\\141';");
+		Assert.assertTrue(result.eResource().getErrors().toString(),
+				result.eResource().getErrors().isEmpty());
+		Assert.assertEquals(" ", EcoreUtil2.getAllContentsOfType(result, XStringLiteral.class)
+				.getFirst().getValue());
+		Assert.assertEquals("a", EcoreUtil2.getAllContentsOfType(result, XJCharLiteral.class)
+				.getFirst().getValue());
 	}
 }

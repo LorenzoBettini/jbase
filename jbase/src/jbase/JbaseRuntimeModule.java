@@ -5,7 +5,7 @@ package jbase;
 
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
-import org.eclipse.xtext.parser.IParser;
+import org.eclipse.xtext.nodemodel.impl.NodeModelBuilder;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.serializer.tokens.SerializerScopeProviderBinding;
 import org.eclipse.xtext.validation.ConfigurableIssueCodesProvider;
@@ -33,7 +33,7 @@ import jbase.compiler.JbaseXbaseCompiler;
 import jbase.controlflow.JbaseEarlyExitComputer;
 import jbase.conversion.JbaseValueConverterService;
 import jbase.imports.JbaseRewritableImportSection;
-import jbase.internal.parser.JbaseUnicodeParser;
+import jbase.internal.parser.PatchedLookAheadPreservingNodeModelBuilder;
 import jbase.scoping.JbaseAnonymousClassConstructorScopes;
 import jbase.scoping.JbaseImportSectionNamespaceScopeProvider;
 import jbase.scoping.JbaseImplicitlyImportedFeatures;
@@ -81,8 +81,8 @@ public class JbaseRuntimeModule extends AbstractJbaseRuntimeModule {
 	}
 
 	@Override
-	public Class<? extends IParser> bindIParser() {
-		return JbaseUnicodeParser.class;
+	public Class<? extends NodeModelBuilder> bindNodeModelBuilder() {
+		return PatchedLookAheadPreservingNodeModelBuilder.class;
 	}
 
 	public Class<? extends OperatorMapping> bindOperatorMapping() {
