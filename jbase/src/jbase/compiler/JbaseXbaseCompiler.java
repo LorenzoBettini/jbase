@@ -64,6 +64,7 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
+import jbase.jbase.XJAssignment;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJAssertStatement;
@@ -796,6 +797,18 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 
 	@Override
 	protected void assignmentToJavaExpression(XAssignment expr, ITreeAppendable b, boolean isExpressionContext) {
+		if (expr instanceof XJAssignment assignment && assignment.isParenthesized()) {
+			if (isExpressionContext) {
+				b.append("(");
+			}
+			b.append("(").append(getAssignmentVariableName(assignment.getFeature(), b))
+				.append(") = ");
+			internalToJavaExpression(assignment.getValue(), b);
+			if (isExpressionContext) {
+				b.append(")");
+			}
+			return;
+		}
 		if (expr.getAssignable() instanceof XJArrayAccessExpression access) {
 			// Emit the access directly so Java evaluates the receiver and index once.
 			if (isExpressionContext) {

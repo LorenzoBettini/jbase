@@ -20,13 +20,6 @@ public class JbaseArrayCompoundAssignmentTest extends JbaseAbstractCompilerTest 
 	private ParseHelper<EObject> parser;
 
 	@Test
-	public void parenthesizedVariableAssignmentRemainsRejected() throws Exception {
-		final var parsed = parser.parse("method testMe() { int n = 0; (n) = 1; }");
-		assertTrue(parsed.eResource().getErrors().toString(),
-			!parsed.eResource().getErrors().isEmpty());
-	}
-
-	@Test
 	public void parenthesizedArrayAccessAssignment() throws Exception {
 		final var source = """
 			method testMe() {

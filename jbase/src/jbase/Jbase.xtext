@@ -171,6 +171,9 @@ XJArrayDeclaratorDimension returns ecore::EString:
 @Override 
 XAssignment returns XExpression :
 	XClosure |
+	=>({XJAssignment} parenthesized?='('
+		feature=[types::JvmIdentifiableElement|FeatureCallID] ')'
+		OpSingleAssign) value=XAssignment |
 	=>({XJAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
 		'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
 		OpSingleAssign) value=XAssignment |	

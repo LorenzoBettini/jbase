@@ -596,6 +596,14 @@ public class JbaseFormatterTest extends JbaseAbstractTest {
 	}
 
 	@Test
+	public void testParenthesizedAssignment() {
+		assertFormatted(expression -> {
+			expression.setExpectation("(n) = 1;\n");
+			expression.setToBeFormatted("( n )=1;");
+		});
+	}
+
+	@Test
 	public void testAssignmentWithArrayAccess() {
 		assertFormatted(expression -> {
 			expression.setExpectation("""

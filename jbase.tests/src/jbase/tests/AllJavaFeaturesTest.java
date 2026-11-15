@@ -90,6 +90,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			Byte assignedBox;
 			assignedBox = ONE;
 			int count = 0, limit = 3;
+			(count) = 1;
 			int positiveCount = +count;
 			int promoted = +small;
 			long mask = 0xFFL;
@@ -412,6 +413,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    assignedBox = ONE;
 			    int count = 0;
 			    int limit = 3;
+			    (count) = 1;
 			    int _plus = (+count);
 			    int positiveCount = _plus;
 			    int _plus_1 = (+small);

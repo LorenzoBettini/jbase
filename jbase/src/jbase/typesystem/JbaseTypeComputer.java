@@ -916,6 +916,10 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 	 */
 	private LightweightTypeReference computeJbaseTypes(final XJAssignment assignment,
 			final ITypeComputationState state) {
+		if (assignment.isParenthesized()) {
+			super.computeTypes(assignment, state);
+			return null;
+		}
 		if (assignment.getAssignable() instanceof XJArrayAccessExpression access) {
 			final var elementType = state.withNonVoidExpectation().computeTypes(access)
 				.getActualExpressionType();

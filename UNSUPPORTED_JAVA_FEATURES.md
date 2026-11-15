@@ -277,7 +277,7 @@ Covered by parsing, serialization, formatting, compilation and runtime tests;
 see the [array declarator guide](docs/ARRAY_DECLARATORS.md) and the
 `AllJavaFeaturesTest` showcase.
 
-### [ ] Some legal assignment targets
+### [x] Some legal assignment targets
 
 ```java
 int n = 0;
@@ -288,11 +288,10 @@ Object array = new int[] {1};
 ((int[]) array)[0] = 2;
 ```
 
-The array assignments shown here are supported, including the method result and
-the cast array receiver. See [array assignment targets](docs/ARRAY_ASSIGNMENT_TARGETS.md).
-`(n) = 1` remains unsupported. Ordinary `values[0] = 2`, multidimensional
-named-array assignment, `(array)[0] = 2`, and parenthesized compound assignment
-or increment such as `(n) += 1` and `(n)++` pass.
+All these assignments are supported. The parenthesized variable target is
+recorded in the AST so it also serializes without a node model. The array
+assignments support method results and cast receivers. See
+[assignment targets](docs/ARRAY_ASSIGNMENT_TARGETS.md).
 
 ### [x] Blank final local variables
 
