@@ -20,6 +20,51 @@ public class JbaseArrayCompoundAssignmentTest extends JbaseAbstractCompilerTest 
 	private ParseHelper<EObject> parser;
 
 	@Test
+	public void parenthesizedArrayAccessAssignment() throws Exception {
+		final var source = """
+			method testMe() {
+				int[] array = {1};
+				(array)[0] = 2;
+				Object object = array;
+				((int[]) object)[0] = 3;
+				System.out.println(array[0]);
+			}
+			""";
+		checkCompilation(source, null);
+		assertExecuteMain(source, "3\n");
+	}
+
+	@Test
+	public void methodResultArraySimpleAssignment() throws Exception {
+		final var source = """
+			method testMe() {
+				java.util.List<int[]> arrays = java.util.List.of(new int[] {1});
+				int assigned = arrays.get(0)[0] = 2;
+				System.out.println(assigned);
+				System.out.println(arrays.get(0)[0]);
+			}
+			""";
+		final var parsed = parser.parse(source);
+		assertTrue(parsed.eResource().getErrors().toString(),
+			parsed.eResource().getErrors().isEmpty());
+		checkCompilation(source, null);
+		assertExecuteMain(source, "2\n2\n");
+	}
+
+	@Test
+	public void methodResultArraySimpleAssignmentRejectsWrongValueType() throws Exception {
+		final var parsed = parser.parse("""
+			method testMe() {
+				java.util.List<int[]> arrays = java.util.List.of(new int[] {1});
+				arrays.get(0)[0] = "wrong";
+			}
+			""");
+		assertTrue(validationTestHelper.validate(parsed).toString(),
+			validationTestHelper.validate(parsed).stream()
+				.anyMatch(issue -> issue.getSeverity() == Severity.ERROR));
+	}
+
+	@Test
 	public void generatedJavaUsesNativeAssignment() throws Exception {
 		checkCompilation("""
 			int[] values = {1};

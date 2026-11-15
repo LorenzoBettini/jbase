@@ -64,6 +64,7 @@ import jbase.jbase.XJAnonymousClass;
 import jbase.jbase.XJAnonymousClassBody;
 import jbase.jbase.XJArrayAccess;
 import jbase.jbase.XJArrayAccessExpression;
+import jbase.jbase.XJAssignment;
 import jbase.jbase.XJArrayConstructorCall;
 import jbase.jbase.XJArrayLiteral;
 import jbase.jbase.XJAssertStatement;
@@ -796,40 +797,80 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 
 	@Override
 	protected void assignmentToJavaExpression(XAssignment expr, ITreeAppendable b, boolean isExpressionContext) {
+		if (expr instanceof XJAssignment assignment && assignment.isParenthesized()) {
+			compileParenthesizedAssignment(assignment, b, isExpressionContext);
+			return;
+		}
+		if (expr.getAssignable() instanceof XJArrayAccessExpression access) {
+			compileArrayAssignment(expr, access, b, isExpressionContext);
+			return;
+		}
 		final JvmIdentifiableElement feature = expr.getFeature();
 		if (!(feature instanceof JvmOperation)) {
-			boolean isArgument = expr.eContainer() instanceof XAbstractFeatureCall;
-			if (isArgument) {
-				EStructuralFeature containingFeature = expr.eContainingFeature();
-				if (containingFeature == XbasePackage.Literals.XFEATURE_CALL__FEATURE_CALL_ARGUMENTS 
-						|| containingFeature == XbasePackage.Literals.XMEMBER_FEATURE_CALL__MEMBER_CALL_ARGUMENTS) {
-					isArgument = false;
-				} else {
-					b.append("(");
-				}
-			}
-			if (feature instanceof JvmField) {
-				appendReceiver(expr, b, isExpressionContext);
-				b.append(".");
-				appendFeatureCall(expr, b);
-			} else {
-				b.append(getAssignmentVariableName(feature, b));
-			}
-			
-			// custom implementation starts here
-			compileArrayAccess(expr, b);
-			// custom implementation ends here
-			
-			b.append(" = ");
-			internalToJavaExpression(expr.getValue(), b);
-			if (isArgument) {
-				b.append(")");
-			}
-
+			compileVariableAssignment(expr, feature, b, isExpressionContext);
 			return;
 		}
 
 		super.assignmentToJavaExpression(expr, b, isExpressionContext);
+	}
+
+	private void compileParenthesizedAssignment(final XJAssignment assignment,
+			final ITreeAppendable appendable, final boolean isExpressionContext) {
+		if (isExpressionContext) {
+			appendable.append("(");
+		}
+		appendable.append("(").append(getAssignmentVariableName(assignment.getFeature(), appendable))
+			.append(") = ");
+		internalToJavaExpression(assignment.getValue(), appendable);
+		if (isExpressionContext) {
+			appendable.append(")");
+		}
+	}
+
+	/** Emits the access directly so Java evaluates its receiver and index once. */
+	private void compileArrayAssignment(final XAssignment assignment,
+			final XJArrayAccessExpression access, final ITreeAppendable appendable,
+			final boolean isExpressionContext) {
+		if (isExpressionContext) {
+			appendable.append("(");
+		}
+		compileJavaExpression(access, appendable);
+		appendable.append(" = ");
+		internalToJavaExpression(assignment.getValue(), appendable);
+		if (isExpressionContext) {
+			appendable.append(")");
+		}
+	}
+
+	private void compileVariableAssignment(final XAssignment assignment,
+			final JvmIdentifiableElement feature, final ITreeAppendable appendable,
+			final boolean isExpressionContext) {
+		final boolean parenthesize = needsArgumentParentheses(assignment);
+		if (parenthesize) {
+			appendable.append("(");
+		}
+		if (feature instanceof JvmField) {
+			appendReceiver(assignment, appendable, isExpressionContext);
+			appendable.append(".");
+			appendFeatureCall(assignment, appendable);
+		} else {
+			appendable.append(getAssignmentVariableName(feature, appendable));
+		}
+		compileArrayAccess(assignment, appendable);
+		appendable.append(" = ");
+		internalToJavaExpression(assignment.getValue(), appendable);
+		if (parenthesize) {
+			appendable.append(")");
+		}
+	}
+
+	private boolean needsArgumentParentheses(final XAssignment assignment) {
+		if (!(assignment.eContainer() instanceof XAbstractFeatureCall)) {
+			return false;
+		}
+		final EStructuralFeature containingFeature = assignment.eContainingFeature();
+		return containingFeature != XbasePackage.Literals.XFEATURE_CALL__FEATURE_CALL_ARGUMENTS
+			&& containingFeature != XbasePackage.Literals.XMEMBER_FEATURE_CALL__MEMBER_CALL_ARGUMENTS;
 	}
 
 	private String getAssignmentVariableName(final JvmIdentifiableElement feature,

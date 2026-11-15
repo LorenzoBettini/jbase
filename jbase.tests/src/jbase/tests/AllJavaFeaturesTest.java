@@ -90,6 +90,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			Byte assignedBox;
 			assignedBox = ONE;
 			int count = 0, limit = 3;
+			(count) = 1;
 			int positiveCount = +count;
 			int promoted = +small;
 			long mask = 0xFFL;
@@ -166,6 +167,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
 			int[][] partial = new int[limit][];
 			matrix[0][1] = numbers[0];
+			List<int[]> returnedArrays = new ArrayList<>();
+			returnedArrays.add(numbers);
+			returnedArrays.get(0)[0] = 2;
 			numbers[0] += 2;
 			matrix[1][0] *= numbers[0];
 			numbers[1] = numbers[1] + matrix[0][1];
@@ -409,6 +413,7 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    assignedBox = ONE;
 			    int count = 0;
 			    int limit = 3;
+			    (count) = 1;
 			    int _plus = (+count);
 			    int positiveCount = _plus;
 			    int _plus_1 = (+small);
@@ -521,6 +526,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };
 			    int[][] partial = new int[limit][];
 			    matrix[0][1] = numbers[0];
+			    List<int[]> returnedArrays = new ArrayList<int[]>();
+			    returnedArrays.add(numbers);
+			    returnedArrays.get(0)[0] = 2;
 			    numbers[0] += 2;
 			    matrix[1][0] *= numbers[0];
 			    int _plus_2 = (numbers[1] + matrix[0][1]);

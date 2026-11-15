@@ -200,6 +200,10 @@ public class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 
 	protected void _format(final XJAssignment expr, final IFormattableDocument document) {
 		super._format(expr, document);
+		if (expr.isParenthesized()) {
+			document.append(regionFor(expr).keyword("("), this::noSpace);
+			document.prepend(regionFor(expr).keyword(")"), this::noSpace);
+		}
 		formatArrayIndexes(expr.getIndexes(), document);
 	}
 
