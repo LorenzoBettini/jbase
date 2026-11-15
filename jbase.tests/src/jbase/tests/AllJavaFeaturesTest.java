@@ -166,6 +166,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			int[][] matrix = new int[][] {{1, 2}, {3, 4}};
 			int[][] partial = new int[limit][];
 			matrix[0][1] = numbers[0];
+			List<int[]> returnedArrays = new ArrayList<>();
+			returnedArrays.add(numbers);
+			returnedArrays.get(0)[0] = 2;
 			numbers[0] += 2;
 			matrix[1][0] *= numbers[0];
 			numbers[1] = numbers[1] + matrix[0][1];
@@ -521,6 +524,9 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			    int[][] matrix = new int[][] { new int[] { 1, 2 }, new int[] { 3, 4 } };
 			    int[][] partial = new int[limit][];
 			    matrix[0][1] = numbers[0];
+			    List<int[]> returnedArrays = new ArrayList<int[]>();
+			    returnedArrays.add(numbers);
+			    returnedArrays.get(0)[0] = 2;
 			    numbers[0] += 2;
 			    matrix[1][0] *= numbers[0];
 			    int _plus_2 = (numbers[1] + matrix[0][1]);

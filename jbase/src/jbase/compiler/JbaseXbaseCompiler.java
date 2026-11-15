@@ -796,6 +796,19 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 
 	@Override
 	protected void assignmentToJavaExpression(XAssignment expr, ITreeAppendable b, boolean isExpressionContext) {
+		if (expr.getAssignable() instanceof XJArrayAccessExpression access) {
+			// Emit the access directly so Java evaluates the receiver and index once.
+			if (isExpressionContext) {
+				b.append("(");
+			}
+			compileJavaExpression(access, b);
+			b.append(" = ");
+			internalToJavaExpression(expr.getValue(), b);
+			if (isExpressionContext) {
+				b.append(")");
+			}
+			return;
+		}
 		final JvmIdentifiableElement feature = expr.getFeature();
 		if (!(feature instanceof JvmOperation)) {
 			boolean isArgument = expr.eContainer() instanceof XAbstractFeatureCall;

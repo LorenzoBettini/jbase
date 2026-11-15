@@ -288,11 +288,11 @@ Object array = new int[] {1};
 ((int[]) array)[0] = 2;
 ```
 
-These simple assignments have syntax errors. The assignment grammar handles named
-variables, fields, and array accesses rooted in its named-feature form, but not all
-Java variable expressions. Even `(array)[0] = 2` fails when `array` has an array
-type. Ordinary `values[0] = 2`, multidimensional named-array assignment, and
-parenthesized compound assignment or increment such as `(n) += 1` and `(n)++` pass.
+The array assignments shown here are supported, including the method result and
+the cast array receiver. See [array assignment targets](docs/ARRAY_ASSIGNMENT_TARGETS.md).
+`(n) = 1` remains unsupported. Ordinary `values[0] = 2`, multidimensional
+named-array assignment, `(array)[0] = 2`, and parenthesized compound assignment
+or increment such as `(n) += 1` and `(n)++` pass.
 
 ### [x] Blank final local variables
 

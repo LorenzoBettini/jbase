@@ -330,6 +330,7 @@ XPostfixOperation returns XExpression:
 		=>({XPostfixOperation.operand=current} feature=[types::JvmIdentifiableElement|OpPostfix])
 		|
 		=>({XJArrayAccessExpression.array=current} '[' indexes+=XExpression ']'(=>'[' indexes+=XExpression ']')*)
+		(=>({XJAssignment.assignable=current} OpSingleAssign) value=XAssignment)?
 	)?
 ;
 
