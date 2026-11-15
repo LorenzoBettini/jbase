@@ -574,6 +574,39 @@ public class JbaseSerializerTest extends JbaseAbstractTest {
 			""");
 	}
 
+	@Test
+	public void testMethodResultArraySimpleAssignment() throws Exception {
+		final var source = """
+			String text = "hello";
+			text.toCharArray()[0] = 65;
+			""";
+		assertSerialize(source);
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		assertEquals(source.replaceAll("\\s+", ""),
+			serializer.serialize(copy).replaceAll("\\s+", ""));
+	}
+
+	@Test
+	public void testParenthesizedVariableAssignmentWithoutNodeModel() throws Exception {
+		final var source = "int n = 0;\n(n) = 1;\n";
+		assertSerialize(source);
+		final var parsed = parseHelper.parse(source);
+		validationTestHelper.assertNoErrors(parsed);
+		EcoreUtil.resolveAll(parsed);
+		final var copy = EcoreUtil.copy(parsed);
+		final var resource = parsed.eResource();
+		resource.getContents().clear();
+		resource.getContents().add(copy);
+		assertEquals(source.replaceAll("\\s+", ""),
+			serializer.serialize(copy).replaceAll("\\s+", ""));
+	}
+
 	private void assertSerialize(final CharSequence input) throws Exception {
 		final var o = parseHelper.parse(input);
 		LoggingTester.captureLogging(Level.ERROR, BatchLinkableResource.class,

@@ -14,7 +14,9 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="XJAssignment" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XAssignment #//XJArrayAccess"/>
+  <eClassifiers xsi:type="ecore:EClass" name="XJAssignment" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XAssignment #//XJArrayAccess">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="parenthesized" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="XJVariableDeclaration" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XVariableDeclaration">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="final" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="sourceAnnotations" upperBound="-1"

@@ -171,6 +171,9 @@ XJArrayDeclaratorDimension returns ecore::EString:
 @Override 
 XAssignment returns XExpression :
 	XClosure |
+	=>({XJAssignment} parenthesized?='('
+		feature=[types::JvmIdentifiableElement|FeatureCallID] ')'
+		OpSingleAssign) value=XAssignment |
 	=>({XJAssignment} feature=[types::JvmIdentifiableElement|FeatureCallID] 
 		'[' indexes+=XExpression ']'('[' indexes+=XExpression ']')*
 		OpSingleAssign) value=XAssignment |	
@@ -330,6 +333,7 @@ XPostfixOperation returns XExpression:
 		=>({XPostfixOperation.operand=current} feature=[types::JvmIdentifiableElement|OpPostfix])
 		|
 		=>({XJArrayAccessExpression.array=current} '[' indexes+=XExpression ']'(=>'[' indexes+=XExpression ']')*)
+		(=>({XJAssignment.assignable=current} OpSingleAssign) value=XAssignment)?
 	)?
 ;
 
