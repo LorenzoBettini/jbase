@@ -914,23 +914,23 @@ public class JbaseTypeComputer extends XbaseWithAnnotationsTypeComputer {
 	 * Compute the element type before checking the value so the assignment expression
 	 * has that same type, including when it appears inside another expression.
 	 */
-	private LightweightTypeReference computeJbaseTypes(final XJAssignment assignment,
+	private void computeJbaseTypes(final XJAssignment assignment,
 			final ITypeComputationState state) {
 		if (assignment.isParenthesized()) {
 			super.computeTypes(assignment, state);
-			return null;
+			return;
 		}
 		if (assignment.getAssignable() instanceof XJArrayAccessExpression access) {
 			final var elementType = state.withNonVoidExpectation().computeTypes(access)
 				.getActualExpressionType();
 			state.withExpectation(elementType).computeTypes(assignment.getValue());
 			state.acceptActualType(elementType);
-			return elementType;
+			return;
 		}
 		var candidates = state.getLinkingCandidates(assignment);
 		var best = getBestCandidate(candidates);
 		best.applyToComputationState();
-		return computeTypesOfArrayAccess(assignment, best, state,
+		computeTypesOfArrayAccess(assignment, best, state,
 			XbasePackage.Literals.XASSIGNMENT__ASSIGNABLE);
 	}
 
