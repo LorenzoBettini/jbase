@@ -9,9 +9,9 @@ Require-Bundle: jbase.testlanguage,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  jbase,
- org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ jbase.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: jbase.testlanguage.ide.contentassist.antlr.internal,
  jbase.testlanguage.ide.contentassist.antlr
 Automatic-Module-Name: jbase.testlanguage.ide
-

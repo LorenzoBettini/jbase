@@ -10,7 +10,8 @@ Require-Bundle: jbase,
  org.eclipse.xtext.xbase.ide,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
-Export-Package: jbase.ide.contentassist.antlr,
+Export-Package: jbase.ide.contentassist,
+ jbase.ide.contentassist.antlr,
  jbase.ide.contentassist.antlr.internal
 Automatic-Module-Name: jbase.ide
 

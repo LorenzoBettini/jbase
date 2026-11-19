@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.xtext.example.domainmodel,
  org.eclipse.debug.ui;bundle-version="3.6.0",
  org.eclipse.jdt.debug.ui;bundle-version="3.5.2",
  jbase.ui,
- org.eclipse.xtext.example.domainmodel.ide
+ org.eclipse.xtext.example.domainmodel.ide,
+ jbase.ide
 Bundle-Activator: org.eclipse.xtext.example.domainmodel.ui.internal.DomainmodelActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.apache.log4j;version="1.2.15",

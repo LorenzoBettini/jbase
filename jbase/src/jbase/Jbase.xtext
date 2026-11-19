@@ -122,12 +122,12 @@ XJEmptyStatement returns XExpression:
 ;
 
 XJBranchingStatement returns XExpression:
-	{XJContinueStatement} "continue" (=>label=ID)? |
-	{XJBreakStatement} "break" (=>label=ID)?
+	{XJContinueStatement} "continue" (=>label=ValidID)? |
+	{XJBreakStatement} "break" (=>label=ValidID)?
 ;
 
 XJLabeledStatement returns XExpression:
-	{XJLabeledStatement} name=ID ':' statement=XJStatementOrBlock
+	{XJLabeledStatement} name=ValidID ':' statement=XJStatementOrBlock
 ;
 
 /* 

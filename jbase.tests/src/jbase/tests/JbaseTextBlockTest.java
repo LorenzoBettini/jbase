@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import com.google.inject.Inject;
 
 import jbase.conversion.JbaseTextBlockValueConverter;
+import jbase.conversion.JbasePretranslatedTextBlockValueConverter;
 import jbase.tests.util.Java21JbaseTestlanguageInjectorProvider;
 
 /** Checks both the model value and the value of the emitted native Java text block. */
@@ -55,6 +56,13 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 	private JvmModelGenerator generator;
 
 	private record Example(String literal, String value) {
+	}
+
+	@Test
+	public void optedInConverterDoesNotTranslateSourceAgain() {
+		assertTrue(converter instanceof JbasePretranslatedTextBlockValueConverter);
+		assertEquals("\\u0041\n",
+				converter.normalizedContent("\"\"\"\n  " + "\\u0041" + "\n  \"\"\""));
 	}
 
 	@Test
@@ -234,6 +242,11 @@ public class JbaseTextBlockTest extends JbaseAbstractCompilerTest {
 	@Test(expected = ValueConverterException.class)
 	public void incompleteUnicodeEscapesAreReportedByTheConverter() {
 		converter.toValue("\"\"\"\n\\u", null);
+	}
+
+	@Test(expected = ValueConverterException.class)
+	public void closingDelimiterBeforeTheEndIsRejectedByTheConverter() {
+		converter.toValue("\"\"\"\ncontent\"\"\"trailing", null);
 	}
 
 	@Test
