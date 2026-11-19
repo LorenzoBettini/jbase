@@ -8,11 +8,12 @@
     <relativePath>../jbase.parent/pom.xml</relativePath>
     <groupId>io.github.lorenzobettini.jbase</groupId>
     <artifactId>jbase.parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbase</artifactId>
   <packaging>eclipse-plugin</packaging>
+  <name>Jbase DSL</name>
 
   <properties>
     <sonar.skip>false</sonar.skip>
