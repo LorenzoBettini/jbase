@@ -1,7 +1,9 @@
 # Java escape sequences and Unicode translation
 
-Whole-source Java Unicode translation is **opt in** for DSLs using Jbase. When
-enabled, Jbase translates eligible Unicode escapes before tokenization. Repeated
+Whole-source Java Unicode translation is **opt in** for DSLs using Jbase because
+it adds parsing work and requires reparsing the entire file after each edit. This
+can increase editor latency, especially for large files with many small methods.
+When enabled, Jbase translates eligible Unicode escapes before tokenization. Repeated
 `u` markers are accepted, and backslash eligibility rules prevent escaped
 backslashes from starting a Unicode escape. This makes Unicode escapes work in
 identifiers and source syntax as well as in literals.
@@ -28,9 +30,8 @@ xbaseSupport = jbase.mwe2.generator.JbaseGeneratorFragment2 {
 ```
 
 The Jbase test language enables it. PureJbase, Jbasescript, and `.jbase` use
-the default partial-reparse parser. Whole-source translation reparses the entire
-file after an edit, which can increase editor latency for large files containing
-many small methods. Ordinary Java literal escapes do not require this option.
+the default partial-reparse parser. Ordinary Java literal escapes do not require
+this option.
 
 ## Implementation
 

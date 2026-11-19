@@ -62,8 +62,13 @@ Contributor guides explain the Xbase integration for
 [method and constructor references](docs/METHOD_REFERENCES.md),
 [`instanceof` type patterns](docs/INSTANCEOF_PATTERNS.md),
 [Java 21 switches](docs/ENHANCED_SWITCH.md),
-[Java text blocks](docs/TEXT_BLOCKS.md), and
+[Java text blocks](docs/TEXT_BLOCKS.md),
+[Java escape sequences and Unicode translation](docs/ESCAPE_SEQUENCES.md), and
 [assert statements](docs/ASSERT_STATEMENTS.md).
+
+Whole-source Unicode translation is opt in: it reparses the entire file after
+edits and can increase editor latency. The escape-sequence guide explains how
+to enable it and includes parser benchmarks.
 
 The Jbase SDK that you install in Eclipse comes with (currently small) documentation in Eclipse format.  The same documentation can be [browsed online](http://xtext-jbase.sourceforge.net/jbase-documentation/00-Main.html).
 
