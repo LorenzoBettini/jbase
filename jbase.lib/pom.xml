@@ -13,6 +13,7 @@
 
 	<artifactId>jbase.lib</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<name>Jbase Library</name>
 
 	<dependencies>
 		<dependency>

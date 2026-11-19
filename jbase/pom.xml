@@ -13,6 +13,7 @@
 
   <artifactId>jbase</artifactId>
   <packaging>eclipse-plugin</packaging>
+  <name>Jbase DSL</name>
 
   <properties>
     <sonar.skip>false</sonar.skip>

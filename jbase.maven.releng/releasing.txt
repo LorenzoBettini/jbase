@@ -1,8 +1,13 @@
-To remove the SNAPSHOT/qualifiers before deploying a release to Maven Central,
-first run the following from the root folder of the project
+To remove the SNAPSHOT/qualifiers before uploading a release to Maven Central,
+first run the following from the root folder of the project:
 
 ant -f jbase.parent/ant/increment_versions.ant set-version-release
 
-Then
+Configure a Central Portal user token in Maven's settings.xml under the server ID
+"central". Then, from the root folder, run:
 
-cd jbase.maven.releng && mvn clean deploy -Psonatype-oss-release
+./mvnw -f jbase.maven.releng/pom.xml clean deploy -Psonatype-oss-release
+
+The Central Publishing Maven Plugin uploads a bundle for validation. It does not
+publish the bundle automatically. Review the validated deployment in the Central
+Portal and publish it there when ready.

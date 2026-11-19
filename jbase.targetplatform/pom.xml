@@ -14,6 +14,7 @@
 
   <artifactId>jbase.targetplatform</artifactId>
   <packaging>pom</packaging>
+  <name>Jbase Target Platform</name>
 
   <build>
     <plugins>

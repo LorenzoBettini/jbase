@@ -14,6 +14,7 @@
 
   <artifactId>jbase.maven.releng</artifactId>
   <packaging>pom</packaging>
+  <name>Jbase Maven Release</name>
 
   <modules>
     <module>../jbase.parent</module>

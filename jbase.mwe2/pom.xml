@@ -12,6 +12,7 @@
   </parent>
 
   <artifactId>jbase.mwe2</artifactId>
+  <name>Jbase MWE2</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>

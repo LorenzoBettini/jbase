@@ -18,7 +18,7 @@
   </parent>
 
   <name>Jbase</name>
-  <url>http://xtext-jbase.sf.net</url>
+  <url>https://github.com/LorenzoBettini/jbase</url>
   <description>Jbase: a Customization of Xtext Xbase to deal with pure Java.</description>
 
   <licenses>
@@ -212,8 +212,11 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <configuration>
+              <autoPublish>false</autoPublish>
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -357,16 +360,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
 </project>
