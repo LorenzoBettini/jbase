@@ -231,7 +231,6 @@ implicitly final, and `var` remains valid as a variable or method name.
 We provide an [Oomph setup](https://wiki.eclipse.org/Eclipse_Installer), which is available from the official Oomph catalog.
 
 ## Compiling From Sources
-
 To build Jbase locally, use Java 21 and the Maven wrapper (Maven 3.9.9). The build uses the
 released `xtext-tycho-parent` 0.26.0 and targets Xtext 2.44.0, MWE2 2.27.0, and Eclipse 2026-09.
 From the repository root, run
@@ -249,3 +248,5 @@ If you want to skip tests, you should run the following command instead of the p
 ```
 ./mvnw -f jbase.releng/pom.xml clean verify -DskipTests
 ```
+
+For release steps, see [Releasing Jbase](RELEASING.md).
