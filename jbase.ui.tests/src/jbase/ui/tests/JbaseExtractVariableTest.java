@@ -495,6 +495,10 @@ public class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 		});
 	}
 
+	private static String normalizeNewlines(final String text) {
+		return text.replace("\r", "");
+	}
+
 	private void assertVarUnavailable(final String input,
 			final Class<? extends XExpression> expectedType) throws Exception {
 		final var file = pluginProjectHelper.createTestFile(input.replace("$", ""));
@@ -658,7 +662,8 @@ public class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 				return refactoring.createChange(new NullProgressMonitor())
 						.perform(new NullProgressMonitor());
 			});
-			assertEquals(expected.toString(), editor.getDocument().get());
+			assertEquals(normalizeNewlines(expected.toString()),
+				normalizeNewlines(editor.getDocument().get()));
 		} finally {
 			editor.close(false);
 		}
