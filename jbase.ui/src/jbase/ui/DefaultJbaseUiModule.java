@@ -8,8 +8,10 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeI
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.xbase.ui.DefaultXbaseUiModule;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
+import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableHandler;
 
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
+import jbase.ui.refactoring.internal.JbaseExtractVariableHandler;
 import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
 import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
@@ -38,6 +40,10 @@ public class DefaultJbaseUiModule extends DefaultXbaseUiModule {
 
 	public Class<? extends ExtractVariableRefactoring> bindExtractVariableRefactoring() {
 		return JbaseExtractVariableRefactoring.class;
+	}
+
+	public Class<? extends ExtractVariableHandler> bindExtractVariableHandler() {
+		return JbaseExtractVariableHandler.class;
 	}
 
 	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {

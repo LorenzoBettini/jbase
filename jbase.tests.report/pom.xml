@@ -35,6 +35,7 @@
                 <exclude>**/*UiModule.class</exclude>
                 <exclude>**/*LabelProvider*</exclude>
                 <exclude>**/*TreeProvider*</exclude>
+                <exclude>**/jbase/ui/refactoring/internal/**</exclude>
               </excludes>
             </configuration>
             <executions>

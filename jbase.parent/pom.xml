@@ -83,6 +83,7 @@
       **/JbaseIssueCodes.java,
       **/xtend-gen/**/*.java,
       **/generated-sources/**/*.java,
+      **/jbase/ui/refactoring/internal/**/*.java,
     </sonar.coverage.exclusions>
 
     <!-- By default we exclude all projects from Sonarqube analysis,
@@ -109,7 +110,8 @@
       **/jbase/internal/**,
       **/jbase/serializer/**,
       **/*LabelProvider.*,
-      **/*TreeProvider.*
+      **/*TreeProvider.*,
+      **/jbase/ui/refactoring/internal/**/*.java
     </sonar.exclusions>
 
     <!-- To make SonarQube detect JUnit tests in generated Java code from Xtend -->
