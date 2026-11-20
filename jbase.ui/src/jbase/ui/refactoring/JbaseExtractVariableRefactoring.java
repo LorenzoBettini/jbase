@@ -140,6 +140,11 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 			status.addWarning("Replacing multiple occurrences may change when the expression runs");
 		}
 		multiRewriter = rewriterFactory.create(document, (XtextResource) expression.eResource());
+		writeGroups(monitor, groupMatches(matches));
+		return status;
+	}
+
+	private Map<EObject, List<Match>> groupMatches(final List<Match> matches) {
 		final Map<EObject, List<Match>> groups = new LinkedHashMap<>();
 		final var shareDeclaration = canShareDeclaration(expression);
 		for (final var match : matches) {
@@ -148,6 +153,11 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 				? match.successor().eContainer() : match.successor();
 			groups.computeIfAbsent(key, ignored -> new ArrayList<>()).add(match);
 		}
+		return groups;
+	}
+
+	private void writeGroups(final IProgressMonitor monitor, final Map<EObject, List<Match>> groups)
+			throws OperationCanceledException {
 		var groupNumber = 0;
 		for (final var group : groups.values()) {
 			if (monitor.isCanceled()) {
@@ -157,7 +167,6 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 				: uniqueName(group.getFirst().successor(), groupNumber);
 			writeGroup(group, name);
 		}
-		return status;
 	}
 
 	private String uniqueName(final XExpression successor, final int start) {
