@@ -110,7 +110,8 @@
       **/jbase/internal/**,
       **/jbase/serializer/**,
       **/*LabelProvider.*,
-      **/*TreeProvider.*
+      **/*TreeProvider.*,
+      **/jbase/ui/refactoring/internal/**/*.java
     </sonar.exclusions>
 
     <!-- To make SonarQube detect JUnit tests in generated Java code from Xtend -->
