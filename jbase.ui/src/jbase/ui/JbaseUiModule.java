@@ -4,6 +4,7 @@
 package jbase.ui;
 
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
+import jbase.ui.refactoring.internal.JbaseExtractVariableHandler;
 import jbase.ui.typesystem.JbaseUiSealedTypeResolver;
 import jbase.ui.syntaxcoloring.JbaseHighlightingConfiguration;
 import jbase.ui.syntaxcoloring.JbaseTokenToAttributeIdMapper;
@@ -12,6 +13,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
+import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableHandler;
 
 /**
  * Use this class to register components to be used within the IDE.
@@ -33,6 +35,10 @@ public class JbaseUiModule extends AbstractJbaseUiModule {
 
 	public Class<? extends ExtractVariableRefactoring> bindExtractVariableRefactoring() {
 		return JbaseExtractVariableRefactoring.class;
+	}
+
+	public Class<? extends ExtractVariableHandler> bindExtractVariableHandler() {
+		return JbaseExtractVariableHandler.class;
 	}
 
 	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
