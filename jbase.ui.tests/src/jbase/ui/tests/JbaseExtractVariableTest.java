@@ -450,6 +450,16 @@ public class JbaseExtractVariableTest extends AbstractWorkbenchTest {
 	}
 
 	@Test
+	public void wrapsSameLineStatementWithoutSpaceAfterCondition() throws Exception {
+		assertAfterExtract("if (true)System.out.println($333333$ + 333333);", """
+			if (true) {
+				int i = 333333;
+				System.out.println(i + i);
+			}
+			""".stripTrailing(), false, true, false, false);
+	}
+
+	@Test
 	public void rejectsVarForNullInitializer() throws Exception {
 		assertVarUnavailable("System.out.println($null$);", null);
 	}

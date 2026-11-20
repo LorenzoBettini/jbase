@@ -82,8 +82,8 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 
 	/** Whether the selected expression can initialize a Java {@code var} local. */
 	public boolean canUseVar() {
-		if (expression instanceof XNullLiteral || expression instanceof XClosure
-				|| expression instanceof XJArrayLiteral || expression instanceof XJMethodReference) {
+		if (expression instanceof XNullLiteral || expression instanceof XJMethodReference
+				|| expression instanceof XClosure || expression instanceof XJArrayLiteral) {
 			return false;
 		}
 		final var type = typeResolver.resolveTypes(expression).getActualType(expression);
