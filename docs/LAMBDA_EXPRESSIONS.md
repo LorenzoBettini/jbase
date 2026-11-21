@@ -6,6 +6,14 @@ lambda compiler, and adds the checks needed by Jbase's Java statement syntax.
 Method references also participate in closure inference, but use a dedicated
 subtype and computation strategy; see [Method references](METHOD_REFERENCES.md).
 
+The Eclipse editor offers a Ctrl+1 conversion to a method reference for lambdas
+that simply forward their parameters to one call or constructor. The source
+analysis lives in `JbaseFunctionalConversion` in the runtime `jbase.refactoring`
+package; `JbaseFunctionalConversionValidator` in the same package checks the
+replacement in a copied resource supplied by the caller. `JbaseConversionAssistProcessor`
+in `jbase.ui.refactoring.internal` creates the editor proposal. The direct
+conversion cases are tested in `JbaseFunctionalConversionTest` in `jbase.tests`.
+
 ## Where the implementation lives
 
 | Source | Responsibility |

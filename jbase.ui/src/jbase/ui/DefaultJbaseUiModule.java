@@ -9,6 +9,8 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.xbase.ui.DefaultXbaseUiModule;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableHandler;
+import org.eclipse.xtext.ui.editor.quickfix.XtextQuickAssistProcessor;
+import jbase.ui.refactoring.internal.JbaseConversionAssistProcessor;
 
 import jbase.ui.refactoring.JbaseExtractVariableRefactoring;
 import jbase.ui.refactoring.internal.JbaseExtractVariableHandler;
@@ -44,6 +46,10 @@ public class DefaultJbaseUiModule extends DefaultXbaseUiModule {
 
 	public Class<? extends ExtractVariableHandler> bindExtractVariableHandler() {
 		return JbaseExtractVariableHandler.class;
+	}
+
+	public Class<? extends XtextQuickAssistProcessor> bindXtextQuickAssistProcessor() {
+		return JbaseConversionAssistProcessor.class;
 	}
 
 	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
