@@ -1,11 +1,13 @@
 # Unsupported Java features and known compatibility gaps
 
-Last verified: 2026-10-22.
+Last reviewed: 2026-11-21.
 
-Jbase does **not** currently support the complete Java 21 expression and statement
-language. This backlog includes syntax, validation, and generation gaps found by
-comparing the grammar and implementation with Java SE 21, not just the features
-used by `AllJavaFeaturesTest`.
+All permanent Java 21 expression and statement gaps **identified by the audit below**
+are marked implemented. This does not establish full Java 21 expression conformance:
+the audit and compilation showcase are finite sets of examples, and untested forms
+or combinations may still have parsing, validation, generation, or runtime gaps.
+In particular, qualified `this` and qualified `super` expressions need explicit
+verification before claiming complete coverage of [JLS chapter 15](https://docs.oracle.com/javase/specs/jls/se21/html/jls-15.html).
 
 The audit covers the permanent expression and block/statement language in
 [JLS chapter 14](https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html) and
@@ -25,13 +27,13 @@ compiler; such crashes are recorded as failures, not successful language support
 Generated Java was also inspected where relevant, since compilation alone does
 not establish that values and evaluation behavior are preserved.
 
-This is a confirmed backlog, not a proof of conformance for every combination of
-Java typing, overload resolution, control flow, and run-time semantics. Existing
-positive tests remain evidence of the supported forms listed below.
+The completed items below are confirmed implementations, not a proof of conformance
+for every combination of Java typing, overload resolution, control flow, and
+run-time semantics. Existing positive tests establish the particular forms they cover.
 Completed items are checked. On implementation, add focused regression tests and
 update [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
-## Open gaps from the Java 21 audit
+## Permanent Java 21 audit items
 
 ### [x] Record patterns in `instanceof` and `switch`
 
