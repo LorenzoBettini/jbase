@@ -13,6 +13,10 @@ package; `JbaseFunctionalConversionValidator` in the same package checks the
 replacement in a copied resource supplied by the caller. `JbaseConversionAssistProcessor`
 in `jbase.ui.refactoring.internal` creates the editor proposal. The direct
 conversion cases are tested in `JbaseFunctionalConversionTest` in `jbase.tests`.
+`lambdaBody` unwraps a single block statement, while `callToReference` checks
+that method arguments forward the lambda parameters and that the receiver is a
+type or the first parameter. The validator reparses the replacement, finds the
+closure at the original offset, and compares its target and executable.
 
 ## Where the implementation lives
 

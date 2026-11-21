@@ -44,24 +44,38 @@ public class JbaseFunctionalConversionValidator {
 					.anyMatch(issue -> issue.getSeverity() == Severity.ERROR)) {
 				return false;
 			}
-			for (final var iterator = copy.getAllContents(); iterator.hasNext();) {
-				if (iterator.next() instanceof XClosure candidate) {
-					final var candidateRegion = locations.getFullTextRegion(candidate);
-					if (candidateRegion.getOffset() == region.getOffset()) {
-						final var newFeature = executable(candidate);
-						final var newTarget = typeResolver.resolveTypes(candidate)
-							.getActualType(candidate);
-						return oldTarget.getJavaIdentifier().equals(newTarget.getJavaIdentifier())
-							&& (arrayCreation ? isArrayCreation(candidate)
-								: newFeature != null && oldFeature.getIdentifier()
-									.equals(newFeature.getIdentifier()));
-					}
-				}
-			}
+			return matchingClosurePreservesBinding(copy, region.getOffset(),
+				oldTarget.getJavaIdentifier(), oldFeature, arrayCreation);
 		} catch (Exception exception) {
 			return false;
 		}
+	}
+
+	/** Finds the replacement at the original offset after reparsing. */
+	private boolean matchingClosurePreservesBinding(final XtextResource copy, final int offset,
+			final String targetIdentifier, final JvmIdentifiableElement oldFeature,
+			final boolean arrayCreation) {
+		for (final var iterator = copy.getAllContents(); iterator.hasNext();) {
+			if (iterator.next() instanceof XClosure candidate
+					&& locations.getFullTextRegion(candidate).getOffset() == offset) {
+				return preservesBinding(candidate, targetIdentifier, oldFeature, arrayCreation);
+			}
+		}
 		return false;
+	}
+
+	/** Compares the functional target and the selected executable or array creation. */
+	private boolean preservesBinding(final XClosure candidate, final String targetIdentifier,
+			final JvmIdentifiableElement oldFeature, final boolean arrayCreation) {
+		final var newTarget = typeResolver.resolveTypes(candidate).getActualType(candidate);
+		if (!targetIdentifier.equals(newTarget.getJavaIdentifier())) {
+			return false;
+		}
+		if (arrayCreation) {
+			return isArrayCreation(candidate);
+		}
+		final var newFeature = executable(candidate);
+		return newFeature != null && oldFeature.getIdentifier().equals(newFeature.getIdentifier());
 	}
 
 	private JvmIdentifiableElement executable(final XClosure expression) {

@@ -14,6 +14,9 @@ runtime `jbase.refactoring` package builds the replacement, and
 in `jbase.tests` covers conversion
 shapes and unavailable cases. Bound expression receivers such as `text::trim`
 are excluded because a lambda would move receiver evaluation and its null check.
+`referenceToLambda` delegates constructor and method-call body construction to
+separate helpers. Array constructors require one length parameter, and method
+calls require a type qualifier or `this`/`super` before conversion.
 
 For the shared closure infrastructure, see
 [Lambda expressions](LAMBDA_EXPRESSIONS.md).

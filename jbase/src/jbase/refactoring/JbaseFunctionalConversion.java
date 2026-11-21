@@ -63,28 +63,68 @@ public class JbaseFunctionalConversion {
 			if (!reference.getTypeArguments().isEmpty()) {
 				return null;
 			}
-			body = qualifier.endsWith("[]")
-				? parameters.size() == 1 ? "new " + qualifier.substring(0, qualifier.length() - 2)
-					+ "[" + parameters.getFirst() + "]" : null
-				: "new " + qualifier + "(" + String.join(", ", parameters) + ")";
+			body = constructorBody(qualifier, parameters);
 		} else if (reference.getExecutable() instanceof JvmOperation operation) {
-			if (typeQualifier && !operation.isStatic()) {
-				body = parameters.getFirst() + "." + member + "("
-					+ String.join(", ", parameters.subList(1, parameters.size())) + ")";
-			} else if (typeQualifier || "this".equals(qualifier)
-					|| "super".equals(qualifier)) {
-				body = qualifier + "." + member + "(" + String.join(", ", parameters) + ")";
-			} else {
-				return null;
-			}
+			body = operationBody(qualifier, member, parameters, typeQualifier, operation);
 		} else {
 			return null;
 		}
 		return body == null ? null : "(" + String.join(", ", parameters) + ") -> " + body;
 	}
 
+	/** Builds a constructor invocation, including the single-length array form. */
+	private String constructorBody(final String qualifier, final List<String> parameters) {
+		if (qualifier.endsWith("[]")) {
+			if (parameters.size() != 1) {
+				return null;
+			}
+			return "new " + qualifier.substring(0, qualifier.length() - 2)
+				+ "[" + parameters.getFirst() + "]";
+		}
+		return "new " + qualifier + "(" + String.join(", ", parameters) + ")";
+	}
+
+	/** Builds a call only for a qualifier whose evaluation remains safe after conversion. */
+	private String operationBody(final String qualifier, final String member,
+			final List<String> parameters, final boolean typeQualifier,
+			final JvmOperation operation) {
+		if (typeQualifier && !operation.isStatic()) {
+			return parameters.getFirst() + "." + member + "("
+				+ String.join(", ", parameters.subList(1, parameters.size())) + ")";
+		}
+		if (typeQualifier || "this".equals(qualifier) || "super".equals(qualifier)) {
+			return qualifier + "." + member + "(" + String.join(", ", parameters) + ")";
+		}
+		return null;
+	}
+
 	private String lambdaToReference(final XClosure closure, final String source,
 			final IResolvedTypes types) {
+		final XExpression body = lambdaBody(closure);
+		if (body == null || closure.getDeclaredFormalParameters().stream().anyMatch(
+			parameter -> parameter.getParameterType() != null)) {
+			return null;
+		}
+		if (body instanceof XMemberFeatureCall call && call.getFeature() instanceof JvmOperation operation) {
+			return callToReference(call, operation, closure, source, types);
+		}
+		if (body instanceof XConstructorCall call
+			&& forwarded(call.getArguments(), closure, 0)) {
+			final var expression = text(call, source);
+			return expression.substring(4, expression.indexOf('(')).trim() + "::new";
+		}
+		if (body instanceof XJArrayConstructorCall call && call.getIndexes().size() == 1
+				&& call.getDimensions().size() == 1
+				&& forwarded(call.getIndexes(), closure, 0)) {
+			final var expression = text(call, source);
+			final var start = expression.indexOf('[');
+			return expression.substring(4, start).trim() + "[]::new";
+		}
+		return null;
+	}
+
+	/** Unwraps the single statement allowed in a direct conversion. */
+	private XExpression lambdaBody(final XClosure closure) {
 		XExpression body = closure.getExpression();
 		if (body instanceof XBlockExpression block) {
 			if (block.getExpressions().size() != 1) {
@@ -98,46 +138,33 @@ public class JbaseFunctionalConversion {
 				body = returned.getExpression();
 			}
 		}
-		if (body == null || closure.getDeclaredFormalParameters().stream().anyMatch(
-			parameter -> parameter.getParameterType() != null)) {
+		return body;
+	}
+
+	/** Identifies a type or forwarded receiver without changing the selected operation. */
+	private String callToReference(final XMemberFeatureCall call, final JvmOperation operation,
+			final XClosure closure, final String source, final IResolvedTypes types) {
+		if (!call.getTypeArguments().isEmpty()) {
 			return null;
 		}
-		if (body instanceof XMemberFeatureCall call && call.getFeature() instanceof JvmOperation operation) {
-			if (!call.getTypeArguments().isEmpty()) {
-				return null;
-			}
-			final var arguments = call.getMemberCallArguments();
-			final var receiver = call.getMemberCallTarget();
-			final String qualifier;
+		final var arguments = call.getMemberCallArguments();
+		final var receiver = call.getMemberCallTarget();
+		final String qualifier;
 		if (receiver instanceof XFeatureCall feature && types.getLinkingCandidate(feature).isTypeLiteral()
 				&& forwarded(arguments, closure, 0)) {
-				qualifier = text(receiver, source);
+			qualifier = text(receiver, source);
 			} else if (receiver instanceof XFeatureCall feature
-					&& !closure.getDeclaredFormalParameters().isEmpty()
-					&& feature.getFeature() == closure.getDeclaredFormalParameters().getFirst()
-					&& !operation.isStatic()) {
-				if (!forwarded(arguments, closure, 1)) {
-					return null;
-				}
-				qualifier = types.getActualType(receiver).getJavaIdentifier();
-			} else {
+				&& !closure.getDeclaredFormalParameters().isEmpty()
+				&& feature.getFeature() == closure.getDeclaredFormalParameters().getFirst()
+				&& !operation.isStatic()) {
+			if (!forwarded(arguments, closure, 1)) {
 				return null;
 			}
-			return qualifier + "::" + operation.getSimpleName();
+			qualifier = types.getActualType(receiver).getJavaIdentifier();
+			} else {
+			return null;
 		}
-		if (body instanceof XConstructorCall call
-				&& forwarded(call.getArguments(), closure, 0)) {
-			final var expression = text(call, source);
-			return expression.substring(4, expression.indexOf('(')).trim() + "::new";
-		}
-		if (body instanceof XJArrayConstructorCall call && call.getIndexes().size() == 1
-				&& call.getDimensions().size() == 1
-				&& forwarded(call.getIndexes(), closure, 0)) {
-			final var expression = text(call, source);
-			final var start = expression.indexOf('[');
-			return expression.substring(4, start).trim() + "[]::new";
-		}
-		return null;
+		return qualifier + "::" + operation.getSimpleName();
 	}
 
 	private boolean forwarded(final List<XExpression> arguments, final XClosure closure,
