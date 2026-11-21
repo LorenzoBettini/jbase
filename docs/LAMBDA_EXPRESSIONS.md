@@ -229,8 +229,7 @@ changing a resolver or compiler binding.
 [AllJavaFeaturesTest](../jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java)
 cover the supporting analysis and editor integration.
 
-Follow the repository's `AGENTS.md` build instructions. From the repository root,
-the existing runtime/UI suites and aggregate coverage can be checked with:
+From the repository root, check the runtime/UI suites and aggregate coverage with:
 
 ```sh
 ./mvnw -B -f jbase.releng/pom.xml verify -pl :jbase.tests.report -am -Pjacoco \

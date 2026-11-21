@@ -71,8 +71,13 @@ compares the generated partial parser with the opted-in parser on the same test
 language grammar. It changes one character in a string literal in the middle
 of a file with many small methods. Each median follows 12 warmup edits and 30
 timed edits in the Tycho test JVM. The test checks tree reuse but has no timing
-threshold. Run it from the repository root with `-Dtest=ReparseBenchmarkTest`
-using the focused `jbase.tests` Maven command in `AGENTS.md`.
+threshold. Run it from the repository root with:
+
+```sh
+./mvnw -B -f jbase.releng/pom.xml verify -pl :jbase.tests -am \
+  -Dtest=ReparseBenchmarkTest -DskipMWE2 -DskipXtend \
+  -Dtycho.localArtifacts=ignore -Djgit.dirtyWorkingTree=ignore
+```
 
 | Methods | Source size | Partial parser median | Unicode parser median |
 | ---: | ---: | ---: | ---: |
