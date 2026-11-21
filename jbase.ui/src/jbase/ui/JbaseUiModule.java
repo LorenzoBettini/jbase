@@ -14,6 +14,8 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeI
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableRefactoring;
 import org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableHandler;
+import org.eclipse.xtext.ui.editor.quickfix.XtextQuickAssistProcessor;
+import jbase.ui.refactoring.internal.JbaseConversionAssistProcessor;
 
 /**
  * Use this class to register components to be used within the IDE.
@@ -39,6 +41,10 @@ public class JbaseUiModule extends AbstractJbaseUiModule {
 
 	public Class<? extends ExtractVariableHandler> bindExtractVariableHandler() {
 		return JbaseExtractVariableHandler.class;
+	}
+
+	public Class<? extends XtextQuickAssistProcessor> bindXtextQuickAssistProcessor() {
+		return JbaseConversionAssistProcessor.class;
 	}
 
 	public Class<? extends JbaseSealedTypeResolver> bindJbaseSealedTypeResolver() {
