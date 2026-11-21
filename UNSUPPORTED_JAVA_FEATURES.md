@@ -7,6 +7,10 @@ are marked implemented. This does not establish full Java 21 expression conforma
 the audit and compilation showcase are finite sets of examples, and untested forms
 or combinations may still have parsing, validation, generation, or runtime gaps.
 Qualified `this` and qualified `super` are covered by the focused checks below.
+Java 21 made record patterns and pattern matching for `switch` permanent; both are
+covered below. Its new qualified enum `case` constants are covered by
+`JbaseRecordPatternTest`. No unsupported permanent Java 21 expression syntax is
+currently known within this audit's scope.
 
 The audit covers the permanent expression and block/statement language in
 [JLS chapter 14](https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html) and
@@ -439,39 +443,6 @@ interface Marker {}
 These require separate host syntax, model inference and validation; named local
 class support does not implement them.
 
-## Java 21 preview expression and statement features
-
-These are separate from the permanent Java 21 language baseline. Oracle's
-[Java 21 language changes](https://docs.oracle.com/en/java/javase/21/language/java-language-changes-release.html)
-identify string templates and unnamed patterns and variables as preview features.
-The Java comparison probes for this section used JDK 21 with `--enable-preview --release 21`.
-
-### [ ] String templates
-
-```java
-String value = STR."answer \{1 + 2}";
-```
-
-The processor/template syntax is rejected. Ordinary strings and text blocks are
-supported independently.
-
-### [ ] Full unnamed-pattern and unnamed-variable semantics
-
-Assuming an external record `Point(int x, int y)`:
-
-```java
-Object value = new Point(1, 2);
-if (value instanceof Point(int x, _)) System.out.println(x);
-```
-
-Unnamed component patterns such as the bare `_` above are not parsed. Named record
-patterns are supported. A single unused `_` local or lambda parameter can compile because Jbase renames it to an
-ordinary Java identifier. That alone does not implement the preview feature:
-multiple unnamed declarations in one scope and repeated unnamed lambda parameters
-must be allowed, and reading `_` must be forbidden. Jbase rejects the repeated
-forms as duplicate variables and accepts `int _ = 1; System.out.println(_);`,
-which the Java 21 preview compiler rejects. An unnamed type binding such as
-`value instanceof String _` also fails generated-Java compilation.
 
 ## Completed gaps from the compilation showcase
 
@@ -570,3 +541,38 @@ covers model dimensions, primitive and reference types, generated Java, runtime
 class objects, annotations, and serialization of parsed and edited dimensions.
 Both multidimensional examples also appear in `AllJavaFeaturesTest`.
 
+## Java 21 preview expression and statement features
+
+These are separate from the permanent Java 21 language baseline. Oracle's
+[Java 21 language changes](https://docs.oracle.com/en/java/javase/21/language/java-language-changes-release.html)
+identify string templates and unnamed patterns and variables as preview features.
+The Java comparison probes for this section used JDK 21 with `--enable-preview --release 21`.
+Preview unnamed classes and instance main methods concern compilation-unit and
+member declarations, which are outside this document's expression scope.
+
+### [ ] String templates
+
+```java
+String value = STR."answer \{1 + 2}";
+```
+
+The processor/template syntax is rejected. Ordinary strings and text blocks are
+supported independently.
+
+### [ ] Full unnamed-pattern and unnamed-variable semantics
+
+Assuming an external record `Point(int x, int y)`:
+
+```java
+Object value = new Point(1, 2);
+if (value instanceof Point(int x, _)) System.out.println(x);
+```
+
+Unnamed component patterns such as the bare `_` above are not parsed. Named record
+patterns are supported. A single unused `_` local or lambda parameter can compile because Jbase renames it to an
+ordinary Java identifier. That alone does not implement the preview feature:
+multiple unnamed declarations in one scope and repeated unnamed lambda parameters
+must be allowed, and reading `_` must be forbidden. Jbase rejects the repeated
+forms as duplicate variables and accepts `int _ = 1; System.out.println(_);`,
+which the Java 21 preview compiler rejects. An unnamed type binding such as
+`value instanceof String _` also fails generated-Java compilation.
