@@ -1979,7 +1979,7 @@ public class JbaseValidatorTest extends JbaseAbstractTest {
 			) {
 			\t
 			}
-			"""), "extraneous input ';' expecting ')'");
+			"""), "no viable alternative at input ';'\nmissing EOF at ')'");
 	}
 
 	@Test
