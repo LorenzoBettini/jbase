@@ -100,6 +100,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="arrayDimensions" unique="false" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="XJQualifiedThis" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XMemberFeatureCall"/>
   <eClassifiers xsi:type="ecore:EClass" name="XJSemicolonStatement" eSuperTypes="../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression #//XJWithSemicolon">
     <eStructuralFeatures xsi:type="ecore:EReference" name="expression" eType="ecore:EClass ../../../org.eclipse.xtext.xbase/model/Xbase.ecore#//XExpression"
         containment="true"/>

@@ -69,6 +69,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJClassObject/typeExpression"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Jbase.ecore#//XJClassObject/arrayDimensions"/>
     </genClasses>
+    <genClasses ecoreClass="Jbase.ecore#//XJQualifiedThis"/>
     <genClasses ecoreClass="Jbase.ecore#//XJSemicolonStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Jbase.ecore#//XJSemicolonStatement/expression"/>
     </genClasses>

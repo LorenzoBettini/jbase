@@ -362,6 +362,10 @@ XMemberFeatureCall returns XExpression:
 |
 	=>({XJClassObject.typeExpression=current} (arrayDimensions+=ArrayBrackets)* '.' 'class')
 	|
+	// Retain the distinction from a normal member call when the node model is absent.
+	=>({XJQualifiedThis.memberCallTarget=current} '.'
+		feature=[types::JvmIdentifiableElement|XJThisKeyword])
+	|
 		=>({XAssignment.assignable=current} '.'
 			feature=[types::JvmIdentifiableElement|FeatureCallID] OpSingleAssign)
 				value=XAssignment
@@ -385,6 +389,10 @@ XMemberFeatureCall returns XExpression:
 XJReferenceMember:
 	ValidID | 'new'
 ;
+
+// A dedicated cross-reference text prevents other member calls from taking this branch.
+XJThisKeyword returns ecore::EString:
+	'this';
 
 // Simple names must remain expressions: only linking can distinguish a type
 // name from a local variable. Parameterized and array types are unambiguous.
@@ -756,10 +764,11 @@ XAnnotationElementValue returns XExpression :
 	| XAnnotationOrExpression
 ;
 
-// Java's contextual keyword remains usable as a variable or member name.
+// Contextual keywords remain usable as names. 'this' must remain parseable as a
+// feature call after XJThisKeyword makes it a separate lexer token.
 @Override
 ValidID:
-	ID | 'var' | 'when' | 'yield';
+	ID | 'var' | 'when' | 'yield' | 'this';
 
 // Java radix prefixes and suffixes; retain Xbase's decimal integer and exponent forms.
 @Override

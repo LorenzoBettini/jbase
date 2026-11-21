@@ -56,6 +56,8 @@ reference implementation for the additional steps below.
 
 The reusable, abstract `XJLocalClass` model extends `XExpression` and contains a
 `name` and an `XJAnonymousClassBody` named `body`. It has no Jbase parser rule.
+`XJQualifiedThis` extends Xbase's `XMemberFeatureCall` so the `Outer.this`
+distinction survives copying and serialization of the expression model.
 Extend the block-content rule in the host grammar with a concrete subtype:
 
 ```xtext
@@ -198,7 +200,15 @@ The shared implementation is in:
   for earlier declarations with the same name in enclosing blocks.
 - [`JbaseXbaseCompiler`](../jbase/src/jbase/compiler/JbaseXbaseCompiler.java):
   requests local declarations at their source positions through the class-aware
-  appendable, without injecting the JVM model generator.
+  appendable, without injecting the JVM model generator. It also emits
+  `Outer.this` for a qualified enclosing-instance member call: Xbase links the
+  expression to the enclosing type, but its default feature-call compiler omits it.
+  `compileQualifiedThis` writes the type qualifier and `.this` for `XJQualifiedThis`.
+- [`JbaseSerializerScopeProvider`](../jbase/src/jbase/serializer/JbaseSerializerScopeProvider.java):
+  serializes the linked qualifier as `Outer` and the member as `this`, including
+  when the model has no node model.
+- [`JbaseFormatter`](../jbase/src/jbase/formatting2/JbaseFormatter.java):
+  formats member calls with the generated grammar access for `XJQualifiedThis`.
 - [`JbaseJvmModelGenerator`](../jbase/src/jbase/compiler/JbaseJvmModelGenerator.java):
   emits local declarations, assigns their `this`/`super` scope, and ends them
   without indenting the blank line before the next statement.
@@ -214,14 +224,14 @@ and [`DomainmodelFormatter`](../domainmodel/org.eclipse.xtext.example.domainmode
 
 [`JbaseLocalClassTest`](../jbase.tests/src/jbase/tests/JbaseLocalClassTest.java)
 checks parsing, diagnostics, exact Java, Java compilation, execution, local class
-identity, lexical scope, inheritance, captures, mixed nesting, host constructors
-and serialization with and without node models.
+identity, lexical scope, inheritance, captures, mixed nesting, host constructors,
+qualified `this` and qualified `super`, and serialization with and without node models.
 [`JbaseJvmModelGeneratorTest`](../jbase.tests/src/jbase/tests/JbaseJvmModelGeneratorTest.java)
 also checks the generator's class, interface and nested type paths.
 [`JbaseFormatterTest`](../jbase.tests/src/jbase/tests/JbaseFormatterTest.java)
 checks local declaration formatting, and
 [`AllJavaFeaturesTest`](../jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java)
-includes a named class in its full compilation showcase.
+includes a named class and qualified `this` in its full compilation showcase.
 [`JbaseContentAssistTest`](../jbase.ui.tests/src/jbase/ui/tests/JbaseContentAssistTest.java)
 checks local members, captured-variable completion and names outside their block.
 Domainmodel's

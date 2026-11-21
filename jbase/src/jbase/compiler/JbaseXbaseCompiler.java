@@ -83,6 +83,7 @@ import jbase.jbase.XJLabeledStatement;
 import jbase.jbase.XJLocalClass;
 import jbase.jbase.XJMethodReference;
 import jbase.jbase.XJPrefixOperation;
+import jbase.jbase.XJQualifiedThis;
 import jbase.jbase.XJRecordPattern;
 import jbase.jbase.XJSemicolonStatement;
 import jbase.jbase.XJSwitchExpression;
@@ -433,6 +434,8 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 	protected void internalToConvertedExpression(final XExpression obj,
 			final ITreeAppendable appendable) {
 		switch (obj) {
+			case XJQualifiedThis call ->
+				compileQualifiedThis(call, appendable);
 			case XJAnonymousClass anonymous ->
 				internalToJavaExpression(anonymous.getConstructorCall(), appendable);
 			case XJArrayConstructorCall call -> compileJavaExpression(call, appendable);
@@ -448,6 +451,16 @@ public class JbaseXbaseCompiler extends XbaseCompiler {
 				compileNativeConditional(conditional, appendable);
 			case null, default -> super.internalToConvertedExpression(obj, appendable);
 		}
+	}
+
+	/**
+	 * Xbase links {@code Outer.this} to the enclosing type, but its feature-call
+	 * compiler drops the receiver. The dedicated model subtype retains this syntax
+	 * even after copying or serializing the model.
+	 */
+	private void compileQualifiedThis(final XJQualifiedThis call,
+			final ITreeAppendable appendable) {
+		appendable.append((JvmType) call.getFeature()).append(".this");
 	}
 
 	/**

@@ -6,8 +6,7 @@ All permanent Java 21 expression and statement gaps **identified by the audit be
 are marked implemented. This does not establish full Java 21 expression conformance:
 the audit and compilation showcase are finite sets of examples, and untested forms
 or combinations may still have parsing, validation, generation, or runtime gaps.
-In particular, qualified `this` and qualified `super` expressions need explicit
-verification before claiming complete coverage of [JLS chapter 15](https://docs.oracle.com/javase/specs/jls/se21/html/jls-15.html).
+Qualified `this` and qualified `super` are covered by the focused checks below.
 
 The audit covers the permanent expression and block/statement language in
 [JLS chapter 14](https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html) and
@@ -34,6 +33,23 @@ Completed items are checked. On implementation, add focused regression tests and
 update [AllJavaFeaturesTest](jbase.tests/src/jbase/tests/AllJavaFeaturesTest.java).
 
 ## Permanent Java 21 audit items
+
+### [x] Qualified `this` and qualified `super`
+
+Inside an inner class declared within `Outer`, Java permits `Outer.this.value`,
+`Outer.super.field`, `Outer.super.method()`, and `Outer.super::method`.
+
+**Implemented:** Xbase already links qualified `this` to the enclosing type, but
+its ordinary feature-call compiler omitted the expression. `XJQualifiedThis`
+retains the syntax after model copying; `JbaseXbaseCompiler` emits the linked type
+and `.this`, and `JbaseSerializerScopeProvider` preserves both source names.
+Qualified `super`
+field access, invocation, and method references already compiled and executed
+correctly. `JbaseLocalClassTest` checks the complete generated Java and runtime
+enclosing-instance and super-dispatch behavior, plus serialization without a node
+model; `AllJavaFeaturesTest` includes
+qualified `this` in its compilation showcase. See
+[Local classes](docs/LOCAL_CLASSES.md).
 
 ### [x] Record patterns in `instanceof` and `switch`
 

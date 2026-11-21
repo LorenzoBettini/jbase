@@ -136,6 +136,99 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 	}
 
 	@Test
+	public void qualifiedSuperFieldInvocationAndReference() throws Exception {
+		assertExecuteMain("""
+			method testMe(): void {
+				local Outer extends java.util.Vector<String> {
+					method size(): int { return 99; }
+					method read(): void {
+						local Inner {
+							method call(): int { return Outer.super.size(); }
+							method field(): int { return Outer.super.elementCount; }
+							method reference(): java.util.function.IntSupplier {
+								return Outer.super::size;
+							}
+						}
+						var inner = new Inner();
+						System.out.println(inner.call());
+						System.out.println(inner.field());
+						System.out.println(inner.reference().getAsInt());
+					}
+				}
+				var outer = new Outer();
+				outer.add("x");
+				outer.read();
+			}
+			""", "1\n1\n1\n");
+	}
+
+	@Test
+	public void qualifiedThisGeneratesCompleteJava() throws Exception {
+		checkCompilation("""
+			local Outer {
+				property value: int
+				method get(): int {
+					local Inner {
+						method get(): int { return Outer.this.value; }
+						method outer(): Outer { return Outer.this; }
+					}
+					return new Inner().get();
+				}
+			}
+			var outer = new Outer();
+			outer.value = 42;
+			int result = outer.get();
+			""", """
+			package jbasetestlanguage;
+
+			@SuppressWarnings("all")
+			public class MyFile {
+			  public static void main(String[] args) throws Throwable {
+			    class Outer {
+			      private int value;
+
+			      public int get() {
+			        class Inner {
+			          public int get() {
+			            return Outer.this.value;
+			          }
+
+			          public Outer outer() {
+			            return Outer.this;
+			          }
+			        }
+
+			        return new Inner().get();
+			      }
+			    }
+
+			    var outer = new Outer();
+			    outer.value = 42;
+			    int result = outer.get();
+			  }
+			}
+			""");
+	}
+
+	@Test
+	public void qualifiedThisUsesEnclosingInstanceAtRuntime() throws Exception {
+		assertExecuteMain("""
+			method testMe(): void {
+				local Outer {
+					property value: int
+					method get(): int {
+						local Inner { method get(): int { return Outer.this.value; } }
+						return new Inner().get();
+					}
+				}
+				var outer = new Outer();
+				outer.value = 42;
+				System.out.println(outer.get());
+			}
+			""", "42\n");
+	}
+
+	@Test
 	public void lexicalScope() throws Exception {
 		assertInvalid("Local value = new Local(); local Local {}");
 		assertInvalid("{ local Local {} } Local value = new Local();");
@@ -244,6 +337,7 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 		assertInvalid("local");
 		assertInvalid("local Local {");
 		assertInvalid("class Local {}");
+		assertInvalid("int this = 1;");
 	}
 
 	@Test
@@ -265,7 +359,10 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 			int offset = 40;
 			local Local extends java.util.ArrayList<String> implements java.io.Serializable {
 				method self(): Local { return this; }
-				method get(): int { return offset + 2; }
+				method get(): int {
+					local Inner { method get(): int { return Local.this.size() + offset; } }
+					return new Inner().get();
+				}
 			}
 			Local value = new Local();
 			int result = value.self().get();
@@ -277,7 +374,9 @@ public class JbaseLocalClassTest extends JbaseAbstractCompilerTest {
 		final var resource = model.eResource();
 		resource.getContents().clear();
 		resource.getContents().add(copy);
-		checkCompilation(serializer.serialize(copy), null);
+		final var serializedCopy = serializer.serialize(copy);
+		assertTrue(serializedCopy.contains("Local.this.size()"));
+		checkCompilation(serializedCopy, null);
 	}
 
 	@Test

@@ -211,6 +211,16 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 			}
 			LocalCounter localCounter = new LocalCounter();
 			System.out.println(localCounter.value());
+			local Enclosing {
+				property value: int
+				method read(): int {
+					local Inner { method read(): int { return Enclosing.this.value; } }
+					return new Inner().read();
+				}
+			}
+			var enclosing = new Enclosing();
+			enclosing.value = 42;
+			int enclosingValue = enclosing.read();
 
 			// Branches, all loop forms, break, continue and switch fall-through.
 			if (enabled) count = abs(-1);
@@ -584,6 +594,23 @@ public class AllJavaFeaturesTest extends JbaseAbstractCompilerTest {
 
 			    LocalCounter localCounter = new LocalCounter();
 			    System.out.println(localCounter.value());
+			    class Enclosing {
+			      private int value;
+
+			      public int read() {
+			        class Inner {
+			          public int read() {
+			            return Enclosing.this.value;
+			          }
+			        }
+
+			        return new Inner().read();
+			      }
+			    }
+
+			    var enclosing = new Enclosing();
+			    enclosing.value = 42;
+			    int enclosingValue = enclosing.read();
 			    if (enabled) {
 			      count = Math.abs(-1);
 			    } else {

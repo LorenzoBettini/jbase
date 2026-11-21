@@ -119,11 +119,11 @@ public class JbaseFormatter extends XbaseWithAnnotationsFormatter {
 			if (call.isExplicitOperationCall()) {
 				final var open = format.prepend(
 						regionFor(call).keyword(grammar.getXMemberFeatureCallAccess()
-								.getExplicitOperationCallLeftParenthesisKeyword_1_3_3_0_0()),
+								.getExplicitOperationCallLeftParenthesisKeyword_1_4_3_0_0()),
 						IHiddenRegionFormatter::noSpace);
 				final var close = regionFor(call).keyword(
 						grammar.getXMemberFeatureCallAccess()
-								.getRightParenthesisKeyword_1_3_3_2());
+								.getRightParenthesisKeyword_1_4_3_2());
 				formatFeatureCallParams(call.getMemberCallArguments(), open, close, format);
 			}
 		}
