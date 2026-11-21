@@ -42,7 +42,6 @@ import org.eclipse.xtext.xbase.ui.refactoring.NewFeatureNameUtil;
 import com.google.inject.Inject;
 
 import jbase.jbase.XJArrayLiteral;
-import jbase.jbase.XJMethodReference;
 
 /**
  * Extracts Java local declarations and optionally replaces similar Jbase expressions.
@@ -82,8 +81,8 @@ public class JbaseExtractVariableRefactoring extends ExtractVariableRefactoring 
 
 	/** Whether the selected expression can initialize a Java {@code var} local. */
 	public boolean canUseVar() {
-		if (expression instanceof XNullLiteral || expression instanceof XJMethodReference
-				|| expression instanceof XClosure || expression instanceof XJArrayLiteral) {
+		if (expression instanceof XNullLiteral || expression instanceof XClosure
+				|| expression instanceof XJArrayLiteral) {
 			return false;
 		}
 		final var type = typeResolver.resolveTypes(expression).getActualType(expression);
